@@ -53,7 +53,7 @@ async def test_runtime_pipeline_api_source() -> None:
                 "id": 7,
                 "event_id": "evt-prev",
                 "summary": (
-                    "event=previous hello; response_language=en; context=old context; "
+                    "event=previous hello; memory_kind=continuity; memory_topics=previous,hello; response_language=en; context=old context; "
                     "plan_goal=reply; action=success; expression=Earlier reply"
                 ),
                 "importance": 0.6,
@@ -94,5 +94,7 @@ async def test_runtime_pipeline_api_source() -> None:
     assert result.expression.message == "Mocked OpenAI reply"
     assert result.expression.language == "en"
     assert result.memory_record is not None
+    assert "memory_kind=continuity" in result.memory_record.summary
+    assert "memory_topics=hello" in result.memory_record.summary
     assert "response_language=en" in result.memory_record.summary
     assert result.reflection_triggered is False

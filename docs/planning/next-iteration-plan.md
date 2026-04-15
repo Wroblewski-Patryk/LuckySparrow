@@ -135,10 +135,10 @@ These are small but real issues observed after the production rollout and smoke 
 
 ### 4. Memory Retrieval Ranking
 
-- current repo behavior prefers memories tagged with the same response language as the current turn and ranks them by topical overlap, importance, and recency before using untagged fallback context
+- current repo behavior stores lightweight `memory_kind` and `memory_topics` markers, prefers memories tagged with the same response language as the current turn, and ranks them by mode match, topical overlap, importance, and recency before using untagged fallback context
 - next improvement:
-  - decide whether ranking should also use explicit topic tags, recency windows, or a split between continuity memory and semantic memory instead of pure lexical overlap
-  - consider splitting "conversation continuity" memory from "semantic recall" memory once retrieval grows beyond the latest five rows
+  - decide whether lightweight in-summary metadata is enough for MVP, or whether `memory_kind` and topic fields should become explicit columns before retrieval grows further
+  - consider splitting "conversation continuity" memory from "semantic recall" memory more formally once retrieval grows beyond the latest five rows
   - watch production behavior around short acknowledgements versus specific requests, so continuity memory helps only when it adds signal instead of noise
 
 ### 5. UTF-8 Smoke Test Reliability

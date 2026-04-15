@@ -324,7 +324,7 @@ def test_context_skips_irrelevant_memory_for_specific_request() -> None:
             "id": 23,
             "event_id": "evt-en-11",
             "summary": (
-                "event=deploy the fix now; response_language=en; context=deploy context; "
+                "event=deploy the fix now; memory_kind=semantic; memory_topics=deploy,fix,details; response_language=en; context=deploy context; "
                 "plan_goal=reply; action=success; expression=Please provide the necessary deployment details to proceed."
             ),
             "importance": 0.95,
@@ -351,7 +351,7 @@ def test_context_keeps_memory_for_ambiguous_short_follow_up() -> None:
             "id": 24,
             "event_id": "evt-en-12",
             "summary": (
-                "event=deploy the fix now; response_language=en; context=deploy context; "
+                "event=deploy the fix now; memory_kind=continuity; memory_topics=deploy,fix; response_language=en; context=deploy context; "
                 "plan_goal=reply; action=success; expression=Please provide the necessary deployment details to proceed."
             ),
             "importance": 0.95,
@@ -362,3 +362,81 @@ def test_context_keeps_memory_for_ambiguous_short_follow_up() -> None:
     result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
 
     assert "Relevant recent memory:" in result.summary
+
+
+def test_context_prefers_semantic_memory_for_specific_request_over_continuity() -> None:
+    event = Event(
+        event_id="evt-6",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "deploy the fix to production now"},
+        meta=EventMeta(user_id="u-1", trace_id="t-6"),
+    )
+    recent_memory = [
+        {
+            "id": 25,
+            "event_id": "evt-en-13",
+            "summary": (
+                "event=ok; memory_kind=continuity; memory_topics=; response_language=en; context=continuity context; "
+                "plan_goal=reply; action=success; expression=Please provide the necessary deployment details to proceed."
+            ),
+            "importance": 0.95,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+        {
+            "id": 26,
+            "event_id": "evt-en-14",
+            "summary": (
+                "event=deploy the fix to production; memory_kind=semantic; memory_topics=deploy,fix,production; "
+                "response_language=en; context=semantic context; plan_goal=reply; action=success; "
+                "expression=Let's verify the production deploy steps"
+            ),
+            "importance": 0.7,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+    ]
+
+    result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
+
+    assert "Let's verify the production deploy steps" in result.summary
+    assert "Please provide the necessary deployment details to proceed." not in result.summary
+
+
+def test_context_prefers_continuity_memory_for_short_follow_up() -> None:
+    event = Event(
+        event_id="evt-7",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "ok"},
+        meta=EventMeta(user_id="u-1", trace_id="t-7"),
+    )
+    recent_memory = [
+        {
+            "id": 27,
+            "event_id": "evt-en-15",
+            "summary": (
+                "event=deploy the fix to production; memory_kind=semantic; memory_topics=deploy,fix,production; "
+                "response_language=en; context=semantic context; plan_goal=reply; action=success; "
+                "expression=Let's verify the production deploy steps"
+            ),
+            "importance": 0.9,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+        {
+            "id": 28,
+            "event_id": "evt-en-16",
+            "summary": (
+                "event=ok; memory_kind=continuity; memory_topics=; response_language=en; context=continuity context; "
+                "plan_goal=reply; action=success; expression=Please provide the necessary deployment details to proceed."
+            ),
+            "importance": 0.7,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+    ]
+
+    result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
+
+    assert "Please provide the necessary deployment details to proceed." in result.summary
+    assert "Let's verify the production deploy steps" not in result.summary

@@ -107,6 +107,21 @@ class ContextAgent:
         fields = self._extract_fields(str(memory_item.get("summary", "")))
         return fields.get("response_language") or fields.get("language")
 
+    def _memory_kind(self, memory_item: dict) -> str | None:
+        fields = self._extract_fields(str(memory_item.get("summary", "")))
+        return fields.get("memory_kind")
+
+    def _memory_topics(self, memory_item: dict) -> set[str]:
+        fields = self._extract_fields(str(memory_item.get("summary", "")))
+        topics = fields.get("memory_topics", "")
+        if not topics:
+            return set()
+        return {
+            self._canonical_text(topic)
+            for topic in topics.split(",")
+            if self._canonical_text(topic)
+        }
+
     def _memory_fingerprint(self, memory_item: dict) -> str:
         fields = self._extract_fields(str(memory_item.get("summary", "")))
         event_text = fields.get("event")
@@ -124,20 +139,26 @@ class ContextAgent:
         memory_item: dict,
         current_text: str,
         preferred_language: str,
-    ) -> tuple[float, int, float]:
+        current_mode: str,
+    ) -> tuple[float, float, int, float]:
         fields = self._extract_fields(str(memory_item.get("summary", "")))
         memory_language = self._memory_language(memory_item)
+        memory_kind = self._memory_kind(memory_item)
         event_text = fields.get("event", "")
         current_tokens = self._text_tokens(current_text)
-        memory_tokens = self._text_tokens(event_text)
+        memory_tokens = self._memory_topics(memory_item) or self._text_tokens(event_text)
         overlap = len(current_tokens.intersection(memory_tokens))
         language_bonus = 1.0 if memory_language == preferred_language else 0.4 if memory_language is None else 0.0
+        mode_bonus = 1.0 if memory_kind == current_mode else 0.45 if memory_kind is None else 0.0
         importance = float(memory_item.get("importance", 0.0))
 
-        return (language_bonus, overlap, importance)
+        return (language_bonus, mode_bonus, overlap, importance)
 
     def _should_require_topical_match(self, current_text: str) -> bool:
         return len(self._text_tokens(current_text)) >= 2
+
+    def _current_memory_mode(self, current_text: str) -> str:
+        return "semantic" if self._should_require_topical_match(current_text) else "continuity"
 
     def _select_memory_items(
         self,
@@ -149,9 +170,14 @@ class ContextAgent:
         if not recent_memory:
             return []
 
+        current_mode = self._current_memory_mode(current_text)
         matching = [item for item in recent_memory if self._memory_language(item) == preferred_language]
-        unknown = [item for item in recent_memory if self._memory_language(item) is None]
-        fallback = matching or unknown or recent_memory
+        unknown_language = [item for item in recent_memory if self._memory_language(item) is None]
+        fallback = matching or unknown_language or recent_memory
+
+        mode_matching = [item for item in fallback if self._memory_kind(item) == current_mode]
+        unknown_mode = [item for item in fallback if self._memory_kind(item) is None]
+        fallback = mode_matching or unknown_mode or fallback
 
         scored = [
             (
@@ -161,11 +187,12 @@ class ContextAgent:
                     memory_item=item,
                     current_text=current_text,
                     preferred_language=preferred_language,
+                    current_mode=current_mode,
                 ),
             )
             for index, item in enumerate(fallback)
         ]
-        topical = [entry for entry in scored if entry[2][1] > 0]
+        topical = [entry for entry in scored if entry[2][2] > 0]
         if topical:
             candidate_pool = topical
         elif self._should_require_topical_match(current_text):
