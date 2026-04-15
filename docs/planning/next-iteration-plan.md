@@ -135,9 +135,9 @@ These are small but real issues observed after the production rollout and smoke 
 
 ### 4. Memory Retrieval Ranking
 
-- current repo behavior prefers recent memories tagged with the same response language as the current turn before using untagged fallback context
+- current repo behavior prefers memories tagged with the same response language as the current turn and ranks them by topical overlap, importance, and recency before using untagged fallback context
 - next improvement:
-  - decide whether ranking should also use topic, importance, or recency windows instead of simple language-first selection
+  - decide whether ranking should also use explicit topic tags, recency windows, or a split between continuity memory and semantic memory instead of pure lexical overlap
   - consider splitting "conversation continuity" memory from "semantic recall" memory once retrieval grows beyond the latest five rows
 
 ### 5. UTF-8 Smoke Test Reliability

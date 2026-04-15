@@ -2,12 +2,61 @@ from app.core.contracts import ContextOutput, Event, PerceptionOutput
 
 
 class ContextAgent:
+    STOPWORDS = {
+        "a",
+        "an",
+        "and",
+        "are",
+        "do",
+        "for",
+        "how",
+        "i",
+        "in",
+        "is",
+        "it",
+        "me",
+        "my",
+        "na",
+        "o",
+        "or",
+        "please",
+        "the",
+        "this",
+        "to",
+        "we",
+        "what",
+        "with",
+        "you",
+        "czy",
+        "co",
+        "dla",
+        "i",
+        "jak",
+        "mi",
+        "mnie",
+        "na",
+        "po",
+        "prosze",
+        "sie",
+        "to",
+        "w",
+        "z",
+    }
+
     def _normalize_text(self, value: str) -> str:
         return " ".join(str(value).split())
 
     def _canonical_text(self, value: str) -> str:
         normalized = self._normalize_text(value).lower()
         return "".join(char if char.isalnum() or char.isspace() else " " for char in normalized).strip()
+
+    def _text_tokens(self, value: str) -> set[str]:
+        canonical = self._canonical_text(value)
+        return {
+            token
+            for token in canonical.split()
+            if len(token) >= 3 and token not in self.STOPWORDS
+        }
 
     def _extract_fields(self, raw_summary: str) -> dict[str, str]:
         fields: dict[str, str] = {}
@@ -70,7 +119,30 @@ class ContextAgent:
 
         return f"summary:{self._canonical_text(str(memory_item.get('summary', '')))}"
 
-    def _select_memory_items(self, recent_memory: list[dict], preferred_language: str, limit: int = 2) -> list[dict]:
+    def _memory_relevance_components(
+        self,
+        memory_item: dict,
+        current_text: str,
+        preferred_language: str,
+    ) -> tuple[float, int, float]:
+        fields = self._extract_fields(str(memory_item.get("summary", "")))
+        memory_language = self._memory_language(memory_item)
+        event_text = fields.get("event", "")
+        current_tokens = self._text_tokens(current_text)
+        memory_tokens = self._text_tokens(event_text)
+        overlap = len(current_tokens.intersection(memory_tokens))
+        language_bonus = 1.0 if memory_language == preferred_language else 0.4 if memory_language is None else 0.0
+        importance = float(memory_item.get("importance", 0.0))
+
+        return (language_bonus, overlap, importance)
+
+    def _select_memory_items(
+        self,
+        recent_memory: list[dict],
+        preferred_language: str,
+        current_text: str,
+        limit: int = 2,
+    ) -> list[dict]:
         if not recent_memory:
             return []
 
@@ -78,10 +150,25 @@ class ContextAgent:
         unknown = [item for item in recent_memory if self._memory_language(item) is None]
         fallback = matching or unknown or recent_memory
 
+        scored = [
+            (
+                index,
+                item,
+                self._memory_relevance_components(
+                    memory_item=item,
+                    current_text=current_text,
+                    preferred_language=preferred_language,
+                ),
+            )
+            for index, item in enumerate(fallback)
+        ]
+        topical = [entry for entry in scored if entry[2][1] > 0]
+        candidate_pool = topical or scored
+
         ranked = sorted(
-            enumerate(fallback),
+            candidate_pool,
             key=lambda pair: (
-                float(pair[1].get("importance", 0.0)),
+                pair[2],
                 -pair[0],
             ),
             reverse=True,
@@ -89,7 +176,7 @@ class ContextAgent:
 
         selected: list[dict] = []
         seen_fingerprints: set[str] = set()
-        for _, item in ranked:
+        for _, item, _ in ranked:
             fingerprint = self._memory_fingerprint(item)
             if fingerprint in seen_fingerprints:
                 continue
@@ -104,7 +191,11 @@ class ContextAgent:
         text = str(event.payload.get("text", "")).strip()
         memory_hint = ""
         if recent_memory:
-            selected_memory = self._select_memory_items(recent_memory, preferred_language=perception.language)
+            selected_memory = self._select_memory_items(
+                recent_memory,
+                preferred_language=perception.language,
+                current_text=text,
+            )
             memory_summaries = [
                 self._summarize_memory_item(memory_item)
                 for memory_item in selected_memory

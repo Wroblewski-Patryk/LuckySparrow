@@ -232,3 +232,79 @@ def test_context_deduplicates_near_duplicate_event_memory() -> None:
 
     assert result.summary.count("deploy the fix now") == 1
     assert "deploy checklist" in result.summary
+
+
+def test_context_prefers_more_topically_relevant_memory_over_higher_importance() -> None:
+    event = Event(
+        event_id="evt-2",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "deploy the fix to production now"},
+        meta=EventMeta(user_id="u-1", trace_id="t-2"),
+    )
+    recent_memory = [
+        {
+            "id": 19,
+            "event_id": "evt-en-7",
+            "summary": (
+                "event=write blog post draft; response_language=en; context=old context; "
+                "plan_goal=reply; action=success; expression=Let's outline the article first"
+            ),
+            "importance": 0.95,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+        {
+            "id": 20,
+            "event_id": "evt-en-8",
+            "summary": (
+                "event=deploy the fix to production; response_language=en; context=deploy context; "
+                "plan_goal=reply; action=success; expression=Let's verify the production deploy steps"
+            ),
+            "importance": 0.7,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+    ]
+
+    result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
+
+    assert "deploy the fix to production" in result.summary
+    assert "Let's verify the production deploy steps" in result.summary
+    assert "write blog post draft" not in result.summary
+
+
+def test_context_uses_importance_when_relevance_is_tied() -> None:
+    event = Event(
+        event_id="evt-3",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "status update please"},
+        meta=EventMeta(user_id="u-1", trace_id="t-3"),
+    )
+    recent_memory = [
+        {
+            "id": 21,
+            "event_id": "evt-en-9",
+            "summary": (
+                "event=deployment status update; response_language=en; context=old context; "
+                "plan_goal=reply; action=success; expression=Production looks stable"
+            ),
+            "importance": 0.55,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+        {
+            "id": 22,
+            "event_id": "evt-en-10",
+            "summary": (
+                "event=deployment status update; response_language=en; context=newer context; "
+                "plan_goal=reply; action=success; expression=Production is healthy and all services are up"
+            ),
+            "importance": 0.9,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+    ]
+
+    result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
+
+    assert "Production is healthy and all services are up" in result.summary

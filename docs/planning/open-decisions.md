@@ -39,6 +39,7 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Current repo fact:
   - only the latest five user memory rows are loaded.
   - context now prefers memories tagged with the same response language as the current turn before falling back to untagged older context.
+  - within that pool, context now prefers topically overlapping memories before falling back to lower-signal items.
 - Decision needed:
   - when to add filtering, ranking, summarization, or episodic/semantic split memory?
 
