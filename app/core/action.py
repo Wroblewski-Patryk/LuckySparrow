@@ -10,6 +10,7 @@ from app.core.contracts import (
 )
 from app.integrations.telegram.client import TelegramClient
 from app.memory.repository import MemoryRepository
+from app.utils.preferences import detect_response_style_preference
 
 
 class ActionExecutor:
@@ -60,11 +61,18 @@ class ActionExecutor:
     ) -> MemoryRecord:
         memory_kind = self._memory_kind(event, perception)
         memory_topics = self._memory_topics(event, perception)
+        style_preference = detect_response_style_preference(str(event.payload.get("text", "")))
+        preference_update = (
+            f"response_style:{style_preference.style}"
+            if style_preference is not None
+            else ""
+        )
         summary = (
             f"event={event.payload.get('text', '')}; "
             f"memory_kind={memory_kind}; "
             f"memory_topics={','.join(memory_topics)}; "
             f"response_language={expression.language}; "
+            f"preference_update={preference_update}; "
             f"context={context.summary}; "
             f"plan_goal={plan.goal}; "
             f"action={action_result.status}; "
@@ -88,6 +96,16 @@ class ActionExecutor:
                 language_code=expression.language,
                 confidence=perception.language_confidence,
                 source=perception.language_source,
+            )
+
+        if style_preference is not None:
+            await self.memory_repository.upsert_conclusion(
+                user_id=event.meta.user_id,
+                kind="response_style",
+                content=style_preference.style,
+                confidence=style_preference.confidence,
+                source=style_preference.source,
+                supporting_event_id=event.event_id,
             )
 
         return MemoryRecord(

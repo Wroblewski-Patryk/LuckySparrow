@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from app.memory.models import AionMemory, AionProfile, Base
+from app.memory.models import AionConclusion, AionMemory, AionProfile, Base
 
 
 class MemoryRepository:
@@ -83,6 +83,29 @@ class MemoryRepository:
             "updated_at": row.updated_at,
         }
 
+    async def get_user_runtime_preferences(self, user_id: str) -> dict:
+        async with self.session_factory() as session:
+            statement = (
+                select(AionConclusion)
+                .where(
+                    AionConclusion.user_id == user_id,
+                    AionConclusion.kind == "response_style",
+                )
+                .limit(1)
+            )
+            result = await session.execute(statement)
+            row = result.scalar_one_or_none()
+
+        if row is None:
+            return {}
+
+        return {
+            "response_style": row.content,
+            "response_style_confidence": row.confidence,
+            "response_style_source": row.source,
+            "response_style_updated_at": row.updated_at,
+        }
+
     async def upsert_user_profile_language(
         self,
         user_id: str,
@@ -127,6 +150,68 @@ class MemoryRepository:
             "updated_at": row.updated_at,
         }
 
+    async def upsert_conclusion(
+        self,
+        user_id: str,
+        kind: str,
+        content: str,
+        confidence: float,
+        source: str,
+        supporting_event_id: str | None = None,
+    ) -> dict:
+        async with self.session_factory() as session:
+            statement = (
+                select(AionConclusion)
+                .where(
+                    AionConclusion.user_id == user_id,
+                    AionConclusion.kind == kind,
+                )
+                .limit(1)
+            )
+            result = await session.execute(statement)
+            row = result.scalar_one_or_none()
+
+            if row is None:
+                row = AionConclusion(
+                    user_id=user_id,
+                    kind=kind,
+                    content=content,
+                    confidence=confidence,
+                    source=source,
+                    supporting_event_id=supporting_event_id,
+                )
+                session.add(row)
+            elif self._should_update_conclusion(
+                current_content=row.content,
+                current_confidence=row.confidence,
+                next_content=content,
+                next_confidence=confidence,
+                source=source,
+            ):
+                updated_confidence = self._next_conclusion_confidence(
+                    current_content=row.content,
+                    current_confidence=row.confidence,
+                    next_content=content,
+                    next_confidence=confidence,
+                )
+                row.content = content
+                row.confidence = updated_confidence
+                row.source = source
+                row.supporting_event_id = supporting_event_id
+
+            await session.commit()
+            await session.refresh(row)
+
+        return {
+            "user_id": row.user_id,
+            "kind": row.kind,
+            "content": row.content,
+            "confidence": row.confidence,
+            "source": row.source,
+            "supporting_event_id": row.supporting_event_id,
+            "updated_at": row.updated_at,
+        }
+
     def _should_update_language_profile(
         self,
         current_language: str,
@@ -151,5 +236,30 @@ class MemoryRepository:
         next_confidence: float,
     ) -> float:
         if current_language == next_language:
+            return min(0.99, max(current_confidence, next_confidence))
+        return next_confidence
+
+    def _should_update_conclusion(
+        self,
+        current_content: str,
+        current_confidence: float,
+        next_content: str,
+        next_confidence: float,
+        source: str,
+    ) -> bool:
+        if current_content == next_content:
+            return True
+        if source == "explicit_request":
+            return True
+        return next_confidence >= current_confidence
+
+    def _next_conclusion_confidence(
+        self,
+        current_content: str,
+        current_confidence: float,
+        next_content: str,
+        next_confidence: float,
+    ) -> float:
+        if current_content == next_content:
             return min(0.99, max(current_confidence, next_confidence))
         return next_confidence

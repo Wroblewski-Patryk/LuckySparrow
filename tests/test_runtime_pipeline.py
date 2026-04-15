@@ -16,12 +16,17 @@ class FakeMemoryRepository:
         self.recent_memory = recent_memory or []
         self.user_profile = user_profile
         self.profile_updates: list[dict] = []
+        self.conclusion_updates: list[dict] = []
+        self.user_preferences: dict = {}
 
     async def get_recent_for_user(self, user_id: str, limit: int = 5) -> list[dict]:
         return self.recent_memory[:limit]
 
     async def get_user_profile(self, user_id: str) -> dict | None:
         return self.user_profile
+
+    async def get_user_runtime_preferences(self, user_id: str) -> dict:
+        return self.user_preferences
 
     async def write_episode(self, **kwargs) -> dict:
         return {
@@ -36,6 +41,10 @@ class FakeMemoryRepository:
         self.profile_updates.append(kwargs)
         return kwargs
 
+    async def upsert_conclusion(self, **kwargs) -> dict:
+        self.conclusion_updates.append(kwargs)
+        return kwargs
+
 
 class FakeTelegramClient:
     async def send_message(self, chat_id: int | str, text: str) -> dict:
@@ -43,15 +52,30 @@ class FakeTelegramClient:
 
 
 class FakeOpenAIClient:
+    def __init__(self):
+        self.calls: list[dict[str, str]] = []
+
     async def generate_reply(
         self,
         user_text: str,
         context_summary: str,
         role_name: str,
         response_language: str,
+        response_style: str | None,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
+        self.calls.append(
+            {
+                "user_text": user_text,
+                "context_summary": context_summary,
+                "role_name": role_name,
+                "response_language": response_language,
+                "response_style": response_style or "",
+                "plan_goal": plan_goal,
+                "motivation_mode": motivation_mode,
+            }
+        )
         return "Mocked OpenAI reply"
 
 
@@ -71,13 +95,14 @@ async def test_runtime_pipeline_api_source() -> None:
         ]
     )
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
         context_agent=ContextAgent(),
         motivation_engine=MotivationEngine(),
         role_agent=RoleAgent(),
         planning_agent=PlanningAgent(),
-        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        expression_agent=ExpressionAgent(openai_client=openai),
         action_executor=action,
         memory_repository=memory,
     )
@@ -110,6 +135,7 @@ async def test_runtime_pipeline_api_source() -> None:
     assert "response_language=en" in result.memory_record.summary
     assert result.reflection_triggered is False
     assert memory.profile_updates == []
+    assert openai.calls[0]["response_style"] == ""
 
 
 async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_without_recent_memory() -> None:
@@ -118,13 +144,14 @@ async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_wi
         user_profile={"preferred_language": "pl", "language_confidence": 0.92, "language_source": "explicit_request"},
     )
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
         context_agent=ContextAgent(),
         motivation_engine=MotivationEngine(),
         role_agent=RoleAgent(),
         planning_agent=PlanningAgent(),
-        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        expression_agent=ExpressionAgent(openai_client=openai),
         action_executor=action,
         memory_repository=memory,
     )
@@ -145,3 +172,35 @@ async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_wi
     assert result.expression.language == "pl"
     assert result.context.related_tags == ["general", "language:pl"]
     assert memory.profile_updates == []
+    assert openai.calls[0]["response_style"] == ""
+
+
+async def test_runtime_pipeline_applies_structured_response_preference_from_conclusion_memory() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.user_preferences = {"response_style": "structured", "response_style_source": "explicit_request"}
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+    )
+
+    event = Event(
+        event_id="evt-3",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "How should we deploy this?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-3"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.expression.message == "Mocked OpenAI reply"
+    assert openai.calls[0]["response_style"] == "structured"

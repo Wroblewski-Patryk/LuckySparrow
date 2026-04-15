@@ -17,6 +17,7 @@ class OpenAIClient:
         context_summary: str,
         role_name: str,
         response_language: str,
+        response_style: str | None,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
@@ -35,8 +36,10 @@ class OpenAIClient:
                             f"The current response mode is '{motivation_mode}'. "
                             f"The immediate goal is '{plan_goal}'. "
                             f"The preferred response language is '{language_name(response_language)}'. "
+                            f"The user's stable response style preference is '{response_style or 'default'}'. "
                             "Respond clearly, preserve momentum, use the context summary when useful, "
-                            "and stay in the preferred response language unless the user explicitly asks to switch."
+                            "stay in the preferred response language unless the user explicitly asks to switch, "
+                            "and honor the response style preference when it is present."
                         ),
                     },
                     {
@@ -44,7 +47,7 @@ class OpenAIClient:
                         "content": f"Context: {context_summary}\n\nUser message: {user_text}",
                     },
                 ],
-                max_output_tokens=220,
+                max_output_tokens=120 if response_style == "concise" else 220,
             )
         except Exception as exc:  # pragma: no cover - defensive network fallback
             self.logger.warning("openai_request_failed model=%s error=%s", self.model, exc)

@@ -108,6 +108,13 @@ AION uses:
 - PostgreSQL for structured data  
 - pgvector for semantic retrieval  
 
+Current MVP status:
+
+- episodic memory is stored in PostgreSQL
+- lightweight identity-linked preferences are stored in `aion_profile`
+- first semantic preference conclusions are stored in `aion_conclusion`
+- vector retrieval is still planned, not live
+
 ---
 
 ## Memory Lifecycle

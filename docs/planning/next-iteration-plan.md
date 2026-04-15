@@ -131,7 +131,7 @@ These are small but real issues observed after the production rollout and smoke 
 - current repo behavior selects a response language per event, carries it through runtime, persists language hints in memory for ambiguous follow-up turns, and now stores a lightweight preferred language in `aion_profile` for ambiguous turns without useful recent memory
 - next improvement:
   - expand beyond keyword heuristics if real traffic shows mixed-language or multilingual false positives
-  - decide whether profile state should also remember response-style preferences once the runtime starts observing stronger user-specific patterns
+  - decide whether language preference should remain event-driven plus profile fallback, or become a stronger user-level contract once more channels are added
 
 ### 4. Memory Retrieval Ranking
 
@@ -146,8 +146,16 @@ These are small but real issues observed after the production rollout and smoke 
 
 - current repo behavior keeps a small `aion_profile` table with preferred language updated only from explicit or higher-confidence language signals, so weak fallbacks do not reinforce themselves
 - next improvement:
-  - decide whether stable preferences such as response length, tone, or channel habits belong in the same profile state
+  - decide whether stable preferences such as tone or channel habits belong in the same profile state
   - decide when durable profile updates should move from synchronous action-time writes into a more reflective conclusion/consolidation path
+
+### 7. Semantic Conclusion Memory
+
+- current repo behavior now keeps a first lightweight `aion_conclusion` record for explicit `response_style` preferences such as `concise` or `structured`, and the expression layer uses that preference in both fallback generation and OpenAI prompting
+- next improvement:
+  - widen conclusion memory beyond explicit requests into repeated-pattern learning once there is enough traffic signal
+  - decide whether conclusions should start carrying supporting memory ids and richer provenance before the subconscious loop exists
+  - consider feeding stable semantic preferences back into planning/context, not only expression
 
 ### 5. UTF-8 Smoke Test Reliability
 

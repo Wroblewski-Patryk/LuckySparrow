@@ -19,6 +19,7 @@ class NoReplyOpenAI:
         context_summary: str,
         role_name: str,
         response_language: str,
+        response_style: str | None,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
@@ -35,6 +36,7 @@ class ReplyOpenAI:
         context_summary: str,
         role_name: str,
         response_language: str,
+        response_style: str | None,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
@@ -44,6 +46,7 @@ class ReplyOpenAI:
                 "context_summary": context_summary,
                 "role_name": role_name,
                 "response_language": response_language,
+                "response_style": response_style or "",
                 "plan_goal": plan_goal,
                 "motivation_mode": motivation_mode,
             }
@@ -113,6 +116,21 @@ async def test_expression_uses_runtime_language_for_fallback() -> None:
     assert result.language == "pl"
 
 
+async def test_expression_applies_concise_preference_to_fallback() -> None:
+    agent = ExpressionAgent(openai_client=NoReplyOpenAI())
+    result = await agent.run(
+        _event("I feel stressed and overwhelmed"),
+        _perception(language="en"),
+        _context(),
+        _plan(),
+        _role(selected="friend"),
+        _motivation(mode="support"),
+        user_preferences={"response_style": "concise"},
+    )
+
+    assert result.message == "That sounds heavy."
+
+
 async def test_expression_uses_supportive_fallback_for_emotional_messages() -> None:
     agent = ExpressionAgent(openai_client=NoReplyOpenAI())
     result = await agent.run(
@@ -147,7 +165,24 @@ async def test_expression_uses_openai_when_available() -> None:
             "context_summary": "ctx",
             "role_name": "advisor",
             "response_language": "en",
+            "response_style": "",
             "plan_goal": "reply",
             "motivation_mode": "respond",
         }
     ]
+
+
+async def test_expression_passes_structured_preference_to_openai() -> None:
+    openai = ReplyOpenAI()
+    agent = ExpressionAgent(openai_client=openai)
+    await agent.run(
+        _event("hello"),
+        _perception(language="en"),
+        _context(),
+        _plan(),
+        _role(),
+        _motivation(),
+        user_preferences={"response_style": "structured"},
+    )
+
+    assert openai.calls[0]["response_style"] == "structured"
