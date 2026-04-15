@@ -20,6 +20,8 @@ def _perception() -> PerceptionOutput:
         event_type="statement",
         topic="general",
         intent="share_information",
+        language="en",
+        language_confidence=0.8,
         ambiguity=0.1,
         initial_salience=0.5,
     )
@@ -29,6 +31,7 @@ def test_context_summary_stays_simple_without_recent_memory() -> None:
     result = ContextAgent().run(event=_event(), perception=_perception(), recent_memory=[])
 
     assert result.summary == "User said: 'hello' with detected intent 'share_information'."
+    assert result.related_tags == ["general", "language:en"]
 
 
 def test_context_summary_includes_recent_memory_signal() -> None:

@@ -1,6 +1,14 @@
 from datetime import datetime, timezone
 
-from app.core.contracts import ContextOutput, Event, EventMeta, MotivationOutput, PlanOutput, RoleOutput
+from app.core.contracts import (
+    ContextOutput,
+    Event,
+    EventMeta,
+    MotivationOutput,
+    PerceptionOutput,
+    PlanOutput,
+    RoleOutput,
+)
 from app.expression.generator import ExpressionAgent
 
 
@@ -10,6 +18,7 @@ class NoReplyOpenAI:
         user_text: str,
         context_summary: str,
         role_name: str,
+        response_language: str,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
@@ -25,6 +34,7 @@ class ReplyOpenAI:
         user_text: str,
         context_summary: str,
         role_name: str,
+        response_language: str,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
@@ -33,6 +43,7 @@ class ReplyOpenAI:
                 "user_text": user_text,
                 "context_summary": context_summary,
                 "role_name": role_name,
+                "response_language": response_language,
                 "plan_goal": plan_goal,
                 "motivation_mode": motivation_mode,
             }
@@ -40,36 +51,14 @@ class ReplyOpenAI:
         return "OpenAI response"
 
 
-def _event() -> Event:
+def _event(text: str = "hello") -> Event:
     return Event(
         event_id="evt-1",
         source="api",
         subsource="event_endpoint",
         timestamp=datetime.now(timezone.utc),
-        payload={"text": "hello"},
-        meta=EventMeta(user_id="u-1", trace_id="t-1"),
-    )
-
-
-def _emotional_event() -> Event:
-    return Event(
-        event_id="evt-2",
-        source="api",
-        subsource="event_endpoint",
-        timestamp=datetime.now(timezone.utc),
-        payload={"text": "I feel stressed and overwhelmed"},
-        meta=EventMeta(user_id="u-1", trace_id="t-2"),
-    )
-
-
-def _polish_event(text: str = "zrób plan wdrożenia") -> Event:
-    return Event(
-        event_id="evt-3",
-        source="api",
-        subsource="event_endpoint",
-        timestamp=datetime.now(timezone.utc),
         payload={"text": text},
-        meta=EventMeta(user_id="u-1", trace_id="t-3"),
+        meta=EventMeta(user_id="u-1", trace_id="t-1"),
     )
 
 
@@ -77,23 +66,25 @@ def _context() -> ContextOutput:
     return ContextOutput(summary="ctx", related_goals=[], related_tags=["general"], risk_level=0.1)
 
 
-def _motivation() -> MotivationOutput:
+def _perception(language: str = "en") -> PerceptionOutput:
+    return PerceptionOutput(
+        event_type="statement",
+        topic="general",
+        intent="share_information",
+        language=language,
+        language_confidence=0.8,
+        ambiguity=0.1,
+        initial_salience=0.5,
+    )
+
+
+def _motivation(mode: str = "respond") -> MotivationOutput:
     return MotivationOutput(
         importance=0.5,
         urgency=0.2,
         valence=0.1,
         arousal=0.4,
-        mode="respond",
-    )
-
-
-def _support_motivation() -> MotivationOutput:
-    return MotivationOutput(
-        importance=0.8,
-        urgency=0.5,
-        valence=-0.4,
-        arousal=0.7,
-        mode="support",
+        mode=mode,
     )
 
 
@@ -101,58 +92,59 @@ def _plan() -> PlanOutput:
     return PlanOutput(goal="reply", steps=["reply"], needs_action=False, needs_response=True)
 
 
-def _role() -> RoleOutput:
-    return RoleOutput(selected="advisor", confidence=0.8)
+def _role(selected: str = "advisor") -> RoleOutput:
+    return RoleOutput(selected=selected, confidence=0.8)
 
 
-async def test_expression_falls_back_to_echo() -> None:
+async def test_expression_uses_runtime_language_for_fallback() -> None:
     agent = ExpressionAgent(openai_client=NoReplyOpenAI())
-    result = await agent.run(_event(), _context(), _plan(), _role(), _motivation())
-    assert result.message == "I'm here and ready to help. reply"
+    result = await agent.run(
+        _event("ok"),
+        _perception(language="pl"),
+        _context(),
+        _plan(),
+        _role(selected="executor"),
+        _motivation(mode="execute"),
+    )
+
+    assert result.message.startswith("Jasne, lecimy z tym.")
+    assert result.language == "pl"
 
 
 async def test_expression_uses_supportive_fallback_for_emotional_messages() -> None:
     agent = ExpressionAgent(openai_client=NoReplyOpenAI())
     result = await agent.run(
-        _emotional_event(),
+        _event("I feel stressed and overwhelmed"),
+        _perception(language="en"),
         _context(),
         _plan(),
-        RoleOutput(selected="friend", confidence=0.8),
-        _support_motivation(),
+        _role(selected="friend"),
+        _motivation(mode="support"),
     )
 
     assert "one step at a time" in result.message
-
-
-async def test_expression_uses_polish_fallback_for_polish_input() -> None:
-    agent = ExpressionAgent(openai_client=NoReplyOpenAI())
-    result = await agent.run(
-        _polish_event(),
-        _context(),
-        _plan(),
-        RoleOutput(selected="executor", confidence=0.8),
-        MotivationOutput(
-            importance=0.8,
-            urgency=0.8,
-            valence=0.0,
-            arousal=0.7,
-            mode="execute",
-        ),
-    )
-
-    assert result.message.startswith("Jasne, lecimy z tym.")
+    assert result.language == "en"
 
 
 async def test_expression_uses_openai_when_available() -> None:
     openai = ReplyOpenAI()
     agent = ExpressionAgent(openai_client=openai)
-    result = await agent.run(_event(), _context(), _plan(), _role(), _motivation())
+    result = await agent.run(
+        _event("hello"),
+        _perception(language="en"),
+        _context(),
+        _plan(),
+        _role(),
+        _motivation(),
+    )
     assert result.message == "OpenAI response"
+    assert result.language == "en"
     assert openai.calls == [
         {
             "user_text": "hello",
             "context_summary": "ctx",
             "role_name": "advisor",
+            "response_language": "en",
             "plan_goal": "reply",
             "motivation_mode": "respond",
         }

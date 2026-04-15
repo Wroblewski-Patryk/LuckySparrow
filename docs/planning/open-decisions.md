@@ -60,6 +60,6 @@ The current repo already works as an MVP slice, but several architecture-level d
 ### 8. Language Handling Strategy
 
 - Current repo fact:
-  - lightweight runtime heuristics and fallback responses now handle both English and Polish user messages.
+  - runtime now makes an explicit per-event language decision, propagates it through perception and expression, and stores response-language hints in memory for short follow-up turns.
 - Decision needed:
-  - should language handling stay heuristic for the MVP, or should it move to a more explicit user-language preference and broader multilingual support once more channels are added?
+  - should language handling stay heuristic for the MVP, or should it move to an explicit user-language preference and broader multilingual support once more channels are added?

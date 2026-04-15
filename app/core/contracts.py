@@ -22,6 +22,8 @@ class PerceptionOutput(BaseModel):
     event_type: str
     topic: str
     intent: str
+    language: str
+    language_confidence: float
     ambiguity: float
     initial_salience: float
 
@@ -63,6 +65,7 @@ class ExpressionOutput(BaseModel):
     message: str
     tone: str
     channel: str
+    language: str
 
 
 class MemoryRecord(BaseModel):

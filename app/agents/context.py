@@ -65,6 +65,6 @@ class ContextAgent:
         return ContextOutput(
             summary=summary,
             related_goals=[],
-            related_tags=[perception.topic],
+            related_tags=[perception.topic, f"language:{perception.language}"],
             risk_level=risk_level,
         )

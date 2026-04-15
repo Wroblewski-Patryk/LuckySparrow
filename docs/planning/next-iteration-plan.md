@@ -128,7 +128,7 @@ These are small but real issues observed after the production rollout and smoke 
 
 ### 3. Runtime Language Coverage
 
-- current repo behavior supports lightweight English and Polish heuristics in runtime role/motivation selection and fallback responses
+- current repo behavior selects a response language per event, carries it through runtime, and persists language hints in memory for ambiguous follow-up turns
 - next improvement:
   - decide whether to store a preferred user language in memory or profile state
   - expand beyond keyword heuristics if real traffic shows mixed-language or multilingual false positives

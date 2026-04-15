@@ -1,6 +1,7 @@
 from openai import AsyncOpenAI
 
 from app.core.logging import get_logger
+from app.utils.language import language_name
 
 
 class OpenAIClient:
@@ -15,6 +16,7 @@ class OpenAIClient:
         user_text: str,
         context_summary: str,
         role_name: str,
+        response_language: str,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
@@ -32,8 +34,9 @@ class OpenAIClient:
                             f"Your current interaction role is '{role_name}'. "
                             f"The current response mode is '{motivation_mode}'. "
                             f"The immediate goal is '{plan_goal}'. "
+                            f"The preferred response language is '{language_name(response_language)}'. "
                             "Respond clearly, preserve momentum, use the context summary when useful, "
-                            "and reply in the same language as the user message."
+                            "and stay in the preferred response language unless the user explicitly asks to switch."
                         ),
                     },
                     {

@@ -15,11 +15,13 @@ def _event(text: str) -> Event:
     )
 
 
-def _perception(event_type: str, topic: str, intent: str) -> PerceptionOutput:
+def _perception(event_type: str, topic: str, intent: str, language: str = "en") -> PerceptionOutput:
     return PerceptionOutput(
         event_type=event_type,
         topic=topic,
         intent=intent,
+        language=language,
+        language_confidence=0.8,
         ambiguity=0.1,
         initial_salience=0.5,
     )
@@ -71,8 +73,8 @@ def test_role_agent_uses_mentor_for_general_questions() -> None:
 
 def test_role_agent_handles_polish_executor_request() -> None:
     result = RoleAgent().run(
-        event=_event("wdroż poprawkę na produkcję"),
-        perception=_perception("statement", "general", "share_information"),
+        event=_event("wdroz poprawke na produkcje"),
+        perception=_perception("statement", "general", "share_information", language="pl"),
         context=_context(),
     )
 

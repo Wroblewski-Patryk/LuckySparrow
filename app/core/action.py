@@ -55,6 +55,7 @@ class ActionExecutor:
     ) -> MemoryRecord:
         summary = (
             f"event={event.payload.get('text', '')}; "
+            f"response_language={expression.language}; "
             f"context={context.summary}; "
             f"plan_goal={plan.goal}; "
             f"action={action_result.status}; "

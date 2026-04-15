@@ -1,0 +1,54 @@
+from datetime import datetime, timezone
+
+from app.agents.perception import PerceptionAgent
+from app.core.contracts import Event, EventMeta
+from app.utils.language import detect_language
+
+
+def _event(text: str) -> Event:
+    return Event(
+        event_id="evt-1",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": text},
+        meta=EventMeta(user_id="u-1", trace_id="t-1"),
+    )
+
+
+def test_detect_language_prefers_explicit_request() -> None:
+    result = detect_language("Reply in Polish, please.")
+
+    assert result.code == "pl"
+    assert result.source == "explicit_request"
+
+
+def test_detect_language_uses_recent_memory_for_short_follow_up() -> None:
+    result = detect_language(
+        "ok",
+        recent_memory=[
+            {"summary": "event=hej; response_language=pl; expression=Jasne, robimy to."},
+        ],
+    )
+
+    assert result.code == "pl"
+    assert result.source == "recent_memory"
+
+
+def test_perception_agent_propagates_detected_language() -> None:
+    perception = PerceptionAgent().run(_event("How should we deploy this?"), recent_memory=[])
+
+    assert perception.language == "en"
+    assert perception.language_confidence >= 0.5
+
+
+def test_perception_agent_uses_memory_language_for_ambiguous_text() -> None:
+    perception = PerceptionAgent().run(
+        _event("dalej"),
+        recent_memory=[
+            {"summary": "event=czesc; response_language=pl; expression=Jasne, lecimy dalej."},
+        ],
+    )
+
+    assert perception.language == "pl"
+    assert perception.language_confidence >= 0.7

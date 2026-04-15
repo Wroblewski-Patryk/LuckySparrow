@@ -1,10 +1,11 @@
 from app.core.contracts import ContextOutput, Event, MotivationOutput
+from app.utils.language import normalize_for_matching
 
 
 class MotivationEngine:
     def run(self, event: Event, context: ContextOutput) -> MotivationOutput:
         text = str(event.payload.get("text", "")).strip()
-        lowered = text.lower()
+        lowered = normalize_for_matching(text)
 
         if not text:
             return MotivationOutput(
@@ -29,11 +30,8 @@ class MotivationEngine:
             "zestresowany",
             "zestresowana",
             "przytloczony",
-            "przytłoczony",
             "przytloczona",
-            "przytłoczona",
             "zmeczony",
-            "zmęczony",
             "samotny",
             "samotna",
             "zdenerwowany",
@@ -68,11 +66,8 @@ class MotivationEngine:
             "analiza",
             "przeanalizuj",
             "porownaj",
-            "porównaj",
             "wyjasnij",
-            "wyjaśnij",
             "sprawdz",
-            "sprawdź",
             "zaplanuj",
         }
         execution_keywords = {
@@ -86,18 +81,15 @@ class MotivationEngine:
             "deploy",
             "zbuduj",
             "stworz",
-            "stwórz",
             "napisz",
             "napraw",
             "wdroz",
-            "wdroż",
             "dodaj",
             "skonfiguruj",
             "ustaw",
             "zrob",
-            "zrób",
         }
-        positive_keywords = {"thanks", "thank you", "happy", "great", "awesome", "dzieki", "dzięki", "super"}
+        positive_keywords = {"thanks", "thank you", "happy", "great", "awesome", "dzieki", "super"}
 
         has_question = text.endswith("?")
         has_urgent_signal = any(keyword in lowered for keyword in urgent_keywords) or "!" in text

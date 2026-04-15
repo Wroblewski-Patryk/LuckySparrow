@@ -39,13 +39,14 @@ class RuntimeOrchestrator:
         self.logger.info("start event_id=%s trace_id=%s", event.event_id, event.meta.trace_id)
 
         memory = await self.memory_repository.get_recent_for_user(user_id=event.meta.user_id, limit=5)
-        perception = self.perception_agent.run(event)
+        perception = self.perception_agent.run(event, recent_memory=memory)
         context = self.context_agent.run(event=event, perception=perception, recent_memory=memory)
         motivation = self.motivation_engine.run(event=event, context=context)
         role = self.role_agent.run(event=event, perception=perception, context=context)
         plan = self.planning_agent.run(event=event, context=context, motivation=motivation, role=role)
         expression = await self.expression_agent.run(
             event=event,
+            perception=perception,
             context=context,
             plan=plan,
             role=role,

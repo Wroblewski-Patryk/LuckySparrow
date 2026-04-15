@@ -1,4 +1,5 @@
 from app.core.contracts import ContextOutput, Event, PerceptionOutput, RoleOutput
+from app.utils.language import normalize_for_matching
 
 
 class RoleAgent:
@@ -9,7 +10,7 @@ class RoleAgent:
         context: ContextOutput,
     ) -> RoleOutput:
         text = str(event.payload.get("text", "")).strip()
-        lowered = text.lower()
+        lowered = normalize_for_matching(text)
 
         emotional_keywords = {
             "sad",
@@ -24,15 +25,11 @@ class RoleAgent:
             "zestresowany",
             "zestresowana",
             "przytloczony",
-            "przytłoczony",
             "przytloczona",
-            "przytłoczona",
             "zmeczony",
-            "zmęczony",
             "samotny",
             "samotna",
             "szczesliwy",
-            "szczęśliwy",
             "niespokojny",
         }
         analysis_keywords = {
@@ -45,11 +42,8 @@ class RoleAgent:
             "analiza",
             "przeanalizuj",
             "porownaj",
-            "porównaj",
             "wyjasnij",
-            "wyjaśnij",
             "sprawdz",
-            "sprawdź",
             "zaplanuj",
         }
         executor_keywords = {
@@ -63,16 +57,13 @@ class RoleAgent:
             "deploy",
             "zbuduj",
             "stworz",
-            "stwórz",
             "napisz",
             "napraw",
             "wdroz",
-            "wdroż",
             "dodaj",
             "skonfiguruj",
             "ustaw",
             "zrob",
-            "zrób",
         }
 
         if any(keyword in lowered for keyword in emotional_keywords):

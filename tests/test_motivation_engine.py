@@ -59,7 +59,7 @@ def test_motivation_engine_uses_analyze_mode_for_questions() -> None:
 
 def test_motivation_engine_handles_polish_urgent_request() -> None:
     result = MotivationEngine().run(
-        event=_event("wdroż to na produkcję teraz"),
+        event=_event("wdroz to na produkcje teraz"),
         context=_context(),
     )
 

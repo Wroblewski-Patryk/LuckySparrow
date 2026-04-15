@@ -39,6 +39,7 @@ class FakeOpenAIClient:
         user_text: str,
         context_summary: str,
         role_name: str,
+        response_language: str,
         plan_goal: str,
         motivation_mode: str,
     ) -> str | None:
@@ -51,7 +52,10 @@ async def test_runtime_pipeline_api_source() -> None:
             {
                 "id": 7,
                 "event_id": "evt-prev",
-                "summary": "event=previous hello; context=old context; plan_goal=reply; action=success; expression=Earlier reply",
+                "summary": (
+                    "event=previous hello; response_language=en; context=old context; "
+                    "plan_goal=reply; action=success; expression=Earlier reply"
+                ),
                 "importance": 0.6,
                 "event_timestamp": datetime.now(timezone.utc),
             }
@@ -83,9 +87,12 @@ async def test_runtime_pipeline_api_source() -> None:
     assert result.action_result.status == "success"
     assert "previous hello" in result.context.summary
     assert "Earlier reply" in result.context.summary
+    assert result.perception.language == "en"
     assert result.role.selected == "advisor"
     assert result.motivation.mode == "respond"
     assert result.plan.steps == ["interpret_event", "review_context", "prepare_response"]
     assert result.expression.message == "Mocked OpenAI reply"
+    assert result.expression.language == "en"
     assert result.memory_record is not None
+    assert "response_language=en" in result.memory_record.summary
     assert result.reflection_triggered is False
