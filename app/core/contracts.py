@@ -21,6 +21,7 @@ class Event(BaseModel):
 class PerceptionOutput(BaseModel):
     event_type: str
     topic: str
+    topic_tags: list[str] = Field(default_factory=list)
     intent: str
     language: str
     language_confidence: float

@@ -135,9 +135,10 @@ These are small but real issues observed after the production rollout and smoke 
 
 ### 4. Memory Retrieval Ranking
 
-- current repo behavior stores lightweight `memory_kind` and `memory_topics` markers, prefers memories tagged with the same response language as the current turn, and ranks them by mode match, topical overlap, importance, and recency before using untagged fallback context
+- current repo behavior stores lightweight `memory_kind` and `memory_topics` markers, perception emits lightweight `topic_tags`, and retrieval prefers memories tagged with the same response language as the current turn before ranking them by mode match, topical overlap, importance, and recency
 - next improvement:
   - decide whether lightweight in-summary metadata is enough for MVP, or whether `memory_kind` and topic fields should become explicit columns before retrieval grows further
+  - decide whether `topic_tags` should stay heuristic or become a richer perception artifact with explicit entities/intents
   - consider splitting "conversation continuity" memory from "semantic recall" memory more formally once retrieval grows beyond the latest five rows
   - watch production behavior around short acknowledgements versus specific requests, so continuity memory helps only when it adds signal instead of noise
 

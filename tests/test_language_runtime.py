@@ -40,6 +40,7 @@ def test_perception_agent_propagates_detected_language() -> None:
 
     assert perception.language == "en"
     assert perception.language_confidence >= 0.5
+    assert "deploy" in perception.topic_tags
 
 
 def test_perception_agent_uses_memory_language_for_ambiguous_text() -> None:
@@ -52,3 +53,11 @@ def test_perception_agent_uses_memory_language_for_ambiguous_text() -> None:
 
     assert perception.language == "pl"
     assert perception.language_confidence >= 0.7
+
+
+def test_perception_agent_emits_topic_tags_for_planning_and_production() -> None:
+    perception = PerceptionAgent().run(_event("Can you plan the production rollout?"), recent_memory=[])
+
+    assert perception.topic == "planning"
+    assert "planning" in perception.topic_tags
+    assert "production" in perception.topic_tags

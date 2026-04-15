@@ -88,6 +88,7 @@ async def test_runtime_pipeline_api_source() -> None:
     assert "previous hello" in result.context.summary
     assert "Earlier reply" in result.context.summary
     assert result.perception.language == "en"
+    assert "general" in result.perception.topic_tags
     assert result.role.selected == "advisor"
     assert result.motivation.mode == "respond"
     assert result.plan.steps == ["interpret_event", "review_context", "prepare_response"]
@@ -95,6 +96,6 @@ async def test_runtime_pipeline_api_source() -> None:
     assert result.expression.language == "en"
     assert result.memory_record is not None
     assert "memory_kind=continuity" in result.memory_record.summary
-    assert "memory_topics=hello" in result.memory_record.summary
+    assert "memory_topics=general,hello" in result.memory_record.summary
     assert "response_language=en" in result.memory_record.summary
     assert result.reflection_triggered is False

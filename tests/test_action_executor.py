@@ -1,7 +1,15 @@
 from datetime import datetime, timezone
 
 from app.core.action import ActionExecutor
-from app.core.contracts import ContextOutput, Event, EventMeta, ExpressionOutput, MotivationOutput, PlanOutput
+from app.core.contracts import (
+    ContextOutput,
+    Event,
+    EventMeta,
+    ExpressionOutput,
+    MotivationOutput,
+    PerceptionOutput,
+    PlanOutput,
+)
 
 
 class FakeMemoryRepository:
@@ -53,11 +61,25 @@ def _expression() -> ExpressionOutput:
     return ExpressionOutput(message="hello", tone="supportive", channel="api", language="en")
 
 
+def _perception(topic_tags: list[str]) -> PerceptionOutput:
+    return PerceptionOutput(
+        event_type="statement",
+        topic=topic_tags[0] if topic_tags else "general",
+        topic_tags=topic_tags,
+        intent="share_information",
+        language="en",
+        language_confidence=0.8,
+        ambiguity=0.1,
+        initial_salience=0.5,
+    )
+
+
 async def test_persist_episode_marks_specific_request_as_semantic_memory() -> None:
     executor = ActionExecutor(memory_repository=FakeMemoryRepository(), telegram_client=FakeTelegramClient())
 
     record = await executor.persist_episode(
         event=_event("deploy the fix to production now"),
+        perception=_perception(["general", "deploy", "production"]),
         context=_context(),
         motivation=_motivation(),
         plan=_plan(),
@@ -66,7 +88,7 @@ async def test_persist_episode_marks_specific_request_as_semantic_memory() -> No
     )
 
     assert "memory_kind=semantic" in record.summary
-    assert "memory_topics=deploy,fix,production" in record.summary
+    assert "memory_topics=general,deploy,production,fix" in record.summary
 
 
 async def test_persist_episode_marks_short_follow_up_as_continuity_memory() -> None:
@@ -74,6 +96,7 @@ async def test_persist_episode_marks_short_follow_up_as_continuity_memory() -> N
 
     record = await executor.persist_episode(
         event=_event("ok"),
+        perception=_perception(["general"]),
         context=_context(),
         motivation=_motivation(),
         plan=_plan(),
@@ -82,4 +105,4 @@ async def test_persist_episode_marks_short_follow_up_as_continuity_memory() -> N
     )
 
     assert "memory_kind=continuity" in record.summary
-    assert "memory_topics=" in record.summary
+    assert "memory_topics=general" in record.summary

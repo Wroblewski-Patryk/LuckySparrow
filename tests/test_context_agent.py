@@ -4,13 +4,13 @@ from app.agents.context import ContextAgent
 from app.core.contracts import Event, EventMeta, PerceptionOutput
 
 
-def _event() -> Event:
+def _event(text: str = "hello") -> Event:
     return Event(
         event_id="evt-1",
         source="api",
         subsource="event_endpoint",
         timestamp=datetime.now(timezone.utc),
-        payload={"text": "hello"},
+        payload={"text": text},
         meta=EventMeta(user_id="u-1", trace_id="t-1"),
     )
 
@@ -19,6 +19,7 @@ def _perception() -> PerceptionOutput:
     return PerceptionOutput(
         event_type="statement",
         topic="general",
+        topic_tags=["general"],
         intent="share_information",
         language="en",
         language_confidence=0.8,
@@ -35,12 +36,13 @@ def test_context_summary_stays_simple_without_recent_memory() -> None:
 
 
 def test_context_summary_includes_recent_memory_signal() -> None:
+    event = _event("deployment help")
     recent_memory = [
         {
             "id": 1,
             "event_id": "evt-prev",
             "summary": (
-                "event=asked about deployment; response_language=en; context=old context; "
+                "event=deployment help request; memory_kind=semantic; memory_topics=deployment,help; response_language=en; context=old context; "
                 "plan_goal=reply; action=success; expression=We deployed it successfully"
             ),
             "importance": 0.8,
@@ -48,10 +50,10 @@ def test_context_summary_includes_recent_memory_signal() -> None:
         }
     ]
 
-    result = ContextAgent().run(event=_event(), perception=_perception(), recent_memory=recent_memory)
+    result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
 
     assert "Relevant recent memory:" in result.summary
-    assert "asked about deployment" in result.summary
+    assert "deployment help request" in result.summary
     assert "We deployed it successfully" in result.summary
 
 
@@ -74,12 +76,14 @@ def test_clip_text_falls_back_to_word_boundary_with_ellipsis() -> None:
 
 
 def test_context_summary_clips_long_memory_cleanly() -> None:
+    event = _event("production verification")
     recent_memory = [
         {
             "id": 2,
             "event_id": "evt-prev-2",
             "summary": (
                 "event=asked for a very detailed production verification walkthrough with extra deployment notes; "
+                "memory_kind=semantic; memory_topics=production,verification,deployment; "
                 "response_language=en; "
                 "context=old context; plan_goal=reply; action=success; "
                 "expression=This response is intentionally long so the context summary has to cut it cleanly "
@@ -90,7 +94,7 @@ def test_context_summary_clips_long_memory_cleanly() -> None:
         }
     ]
 
-    result = ContextAgent().run(event=_event(), perception=_perception(), recent_memory=recent_memory)
+    result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
 
     assert "asked for a very detailed production..." in result.summary
     assert "cut it cleanly without..." in result.summary
@@ -100,6 +104,7 @@ def test_context_prefers_same_language_memory_over_mismatched_recent_entries() -
     perception = PerceptionOutput(
         event_type="statement",
         topic="general",
+        topic_tags=["general"],
         intent="share_information",
         language="pl",
         language_confidence=0.9,
@@ -111,7 +116,7 @@ def test_context_prefers_same_language_memory_over_mismatched_recent_entries() -
             "id": 10,
             "event_id": "evt-en",
             "summary": (
-                "event=deploy the fix; response_language=en; context=old context; "
+                "event=deploy the fix; memory_kind=semantic; memory_topics=deploy,fix; response_language=en; context=old context; "
                 "plan_goal=reply; action=success; expression=Let's deploy it carefully"
             ),
             "importance": 0.95,
@@ -121,7 +126,7 @@ def test_context_prefers_same_language_memory_over_mismatched_recent_entries() -
             "id": 11,
             "event_id": "evt-pl",
             "summary": (
-                "event=wdroz poprawke; response_language=pl; context=stary kontekst; "
+                "event=wdroz poprawke; memory_kind=semantic; memory_topics=wdroz,poprawke; response_language=pl; context=stary kontekst; "
                 "plan_goal=reply; action=success; expression=Jasne, lecimy z tym"
             ),
             "importance": 0.6,
@@ -137,12 +142,13 @@ def test_context_prefers_same_language_memory_over_mismatched_recent_entries() -
 
 
 def test_context_falls_back_to_unknown_language_memory_when_no_match_exists() -> None:
+    event = _event("ok")
     recent_memory = [
         {
             "id": 12,
             "event_id": "evt-unknown",
             "summary": (
-                "event=asked about rollout; context=old context; "
+                "event=asked about rollout; memory_kind=continuity; context=old context; "
                 "plan_goal=reply; action=success; expression=We can keep going"
             ),
             "importance": 0.8,
@@ -150,7 +156,7 @@ def test_context_falls_back_to_unknown_language_memory_when_no_match_exists() ->
         }
     ]
 
-    result = ContextAgent().run(event=_event(), perception=_perception(), recent_memory=recent_memory)
+    result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
 
     assert "asked about rollout" in result.summary
     assert "We can keep going" in result.summary
@@ -158,7 +164,7 @@ def test_context_falls_back_to_unknown_language_memory_when_no_match_exists() ->
 
 def test_context_deduplicates_same_memory_summary() -> None:
     repeated_summary = (
-        "event=deploy the fix now; response_language=en; context=old context; "
+        "event=deploy the fix now; memory_kind=semantic; memory_topics=deploy,fix; response_language=en; context=old context; "
         "plan_goal=reply; action=success; expression=Please provide the deployment details"
     )
     recent_memory = [
@@ -181,6 +187,7 @@ def test_context_deduplicates_same_memory_summary() -> None:
             "event_id": "evt-en-3",
             "summary": (
                 "event=deploy checklist; response_language=en; context=other context; "
+                "memory_kind=semantic; memory_topics=deploy,checklist; "
                 "plan_goal=reply; action=success; expression=Let's verify the rollout checklist"
             ),
             "importance": 0.7,
@@ -201,6 +208,7 @@ def test_context_deduplicates_near_duplicate_event_memory() -> None:
             "event_id": "evt-en-4",
             "summary": (
                 "event=deploy the fix now; response_language=en; context=old context; "
+                "memory_kind=semantic; memory_topics=deploy,fix; "
                 "plan_goal=reply; action=success; expression=Please provide the necessary deployment details to proceed."
             ),
             "importance": 0.9,
@@ -211,6 +219,7 @@ def test_context_deduplicates_near_duplicate_event_memory() -> None:
             "event_id": "evt-en-5",
             "summary": (
                 "event=deploy the fix now!; response_language=en; context=updated context; "
+                "memory_kind=semantic; memory_topics=deploy,fix; "
                 "plan_goal=reply; action=success; expression=To proceed with deploying the fix, please provide the necessary deployment details."
             ),
             "importance": 0.85,
@@ -221,6 +230,7 @@ def test_context_deduplicates_near_duplicate_event_memory() -> None:
             "event_id": "evt-en-6",
             "summary": (
                 "event=deploy checklist; response_language=en; context=other context; "
+                "memory_kind=semantic; memory_topics=deploy,checklist; "
                 "plan_goal=reply; action=success; expression=Let's verify the rollout checklist"
             ),
             "importance": 0.7,
@@ -362,6 +372,44 @@ def test_context_keeps_memory_for_ambiguous_short_follow_up() -> None:
     result = ContextAgent().run(event=event, perception=_perception(), recent_memory=recent_memory)
 
     assert "Relevant recent memory:" in result.summary
+
+
+def test_context_uses_perception_topic_tags_for_memory_matching() -> None:
+    event = Event(
+        event_id="evt-8",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "please help"},
+        meta=EventMeta(user_id="u-1", trace_id="t-8"),
+    )
+    perception = PerceptionOutput(
+        event_type="question",
+        topic="planning",
+        topic_tags=["planning", "deploy", "production"],
+        intent="request_help",
+        language="en",
+        language_confidence=0.8,
+        ambiguity=0.1,
+        initial_salience=0.8,
+    )
+    recent_memory = [
+        {
+            "id": 29,
+            "event_id": "evt-en-17",
+            "summary": (
+                "event=release planning; memory_kind=semantic; memory_topics=planning,deploy,production; "
+                "response_language=en; context=semantic context; plan_goal=reply; action=success; "
+                "expression=Let's walk through the rollout plan"
+            ),
+            "importance": 0.7,
+            "event_timestamp": datetime.now(timezone.utc),
+        }
+    ]
+
+    result = ContextAgent().run(event=event, perception=perception, recent_memory=recent_memory)
+
+    assert "release planning" in result.summary
 
 
 def test_context_prefers_semantic_memory_for_specific_request_over_continuity() -> None:

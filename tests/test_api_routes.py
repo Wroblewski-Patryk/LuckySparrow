@@ -31,6 +31,7 @@ class FakeRuntime:
             perception=PerceptionOutput(
                 event_type="statement",
                 topic="general",
+                topic_tags=["general"],
                 intent="share_information",
                 language="en",
                 language_confidence=0.8,

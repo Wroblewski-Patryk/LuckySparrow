@@ -2,6 +2,7 @@ from app.core.contracts import ContextOutput, Event, PerceptionOutput
 
 
 class ContextAgent:
+    GENERIC_TAGS = {"general"}
     STOPWORDS = {
         "a",
         "an",
@@ -57,6 +58,11 @@ class ContextAgent:
             for token in canonical.split()
             if len(token) >= 3 and token not in self.STOPWORDS
         }
+
+    def _current_topic_tokens(self, event: Event, perception: PerceptionOutput) -> set[str]:
+        tokens = set(perception.topic_tags)
+        tokens.update(self._text_tokens(str(event.payload.get("text", ""))))
+        return {self._canonical_text(token) for token in tokens if self._canonical_text(token)}
 
     def _extract_fields(self, raw_summary: str) -> dict[str, str]:
         fields: dict[str, str] = {}
@@ -137,7 +143,7 @@ class ContextAgent:
     def _memory_relevance_components(
         self,
         memory_item: dict,
-        current_text: str,
+        current_tokens: set[str],
         preferred_language: str,
         current_mode: str,
     ) -> tuple[float, float, int, float]:
@@ -145,7 +151,6 @@ class ContextAgent:
         memory_language = self._memory_language(memory_item)
         memory_kind = self._memory_kind(memory_item)
         event_text = fields.get("event", "")
-        current_tokens = self._text_tokens(current_text)
         memory_tokens = self._memory_topics(memory_item) or self._text_tokens(event_text)
         overlap = len(current_tokens.intersection(memory_tokens))
         language_bonus = 1.0 if memory_language == preferred_language else 0.4 if memory_language is None else 0.0
@@ -154,23 +159,28 @@ class ContextAgent:
 
         return (language_bonus, mode_bonus, overlap, importance)
 
-    def _should_require_topical_match(self, current_text: str) -> bool:
-        return len(self._text_tokens(current_text)) >= 2
+    def _specific_topic_tags(self, perception: PerceptionOutput) -> set[str]:
+        return {tag for tag in perception.topic_tags if tag not in self.GENERIC_TAGS}
 
-    def _current_memory_mode(self, current_text: str) -> str:
-        return "semantic" if self._should_require_topical_match(current_text) else "continuity"
+    def _should_require_topical_match(self, current_text: str, perception: PerceptionOutput) -> bool:
+        return len(self._text_tokens(current_text)) >= 2 or len(self._specific_topic_tags(perception)) >= 2
+
+    def _current_memory_mode(self, current_text: str, perception: PerceptionOutput) -> str:
+        return "semantic" if self._should_require_topical_match(current_text, perception) else "continuity"
 
     def _select_memory_items(
         self,
         recent_memory: list[dict],
         preferred_language: str,
+        current_tokens: set[str],
         current_text: str,
+        perception: PerceptionOutput,
         limit: int = 2,
     ) -> list[dict]:
         if not recent_memory:
             return []
 
-        current_mode = self._current_memory_mode(current_text)
+        current_mode = self._current_memory_mode(current_text, perception)
         matching = [item for item in recent_memory if self._memory_language(item) == preferred_language]
         unknown_language = [item for item in recent_memory if self._memory_language(item) is None]
         fallback = matching or unknown_language or recent_memory
@@ -185,7 +195,7 @@ class ContextAgent:
                 item,
                 self._memory_relevance_components(
                     memory_item=item,
-                    current_text=current_text,
+                    current_tokens=current_tokens,
                     preferred_language=preferred_language,
                     current_mode=current_mode,
                 ),
@@ -195,7 +205,7 @@ class ContextAgent:
         topical = [entry for entry in scored if entry[2][2] > 0]
         if topical:
             candidate_pool = topical
-        elif self._should_require_topical_match(current_text):
+        elif self._should_require_topical_match(current_text, perception):
             return []
         else:
             candidate_pool = scored
@@ -226,10 +236,13 @@ class ContextAgent:
         text = str(event.payload.get("text", "")).strip()
         memory_hint = ""
         if recent_memory:
+            current_tokens = self._current_topic_tokens(event=event, perception=perception)
             selected_memory = self._select_memory_items(
                 recent_memory,
                 preferred_language=perception.language,
+                current_tokens=current_tokens,
                 current_text=text,
+                perception=perception,
             )
             memory_summaries = [
                 self._summarize_memory_item(memory_item)
@@ -245,6 +258,6 @@ class ContextAgent:
         return ContextOutput(
             summary=summary,
             related_goals=[],
-            related_tags=[perception.topic, f"language:{perception.language}"],
+            related_tags=[perception.topic, *perception.topic_tags[1:], f"language:{perception.language}"],
             risk_level=risk_level,
         )

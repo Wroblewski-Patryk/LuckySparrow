@@ -5,6 +5,7 @@ from app.core.contracts import (
     ExpressionOutput,
     MemoryRecord,
     MotivationOutput,
+    PerceptionOutput,
     PlanOutput,
 )
 from app.integrations.telegram.client import TelegramClient
@@ -12,6 +13,8 @@ from app.memory.repository import MemoryRepository
 
 
 class ActionExecutor:
+    GENERIC_TOPIC_TAGS = {"general"}
+
     def __init__(self, memory_repository: MemoryRepository, telegram_client: TelegramClient):
         self.memory_repository = memory_repository
         self.telegram_client = telegram_client
@@ -47,14 +50,15 @@ class ActionExecutor:
     async def persist_episode(
         self,
         event: Event,
+        perception: PerceptionOutput,
         context: ContextOutput,
         motivation: MotivationOutput,
         plan: PlanOutput,
         action_result: ActionResult,
         expression: ExpressionOutput,
     ) -> MemoryRecord:
-        memory_kind = self._memory_kind(event)
-        memory_topics = self._memory_topics(event)
+        memory_kind = self._memory_kind(event, perception)
+        memory_topics = self._memory_topics(event, perception)
         summary = (
             f"event={event.payload.get('text', '')}; "
             f"memory_kind={memory_kind}; "
@@ -85,11 +89,15 @@ class ActionExecutor:
             importance=stored["importance"],
         )
 
-    def _memory_kind(self, event: Event) -> str:
-        text = str(event.payload.get("text", "")).strip()
-        return "semantic" if len(self._memory_topics(event)) >= 2 else "continuity"
+    def _memory_kind(self, event: Event, perception: PerceptionOutput) -> str:
+        specific_topics = [
+            topic
+            for topic in self._memory_topics(event, perception)
+            if topic not in self.GENERIC_TOPIC_TAGS
+        ]
+        return "semantic" if len(specific_topics) >= 2 else "continuity"
 
-    def _memory_topics(self, event: Event) -> list[str]:
+    def _memory_topics(self, event: Event, perception: PerceptionOutput) -> list[str]:
         text = str(event.payload.get("text", "")).strip().lower()
         canonical = "".join(char if char.isalnum() or char.isspace() else " " for char in text)
         stopwords = {
@@ -132,6 +140,15 @@ class ActionExecutor:
         }
         topics: list[str] = []
         seen: set[str] = set()
+        for tag in perception.topic_tags:
+            cleaned = tag.strip().lower()
+            if not cleaned or cleaned in seen:
+                continue
+            seen.add(cleaned)
+            topics.append(cleaned)
+            if len(topics) >= 4:
+                return topics
+
         for token in canonical.split():
             if len(token) < 3 or token in stopwords or token in seen:
                 continue

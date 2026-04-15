@@ -58,6 +58,7 @@ class RuntimeOrchestrator:
         try:
             memory_record = await self.action_executor.persist_episode(
                 event=event,
+                perception=perception,
                 context=context,
                 motivation=motivation,
                 plan=plan,

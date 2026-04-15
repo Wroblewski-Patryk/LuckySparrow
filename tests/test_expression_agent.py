@@ -70,6 +70,7 @@ def _perception(language: str = "en") -> PerceptionOutput:
     return PerceptionOutput(
         event_type="statement",
         topic="general",
+        topic_tags=["general"],
         intent="share_information",
         language=language,
         language_confidence=0.8,
