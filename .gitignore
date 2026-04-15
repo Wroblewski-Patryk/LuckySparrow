@@ -9,3 +9,5 @@ dist/
 build/
 *.egg-info/
 pytest-cache-files-*/
+.playwright-cli/
+.tmp/
