@@ -12,6 +12,7 @@ from app.core.database import Database
 from app.core.logging import get_logger, setup_logging
 from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
+from app.integrations.openai.client import OpenAIClient
 from app.integrations.telegram.client import TelegramClient
 from app.memory.repository import MemoryRepository
 from app.motivation.engine import MotivationEngine
@@ -30,6 +31,10 @@ async def lifespan(app: FastAPI):
     await memory_repository.create_tables(database.engine)
 
     telegram_client = TelegramClient(settings.telegram_bot_token)
+    openai_client = OpenAIClient(
+        api_key=settings.openai_api_key,
+        model=settings.openai_model,
+    )
     action_executor = ActionExecutor(
         memory_repository=memory_repository,
         telegram_client=telegram_client,
@@ -40,7 +45,7 @@ async def lifespan(app: FastAPI):
         context_agent=ContextAgent(),
         motivation_engine=MotivationEngine(),
         planning_agent=PlanningAgent(),
-        expression_agent=ExpressionAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai_client),
         action_executor=action_executor,
         memory_repository=memory_repository,
     )
@@ -51,7 +56,13 @@ async def lifespan(app: FastAPI):
     app.state.telegram_client = telegram_client
     app.state.runtime = runtime
 
-    logger.info("AION started env=%s port=%s", settings.app_env, settings.app_port)
+    logger.info(
+        "AION started env=%s port=%s openai_enabled=%s telegram_enabled=%s",
+        settings.app_env,
+        settings.app_port,
+        bool(settings.openai_api_key),
+        bool(settings.telegram_bot_token),
+    )
     try:
         yield
     finally:
@@ -62,4 +73,3 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="AION MVP", version="0.1.0", lifespan=lifespan)
 app.include_router(router)
-

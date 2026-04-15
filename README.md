@@ -20,7 +20,9 @@ cp .env.example .env
 
 2. Fill required variables in `.env`:
 - `OPENAI_API_KEY`
+- `OPENAI_MODEL` (optional, defaults to `gpt-4o-mini`)
 - `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_WEBHOOK_SECRET` (recommended)
 - `DATABASE_URL`
 
 3. Start with Docker:
@@ -49,3 +51,16 @@ curl -X POST http://localhost:8000/event ^
 - `POST /event`
 - `POST /telegram/set-webhook`
 
+## Local Windows Environment
+
+```powershell
+.\scripts\setup_windows.ps1
+.\.venv\Scripts\python -m pytest -q
+```
+
+## Coolify Deployment
+
+Use `docker-compose.coolify.yml` in Coolify and configure env vars in the Coolify UI.
+
+Full guide:
+- `docs/28_local_windows_and_coolify_deploy.md`

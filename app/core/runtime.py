@@ -41,7 +41,13 @@ class RuntimeOrchestrator:
         motivation = self.motivation_engine.run(event=event, context=context)
         role = RoleOutput(selected="advisor", confidence=0.6)
         plan = self.planning_agent.run(event=event, context=context, motivation=motivation, role=role)
-        expression = self.expression_agent.run(event=event, context=context, plan=plan, role=role, motivation=motivation)
+        expression = await self.expression_agent.run(
+            event=event,
+            context=context,
+            plan=plan,
+            role=role,
+            motivation=motivation,
+        )
         action_result = await self.action_executor.execute(plan=plan, event=event, expression=expression)
 
         memory_record = None
@@ -79,4 +85,3 @@ class RuntimeOrchestrator:
             reflection_triggered=True,
             duration_ms=duration_ms,
         )
-

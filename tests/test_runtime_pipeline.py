@@ -29,6 +29,11 @@ class FakeTelegramClient:
         return {"ok": True}
 
 
+class FakeOpenAIClient:
+    async def generate_reply(self, user_text: str, context_summary: str) -> str | None:
+        return "Mocked OpenAI reply"
+
+
 async def test_runtime_pipeline_api_source() -> None:
     memory = FakeMemoryRepository()
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
@@ -37,7 +42,7 @@ async def test_runtime_pipeline_api_source() -> None:
         context_agent=ContextAgent(),
         motivation_engine=MotivationEngine(),
         planning_agent=PlanningAgent(),
-        expression_agent=ExpressionAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
         action_executor=action,
         memory_repository=memory,
     )
@@ -54,6 +59,5 @@ async def test_runtime_pipeline_api_source() -> None:
     result = await runtime.run(event)
 
     assert result.action_result.status == "success"
-    assert result.expression.message.startswith("Echo")
+    assert result.expression.message == "Mocked OpenAI reply"
     assert result.memory_record is not None
-

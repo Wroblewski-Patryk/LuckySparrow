@@ -15,15 +15,17 @@ class TelegramClient:
         response.raise_for_status()
         return response.json()
 
-    async def set_webhook(self, webhook_url: str) -> dict:
+    async def set_webhook(self, webhook_url: str, secret_token: str | None = None) -> dict:
         if not self.token:
             return {"ok": False, "description": "missing TELEGRAM_BOT_TOKEN"}
 
         url = f"https://api.telegram.org/bot{self.token}/setWebhook"
-        response = await self._client.post(url, json={"url": webhook_url})
+        payload = {"url": webhook_url}
+        if secret_token:
+            payload["secret_token"] = secret_token
+        response = await self._client.post(url, json=payload)
         response.raise_for_status()
         return response.json()
 
     async def close(self) -> None:
         await self._client.aclose()
-
