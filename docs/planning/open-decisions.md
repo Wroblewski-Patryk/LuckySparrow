@@ -1,0 +1,49 @@
+# Open Decisions
+
+## Why This File Exists
+
+The current repo already works as an MVP slice, but several architecture-level docs describe systems that are not implemented yet. This file keeps the next real decisions visible and tied to the current codebase.
+
+## Active Decisions
+
+### 1. Reflection Placeholder vs Real Reflection
+
+- Current repo fact:
+  - `RuntimeResult.reflection_triggered` is always `True`.
+- Decision needed:
+  - should reflection become a real stage, a background worker, or should the field be removed until implemented?
+
+### 2. Migration Strategy
+
+- Current repo fact:
+  - database tables are created automatically on startup.
+- Decision needed:
+  - keep bootstrap simplicity for MVP, or introduce explicit migrations before schema complexity grows?
+
+### 3. Public API Shape
+
+- Current repo fact:
+  - `POST /event` returns the full serialized runtime result.
+- Decision needed:
+  - should this remain a debugging-friendly internal API, or should a smaller stable public response contract be introduced?
+
+### 4. Role Selection
+
+- Current repo fact:
+  - runtime role is hardcoded to `advisor`.
+- Decision needed:
+  - when should role selection become real logic, and which module should own it?
+
+### 5. Memory Retrieval Depth
+
+- Current repo fact:
+  - only the latest five user memory rows are loaded.
+- Decision needed:
+  - when to add filtering, ranking, summarization, or episodic/semantic split memory?
+
+### 6. Deployment Path After Coolify
+
+- Current repo fact:
+  - docs and compose files already support local Docker and Coolify.
+- Decision needed:
+  - is Coolify the intended production baseline, or only a temporary path until a different hosting standard is chosen?
