@@ -9,10 +9,10 @@ The current repo already works as an MVP slice, but several architecture-level d
 ### 1. Reflection Placeholder vs Real Reflection
 
 - Current repo fact:
-  - runtime now has a lightweight in-process background reflection worker.
-  - `RuntimeResult.reflection_triggered` is returned as `True` when reflection was successfully queued after episode persistence.
+  - runtime now has a lightweight background reflection worker backed by a durable `aion_reflection_task` queue in Postgres.
+  - `RuntimeResult.reflection_triggered` is returned as `True` when reflection was successfully persisted and queued after episode persistence.
 - Decision needed:
-  - should this in-process worker stay as the MVP baseline, or should reflection move into a more durable external worker or scheduler before more complex consolidation is added?
+  - should this app-local durable worker stay as the MVP baseline, or should reflection move into a separate external worker or scheduler before more complex consolidation is added?
 
 ### 2. Migration Strategy
 

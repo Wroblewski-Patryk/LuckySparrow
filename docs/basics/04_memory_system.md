@@ -114,7 +114,8 @@ Current MVP status:
 - lightweight identity-linked preferences are stored in `aion_profile`
 - first semantic preference conclusions are stored in `aion_conclusion`
 - runtime retrieval now combines recent episodes with stable semantic preferences during context construction
-- a lightweight in-process reflection worker now consolidates some conclusions asynchronously after episode writes
+- a lightweight reflection worker now consolidates some conclusions asynchronously after episode writes
+- reflection jobs are now also stored in `aion_reflection_task`, so pending background work survives app restarts and can be recovered on startup
 - episodic summaries now also capture the role used, so reflection can infer lightweight `preferred_role` tendencies over time
 - reflection now also maintains a lightweight `aion_theta` state with soft support, analysis, and execution biases derived from repeated recent role patterns
 - runtime still prefers explicit heuristics and reflected `preferred_role`, but can now also use theta as a softer bias on ambiguous turns for role selection, motivation mode selection, lightweight planning stance, and expression tone selection
@@ -257,6 +258,7 @@ Memory must not:
 - aion_memory  
 - aion_conclusion  
 - aion_profile  
+- aion_reflection_task  
 - aion_theta  
 - goals  
 - tasks  

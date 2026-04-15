@@ -160,10 +160,10 @@ These are small but real issues observed after the production rollout and smoke 
 
 ### 8. Background Reflection Worker
 
-- current repo behavior now has a lightweight in-process reflection worker that runs after episode persistence, updates semantic conclusions asynchronously, and sets `reflection_triggered=true` when enqueue succeeds
+- current repo behavior now has a lightweight reflection worker backed by durable `aion_reflection_task` rows; it runs after episode persistence, updates semantic conclusions asynchronously, recovers pending work on startup, and sets `reflection_triggered=true` when the task is durably persisted and queued
 - next improvement:
   - move beyond explicit `preference_update` markers and infer stable conclusions from repeated behavioral patterns
-  - decide whether in-process reflection is enough for MVP or whether reflection should become a durable queued worker before more complex jobs exist
+  - decide whether the current app-local durable queue is enough for MVP or whether reflection should move into a separate worker process before more complex jobs exist
   - decide when reflection should stay limited to `aion_conclusion` plus lightweight `aion_theta`, versus growing into richer future artifacts like goals or stronger role heuristics
 
 ### 9. Theta Runtime Bias

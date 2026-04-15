@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from app.memory.models import AionConclusion, AionMemory, AionProfile, AionTheta, Base
+from app.memory.models import AionConclusion, AionMemory, AionProfile, AionReflectionTask, AionTheta, Base
 
 
 class MemoryRepository:
@@ -292,6 +292,85 @@ class MemoryRepository:
             "updated_at": row.updated_at,
         }
 
+    async def enqueue_reflection_task(self, user_id: str, event_id: str) -> dict:
+        async with self.session_factory() as session:
+            statement = (
+                select(AionReflectionTask)
+                .where(AionReflectionTask.event_id == event_id)
+                .limit(1)
+            )
+            result = await session.execute(statement)
+            row = result.scalar_one_or_none()
+
+            if row is None:
+                row = AionReflectionTask(
+                    user_id=user_id,
+                    event_id=event_id,
+                    status="pending",
+                    attempts=0,
+                    last_error=None,
+                )
+                session.add(row)
+            elif row.status != "completed":
+                row.user_id = user_id
+                row.status = "pending"
+                row.last_error = None
+
+            await session.commit()
+            await session.refresh(row)
+
+        return self._serialize_reflection_task(row)
+
+    async def get_pending_reflection_tasks(self, limit: int = 100) -> list[dict]:
+        async with self.session_factory() as session:
+            statement = (
+                select(AionReflectionTask)
+                .where(AionReflectionTask.status.in_(("pending", "processing")))
+                .order_by(AionReflectionTask.id.asc())
+                .limit(limit)
+            )
+            result = await session.execute(statement)
+            rows = result.scalars().all()
+
+        return [self._serialize_reflection_task(row) for row in rows]
+
+    async def mark_reflection_task_processing(self, task_id: int) -> dict | None:
+        async with self.session_factory() as session:
+            row = await session.get(AionReflectionTask, task_id)
+            if row is None:
+                return None
+            row.status = "processing"
+            row.attempts += 1
+            row.last_error = None
+            await session.commit()
+            await session.refresh(row)
+
+        return self._serialize_reflection_task(row)
+
+    async def mark_reflection_task_completed(self, task_id: int) -> dict | None:
+        async with self.session_factory() as session:
+            row = await session.get(AionReflectionTask, task_id)
+            if row is None:
+                return None
+            row.status = "completed"
+            row.last_error = None
+            await session.commit()
+            await session.refresh(row)
+
+        return self._serialize_reflection_task(row)
+
+    async def mark_reflection_task_failed(self, task_id: int, error: str) -> dict | None:
+        async with self.session_factory() as session:
+            row = await session.get(AionReflectionTask, task_id)
+            if row is None:
+                return None
+            row.status = "failed"
+            row.last_error = error[:500]
+            await session.commit()
+            await session.refresh(row)
+
+        return self._serialize_reflection_task(row)
+
     def _should_update_language_profile(
         self,
         current_language: str,
@@ -343,3 +422,15 @@ class MemoryRepository:
         if current_content == next_content:
             return min(0.99, max(current_confidence, next_confidence))
         return next_confidence
+
+    def _serialize_reflection_task(self, row: AionReflectionTask) -> dict:
+        return {
+            "id": row.id,
+            "user_id": row.user_id,
+            "event_id": row.event_id,
+            "status": row.status,
+            "attempts": row.attempts,
+            "last_error": row.last_error,
+            "updated_at": row.updated_at,
+            "created_at": row.created_at,
+        }

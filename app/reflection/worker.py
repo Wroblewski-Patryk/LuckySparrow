@@ -10,11 +10,13 @@ class ReflectionWorker:
         self.memory_repository = memory_repository
         self.queue: asyncio.Queue[dict | None] = asyncio.Queue(maxsize=queue_size)
         self._task: asyncio.Task | None = None
+        self._queued_task_ids: set[int] = set()
         self.logger = get_logger("aion.reflection")
 
     async def start(self) -> None:
         if self._task and not self._task.done():
             return
+        await self._schedule_pending_tasks(limit=self.queue.maxsize or 100)
         self._task = asyncio.create_task(self._run_loop(), name="aion-reflection-worker")
 
     async def stop(self) -> None:
@@ -24,13 +26,18 @@ class ReflectionWorker:
         await self._task
         self._task = None
 
-    def enqueue(self, user_id: str, event_id: str) -> bool:
-        payload = {"user_id": user_id, "event_id": event_id}
-        try:
-            self.queue.put_nowait(payload)
-        except asyncio.QueueFull:
-            self.logger.warning("reflection_queue_full user_id=%s event_id=%s", user_id, event_id)
-            return False
+    async def enqueue(self, user_id: str, event_id: str) -> bool:
+        task = await self.memory_repository.enqueue_reflection_task(user_id=user_id, event_id=event_id)
+        if str(task.get("status")) == "completed":
+            return True
+        queued = self._schedule_task(task)
+        if not queued:
+            self.logger.warning(
+                "reflection_queue_full task_id=%s user_id=%s event_id=%s",
+                task["id"],
+                user_id,
+                event_id,
+            )
         return True
 
     async def reflect_user(self, user_id: str, event_id: str) -> bool:
@@ -84,12 +91,53 @@ class ReflectionWorker:
                 self.queue.task_done()
                 break
 
+            task_id = int(item["id"])
+            self._queued_task_ids.discard(task_id)
+            completed = False
             try:
+                await self.memory_repository.mark_reflection_task_processing(task_id=task_id)
                 await self.reflect_user(user_id=str(item["user_id"]), event_id=str(item["event_id"]))
+                completed = True
             except Exception as exc:  # pragma: no cover - defensive worker path
+                await self.memory_repository.mark_reflection_task_failed(task_id=task_id, error=str(exc))
                 self.logger.exception("reflection_failed user_id=%s event_id=%s error=%s", item["user_id"], item["event_id"], exc)
             finally:
+                if completed:
+                    await self.memory_repository.mark_reflection_task_completed(task_id=task_id)
                 self.queue.task_done()
+                await self._schedule_pending_tasks(limit=1)
+
+    async def _schedule_pending_tasks(self, limit: int = 10) -> int:
+        capacity = self._queue_capacity()
+        if capacity <= 0:
+            return 0
+
+        pending_tasks = await self.memory_repository.get_pending_reflection_tasks(limit=max(limit, capacity))
+        scheduled = 0
+        for task in pending_tasks:
+            if self._schedule_task(task):
+                scheduled += 1
+            if self._queue_capacity() <= 0:
+                break
+        return scheduled
+
+    def _schedule_task(self, task: dict) -> bool:
+        task_id = int(task["id"])
+        if task_id in self._queued_task_ids:
+            return False
+
+        try:
+            self.queue.put_nowait(task)
+        except asyncio.QueueFull:
+            return False
+
+        self._queued_task_ids.add(task_id)
+        return True
+
+    def _queue_capacity(self) -> int:
+        if self.queue.maxsize <= 0:
+            return 100
+        return max(0, self.queue.maxsize - self.queue.qsize())
 
     def _derive_conclusions(self, recent_memory: Sequence[dict]) -> list[dict]:
         if not recent_memory:

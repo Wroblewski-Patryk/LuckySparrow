@@ -103,7 +103,7 @@ class RuntimeOrchestrator:
                 expression=expression,
             )
             if self.reflection_worker is not None:
-                reflection_triggered = self.reflection_worker.enqueue(
+                reflection_triggered = await self.reflection_worker.enqueue(
                     user_id=event.meta.user_id,
                     event_id=event.event_id,
                 )

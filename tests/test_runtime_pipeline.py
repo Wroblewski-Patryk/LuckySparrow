@@ -98,7 +98,7 @@ class FakeReflectionWorker:
         self.enqueue_result = enqueue_result
         self.calls: list[dict[str, str]] = []
 
-    def enqueue(self, user_id: str, event_id: str) -> bool:
+    async def enqueue(self, user_id: str, event_id: str) -> bool:
         self.calls.append({"user_id": user_id, "event_id": event_id})
         return self.enqueue_result
 
