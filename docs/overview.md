@@ -40,3 +40,4 @@ The current implementation is intentionally small, but it already preserves the 
 - Runtime flow: `basics/15_runtime_flow.md`
 - Environment/config: `basics/26_env_and_config.md`
 - Repo baseline assumptions: `assumptions/runtime-baseline-2026-04-15.md`
+- Next implementation slice: `planning/next-iteration-plan.md`

@@ -11,8 +11,11 @@ from app.motivation.engine import MotivationEngine
 
 
 class FakeMemoryRepository:
+    def __init__(self, recent_memory: list[dict] | None = None):
+        self.recent_memory = recent_memory or []
+
     async def get_recent_for_user(self, user_id: str, limit: int = 5) -> list[dict]:
-        return []
+        return self.recent_memory[:limit]
 
     async def write_episode(self, **kwargs) -> dict:
         return {
@@ -35,7 +38,17 @@ class FakeOpenAIClient:
 
 
 async def test_runtime_pipeline_api_source() -> None:
-    memory = FakeMemoryRepository()
+    memory = FakeMemoryRepository(
+        recent_memory=[
+            {
+                "id": 7,
+                "event_id": "evt-prev",
+                "summary": "event=previous hello; context=old context; plan_goal=reply; action=success; expression=Earlier reply",
+                "importance": 0.6,
+                "event_timestamp": datetime.now(timezone.utc),
+            }
+        ]
+    )
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
@@ -59,5 +72,8 @@ async def test_runtime_pipeline_api_source() -> None:
     result = await runtime.run(event)
 
     assert result.action_result.status == "success"
+    assert "previous hello" in result.context.summary
+    assert "Earlier reply" in result.context.summary
     assert result.expression.message == "Mocked OpenAI reply"
     assert result.memory_record is not None
+    assert result.reflection_triggered is False

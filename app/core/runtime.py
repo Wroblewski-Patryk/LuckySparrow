@@ -82,6 +82,6 @@ class RuntimeOrchestrator:
             action_result=action_result,
             expression=expression,
             memory_record=memory_record,
-            reflection_triggered=True,
+            reflection_triggered=False,
             duration_ms=duration_ms,
         )

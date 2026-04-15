@@ -83,6 +83,5 @@ class RuntimeResult(BaseModel):
     action_result: ActionResult
     expression: ExpressionOutput
     memory_record: MemoryRecord | None = None
-    reflection_triggered: bool = True
+    reflection_triggered: bool = False
     duration_ms: int
-

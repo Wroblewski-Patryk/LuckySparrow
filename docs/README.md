@@ -58,6 +58,7 @@ These files describe the intended system shape, MVP scope, and deeper design top
 ## Planning
 
 - `planning/open-decisions.md`
+- `planning/next-iteration-plan.md`
 
 ## Operations
 
