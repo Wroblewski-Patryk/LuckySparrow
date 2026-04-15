@@ -5,6 +5,10 @@ class ContextAgent:
     def _normalize_text(self, value: str) -> str:
         return " ".join(str(value).split())
 
+    def _canonical_text(self, value: str) -> str:
+        normalized = self._normalize_text(value).lower()
+        return "".join(char if char.isalnum() or char.isspace() else " " for char in normalized).strip()
+
     def _extract_fields(self, raw_summary: str) -> dict[str, str]:
         fields: dict[str, str] = {}
         for part in self._normalize_text(raw_summary).split(";"):
@@ -54,6 +58,18 @@ class ContextAgent:
         fields = self._extract_fields(str(memory_item.get("summary", "")))
         return fields.get("response_language") or fields.get("language")
 
+    def _memory_fingerprint(self, memory_item: dict) -> str:
+        fields = self._extract_fields(str(memory_item.get("summary", "")))
+        event_text = fields.get("event")
+        if event_text:
+            return f"event:{self._canonical_text(event_text)}"
+
+        expression = fields.get("expression")
+        if expression:
+            return f"expression:{self._canonical_text(expression)}"
+
+        return f"summary:{self._canonical_text(str(memory_item.get('summary', '')))}"
+
     def _select_memory_items(self, recent_memory: list[dict], preferred_language: str, limit: int = 2) -> list[dict]:
         if not recent_memory:
             return []
@@ -72,12 +88,12 @@ class ContextAgent:
         )
 
         selected: list[dict] = []
-        seen_summaries: set[str] = set()
+        seen_fingerprints: set[str] = set()
         for _, item in ranked:
-            normalized_summary = self._normalize_text(str(item.get("summary", "")))
-            if normalized_summary in seen_summaries:
+            fingerprint = self._memory_fingerprint(item)
+            if fingerprint in seen_fingerprints:
                 continue
-            seen_summaries.add(normalized_summary)
+            seen_fingerprints.add(fingerprint)
             selected.append(item)
             if len(selected) >= limit:
                 break

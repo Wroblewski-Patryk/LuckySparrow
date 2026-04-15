@@ -192,3 +192,43 @@ def test_context_deduplicates_same_memory_summary() -> None:
 
     assert result.summary.count("deploy the fix now") == 1
     assert "deploy checklist" in result.summary
+
+
+def test_context_deduplicates_near_duplicate_event_memory() -> None:
+    recent_memory = [
+        {
+            "id": 16,
+            "event_id": "evt-en-4",
+            "summary": (
+                "event=deploy the fix now; response_language=en; context=old context; "
+                "plan_goal=reply; action=success; expression=Please provide the necessary deployment details to proceed."
+            ),
+            "importance": 0.9,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+        {
+            "id": 17,
+            "event_id": "evt-en-5",
+            "summary": (
+                "event=deploy the fix now!; response_language=en; context=updated context; "
+                "plan_goal=reply; action=success; expression=To proceed with deploying the fix, please provide the necessary deployment details."
+            ),
+            "importance": 0.85,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+        {
+            "id": 18,
+            "event_id": "evt-en-6",
+            "summary": (
+                "event=deploy checklist; response_language=en; context=other context; "
+                "plan_goal=reply; action=success; expression=Let's verify the rollout checklist"
+            ),
+            "importance": 0.7,
+            "event_timestamp": datetime.now(timezone.utc),
+        },
+    ]
+
+    result = ContextAgent().run(event=_event(), perception=_perception(), recent_memory=recent_memory)
+
+    assert result.summary.count("deploy the fix now") == 1
+    assert "deploy checklist" in result.summary
