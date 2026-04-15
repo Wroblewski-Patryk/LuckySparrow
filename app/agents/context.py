@@ -5,6 +5,15 @@ class ContextAgent:
     def _normalize_text(self, value: str) -> str:
         return " ".join(str(value).split())
 
+    def _extract_fields(self, raw_summary: str) -> dict[str, str]:
+        fields: dict[str, str] = {}
+        for part in self._normalize_text(raw_summary).split(";"):
+            if "=" not in part:
+                continue
+            key, value = part.split("=", 1)
+            fields[key.strip()] = value.strip()
+        return fields
+
     def _clip_text(self, value: str, max_length: int) -> str:
         text = self._normalize_text(value)
         if len(text) <= max_length:
@@ -27,13 +36,7 @@ class ContextAgent:
         if not raw_summary:
             return ""
 
-        fields: dict[str, str] = {}
-        for part in raw_summary.split(";"):
-            if "=" not in part:
-                continue
-            key, value = part.split("=", 1)
-            fields[key.strip()] = value.strip()
-
+        fields = self._extract_fields(raw_summary)
         event_text = fields.get("event")
         expression = fields.get("expression")
         if event_text and expression:
@@ -47,13 +50,36 @@ class ContextAgent:
 
         return summary
 
+    def _memory_language(self, memory_item: dict) -> str | None:
+        fields = self._extract_fields(str(memory_item.get("summary", "")))
+        return fields.get("response_language") or fields.get("language")
+
+    def _select_memory_items(self, recent_memory: list[dict], preferred_language: str, limit: int = 2) -> list[dict]:
+        if not recent_memory:
+            return []
+
+        matching = [item for item in recent_memory if self._memory_language(item) == preferred_language]
+        unknown = [item for item in recent_memory if self._memory_language(item) is None]
+        fallback = matching or unknown or recent_memory
+
+        ranked = sorted(
+            enumerate(fallback),
+            key=lambda pair: (
+                float(pair[1].get("importance", 0.0)),
+                -pair[0],
+            ),
+            reverse=True,
+        )
+        return [item for _, item in ranked[:limit]]
+
     def run(self, event: Event, perception: PerceptionOutput, recent_memory: list[dict]) -> ContextOutput:
         text = str(event.payload.get("text", "")).strip()
         memory_hint = ""
         if recent_memory:
+            selected_memory = self._select_memory_items(recent_memory, preferred_language=perception.language)
             memory_summaries = [
                 self._summarize_memory_item(memory_item)
-                for memory_item in recent_memory[:2]
+                for memory_item in selected_memory
             ]
             memory_summaries = [summary for summary in memory_summaries if summary]
             if memory_summaries:

@@ -133,7 +133,14 @@ These are small but real issues observed after the production rollout and smoke 
   - decide whether to store a preferred user language in memory or profile state
   - expand beyond keyword heuristics if real traffic shows mixed-language or multilingual false positives
 
-### 4. UTF-8 Smoke Test Reliability
+### 4. Memory Retrieval Ranking
+
+- current repo behavior prefers recent memories tagged with the same response language as the current turn before using untagged fallback context
+- next improvement:
+  - decide whether ranking should also use topic, importance, or recency windows instead of simple language-first selection
+  - consider splitting "conversation continuity" memory from "semantic recall" memory once retrieval grows beyond the latest five rows
+
+### 5. UTF-8 Smoke Test Reliability
 
 - current production behavior is fine, but a manual PowerShell smoke request on Windows mangled Polish diacritics in the submitted payload during verification on 2026-04-15
 - next improvement:
