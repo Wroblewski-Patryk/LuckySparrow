@@ -139,3 +139,51 @@ def test_planning_agent_adds_theta_reasoning_step_for_generic_turn() -> None:
         "favor_structured_reasoning",
         "prepare_response",
     ]
+
+
+def test_planning_agent_uses_guided_collaboration_preference_for_generic_turn() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="help me with this"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.5,
+            urgency=0.2,
+            valence=0.05,
+            arousal=0.3,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.6),
+        user_preferences={"collaboration_preference": "guided"},
+    )
+
+    assert result.goal == "Guide the user through the next step in a calm, step by step way."
+    assert result.steps == [
+        "interpret_event",
+        "review_context",
+        "favor_guided_walkthrough",
+        "prepare_response",
+    ]
+
+
+def test_planning_agent_uses_hands_on_collaboration_preference_for_generic_turn() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="help me with this"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.5,
+            urgency=0.2,
+            valence=0.05,
+            arousal=0.3,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.6),
+        user_preferences={"collaboration_preference": "hands_on"},
+    )
+
+    assert result.goal == "Provide a clear response that ends with a concrete next step."
+    assert result.steps == [
+        "interpret_event",
+        "review_context",
+        "favor_concrete_next_step",
+        "prepare_response",
+    ]

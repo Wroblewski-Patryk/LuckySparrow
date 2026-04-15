@@ -126,6 +126,11 @@ class MemoryRepository:
                 preferences["preferred_role_confidence"] = row.confidence
                 preferences["preferred_role_source"] = row.source
                 preferences["preferred_role_updated_at"] = row.updated_at
+            elif row.kind == "collaboration_preference":
+                preferences["collaboration_preference"] = row.content
+                preferences["collaboration_preference_confidence"] = row.confidence
+                preferences["collaboration_preference_source"] = row.source
+                preferences["collaboration_preference_updated_at"] = row.updated_at
 
         return preferences
 

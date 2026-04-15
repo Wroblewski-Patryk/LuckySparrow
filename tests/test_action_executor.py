@@ -105,7 +105,9 @@ async def test_persist_episode_marks_specific_request_as_semantic_memory() -> No
     assert "memory_kind=semantic" in record.summary
     assert "memory_topics=general,deploy,production,fix" in record.summary
     assert "preference_update=" in record.summary
+    assert "motivation=respond" in record.summary
     assert "role=executor" in record.summary
+    assert "plan_steps=reply" in record.summary
     assert memory_repository.profile_updates == [
         {
             "user_id": "u-1",
@@ -134,7 +136,9 @@ async def test_persist_episode_marks_short_follow_up_as_continuity_memory() -> N
     assert "memory_kind=continuity" in record.summary
     assert "memory_topics=general" in record.summary
     assert "preference_update=" in record.summary
+    assert "motivation=respond" in record.summary
     assert "role=advisor" in record.summary
+    assert "plan_steps=reply" in record.summary
     assert memory_repository.profile_updates == [
         {
             "user_id": "u-1",

@@ -76,8 +76,10 @@ class ActionExecutor:
             f"response_language={expression.language}; "
             f"preference_update={preference_update}; "
             f"context={context.summary}; "
+            f"motivation={motivation.mode}; "
             f"role={role.selected}; "
             f"plan_goal={plan.goal}; "
+            f"plan_steps={','.join(plan.steps)}; "
             f"action={action_result.status}; "
             f"expression={expression.message}"
         )

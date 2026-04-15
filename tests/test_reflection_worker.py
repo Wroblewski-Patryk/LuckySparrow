@@ -188,6 +188,54 @@ async def test_reflection_worker_updates_theta_from_mixed_recent_roles() -> None
     ]
 
 
+async def test_reflection_worker_infers_guided_collaboration_preference() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "motivation=analyze; role=analyst; plan_steps=interpret_event,review_context,break_down_problem,highlight_next_step,prepare_response; action=success; expression=One."},
+            {"summary": "motivation=analyze; role=analyst; plan_steps=interpret_event,review_context,break_down_problem,highlight_next_step,prepare_response; action=success; expression=Two."},
+            {"summary": "motivation=respond; role=mentor; plan_steps=interpret_event,review_context,offer_guidance,prepare_response; action=success; expression=Three."},
+            {"summary": "motivation=support; role=friend; plan_steps=interpret_event,review_context,reduce_pressure,prepare_response; action=success; expression=Four."},
+        ]
+    )
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-guided")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "collaboration_preference",
+        "content": "guided",
+        "confidence": 0.73,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-guided",
+    } in repository.conclusion_updates
+
+
+async def test_reflection_worker_infers_hands_on_collaboration_preference() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "motivation=execute; role=executor; plan_steps=interpret_event,review_context,identify_requested_change,propose_execution_step,prepare_response; action=success; expression=One."},
+            {"summary": "motivation=execute; role=executor; plan_steps=interpret_event,review_context,identify_requested_change,propose_execution_step,prepare_response; action=success; expression=Two."},
+            {"summary": "motivation=execute; role=executor; plan_steps=interpret_event,review_context,identify_requested_change,propose_execution_step,prepare_response; action=success; expression=Three."},
+            {"summary": "motivation=respond; role=advisor; plan_steps=interpret_event,review_context,favor_concrete_next_step,prepare_response; action=success; expression=Four."},
+        ]
+    )
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-hands-on")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "collaboration_preference",
+        "content": "hands_on",
+        "confidence": 0.73,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-hands-on",
+    } in repository.conclusion_updates
+
+
 async def test_reflection_worker_enqueue_persists_durable_task() -> None:
     repository = FakeMemoryRepository(recent_memory=[])
     worker = ReflectionWorker(memory_repository=repository)

@@ -3,7 +3,7 @@ from app.core.contracts import ContextOutput, Event, PerceptionOutput
 
 class ContextAgent:
     GENERIC_TAGS = {"general"}
-    SUPPORTED_CONCLUSION_KINDS = {"response_style"}
+    SUPPORTED_CONCLUSION_KINDS = {"response_style", "collaboration_preference"}
     STOPWORDS = {
         "a",
         "an",
@@ -111,6 +111,11 @@ class ContextAgent:
 
     def _summarize_conclusion(self, kind: str, content: str) -> str:
         if kind != "response_style":
+            if kind == "collaboration_preference":
+                if content == "hands_on":
+                    return "prefers concrete execution help"
+                if content == "guided":
+                    return "prefers guided step by step help"
             return ""
         if content == "concise":
             return "prefers concise responses"

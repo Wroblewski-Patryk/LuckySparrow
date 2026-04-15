@@ -255,6 +255,10 @@ class ReflectionWorker:
         if preferred_role is not None:
             conclusions.append(preferred_role)
 
+        collaboration_preference = self._derive_collaboration_preference(recent_memory)
+        if collaboration_preference is not None:
+            conclusions.append(collaboration_preference)
+
         deduped: list[dict] = []
         seen: set[tuple[str, str]] = set()
         for conclusion in conclusions:
@@ -315,6 +319,64 @@ class ReflectionWorker:
             "analysis_bias": round(totals["analysis_bias"] / counted, 2),
             "execution_bias": round(totals["execution_bias"] / counted, 2),
         }
+
+    def _derive_collaboration_preference(self, recent_memory: Sequence[dict]) -> dict | None:
+        if len(recent_memory) < 4:
+            return None
+
+        guided_count = 0
+        hands_on_count = 0
+        sample_size = 0
+
+        for memory_item in recent_memory:
+            fields = self._extract_fields(str(memory_item.get("summary", "")))
+            role = fields.get("role", "").strip().lower()
+            motivation = fields.get("motivation", "").strip().lower()
+            plan_steps = {
+                step.strip().lower()
+                for step in fields.get("plan_steps", "").split(",")
+                if step.strip()
+            }
+
+            if not role and not motivation and not plan_steps:
+                continue
+            sample_size += 1
+
+            if (
+                role == "executor"
+                or motivation == "execute"
+                or {"propose_execution_step", "identify_requested_change", "favor_concrete_next_step"}.intersection(plan_steps)
+            ):
+                hands_on_count += 1
+                continue
+
+            if (
+                role in {"analyst", "mentor", "friend"}
+                or motivation in {"analyze", "support"}
+                or {"break_down_problem", "offer_guidance", "favor_guided_walkthrough", "highlight_next_step"}.intersection(plan_steps)
+            ):
+                guided_count += 1
+
+        if sample_size < 4:
+            return None
+
+        if hands_on_count >= 3 and hands_on_count / sample_size >= 0.7:
+            return {
+                "kind": "collaboration_preference",
+                "content": "hands_on",
+                "confidence": 0.73,
+                "source": "background_reflection",
+            }
+
+        if guided_count >= 3 and guided_count / sample_size >= 0.7:
+            return {
+                "kind": "collaboration_preference",
+                "content": "guided",
+                "confidence": 0.73,
+                "source": "background_reflection",
+            }
+
+        return None
 
     def _extract_fields(self, raw_summary: str) -> dict[str, str]:
         fields: dict[str, str] = {}
