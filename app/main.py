@@ -17,6 +17,7 @@ from app.integrations.openai.client import OpenAIClient
 from app.integrations.telegram.client import TelegramClient
 from app.memory.repository import MemoryRepository
 from app.motivation.engine import MotivationEngine
+from app.reflection.worker import ReflectionWorker
 
 
 @asynccontextmanager
@@ -40,6 +41,8 @@ async def lifespan(app: FastAPI):
         memory_repository=memory_repository,
         telegram_client=telegram_client,
     )
+    reflection_worker = ReflectionWorker(memory_repository=memory_repository)
+    await reflection_worker.start()
 
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
@@ -50,12 +53,14 @@ async def lifespan(app: FastAPI):
         expression_agent=ExpressionAgent(openai_client=openai_client),
         action_executor=action_executor,
         memory_repository=memory_repository,
+        reflection_worker=reflection_worker,
     )
 
     app.state.settings = settings
     app.state.database = database
     app.state.memory_repository = memory_repository
     app.state.telegram_client = telegram_client
+    app.state.reflection_worker = reflection_worker
     app.state.runtime = runtime
 
     logger.info(
@@ -68,6 +73,7 @@ async def lifespan(app: FastAPI):
     try:
         yield
     finally:
+        await reflection_worker.stop()
         await telegram_client.close()
         await database.dispose()
         logger.info("AION stopped")

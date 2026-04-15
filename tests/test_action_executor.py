@@ -15,7 +15,6 @@ from app.core.contracts import (
 class FakeMemoryRepository:
     def __init__(self):
         self.profile_updates: list[dict] = []
-        self.conclusion_updates: list[dict] = []
 
     async def write_episode(self, **kwargs) -> dict:
         return {
@@ -28,10 +27,6 @@ class FakeMemoryRepository:
 
     async def upsert_user_profile_language(self, **kwargs) -> dict:
         self.profile_updates.append(kwargs)
-        return kwargs
-
-    async def upsert_conclusion(self, **kwargs) -> dict:
-        self.conclusion_updates.append(kwargs)
         return kwargs
 
 
@@ -158,7 +153,7 @@ async def test_persist_episode_skips_profile_update_for_derived_language_signal(
     assert memory_repository.profile_updates == []
 
 
-async def test_persist_episode_stores_explicit_response_style_preference_as_conclusion() -> None:
+async def test_persist_episode_marks_explicit_response_style_preference_for_reflection() -> None:
     memory_repository = FakeMemoryRepository()
     executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
 
@@ -173,13 +168,3 @@ async def test_persist_episode_stores_explicit_response_style_preference_as_conc
     )
 
     assert "preference_update=response_style:concise" in record.summary
-    assert memory_repository.conclusion_updates == [
-        {
-            "user_id": "u-1",
-            "kind": "response_style",
-            "content": "concise",
-            "confidence": 0.95,
-            "source": "explicit_request",
-            "supporting_event_id": "evt-1",
-        }
-    ]

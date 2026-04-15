@@ -11,6 +11,7 @@ from app.core.logging import get_logger
 from app.expression.generator import ExpressionAgent
 from app.memory.repository import MemoryRepository
 from app.motivation.engine import MotivationEngine
+from app.reflection.worker import ReflectionWorker
 
 
 class RuntimeOrchestrator:
@@ -24,6 +25,7 @@ class RuntimeOrchestrator:
         expression_agent: ExpressionAgent,
         action_executor: ActionExecutor,
         memory_repository: MemoryRepository,
+        reflection_worker: ReflectionWorker | None = None,
     ):
         self.perception_agent = perception_agent
         self.context_agent = context_agent
@@ -33,6 +35,7 @@ class RuntimeOrchestrator:
         self.expression_agent = expression_agent
         self.action_executor = action_executor
         self.memory_repository = memory_repository
+        self.reflection_worker = reflection_worker
         self.logger = get_logger("aion.runtime")
 
     async def run(self, event: Event) -> RuntimeResult:
@@ -73,6 +76,7 @@ class RuntimeOrchestrator:
         action_result = await self.action_executor.execute(plan=plan, event=event, expression=expression)
 
         memory_record = None
+        reflection_triggered = False
         try:
             memory_record = await self.action_executor.persist_episode(
                 event=event,
@@ -83,6 +87,11 @@ class RuntimeOrchestrator:
                 action_result=action_result,
                 expression=expression,
             )
+            if self.reflection_worker is not None:
+                reflection_triggered = self.reflection_worker.enqueue(
+                    user_id=event.meta.user_id,
+                    event_id=event.event_id,
+                )
         except Exception as exc:  # pragma: no cover - defensive path
             self.logger.exception("memory_persist_failed event_id=%s error=%s", event.event_id, exc)
 
@@ -105,6 +114,6 @@ class RuntimeOrchestrator:
             action_result=action_result,
             expression=expression,
             memory_record=memory_record,
-            reflection_triggered=False,
+            reflection_triggered=reflection_triggered,
             duration_ms=duration_ms,
         )

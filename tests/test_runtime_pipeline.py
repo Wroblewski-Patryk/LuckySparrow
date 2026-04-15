@@ -83,6 +83,16 @@ class FakeOpenAIClient:
         return "Mocked OpenAI reply"
 
 
+class FakeReflectionWorker:
+    def __init__(self, enqueue_result: bool = True):
+        self.enqueue_result = enqueue_result
+        self.calls: list[dict[str, str]] = []
+
+    def enqueue(self, user_id: str, event_id: str) -> bool:
+        self.calls.append({"user_id": user_id, "event_id": event_id})
+        return self.enqueue_result
+
+
 async def test_runtime_pipeline_api_source() -> None:
     memory = FakeMemoryRepository(
         recent_memory=[
@@ -100,6 +110,7 @@ async def test_runtime_pipeline_api_source() -> None:
     )
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
         context_agent=ContextAgent(),
@@ -109,6 +120,7 @@ async def test_runtime_pipeline_api_source() -> None:
         expression_agent=ExpressionAgent(openai_client=openai),
         action_executor=action,
         memory_repository=memory,
+        reflection_worker=reflection,
     )
 
     event = Event(
@@ -137,7 +149,8 @@ async def test_runtime_pipeline_api_source() -> None:
     assert "memory_kind=continuity" in result.memory_record.summary
     assert "memory_topics=general,hello" in result.memory_record.summary
     assert "response_language=en" in result.memory_record.summary
-    assert result.reflection_triggered is False
+    assert result.reflection_triggered is True
+    assert reflection.calls == [{"user_id": "u-1", "event_id": "evt-1"}]
     assert memory.profile_updates == []
     assert openai.calls[0]["response_style"] == ""
 
@@ -149,6 +162,7 @@ async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_wi
     )
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
         context_agent=ContextAgent(),
@@ -158,6 +172,7 @@ async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_wi
         expression_agent=ExpressionAgent(openai_client=openai),
         action_executor=action,
         memory_repository=memory,
+        reflection_worker=reflection,
     )
 
     event = Event(
@@ -175,6 +190,7 @@ async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_wi
     assert result.perception.language_source == "user_profile"
     assert result.expression.language == "pl"
     assert result.context.related_tags == ["general", "language:pl"]
+    assert result.reflection_triggered is True
     assert memory.profile_updates == []
     assert openai.calls[0]["response_style"] == ""
 
@@ -187,6 +203,7 @@ async def test_runtime_pipeline_applies_structured_response_preference_from_conc
     ]
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
         context_agent=ContextAgent(),
@@ -196,6 +213,7 @@ async def test_runtime_pipeline_applies_structured_response_preference_from_conc
         expression_agent=ExpressionAgent(openai_client=openai),
         action_executor=action,
         memory_repository=memory,
+        reflection_worker=reflection,
     )
 
     event = Event(
@@ -213,6 +231,7 @@ async def test_runtime_pipeline_applies_structured_response_preference_from_conc
     assert openai.calls[0]["response_style"] == "structured"
     assert "Stable user preferences: prefers structured responses." in result.context.summary
     assert "format_response_as_bullets" in result.plan.steps
+    assert result.reflection_triggered is True
 
 
 async def test_runtime_pipeline_applies_concise_response_preference_to_plan() -> None:
@@ -223,6 +242,7 @@ async def test_runtime_pipeline_applies_concise_response_preference_to_plan() ->
     ]
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
         context_agent=ContextAgent(),
@@ -232,6 +252,7 @@ async def test_runtime_pipeline_applies_concise_response_preference_to_plan() ->
         expression_agent=ExpressionAgent(openai_client=openai),
         action_executor=action,
         memory_repository=memory,
+        reflection_worker=reflection,
     )
 
     event = Event(
@@ -248,3 +269,4 @@ async def test_runtime_pipeline_applies_concise_response_preference_to_plan() ->
     assert result.expression.message == "Mocked OpenAI reply"
     assert openai.calls[0]["response_style"] == "concise"
     assert "keep_response_concise" in result.plan.steps
+    assert result.reflection_triggered is True

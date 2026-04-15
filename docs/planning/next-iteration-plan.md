@@ -19,9 +19,9 @@ As of 2026-04-15, the repo already provides:
 
 Important implementation limits that shape this plan:
 
-- memory retrieval only contributes a count-based hint to context
-- role selection is still hardcoded to `advisor`
-- `reflection_triggered` is returned as `True` even though reflection is not implemented
+- memory retrieval is still heuristic and bounded to a small recent window plus lightweight semantic conclusions
+- role selection is still heuristic rather than user-state or goal-aware
+- reflection now exists as a lightweight in-process worker, not yet as a durable external subsystem
 - startup schema creation exists, but migrations do not
 
 ## Iteration Goal
@@ -157,6 +157,14 @@ These are small but real issues observed after the production rollout and smoke 
   - widen conclusion memory beyond explicit requests into repeated-pattern learning once there is enough traffic signal
   - decide whether conclusions should start carrying supporting memory ids and richer provenance before the subconscious loop exists
   - consider whether stable semantic preferences should also influence role selection, not only context, planning, and expression
+
+### 8. Background Reflection Worker
+
+- current repo behavior now has a lightweight in-process reflection worker that runs after episode persistence, updates semantic conclusions asynchronously, and sets `reflection_triggered=true` when enqueue succeeds
+- next improvement:
+  - move beyond explicit `preference_update` markers and infer stable conclusions from repeated behavioral patterns
+  - decide whether in-process reflection is enough for MVP or whether reflection should become a durable queued worker before more complex jobs exist
+  - decide when reflection should touch only `aion_conclusion` versus richer future artifacts like goals, theta, or role heuristics
 
 ### 5. UTF-8 Smoke Test Reliability
 

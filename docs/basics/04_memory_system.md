@@ -114,6 +114,7 @@ Current MVP status:
 - lightweight identity-linked preferences are stored in `aion_profile`
 - first semantic preference conclusions are stored in `aion_conclusion`
 - runtime retrieval now combines recent episodes with stable semantic preferences during context construction
+- a lightweight in-process reflection worker now consolidates some conclusions asynchronously after episode writes
 - vector retrieval is still planned, not live
 
 ---

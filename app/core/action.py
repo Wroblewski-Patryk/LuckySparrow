@@ -98,16 +98,6 @@ class ActionExecutor:
                 source=perception.language_source,
             )
 
-        if style_preference is not None:
-            await self.memory_repository.upsert_conclusion(
-                user_id=event.meta.user_id,
-                kind="response_style",
-                content=style_preference.style,
-                confidence=style_preference.confidence,
-                source=style_preference.source,
-                supporting_event_id=event.event_id,
-            )
-
         return MemoryRecord(
             id=stored["id"],
             event_id=stored["event_id"],

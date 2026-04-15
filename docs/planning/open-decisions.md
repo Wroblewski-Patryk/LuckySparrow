@@ -9,9 +9,10 @@ The current repo already works as an MVP slice, but several architecture-level d
 ### 1. Reflection Placeholder vs Real Reflection
 
 - Current repo fact:
-  - `RuntimeResult.reflection_triggered` is now returned as `False`.
+  - runtime now has a lightweight in-process background reflection worker.
+  - `RuntimeResult.reflection_triggered` is returned as `True` when reflection was successfully queued after episode persistence.
 - Decision needed:
-  - should reflection become a real stage, a background worker, or should the field be removed until it becomes real behavior?
+  - should this in-process worker stay as the MVP baseline, or should reflection move into a more durable external worker or scheduler before more complex consolidation is added?
 
 ### 2. Migration Strategy
 
