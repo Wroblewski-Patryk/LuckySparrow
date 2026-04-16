@@ -516,6 +516,35 @@ def test_planning_agent_adds_milestone_arc_step_for_reentered_completion_window(
     assert "stabilize_reentered_completion_window" in result.steps
 
 
+def test_planning_agent_adds_milestone_pressure_step_for_lingering_completion() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="What should I do next for the MVP?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.91,
+            urgency=0.46,
+            valence=0.05,
+            arousal=0.45,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="analyst", confidence=0.8),
+        user_preferences={"goal_milestone_pressure": "lingering_completion"},
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+    )
+
+    assert "align_with_active_goal" in result.steps
+    assert "force_goal_closure_decision" in result.steps
+
+
 def test_planning_agent_adds_preserve_goal_momentum_step_from_reflected_progress_state() -> None:
     result = PlanningAgent().run(
         event=_event(text="What should I do next for the MVP?"),

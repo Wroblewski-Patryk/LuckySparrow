@@ -26,6 +26,7 @@ class PlanningAgent:
         goal_progress_arc = str((user_preferences or {}).get("goal_progress_arc", "")).strip().lower()
         goal_milestone_state = str((user_preferences or {}).get("goal_milestone_state", "")).strip().lower()
         goal_milestone_arc = str((user_preferences or {}).get("goal_milestone_arc", "")).strip().lower()
+        goal_milestone_pressure = str((user_preferences or {}).get("goal_milestone_pressure", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
@@ -159,6 +160,14 @@ class PlanningAgent:
         if goal_milestone_risk_step is not None and goal_milestone_risk_step not in steps:
             prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
             steps.insert(prepare_index, goal_milestone_risk_step)
+
+        goal_milestone_pressure_step = self._goal_milestone_pressure_step(
+            goal_milestone_pressure=goal_milestone_pressure,
+            steps=steps,
+        )
+        if goal_milestone_pressure_step is not None and goal_milestone_pressure_step not in steps:
+            prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
+            steps.insert(prepare_index, goal_milestone_pressure_step)
 
         goal_completion_criteria_step = self._goal_completion_criteria_step(
             goal_completion_criteria=goal_completion_criteria,
@@ -461,6 +470,29 @@ class PlanningAgent:
             if "stabilize_milestone_recovery" in steps or "stabilize_goal_recovery" in steps or "consolidate_goal_recovery" in steps:
                 return None
             return "stabilize_milestone_recovery"
+        return None
+
+    def _goal_milestone_pressure_step(self, goal_milestone_pressure: str, steps: list[str]) -> str | None:
+        if goal_milestone_pressure == "building_closure_pressure":
+            if "tighten_completion_window" in steps or "push_goal_to_completion" in steps:
+                return None
+            return "tighten_completion_window"
+        if goal_milestone_pressure == "lingering_completion":
+            if "force_goal_closure_decision" in steps or "confirm_goal_completion" in steps:
+                return None
+            return "force_goal_closure_decision"
+        if goal_milestone_pressure == "dragging_recovery":
+            if "break_recovery_drag" in steps or "stabilize_goal_recovery" in steps:
+                return None
+            return "break_recovery_drag"
+        if goal_milestone_pressure == "stale_execution":
+            if "unstick_execution_phase" in steps or "continue_goal_execution" in steps:
+                return None
+            return "unstick_execution_phase"
+        if goal_milestone_pressure == "lingering_setup":
+            if "force_first_execution_step" in steps or "define_first_execution_step" in steps:
+                return None
+            return "force_first_execution_step"
         return None
 
     def _goal_completion_criteria_step(self, goal_completion_criteria: str, steps: list[str]) -> str | None:

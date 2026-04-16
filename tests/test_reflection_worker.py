@@ -623,6 +623,65 @@ async def test_reflection_worker_derives_reentered_completion_window_milestone_a
     } in repository.conclusion_updates
 
 
+async def test_reflection_worker_derives_lingering_completion_milestone_pressure() -> None:
+    now = datetime.now(timezone.utc)
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "goal_update=ship the MVP this week; action=success; expression=One."},
+        ]
+    )
+    repository.active_goals = [
+        {"id": 1, "name": "ship the MVP this week", "priority": "high", "status": "active", "goal_type": "operational"}
+    ]
+    repository.active_tasks = []
+    repository.runtime_preferences = {"goal_progress_score": 0.82}
+    repository.goal_progress_history = [
+        {"id": 11, "goal_id": 1, "score": 0.82, "execution_state": "advancing", "progress_trend": "steady"}
+    ]
+    repository.goal_milestone_history = [
+        {
+            "id": 3,
+            "goal_id": 1,
+            "milestone_name": "Drive goal to closure",
+            "phase": "completion_window",
+            "risk_level": "ready_to_close",
+            "completion_criteria": "confirm_goal_completion",
+            "created_at": now - timedelta(hours=20),
+        },
+        {
+            "id": 2,
+            "goal_id": 1,
+            "milestone_name": "Drive goal to closure",
+            "phase": "completion_window",
+            "risk_level": "ready_to_close",
+            "completion_criteria": "confirm_goal_completion",
+            "created_at": now - timedelta(hours=10),
+        },
+        {
+            "id": 1,
+            "goal_id": 1,
+            "milestone_name": "Drive goal to closure",
+            "phase": "completion_window",
+            "risk_level": "ready_to_close",
+            "completion_criteria": "confirm_goal_completion",
+            "created_at": now - timedelta(hours=2),
+        },
+    ]
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-goal-milestone-pressure")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_milestone_pressure",
+        "content": "lingering_completion",
+        "confidence": 0.8,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-milestone-pressure",
+    } in repository.conclusion_updates
+
+
 async def test_reflection_worker_infers_progressing_goal_execution_state_from_done_update() -> None:
     repository = FakeMemoryRepository(
         recent_memory=[

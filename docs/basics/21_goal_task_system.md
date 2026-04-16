@@ -604,6 +604,7 @@ Current MVP status:
 - that active milestone focus is now also enriched at runtime with lightweight operational signals such as milestone risk and current completion criteria, so planning can react not only to phase but also to whether the milestone is at risk, stabilizing, ready to close, or waiting on a specific closure condition
 - background reflection now also writes lightweight `aion_goal_milestone_history` snapshots, so runtime can react not only to the current milestone state but also to short milestone-level momentum, stabilization, regression, or closure movement
 - background reflection can now also compress those milestone histories into a semantic `goal_milestone_arc`, and runtime can use that arc to tell apart closure momentum, re-entry into the completion window, recovery backslide, milestone whiplash, or steadier closure posture
+- background reflection can now also derive lightweight `goal_milestone_pressure`, so runtime can tell when a milestone is lingering too long in completion, dragging in recovery, or staying stale in execution or setup
 - that reflected goal state can now shape context, motivation, and planning even when the current turn does not restate the full blocker details
 
 Together, they turn cognition into progress.

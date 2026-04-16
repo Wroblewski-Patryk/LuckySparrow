@@ -116,6 +116,7 @@ class MotivationEngine:
         goal_progress_arc = str((user_preferences or {}).get("goal_progress_arc", "")).strip().lower()
         goal_milestone_state = str((user_preferences or {}).get("goal_milestone_state", "")).strip().lower()
         goal_milestone_arc = str((user_preferences or {}).get("goal_milestone_arc", "")).strip().lower()
+        goal_milestone_pressure = str((user_preferences or {}).get("goal_milestone_pressure", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
@@ -209,6 +210,17 @@ class MotivationEngine:
             else 0.0
         )
         importance += (
+            0.07
+            if goal_milestone_pressure == "lingering_completion"
+            else 0.06
+            if goal_milestone_pressure == "dragging_recovery"
+            else 0.05
+            if goal_milestone_pressure == "stale_execution"
+            else 0.04
+            if goal_milestone_pressure in {"building_closure_pressure", "lingering_setup"}
+            else 0.0
+        )
+        importance += (
             0.06
             if milestone_arc_signal == "recovery_backslide"
             else 0.05
@@ -293,6 +305,17 @@ class MotivationEngine:
             if goal_completion_criteria in {"stabilize_remaining_work", "unblock_next_task"}
             else 0.03
             if goal_completion_criteria in {"define_first_execution_step", "advance_next_task"}
+            else 0.0
+        )
+        urgency += (
+            0.09
+            if goal_milestone_pressure == "lingering_completion"
+            else 0.07
+            if goal_milestone_pressure == "dragging_recovery"
+            else 0.06
+            if goal_milestone_pressure == "stale_execution"
+            else 0.05
+            if goal_milestone_pressure in {"building_closure_pressure", "lingering_setup"}
             else 0.0
         )
         urgency += (

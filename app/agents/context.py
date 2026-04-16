@@ -12,6 +12,7 @@ class ContextAgent:
         "goal_progress_arc",
         "goal_milestone_state",
         "goal_milestone_arc",
+        "goal_milestone_pressure",
         "goal_milestone_transition",
         "goal_milestone_risk",
         "goal_completion_criteria",
@@ -164,6 +165,8 @@ class ContextAgent:
                 return self._summarize_goal_milestone_state(content)
             if kind == "goal_milestone_arc":
                 return self._summarize_goal_milestone_arc(content)
+            if kind == "goal_milestone_pressure":
+                return self._summarize_goal_milestone_pressure(content)
             if kind == "goal_milestone_transition":
                 return self._summarize_goal_milestone_transition(content)
             if kind == "goal_milestone_risk":
@@ -244,6 +247,19 @@ class ContextAgent:
             return "active milestone is oscillating across phases"
         if content == "steady_closure":
             return "active milestone is holding steady near closure"
+        return ""
+
+    def _summarize_goal_milestone_pressure(self, content: str) -> str:
+        if content == "building_closure_pressure":
+            return "active milestone is approaching a closure push"
+        if content == "lingering_completion":
+            return "active milestone has lingered in the completion window for too long"
+        if content == "dragging_recovery":
+            return "active milestone recovery is dragging without enough closure"
+        if content == "stale_execution":
+            return "active milestone has stayed in execution too long without phase change"
+        if content == "lingering_setup":
+            return "active milestone has remained in setup longer than expected"
         return ""
 
     def _summarize_goal_milestone_risk(self, content: str) -> str:
@@ -728,15 +744,19 @@ class ContextAgent:
         name = str(milestone.get("name", "")).strip()
         phase = str(milestone.get("phase", "")).strip()
         raw_arc = milestone.get("arc")
+        raw_pressure_level = milestone.get("pressure_level")
         raw_risk_level = milestone.get("risk_level")
         raw_completion_criteria = milestone.get("completion_criteria")
         arc = str(raw_arc).strip().lower() if raw_arc else ""
+        pressure_level = str(raw_pressure_level).strip().lower() if raw_pressure_level else ""
         risk_level = str(raw_risk_level).strip().lower() if raw_risk_level else ""
         completion_criteria = str(raw_completion_criteria).strip().lower() if raw_completion_criteria else ""
 
         details = [phase] if phase else []
         if arc:
             details.append(self._humanize_arc(arc))
+        if pressure_level:
+            details.append(self._humanize_pressure(pressure_level))
         if risk_level:
             details.append(risk_level)
         if completion_criteria:
@@ -772,6 +792,15 @@ class ContextAgent:
             "recovery_backslide": "recovery backslide",
             "milestone_whiplash": "milestone whiplash",
             "steady_closure": "steady closure",
+        }.get(value, value.replace("_", " "))
+
+    def _humanize_pressure(self, value: str) -> str:
+        return {
+            "building_closure_pressure": "building closure pressure",
+            "lingering_completion": "lingering completion",
+            "dragging_recovery": "dragging recovery",
+            "stale_execution": "stale execution",
+            "lingering_setup": "lingering setup",
         }.get(value, value.replace("_", " "))
 
     def _humanize_risk(self, value: str) -> str:

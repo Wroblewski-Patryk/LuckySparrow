@@ -77,6 +77,7 @@ class RuntimeOrchestrator:
 
         primary_goal_id = self._primary_goal_id(active_goals)
         arc = str(user_preferences.get("goal_milestone_arc", "")).strip().lower() or None
+        pressure_level = str(user_preferences.get("goal_milestone_pressure", "")).strip().lower() or None
         risk_level = str(user_preferences.get("goal_milestone_risk", "")).strip().lower() or None
         completion_criteria = str(user_preferences.get("goal_completion_criteria", "")).strip().lower() or None
 
@@ -85,10 +86,12 @@ class RuntimeOrchestrator:
             item = dict(milestone)
             if primary_goal_id is not None and int(item.get("goal_id", -1)) == primary_goal_id:
                 item["arc"] = arc
+                item["pressure_level"] = pressure_level
                 item["risk_level"] = risk_level
                 item["completion_criteria"] = completion_criteria
             else:
                 item.setdefault("arc", None)
+                item.setdefault("pressure_level", None)
                 item.setdefault("risk_level", None)
                 item.setdefault("completion_criteria", None)
             enriched.append(item)

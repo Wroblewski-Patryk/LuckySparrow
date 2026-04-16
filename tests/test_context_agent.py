@@ -208,6 +208,40 @@ def test_context_summary_formats_active_goal_milestone_with_arc() -> None:
     )
 
 
+def test_context_summary_formats_active_goal_milestone_with_pressure() -> None:
+    result = ContextAgent().run(
+        event=_event("can you help me finish the mvp"),
+        perception=_perception(),
+        recent_memory=[],
+        active_goals=[
+            {
+                "id": 1,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+        active_goal_milestones=[
+            {
+                "id": 3,
+                "goal_id": 1,
+                "name": "Drive goal to closure",
+                "phase": "completion_window",
+                "status": "active",
+                "pressure_level": "lingering_completion",
+                "risk_level": "ready_to_close",
+            }
+        ],
+    )
+
+    assert (
+        "Active milestones: Drive goal to closure (completion_window, lingering completion, ready_to_close)."
+        in result.summary
+    )
+
+
 def test_context_summary_includes_collaboration_preference_from_conclusions() -> None:
     result = ContextAgent().run(
         event=_event("how should we proceed"),
@@ -404,6 +438,24 @@ def test_context_summary_includes_goal_milestone_arc_from_conclusions() -> None:
     )
 
     assert "Stable user preferences: active milestone has re-entered the completion window after recovery." in result.summary
+
+
+def test_context_summary_includes_goal_milestone_pressure_from_conclusions() -> None:
+    result = ContextAgent().run(
+        event=_event("how should we close this out"),
+        perception=_perception(),
+        recent_memory=[],
+        conclusions=[
+            {
+                "kind": "goal_milestone_pressure",
+                "content": "lingering_completion",
+                "confidence": 0.8,
+                "source": "background_reflection",
+            }
+        ],
+    )
+
+    assert "Stable user preferences: active milestone has lingered in the completion window for too long." in result.summary
 
 
 def test_context_summary_includes_goal_milestone_risk_and_completion_criteria_from_conclusions() -> None:

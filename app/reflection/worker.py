@@ -448,6 +448,14 @@ class ReflectionWorker:
         )
         if goal_milestone_arc is not None:
             conclusions.append(goal_milestone_arc)
+        goal_milestone_pressure = self._derive_goal_milestone_pressure(
+            recent_goal_milestone_history=recent_goal_milestone_history or [],
+            goal_milestone_state=goal_milestone_state,
+            goal_milestone_arc=goal_milestone_arc,
+            goal_milestone_transition=goal_milestone_transition,
+        )
+        if goal_milestone_pressure is not None:
+            conclusions.append(goal_milestone_pressure)
         goal_milestone_risk = self._derive_goal_milestone_risk(
             active_tasks=active_tasks or [],
             goal_execution_state=goal_execution_state,
@@ -868,6 +876,97 @@ class ReflectionWorker:
                 "confidence": 0.76,
                 "source": "background_reflection",
             }
+        return None
+
+    def _derive_goal_milestone_pressure(
+        self,
+        *,
+        recent_goal_milestone_history: Sequence[dict],
+        goal_milestone_state: dict | None,
+        goal_milestone_arc: dict | None,
+        goal_milestone_transition: dict | None,
+    ) -> dict | None:
+        current_phase = str(goal_milestone_state.get("content", "")).strip().lower() if goal_milestone_state is not None else ""
+        latest_history_phase = ""
+        if recent_goal_milestone_history:
+            latest_history_phase = str(recent_goal_milestone_history[0].get("phase", "")).strip().lower()
+        if (not current_phase or current_phase == "early_stage") and latest_history_phase:
+            current_phase = latest_history_phase
+        if not current_phase:
+            return None
+
+        milestone_arc = str(goal_milestone_arc.get("content", "")).strip().lower() if goal_milestone_arc is not None else ""
+        transition = (
+            str(goal_milestone_transition.get("content", "")).strip().lower()
+            if goal_milestone_transition is not None
+            else ""
+        )
+
+        ordered_history = list(reversed(recent_goal_milestone_history))
+        consecutive_same_phase = 1
+        latest_timestamp = datetime.now(timezone.utc)
+        oldest_same_phase_timestamp = latest_timestamp
+        found_current_phase = False
+
+        for item in reversed(ordered_history):
+            phase = str(item.get("phase", "")).strip().lower()
+            if phase != current_phase:
+                if found_current_phase:
+                    break
+                continue
+
+            found_current_phase = True
+            consecutive_same_phase += 1
+            item_timestamp = item.get("created_at")
+            if isinstance(item_timestamp, datetime):
+                normalized_timestamp = (
+                    item_timestamp if item_timestamp.tzinfo is not None else item_timestamp.replace(tzinfo=timezone.utc)
+                )
+                oldest_same_phase_timestamp = min(oldest_same_phase_timestamp, normalized_timestamp)
+
+        same_phase_hours = max(0.0, (latest_timestamp - oldest_same_phase_timestamp).total_seconds() / 3600.0)
+
+        if current_phase == "completion_window":
+            if consecutive_same_phase >= 4 or same_phase_hours >= 12:
+                return {
+                    "kind": "goal_milestone_pressure",
+                    "content": "lingering_completion",
+                    "confidence": 0.8,
+                    "source": "background_reflection",
+                }
+            if milestone_arc in {"closure_momentum", "reentered_completion_window"} or transition == "entered_completion_window":
+                return {
+                    "kind": "goal_milestone_pressure",
+                    "content": "building_closure_pressure",
+                    "confidence": 0.74,
+                    "source": "background_reflection",
+                }
+            return None
+
+        if current_phase == "recovery_phase" and (consecutive_same_phase >= 3 or same_phase_hours >= 8):
+            return {
+                "kind": "goal_milestone_pressure",
+                "content": "dragging_recovery",
+                "confidence": 0.78,
+                "source": "background_reflection",
+            }
+
+        if current_phase == "execution_phase" and (consecutive_same_phase >= 4 or same_phase_hours >= 12):
+            return {
+                "kind": "goal_milestone_pressure",
+                "content": "stale_execution",
+                "confidence": 0.75,
+                "source": "background_reflection",
+            }
+
+        if current_phase == "early_stage" and (consecutive_same_phase >= 4 or same_phase_hours >= 12):
+            return {
+                "kind": "goal_milestone_pressure",
+                "content": "lingering_setup",
+                "confidence": 0.74,
+                "source": "background_reflection",
+            }
+
         return None
 
     def _derive_goal_milestone_risk(
