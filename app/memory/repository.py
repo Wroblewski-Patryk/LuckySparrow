@@ -433,6 +433,7 @@ class MemoryRepository:
                 )
                 session.add(row)
             elif self._should_update_conclusion(
+                kind=kind,
                 current_content=row.content,
                 current_confidence=row.confidence,
                 next_content=content,
@@ -654,6 +655,7 @@ class MemoryRepository:
 
     def _should_update_conclusion(
         self,
+        kind: str,
         current_content: str,
         current_confidence: float,
         next_content: str,
@@ -663,6 +665,8 @@ class MemoryRepository:
         if current_content == next_content:
             return True
         if source == "explicit_request":
+            return True
+        if kind in {"goal_execution_state"}:
             return True
         return next_confidence >= current_confidence
 

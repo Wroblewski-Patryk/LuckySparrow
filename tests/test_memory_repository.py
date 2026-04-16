@@ -175,3 +175,34 @@ async def test_memory_repository_exposes_goal_execution_state_in_runtime_prefere
     assert preferences["goal_execution_state_source"] == "background_reflection"
 
     await engine.dispose()
+
+
+async def test_memory_repository_allows_dynamic_goal_execution_state_transition(tmp_path) -> None:
+    database_path = tmp_path / "memory-goal-execution-transition.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="goal_execution_state",
+        content="blocked",
+        confidence=0.82,
+        source="background_reflection",
+        supporting_event_id="evt-blocked",
+    )
+    updated = await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="goal_execution_state",
+        content="progressing",
+        confidence=0.76,
+        source="background_reflection",
+        supporting_event_id="evt-progressing",
+    )
+
+    assert updated["content"] == "progressing"
+    assert updated["confidence"] == 0.76
+    assert updated["supporting_event_id"] == "evt-progressing"
+
+    await engine.dispose()
