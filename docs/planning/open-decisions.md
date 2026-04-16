@@ -27,9 +27,10 @@ The current repo already works as an MVP slice, but several architecture-level d
 ### 3. Public API Shape
 
 - Current repo fact:
-  - `POST /event` returns the full serialized runtime result, including identity, active goals/tasks/milestones, goal and milestone histories, `reflection_triggered`, and per-stage `stage_timings_ms` for the conscious loop.
+  - `POST /event` now returns a smaller public response by default: event identifiers, reply payload, and a compact runtime summary.
+  - the full serialized runtime result is now exposed only through the explicit debug path `POST /event?debug=true`.
 - Decision needed:
-  - should this remain a debugging-friendly internal API, or should a smaller stable public response contract be introduced?
+  - should the full debug payload remain available on the same endpoint through `debug=true`, or should it move to a more clearly internal-only path before wider production use?
 
 ### 3a. Expression vs Action Ordering
 

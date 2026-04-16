@@ -17,6 +17,7 @@ Last updated: 2026-04-16
 - 2026-04-16: runtime-facing docs now explicitly distinguish implemented runtime behavior from still-planned architecture, including the current expression-before-action orchestration detail.
 - 2026-04-16: endpoint-level tests now cover the public reflection contract shape for both `GET /health` and `/event`.
 - 2026-04-16: the repo now has a formal Alembic baseline for the current schema, while startup `create_tables()` remains as a temporary MVP bootstrap path.
+- 2026-04-17: `POST /event` now returns a smaller public response contract by default, while the full internal `RuntimeResult` is exposed only through an explicit `debug=true` API path.
 
 ## Technical Baseline
 
@@ -44,7 +45,6 @@ Last updated: 2026-04-16
 - Current runtime emphasis: lightweight goal and milestone management now includes phase, arc, pressure, dependency, due, due-window, risk, and completion signals, still without a heavyweight milestone engine
 - Top blockers:
   - startup is still on a temporary dual-path schema model: Alembic baseline plus startup `create_tables()`
-  - `/event` still exposes a verbose internal runtime contract
   - deployment automation and release confidence still need hardening
 - Success criteria for this phase:
   - runtime changes remain test-covered

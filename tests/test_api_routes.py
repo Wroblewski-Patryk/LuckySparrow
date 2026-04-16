@@ -300,28 +300,56 @@ def test_health_endpoint_marks_reflection_unhealthy_when_queue_is_stuck() -> Non
     assert body["reflection"]["tasks"]["stuck_processing"] == 1
 
 
-def test_event_endpoint_returns_runtime_result_and_normalizes_event() -> None:
+def test_event_endpoint_returns_public_response_and_normalizes_event() -> None:
     client, runtime, _ = _client()
 
     response = client.post("/event", json={"text": "hello from api"})
 
     assert response.status_code == 200
     body = response.json()
-    assert body["expression"]["message"] == "Test reply"
-    assert body["expression"]["language"] == "en"
-    assert body["perception"]["language"] == "en"
-    assert body["perception"]["language_source"] == "keyword_signal"
-    assert body["reflection_triggered"] is False
-    assert body["identity"]["mission"] == "Help the user move forward with clear, constructive support."
-    assert body["active_goals"][0]["name"] == "ship the MVP"
-    assert body["active_tasks"][0]["status"] == "blocked"
-    assert body["goal_progress_history"][0]["score"] == 0.42
-    assert body["stage_timings_ms"]["memory_load"] == 1
-    assert body["stage_timings_ms"]["total"] == 12
-    assert body["event"]["source"] == "api"
+    assert body == {
+        "event_id": runtime.last_event.event_id if runtime.last_event is not None else body["event_id"],
+        "trace_id": runtime.last_event.meta.trace_id if runtime.last_event is not None else body["trace_id"],
+        "source": "api",
+        "reply": {
+            "message": "Test reply",
+            "language": "en",
+            "tone": "supportive",
+            "channel": "api",
+        },
+        "runtime": {
+            "role": "advisor",
+            "motivation_mode": "respond",
+            "action_status": "success",
+            "reflection_triggered": False,
+        },
+    }
     assert runtime.last_event is not None
     assert runtime.last_event.payload["text"] == "hello from api"
     assert runtime.last_event.meta.trace_id
+    assert "debug" not in body
+
+
+def test_event_endpoint_can_return_full_runtime_debug_payload_when_requested() -> None:
+    client, runtime, _ = _client(reflection_triggered=True)
+
+    response = client.post("/event?debug=true", json={"text": "show debug runtime"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reply"]["message"] == "Test reply"
+    assert body["runtime"]["reflection_triggered"] is True
+    assert body["debug"]["expression"]["message"] == "Test reply"
+    assert body["debug"]["perception"]["language"] == "en"
+    assert body["debug"]["identity"]["mission"] == "Help the user move forward with clear, constructive support."
+    assert body["debug"]["active_goals"][0]["name"] == "ship the MVP"
+    assert body["debug"]["active_tasks"][0]["status"] == "blocked"
+    assert body["debug"]["goal_progress_history"][0]["score"] == 0.42
+    assert body["debug"]["stage_timings_ms"]["memory_load"] == 1
+    assert body["debug"]["stage_timings_ms"]["total"] == 12
+    assert body["debug"]["event"]["source"] == "api"
+    assert runtime.last_event is not None
+    assert runtime.last_event.payload["text"] == "show debug runtime"
 
 
 def test_event_endpoint_exposes_reflection_trigger_when_runtime_queues_reflection() -> None:
@@ -331,11 +359,9 @@ def test_event_endpoint_exposes_reflection_trigger_when_runtime_queues_reflectio
 
     assert response.status_code == 200
     body = response.json()
-    assert body["reflection_triggered"] is True
-    assert body["stage_timings_ms"]["reflection_enqueue"] == 0
-    assert body["stage_timings_ms"]["goal_milestone_load"] == 0
-    assert body["stage_timings_ms"]["goal_milestone_history_load"] == 0
-    assert body["stage_timings_ms"]["total"] == body["duration_ms"] == 12
+    assert body["runtime"]["reflection_triggered"] is True
+    assert body["runtime"]["action_status"] == "success"
+    assert body["runtime"]["motivation_mode"] == "respond"
     assert runtime.last_event is not None
     assert runtime.last_event.payload["text"] == "trigger reflection"
 

@@ -1,8 +1,8 @@
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 
-from app.api.schemas import SetWebhookRequest
+from app.api.schemas import EventResponse, EventReplyResponse, EventRuntimeResponse, SetWebhookRequest
 from app.core.events import normalize_event
 from app.core.runtime import RuntimeOrchestrator
 from app.integrations.telegram.client import TelegramClient
@@ -57,8 +57,12 @@ async def health(request: Request) -> dict[str, Any]:
     }
 
 
-@router.post("/event")
-async def event_endpoint(payload: dict[str, Any], request: Request) -> dict[str, Any]:
+@router.post("/event", response_model=EventResponse, response_model_exclude_none=True)
+async def event_endpoint(
+    payload: dict[str, Any],
+    request: Request,
+    debug: bool = Query(default=False),
+) -> dict[str, Any]:
     settings = _settings_from_request(request)
     looks_like_telegram = isinstance(payload.get("message"), dict) or "update_id" in payload
     if looks_like_telegram and settings.telegram_webhook_secret:
@@ -69,7 +73,25 @@ async def event_endpoint(payload: dict[str, Any], request: Request) -> dict[str,
     event = normalize_event(payload)
     runtime = _runtime_from_request(request)
     result = await runtime.run(event)
-    return result.model_dump(mode="json")
+    response = EventResponse(
+        event_id=result.event.event_id,
+        trace_id=result.event.meta.trace_id,
+        source=result.event.source,
+        reply=EventReplyResponse(
+            message=result.expression.message,
+            language=result.expression.language,
+            tone=result.expression.tone,
+            channel=result.expression.channel,
+        ),
+        runtime=EventRuntimeResponse(
+            role=result.role.selected,
+            motivation_mode=result.motivation.mode,
+            action_status=result.action_result.status,
+            reflection_triggered=result.reflection_triggered,
+        ),
+        debug=result if debug else None,
+    )
+    return response.model_dump(mode="json", exclude_none=True)
 
 
 @router.post("/telegram/set-webhook")

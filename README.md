@@ -55,6 +55,8 @@ curl -X POST http://localhost:8000/event ^
 
 - `GET /health`
 - `POST /event`
+  - default response: stable public reply payload
+  - optional debug payload: `POST /event?debug=true`
 - `POST /telegram/set-webhook`
 
 ## Local Windows Environment

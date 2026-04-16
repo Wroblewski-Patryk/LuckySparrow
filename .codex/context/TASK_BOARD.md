@@ -6,16 +6,6 @@ Last updated: 2026-04-16
 
 ## BACKLOG
 
-- [ ] PRJ-004 Revisit the public `/event` response contract
-  - Status: BACKLOG
-  - Owner: Planner
-  - Depends on: PRJ-001
-  - Priority: P1
-  - Done when:
-    - the owner and purpose of the response shape are explicit
-    - tests and docs match the chosen contract
-    - debug-only fields are intentional rather than accidental
-
 - [ ] PRJ-005 Harden release and deployment confidence for the Coolify path
   - Status: BACKLOG
   - Owner: Ops/Release
@@ -75,3 +65,13 @@ Last updated: 2026-04-16
     - the schema strategy is explicit
     - rollback risk is documented
     - local bootstrap behavior remains understood
+
+- [x] PRJ-004 Revisit the public `/event` response contract
+  - Status: DONE
+  - Owner: Planner
+  - Depends on: PRJ-001
+  - Priority: P1
+  - Done when:
+    - the owner and purpose of the response shape are explicit
+    - tests and docs match the chosen contract
+    - debug-only fields are intentional rather than accidental
