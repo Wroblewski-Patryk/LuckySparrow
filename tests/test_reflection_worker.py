@@ -322,6 +322,53 @@ async def test_reflection_worker_infers_progressing_goal_execution_state_from_do
     } in repository.conclusion_updates
 
 
+async def test_reflection_worker_infers_stagnating_goal_execution_state_from_repeated_planning_without_progress() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {
+                "summary": (
+                    "motivation=analyze; role=analyst; "
+                    "plan_steps=interpret_event,review_context,break_down_problem,highlight_next_step,align_with_active_goal,prepare_response; "
+                    "action=success; expression=One."
+                )
+            },
+            {
+                "summary": (
+                    "motivation=analyze; role=analyst; "
+                    "plan_steps=interpret_event,review_context,break_down_problem,highlight_next_step,align_with_active_goal,prepare_response; "
+                    "action=success; expression=Two."
+                )
+            },
+            {
+                "summary": (
+                    "motivation=respond; role=mentor; "
+                    "plan_steps=interpret_event,review_context,offer_guidance,align_with_active_goal,prepare_response; "
+                    "action=success; expression=Three."
+                )
+            },
+        ]
+    )
+    repository.active_goals = [
+        {"id": 1, "name": "ship the MVP this week", "priority": "high", "status": "active", "goal_type": "operational"}
+    ]
+    repository.active_tasks = [
+        {"id": 2, "goal_id": 1, "name": "finalize deploy checklist", "priority": "medium", "status": "todo"}
+    ]
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-goal-stagnating")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_execution_state",
+        "content": "stagnating",
+        "confidence": 0.72,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-stagnating",
+    } in repository.conclusion_updates
+
+
 async def test_reflection_worker_enqueue_persists_durable_task() -> None:
     repository = FakeMemoryRepository(recent_memory=[])
     worker = ReflectionWorker(memory_repository=repository)

@@ -235,3 +235,26 @@ def test_motivation_engine_recognizes_progressing_goal_execution_state_without_b
     assert result.mode == "analyze"
     assert result.importance >= 0.72
     assert result.urgency == 0.2
+
+
+def test_motivation_engine_adds_urgency_for_stagnating_goal_execution_state() -> None:
+    result = MotivationEngine().run(
+        event=_event("Can you help me move the MVP forward?"),
+        context=_context(),
+        perception=_perception(event_type="question", intent="request_help"),
+        user_preferences={"goal_execution_state": "stagnating"},
+        active_goals=[
+            {
+                "id": 1,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+    )
+
+    assert result.mode == "analyze"
+    assert result.importance >= 0.73
+    assert result.urgency >= 0.25

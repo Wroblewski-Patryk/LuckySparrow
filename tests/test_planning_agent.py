@@ -284,3 +284,32 @@ def test_planning_agent_adds_preserve_goal_momentum_step_from_reflected_progress
 
     assert "align_with_active_goal" in result.steps
     assert "preserve_goal_momentum" in result.steps
+
+
+def test_planning_agent_adds_restart_goal_progress_step_from_stagnating_state() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="What should I do next for the MVP?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.74,
+            urgency=0.26,
+            valence=0.05,
+            arousal=0.4,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="analyst", confidence=0.8),
+        user_preferences={"goal_execution_state": "stagnating"},
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+    )
+
+    assert "align_with_active_goal" in result.steps
+    assert "restart_goal_progress" in result.steps

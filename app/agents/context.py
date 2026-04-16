@@ -136,6 +136,8 @@ class ContextAgent:
                     return "current goal progress is blocked by an active task"
                 if content == "progressing":
                     return "current goal work shows recent progress"
+                if content == "stagnating":
+                    return "current goal seems to be stagnating without recent execution"
             return ""
         if content == "concise":
             return "prefers concise responses"

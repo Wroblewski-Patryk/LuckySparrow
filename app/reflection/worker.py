@@ -287,6 +287,7 @@ class ReflectionWorker:
             conclusions.append(collaboration_preference)
 
         goal_execution_state = self._derive_goal_execution_state(
+            recent_memory=recent_memory,
             active_goals=active_goals or [],
             active_tasks=active_tasks or [],
             task_done_updates=task_done_updates,
@@ -307,6 +308,7 @@ class ReflectionWorker:
     def _derive_goal_execution_state(
         self,
         *,
+        recent_memory: Sequence[dict],
         active_goals: Sequence[dict],
         active_tasks: Sequence[dict],
         task_done_updates: int,
@@ -341,7 +343,59 @@ class ReflectionWorker:
                 "source": "background_reflection",
             }
 
+        if self._goal_stagnation_signal_count(recent_memory) >= 3:
+            return {
+                "kind": "goal_execution_state",
+                "content": "stagnating",
+                "confidence": 0.72,
+                "source": "background_reflection",
+            }
+
         return None
+
+    def _goal_stagnation_signal_count(self, recent_memory: Sequence[dict]) -> int:
+        planning_heavy_steps = {
+            "align_with_active_goal",
+            "break_down_problem",
+            "highlight_next_step",
+            "offer_guidance",
+            "favor_guided_walkthrough",
+            "review_context",
+        }
+        execution_steps = {
+            "identify_requested_change",
+            "propose_execution_step",
+            "advance_active_task",
+            "unblock_active_task",
+            "recover_goal_progress",
+            "preserve_goal_momentum",
+            "favor_concrete_next_step",
+        }
+
+        stagnation_signals = 0
+        for memory_item in recent_memory:
+            fields = self._extract_fields(str(memory_item.get("summary", "")))
+            if fields.get("action", "").strip().lower() != "success":
+                continue
+            if fields.get("task_status_update", "").strip():
+                continue
+            if fields.get("task_update", "").strip():
+                continue
+
+            plan_steps = {
+                step.strip().lower()
+                for step in fields.get("plan_steps", "").split(",")
+                if step.strip()
+            }
+            if "align_with_active_goal" not in plan_steps:
+                continue
+            if plan_steps.intersection(execution_steps):
+                continue
+            if not plan_steps.intersection(planning_heavy_steps):
+                continue
+            stagnation_signals += 1
+
+        return stagnation_signals
 
     def _derive_preferred_role(self, role_counts: dict[str, int], total: int) -> dict | None:
         if total < 4 or not role_counts:
