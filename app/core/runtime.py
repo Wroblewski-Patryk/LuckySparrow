@@ -76,6 +76,7 @@ class RuntimeOrchestrator:
             return []
 
         primary_goal_id = self._primary_goal_id(active_goals)
+        arc = str(user_preferences.get("goal_milestone_arc", "")).strip().lower() or None
         risk_level = str(user_preferences.get("goal_milestone_risk", "")).strip().lower() or None
         completion_criteria = str(user_preferences.get("goal_completion_criteria", "")).strip().lower() or None
 
@@ -83,9 +84,11 @@ class RuntimeOrchestrator:
         for milestone in active_goal_milestones:
             item = dict(milestone)
             if primary_goal_id is not None and int(item.get("goal_id", -1)) == primary_goal_id:
+                item["arc"] = arc
                 item["risk_level"] = risk_level
                 item["completion_criteria"] = completion_criteria
             else:
+                item.setdefault("arc", None)
                 item.setdefault("risk_level", None)
                 item.setdefault("completion_criteria", None)
             enriched.append(item)

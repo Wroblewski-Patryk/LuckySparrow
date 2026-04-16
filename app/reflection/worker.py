@@ -57,11 +57,17 @@ class ReflectionWorker:
         active_tasks = await self.memory_repository.get_active_tasks(user_id=user_id, limit=8)
         primary_goal = self._select_primary_goal(active_goals)
         recent_goal_progress = []
+        recent_goal_milestone_history = []
         if primary_goal is not None and primary_goal.get("id") is not None:
             recent_goal_progress = await self.memory_repository.get_recent_goal_progress(
                 user_id=user_id,
                 goal_ids=[int(primary_goal["id"])],
                 limit=4,
+            )
+            recent_goal_milestone_history = await self.memory_repository.get_recent_goal_milestone_history(
+                user_id=user_id,
+                goal_ids=[int(primary_goal["id"])],
+                limit=5,
             )
         previous_goal_progress_score = self._coerce_progress_score(runtime_preferences.get("goal_progress_score"))
         if recent_goal_progress:
@@ -72,6 +78,7 @@ class ReflectionWorker:
             active_tasks=active_tasks,
             previous_goal_progress_score=previous_goal_progress_score,
             recent_goal_progress=recent_goal_progress,
+            recent_goal_milestone_history=recent_goal_milestone_history,
         )
         theta = self._derive_theta(recent_memory)
         if not conclusions:
@@ -293,6 +300,7 @@ class ReflectionWorker:
         active_tasks: Sequence[dict] | None = None,
         previous_goal_progress_score: float | None = None,
         recent_goal_progress: Sequence[dict] | None = None,
+        recent_goal_milestone_history: Sequence[dict] | None = None,
     ) -> list[dict]:
         if not recent_memory:
             recent_memory = []
@@ -433,6 +441,13 @@ class ReflectionWorker:
         )
         if goal_milestone_transition is not None:
             conclusions.append(goal_milestone_transition)
+        goal_milestone_arc = self._derive_goal_milestone_arc(
+            recent_goal_milestone_history=recent_goal_milestone_history or [],
+            goal_milestone_state=goal_milestone_state,
+            goal_milestone_transition=goal_milestone_transition,
+        )
+        if goal_milestone_arc is not None:
+            conclusions.append(goal_milestone_arc)
         goal_milestone_risk = self._derive_goal_milestone_risk(
             active_tasks=active_tasks or [],
             goal_execution_state=goal_execution_state,
@@ -771,6 +786,89 @@ class ReflectionWorker:
             "confidence": 0.72,
             "source": "background_reflection",
         }
+
+    def _derive_goal_milestone_arc(
+        self,
+        *,
+        recent_goal_milestone_history: Sequence[dict],
+        goal_milestone_state: dict | None,
+        goal_milestone_transition: dict | None,
+    ) -> dict | None:
+        current_phase = str(goal_milestone_state.get("content", "")).strip().lower() if goal_milestone_state is not None else ""
+        if not current_phase:
+            return None
+
+        transition = (
+            str(goal_milestone_transition.get("content", "")).strip().lower()
+            if goal_milestone_transition is not None
+            else ""
+        )
+        ordered_history = list(reversed(recent_goal_milestone_history))
+        states: list[tuple[str, str]] = []
+        for item in ordered_history:
+            phase = str(item.get("phase", "")).strip().lower()
+            risk = str(item.get("risk_level", "")).strip().lower()
+            if not phase and not risk:
+                continue
+            pair = (phase, risk)
+            if not states or states[-1] != pair:
+                states.append(pair)
+
+        current_pair = (current_phase, "")
+        if not states or states[-1][0] != current_phase:
+            states.append(current_pair)
+        else:
+            states[-1] = (current_phase, states[-1][1])
+
+        if len(states) < 2:
+            return None
+
+        previous_phase, _ = states[-2]
+        phase_changes = sum(
+            1
+            for index in range(1, len(states))
+            if states[index][0] and states[index - 1][0] and states[index][0] != states[index - 1][0]
+        )
+        distinct_phases = {phase for phase, _ in states if phase}
+        had_completion_before = any(phase == "completion_window" for phase, _ in states[:-1])
+        had_recovery_before = any(phase == "recovery_phase" for phase, _ in states[:-1])
+
+        if current_phase == "completion_window" and transition == "entered_completion_window" and had_completion_before and had_recovery_before:
+            return {
+                "kind": "goal_milestone_arc",
+                "content": "reentered_completion_window",
+                "confidence": 0.79,
+                "source": "background_reflection",
+            }
+        if current_phase == "recovery_phase" and had_completion_before:
+            return {
+                "kind": "goal_milestone_arc",
+                "content": "recovery_backslide",
+                "confidence": 0.78,
+                "source": "background_reflection",
+            }
+        if len(distinct_phases) >= 3 and phase_changes >= 3:
+            return {
+                "kind": "goal_milestone_arc",
+                "content": "milestone_whiplash",
+                "confidence": 0.77,
+                "source": "background_reflection",
+            }
+        if current_phase == "completion_window" and previous_phase == "completion_window":
+            return {
+                "kind": "goal_milestone_arc",
+                "content": "steady_closure",
+                "confidence": 0.75,
+                "source": "background_reflection",
+            }
+        if current_phase == "completion_window" and previous_phase != "completion_window":
+            return {
+                "kind": "goal_milestone_arc",
+                "content": "closure_momentum",
+                "confidence": 0.76,
+                "source": "background_reflection",
+            }
+        return None
 
     def _derive_goal_milestone_risk(
         self,

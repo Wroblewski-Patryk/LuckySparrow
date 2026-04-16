@@ -11,6 +11,7 @@ class ContextAgent:
         "goal_progress_trend",
         "goal_progress_arc",
         "goal_milestone_state",
+        "goal_milestone_arc",
         "goal_milestone_transition",
         "goal_milestone_risk",
         "goal_completion_criteria",
@@ -161,6 +162,8 @@ class ContextAgent:
                 return self._summarize_goal_progress_arc(content)
             if kind == "goal_milestone_state":
                 return self._summarize_goal_milestone_state(content)
+            if kind == "goal_milestone_arc":
+                return self._summarize_goal_milestone_arc(content)
             if kind == "goal_milestone_transition":
                 return self._summarize_goal_milestone_transition(content)
             if kind == "goal_milestone_risk":
@@ -228,6 +231,19 @@ class ContextAgent:
             return "current goal is in a recovery phase"
         if content == "completion_window":
             return "current goal is currently in the completion window"
+        return ""
+
+    def _summarize_goal_milestone_arc(self, content: str) -> str:
+        if content == "closure_momentum":
+            return "active milestone is building closure momentum"
+        if content == "reentered_completion_window":
+            return "active milestone has re-entered the completion window after recovery"
+        if content == "recovery_backslide":
+            return "active milestone has slipped back into recovery pressure"
+        if content == "milestone_whiplash":
+            return "active milestone is oscillating across phases"
+        if content == "steady_closure":
+            return "active milestone is holding steady near closure"
         return ""
 
     def _summarize_goal_milestone_risk(self, content: str) -> str:
@@ -711,10 +727,16 @@ class ContextAgent:
     def _format_milestone_hint(self, milestone: dict) -> str:
         name = str(milestone.get("name", "")).strip()
         phase = str(milestone.get("phase", "")).strip()
-        risk_level = str(milestone.get("risk_level", "")).strip().lower()
-        completion_criteria = str(milestone.get("completion_criteria", "")).strip().lower()
+        raw_arc = milestone.get("arc")
+        raw_risk_level = milestone.get("risk_level")
+        raw_completion_criteria = milestone.get("completion_criteria")
+        arc = str(raw_arc).strip().lower() if raw_arc else ""
+        risk_level = str(raw_risk_level).strip().lower() if raw_risk_level else ""
+        completion_criteria = str(raw_completion_criteria).strip().lower() if raw_completion_criteria else ""
 
         details = [phase] if phase else []
+        if arc:
+            details.append(self._humanize_arc(arc))
         if risk_level:
             details.append(risk_level)
         if completion_criteria:
@@ -741,6 +763,15 @@ class ContextAgent:
             "execution_phase": "execution phase",
             "recovery_phase": "recovery phase",
             "completion_window": "completion window",
+        }.get(value, value.replace("_", " "))
+
+    def _humanize_arc(self, value: str) -> str:
+        return {
+            "closure_momentum": "closure momentum",
+            "reentered_completion_window": "re-entered completion window",
+            "recovery_backslide": "recovery backslide",
+            "milestone_whiplash": "milestone whiplash",
+            "steady_closure": "steady closure",
         }.get(value, value.replace("_", " "))
 
     def _humanize_risk(self, value: str) -> str:

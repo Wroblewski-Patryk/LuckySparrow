@@ -703,7 +703,7 @@ async def test_runtime_pipeline_uses_goal_milestone_history_across_context_motiv
     assert len(result.goal_milestone_history) == 2
     assert "Recent milestone history moved from recovery phase to completion window." in result.context.summary
     assert result.motivation.importance >= 0.8
-    assert "protect_milestone_closure_momentum" in result.plan.steps
+    assert "protect_milestone_closure_arc" in result.plan.steps
 
 
 async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_without_recent_memory() -> None:
@@ -1538,3 +1538,73 @@ async def test_runtime_pipeline_uses_goal_progress_arc_across_context_motivation
     assert result.motivation.importance >= 0.76
     assert "align_with_active_goal" in result.plan.steps
     assert "consolidate_goal_recovery" in result.plan.steps
+
+
+async def test_runtime_pipeline_uses_goal_milestone_arc_across_context_motivation_and_plan() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.user_preferences = {
+        "goal_milestone_arc": "reentered_completion_window",
+        "goal_milestone_arc_confidence": 0.79,
+        "goal_milestone_risk": "ready_to_close",
+        "goal_completion_criteria": "confirm_goal_completion",
+    }
+    memory.user_conclusions = [
+        {
+            "kind": "goal_milestone_arc",
+            "content": "reentered_completion_window",
+            "confidence": 0.79,
+            "source": "background_reflection",
+        }
+    ]
+    memory.active_goals = [
+        {
+            "id": 11,
+            "user_id": "u-1",
+            "name": "ship the MVP this week",
+            "description": "User-declared goal: ship the MVP this week",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "operational",
+        }
+    ]
+    memory.active_goal_milestones = [
+        {
+            "id": 41,
+            "goal_id": 11,
+            "name": "Drive goal to closure",
+            "phase": "completion_window",
+            "status": "active",
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-milestone-arc",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "What should I do next for the MVP?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-milestone-arc"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.active_goal_milestones[0].arc == "reentered_completion_window"
+    assert "Stable user preferences: active milestone has re-entered the completion window after recovery." in result.context.summary
+    assert "Active milestones: Drive goal to closure (completion_window, re-entered completion window, ready_to_close, confirm goal completion)." in result.context.summary
+    assert result.motivation.importance >= 0.8
+    assert "align_with_active_goal" in result.plan.steps
+    assert "stabilize_reentered_completion_window" in result.plan.steps

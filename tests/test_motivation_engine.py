@@ -381,6 +381,29 @@ def test_motivation_engine_adds_pressure_for_goal_milestone_history_signal() -> 
     assert result.urgency >= 0.27
 
 
+def test_motivation_engine_adds_pressure_for_goal_milestone_arc() -> None:
+    result = MotivationEngine().run(
+        event=_event("What should I do next for the MVP?"),
+        context=_context(),
+        perception=_perception(event_type="question", intent="request_help"),
+        user_preferences={"goal_milestone_arc": "reentered_completion_window"},
+        active_goals=[
+            {
+                "id": 1,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+    )
+
+    assert result.mode == "analyze"
+    assert result.importance >= 0.8
+    assert result.urgency >= 0.27
+
+
 def test_motivation_engine_recognizes_recovering_goal_execution_state() -> None:
     result = MotivationEngine().run(
         event=_event("What should I do next for the MVP?"),

@@ -34,6 +34,18 @@ class FakeMemoryRepository:
             rows = [row for row in rows if int(row.get("goal_id", -1)) in set(goal_ids)]
         return rows[:limit]
 
+    async def get_recent_goal_milestone_history(
+        self,
+        user_id: str,
+        *,
+        goal_ids: list[int] | None = None,
+        limit: int = 6,
+    ) -> list[dict]:
+        rows = self.goal_milestone_history[:]
+        if goal_ids:
+            rows = [row for row in rows if int(row.get("goal_id", -1)) in set(goal_ids)]
+        return rows[:limit]
+
     async def append_goal_progress_snapshot(self, **kwargs) -> dict:
         payload = {"id": len(self.goal_progress_snapshots) + 1, **kwargs}
         self.goal_progress_snapshots.insert(0, payload)
@@ -562,6 +574,53 @@ async def test_reflection_worker_appends_distinct_goal_milestone_history_snapsho
     assert len(repository.goal_milestone_history) == 2
     assert repository.goal_milestone_history[0]["phase"] == "execution_phase"
     assert repository.goal_milestone_history[1]["phase"] == "recovery_phase"
+
+
+async def test_reflection_worker_derives_reentered_completion_window_milestone_arc() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "task_status_update=finalize rollout checklist:done; action=success; expression=One."},
+            {"summary": "goal_update=ship the MVP this week; action=success; expression=Two."},
+        ]
+    )
+    repository.active_goals = [
+        {"id": 1, "name": "ship the MVP this week", "priority": "high", "status": "active", "goal_type": "operational"}
+    ]
+    repository.active_tasks = []
+    repository.goal_progress_history = [
+        {"id": 11, "goal_id": 1, "score": 0.62, "execution_state": "recovering", "progress_trend": "improving"}
+    ]
+    repository.goal_milestone_history = [
+        {
+            "id": 2,
+            "goal_id": 1,
+            "milestone_name": "Stabilize goal recovery",
+            "phase": "recovery_phase",
+            "risk_level": "stabilizing",
+            "completion_criteria": "stabilize_remaining_work",
+        },
+        {
+            "id": 1,
+            "goal_id": 1,
+            "milestone_name": "Drive goal to closure",
+            "phase": "completion_window",
+            "risk_level": "ready_to_close",
+            "completion_criteria": "finish_remaining_active_work",
+        },
+    ]
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-goal-milestone-arc")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_milestone_arc",
+        "content": "reentered_completion_window",
+        "confidence": 0.79,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-milestone-arc",
+    } in repository.conclusion_updates
 
 
 async def test_reflection_worker_infers_progressing_goal_execution_state_from_done_update() -> None:

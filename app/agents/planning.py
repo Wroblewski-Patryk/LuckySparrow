@@ -25,10 +25,11 @@ class PlanningAgent:
         goal_progress_trend = str((user_preferences or {}).get("goal_progress_trend", "")).strip().lower()
         goal_progress_arc = str((user_preferences or {}).get("goal_progress_arc", "")).strip().lower()
         goal_milestone_state = str((user_preferences or {}).get("goal_milestone_state", "")).strip().lower()
+        goal_milestone_arc = str((user_preferences or {}).get("goal_milestone_arc", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
-        goal_milestone_history_signal = self._goal_milestone_history_signal(goal_milestone_history or [])
+        goal_milestone_arc_signal = goal_milestone_arc or self._goal_milestone_arc_signal(goal_milestone_history or [])
         goal_history_signal = self._goal_history_signal(goal_progress_history or [])
 
         if motivation.mode == "clarify":
@@ -167,13 +168,13 @@ class PlanningAgent:
             prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
             steps.insert(prepare_index, goal_completion_criteria_step)
 
-        goal_milestone_history_step = self._goal_milestone_history_step(
-            goal_milestone_history_signal=goal_milestone_history_signal,
+        goal_milestone_arc_step = self._goal_milestone_arc_step(
+            goal_milestone_arc_signal=goal_milestone_arc_signal,
             steps=steps,
         )
-        if goal_milestone_history_step is not None and goal_milestone_history_step not in steps:
+        if goal_milestone_arc_step is not None and goal_milestone_arc_step not in steps:
             prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
-            steps.insert(prepare_index, goal_milestone_history_step)
+            steps.insert(prepare_index, goal_milestone_arc_step)
 
         return PlanOutput(
             goal=goal,
@@ -493,35 +494,37 @@ class PlanningAgent:
             return "advance_next_task"
         return None
 
-    def _goal_milestone_history_step(self, goal_milestone_history_signal: str, steps: list[str]) -> str | None:
-        if goal_milestone_history_signal == "closure_momentum":
+    def _goal_milestone_arc_step(self, goal_milestone_arc_signal: str, steps: list[str]) -> str | None:
+        if goal_milestone_arc_signal == "closure_momentum":
             if (
-                "protect_milestone_closure_momentum" in steps
-                or "validate_milestone_closure" in steps
+                "protect_milestone_closure_arc" in steps
                 or "drive_goal_to_closure" in steps
             ):
                 return None
-            return "protect_milestone_closure_momentum"
-        if goal_milestone_history_signal == "recovery_stabilizing":
+            return "protect_milestone_closure_arc"
+        if goal_milestone_arc_signal == "reentered_completion_window":
             if (
-                "stabilize_milestone_recovery_path" in steps
-                or "stabilize_milestone_recovery" in steps
+                "stabilize_reentered_completion_window" in steps
+                or "drive_goal_to_closure" in steps
+            ):
+                return None
+            return "stabilize_reentered_completion_window"
+        if goal_milestone_arc_signal == "recovery_backslide":
+            if (
+                "arrest_milestone_backslide" in steps
+                or "reduce_milestone_risk" in steps
                 or "stabilize_goal_recovery" in steps
             ):
                 return None
-            return "stabilize_milestone_recovery_path"
-        if goal_milestone_history_signal == "milestone_regression":
-            if (
-                "rebuild_milestone_stability" in steps
-                or "reduce_milestone_risk" in steps
-                or "restore_completion_window" in steps
-            ):
+            return "arrest_milestone_backslide"
+        if goal_milestone_arc_signal == "milestone_whiplash":
+            if "dampen_milestone_whiplash" in steps or "monitor_milestone_risk" in steps:
                 return None
-            return "rebuild_milestone_stability"
-        if goal_milestone_history_signal == "volatile":
-            if "reduce_milestone_volatility" in steps or "monitor_milestone_risk" in steps:
+            return "dampen_milestone_whiplash"
+        if goal_milestone_arc_signal == "steady_closure":
+            if "hold_milestone_closure_line" in steps:
                 return None
-            return "reduce_milestone_volatility"
+            return "hold_milestone_closure_line"
         return None
 
     def _apply_active_goal(self, goal: str, relevant_goal: dict) -> str:
@@ -595,43 +598,47 @@ class PlanningAgent:
             return "volatile"
         return ""
 
-    def _goal_milestone_history_signal(self, goal_milestone_history: list[dict]) -> str:
+    def _goal_milestone_arc_signal(self, goal_milestone_history: list[dict]) -> str:
         if len(goal_milestone_history) < 2:
             return ""
 
         ordered = list(reversed(goal_milestone_history))
-        start = ordered[0]
-        end = ordered[-1]
-        start_phase = str(start.get("phase", "")).strip().lower()
-        end_phase = str(end.get("phase", "")).strip().lower()
-        start_risk = str(start.get("risk_level", "")).strip().lower()
-        end_risk = str(end.get("risk_level", "")).strip().lower()
-        distinct_pairs = {
-            (
+        states: list[tuple[str, str]] = []
+        for item in ordered:
+            pair = (
                 str(item.get("phase", "")).strip().lower(),
                 str(item.get("risk_level", "")).strip().lower(),
             )
-            for item in ordered
-        }
+            if not pair[0] and not pair[1]:
+                continue
+            if not states or states[-1] != pair:
+                states.append(pair)
 
-        if (
-            start_phase != "completion_window" and end_phase == "completion_window"
-        ) or (
-            start_risk in {"watch", "stabilizing", "on_track"} and end_risk == "ready_to_close"
+        if len(states) < 2:
+            return ""
+
+        previous_phase, previous_risk = states[-2]
+        current_phase, current_risk = states[-1]
+        had_completion_before = any(phase == "completion_window" for phase, _ in states[:-1])
+        had_recovery_before = any(phase == "recovery_phase" for phase, _ in states[:-1])
+        phase_changes = sum(
+            1
+            for index in range(1, len(states))
+            if states[index][0] and states[index - 1][0] and states[index][0] != states[index - 1][0]
+        )
+        distinct_phases = {phase for phase, _ in states if phase}
+
+        if current_phase == "completion_window" and had_completion_before and had_recovery_before and previous_phase != "completion_window":
+            return "reentered_completion_window"
+        if current_phase == "recovery_phase" and had_completion_before:
+            return "recovery_backslide"
+        if len(distinct_phases) >= 3 and phase_changes >= 3:
+            return "milestone_whiplash"
+        if current_phase == "completion_window" and previous_phase == "completion_window":
+            return "steady_closure"
+        if current_phase == "completion_window" and (
+            previous_phase != "completion_window"
+            or (previous_risk in {"watch", "stabilizing", "on_track"} and current_risk == "ready_to_close")
         ):
             return "closure_momentum"
-        if (
-            start_risk == "at_risk" and end_risk in {"watch", "stabilizing", "on_track"}
-        ) or (
-            start_phase == "recovery_phase" and end_phase in {"recovery_phase", "execution_phase"}
-        ):
-            return "recovery_stabilizing"
-        if (
-            start_phase == "completion_window" and end_phase != "completion_window"
-        ) or (
-            start_risk == "ready_to_close" and end_risk in {"watch", "at_risk"}
-        ):
-            return "milestone_regression"
-        if len(distinct_pairs) >= 3:
-            return "volatile"
         return ""

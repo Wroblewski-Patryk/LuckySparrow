@@ -455,7 +455,7 @@ def test_planning_agent_adds_confirm_goal_completion_step() -> None:
     assert "confirm_goal_completion" in result.steps
 
 
-def test_planning_agent_adds_milestone_history_step_for_closure_momentum() -> None:
+def test_planning_agent_adds_milestone_arc_step_for_closure_momentum() -> None:
     result = PlanningAgent().run(
         event=_event(text="What should I do next for the MVP?"),
         context=_context(),
@@ -484,7 +484,36 @@ def test_planning_agent_adds_milestone_history_step_for_closure_momentum() -> No
     )
 
     assert "align_with_active_goal" in result.steps
-    assert "protect_milestone_closure_momentum" in result.steps
+    assert "protect_milestone_closure_arc" in result.steps
+
+
+def test_planning_agent_adds_milestone_arc_step_for_reentered_completion_window() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="What should I do next for the MVP?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.89,
+            urgency=0.43,
+            valence=0.05,
+            arousal=0.45,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="analyst", confidence=0.8),
+        user_preferences={"goal_milestone_arc": "reentered_completion_window"},
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+    )
+
+    assert "align_with_active_goal" in result.steps
+    assert "stabilize_reentered_completion_window" in result.steps
 
 
 def test_planning_agent_adds_preserve_goal_momentum_step_from_reflected_progress_state() -> None:

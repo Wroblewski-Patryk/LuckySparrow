@@ -135,6 +135,7 @@ Current MVP status:
 - reflection now also materializes that milestone understanding into lightweight `aion_goal_milestone` objects, so runtime can load an active milestone focus instead of relying only on semantic conclusions
 - reflection can now also derive lightweight milestone-operational signals such as `goal_milestone_risk` and `goal_completion_criteria`, and runtime now enriches the active milestone focus with those signals without needing a heavier milestone schema yet
 - reflection now also persists lightweight `aion_goal_milestone_history` snapshots, so runtime can see short milestone-level movement over time instead of only the current milestone state
+- reflection can now also compress short milestone histories into a semantic `goal_milestone_arc`, so runtime can distinguish closure momentum, re-entry into the completion window, recovery backslide, whiplash, or steadier closure patterns
 - vector retrieval is still planned, not live
 
 ---
