@@ -12,6 +12,7 @@ class MotivationEngine:
         theta: dict | None = None,
         active_goals: list[dict] | None = None,
         active_tasks: list[dict] | None = None,
+        goal_milestone_history: list[dict] | None = None,
         goal_progress_history: list[dict] | None = None,
     ) -> MotivationOutput:
         text = str(event.payload.get("text", "")).strip()
@@ -117,6 +118,7 @@ class MotivationEngine:
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
+        milestone_history_signal = self._goal_milestone_history_signal(goal_milestone_history or [])
         goal_history_signal = self._goal_history_signal(goal_progress_history or [])
         related_goal_priority = self._related_goal_priority(text=text, goals=active_goals or [])
         blocked_task_match = self._has_related_blocked_task(text=text, tasks=active_tasks or [])
@@ -205,6 +207,17 @@ class MotivationEngine:
             if goal_completion_criteria in {"define_first_execution_step", "advance_next_task"}
             else 0.0
         )
+        importance += (
+            0.06
+            if milestone_history_signal == "milestone_regression"
+            else 0.05
+            if milestone_history_signal == "closure_momentum"
+            else 0.04
+            if milestone_history_signal == "volatile"
+            else 0.03
+            if milestone_history_signal == "recovery_stabilizing"
+            else 0.0
+        )
         importance += 0.04 if goal_history_signal == "regression" else 0.02 if goal_history_signal == "lift" else 0.0
 
         urgency = 0.2
@@ -279,6 +292,17 @@ class MotivationEngine:
             if goal_completion_criteria in {"stabilize_remaining_work", "unblock_next_task"}
             else 0.03
             if goal_completion_criteria in {"define_first_execution_step", "advance_next_task"}
+            else 0.0
+        )
+        urgency += (
+            0.08
+            if milestone_history_signal == "milestone_regression"
+            else 0.07
+            if milestone_history_signal == "closure_momentum"
+            else 0.05
+            if milestone_history_signal == "volatile"
+            else 0.04
+            if milestone_history_signal == "recovery_stabilizing"
             else 0.0
         )
         urgency += 0.04 if goal_history_signal == "regression" else 0.01 if goal_history_signal == "lift" else 0.0
@@ -423,5 +447,46 @@ class MotivationEngine:
         if delta >= 0.2:
             return "lift"
         if span >= 0.3:
+            return "volatile"
+        return ""
+
+    def _goal_milestone_history_signal(self, goal_milestone_history: list[dict]) -> str:
+        if len(goal_milestone_history) < 2:
+            return ""
+
+        ordered = list(reversed(goal_milestone_history))
+        start = ordered[0]
+        end = ordered[-1]
+        start_phase = str(start.get("phase", "")).strip().lower()
+        end_phase = str(end.get("phase", "")).strip().lower()
+        start_risk = str(start.get("risk_level", "")).strip().lower()
+        end_risk = str(end.get("risk_level", "")).strip().lower()
+        distinct_pairs = {
+            (
+                str(item.get("phase", "")).strip().lower(),
+                str(item.get("risk_level", "")).strip().lower(),
+            )
+            for item in ordered
+        }
+
+        if (
+            start_phase != "completion_window" and end_phase == "completion_window"
+        ) or (
+            start_risk in {"watch", "stabilizing", "on_track"} and end_risk == "ready_to_close"
+        ):
+            return "closure_momentum"
+        if (
+            start_risk == "at_risk" and end_risk in {"watch", "stabilizing", "on_track"}
+        ) or (
+            start_phase == "recovery_phase" and end_phase in {"recovery_phase", "execution_phase"}
+        ):
+            return "recovery_stabilizing"
+        if (
+            start_phase == "completion_window" and end_phase != "completion_window"
+        ) or (
+            start_risk == "ready_to_close" and end_risk in {"watch", "at_risk"}
+        ):
+            return "milestone_regression"
+        if len(distinct_pairs) >= 3:
             return "volatile"
         return ""

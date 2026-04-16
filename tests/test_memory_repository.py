@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.memory.models import AionConclusion, AionGoal, AionGoalMilestone, AionGoalProgress, AionReflectionTask, AionTask
+from app.memory.models import AionConclusion, AionGoal, AionGoalMilestone, AionGoalMilestoneHistory, AionGoalProgress, AionReflectionTask, AionTask
 from app.memory.repository import MemoryRepository
 
 
@@ -187,6 +187,58 @@ async def test_memory_repository_syncs_and_loads_active_goal_milestones(tmp_path
         rows = (await session.execute(select(AionGoalMilestone).order_by(AionGoalMilestone.id.asc()))).scalars().all()
 
     assert [row.status for row in rows] == ["completed", "active"]
+    await engine.dispose()
+
+
+async def test_memory_repository_appends_and_reads_goal_milestone_history(tmp_path) -> None:
+    database_path = tmp_path / "memory-goal-milestone-history.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    first = await repository.append_goal_milestone_history(
+        user_id="u-1",
+        goal_id=11,
+        milestone_name="Stabilize goal recovery",
+        phase="recovery_phase",
+        risk_level="stabilizing",
+        completion_criteria="stabilize_remaining_work",
+        source_event_id="evt-1",
+    )
+    second = await repository.append_goal_milestone_history(
+        user_id="u-1",
+        goal_id=11,
+        milestone_name="Stabilize goal recovery",
+        phase="recovery_phase",
+        risk_level="stabilizing",
+        completion_criteria="stabilize_remaining_work",
+        source_event_id="evt-2",
+    )
+    third = await repository.append_goal_milestone_history(
+        user_id="u-1",
+        goal_id=11,
+        milestone_name="Drive goal to closure",
+        phase="completion_window",
+        risk_level="ready_to_close",
+        completion_criteria="finish_remaining_active_work",
+        source_event_id="evt-3",
+    )
+
+    history = await repository.get_recent_goal_milestone_history(user_id="u-1", goal_ids=[11], limit=5)
+
+    assert first["id"] == second["id"]
+    assert third["phase"] == "completion_window"
+    assert history[0]["phase"] == "completion_window"
+    assert history[1]["phase"] == "recovery_phase"
+
+    async with session_factory() as session:
+        rows = (
+            await session.execute(select(AionGoalMilestoneHistory).order_by(AionGoalMilestoneHistory.id.asc()))
+        ).scalars().all()
+
+    assert len(rows) == 2
+
     await engine.dispose()
 
 

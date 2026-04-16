@@ -455,6 +455,38 @@ def test_planning_agent_adds_confirm_goal_completion_step() -> None:
     assert "confirm_goal_completion" in result.steps
 
 
+def test_planning_agent_adds_milestone_history_step_for_closure_momentum() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="What should I do next for the MVP?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.86,
+            urgency=0.4,
+            valence=0.05,
+            arousal=0.45,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="analyst", confidence=0.8),
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+        goal_milestone_history=[
+            {"goal_id": 11, "phase": "completion_window", "risk_level": "ready_to_close"},
+            {"goal_id": 11, "phase": "recovery_phase", "risk_level": "stabilizing"},
+        ],
+    )
+
+    assert "align_with_active_goal" in result.steps
+    assert "protect_milestone_closure_momentum" in result.steps
+
+
 def test_planning_agent_adds_preserve_goal_momentum_step_from_reflected_progress_state() -> None:
     result = PlanningAgent().run(
         event=_event(text="What should I do next for the MVP?"),

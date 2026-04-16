@@ -516,6 +516,26 @@ class ContextAgent:
                 return filtered[:limit]
         return goal_progress_history[:limit]
 
+    def _select_goal_milestone_history(
+        self,
+        goal_milestone_history: list[dict],
+        selected_goals: list[dict],
+        limit: int = 3,
+    ) -> list[dict]:
+        if not goal_milestone_history:
+            return []
+
+        goal_ids = {int(goal["id"]) for goal in selected_goals if goal.get("id") is not None}
+        if goal_ids:
+            filtered = [
+                item
+                for item in goal_milestone_history
+                if int(item.get("goal_id", -1)) in goal_ids
+            ]
+            if filtered:
+                return filtered[:limit]
+        return goal_milestone_history[:limit]
+
     def _select_goal_milestones(
         self,
         active_goal_milestones: list[dict],
@@ -564,6 +584,35 @@ class ContextAgent:
             return f" Recent goal history shows regression from {start:.2f} to {end:.2f}."
         return f" Recent goal history is holding near {end:.2f}."
 
+    def _goal_milestone_history_hint(self, goal_milestone_history: list[dict]) -> str:
+        if len(goal_milestone_history) < 2:
+            return ""
+
+        ordered = list(reversed(goal_milestone_history))
+        start = ordered[0]
+        end = ordered[-1]
+        start_phase = str(start.get("phase", "")).strip().lower()
+        end_phase = str(end.get("phase", "")).strip().lower()
+        start_risk = str(start.get("risk_level", "")).strip().lower()
+        end_risk = str(end.get("risk_level", "")).strip().lower()
+
+        if start_phase != end_phase:
+            return (
+                " Recent milestone history moved from "
+                f"{self._humanize_phase(start_phase)} to {self._humanize_phase(end_phase)}."
+            )
+        if start_risk and end_risk and start_risk != end_risk:
+            return (
+                " Recent milestone history shifted from "
+                f"{self._humanize_risk(start_risk)} to {self._humanize_risk(end_risk)}."
+            )
+        if end_phase or end_risk:
+            details = [self._humanize_phase(end_phase)] if end_phase else []
+            if end_risk:
+                details.append(self._humanize_risk(end_risk))
+            return " Recent milestone history is holding in " + " with ".join(details) + "."
+        return ""
+
     def run(
         self,
         event: Event,
@@ -574,6 +623,7 @@ class ContextAgent:
         active_goals: list[dict] | None = None,
         active_tasks: list[dict] | None = None,
         active_goal_milestones: list[dict] | None = None,
+        goal_milestone_history: list[dict] | None = None,
         goal_progress_history: list[dict] | None = None,
     ) -> ContextOutput:
         text = str(event.payload.get("text", "")).strip()
@@ -617,6 +667,9 @@ class ContextAgent:
         goal_history_hint = self._goal_history_hint(
             self._select_goal_progress_history(goal_progress_history or [], selected_goals=selected_goals)
         )
+        milestone_history_hint = self._goal_milestone_history_hint(
+            self._select_goal_milestone_history(goal_milestone_history or [], selected_goals=selected_goals)
+        )
         conclusion_hint = self._summarize_conclusions(conclusions)
         memory_hint = ""
         if recent_memory:
@@ -641,6 +694,7 @@ class ContextAgent:
             + goal_hint
             + task_hint
             + milestone_hint
+            + milestone_history_hint
             + goal_history_hint
             + conclusion_hint
             + memory_hint
@@ -679,4 +733,21 @@ class ContextAgent:
             "unblock_next_task": "unblock next task",
             "define_first_execution_step": "define first execution step",
             "advance_next_task": "advance next task",
+        }.get(value, value.replace("_", " "))
+
+    def _humanize_phase(self, value: str) -> str:
+        return {
+            "early_stage": "early stage",
+            "execution_phase": "execution phase",
+            "recovery_phase": "recovery phase",
+            "completion_window": "completion window",
+        }.get(value, value.replace("_", " "))
+
+    def _humanize_risk(self, value: str) -> str:
+        return {
+            "at_risk": "at risk",
+            "watch": "watch status",
+            "ready_to_close": "closure readiness",
+            "stabilizing": "stabilizing risk",
+            "on_track": "on-track status",
         }.get(value, value.replace("_", " "))

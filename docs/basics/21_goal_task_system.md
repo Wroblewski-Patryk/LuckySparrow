@@ -602,6 +602,7 @@ Current MVP status:
 - background reflection can now also emit a lightweight `goal_milestone_transition` when reflected progress crosses meaningful thresholds such as active execution or the completion window
 - background reflection now also syncs lightweight `aion_goal_milestone` rows from that state, so runtime can surface an active milestone focus like `Drive goal to closure` or `Stabilize goal recovery`
 - that active milestone focus is now also enriched at runtime with lightweight operational signals such as milestone risk and current completion criteria, so planning can react not only to phase but also to whether the milestone is at risk, stabilizing, ready to close, or waiting on a specific closure condition
+- background reflection now also writes lightweight `aion_goal_milestone_history` snapshots, so runtime can react not only to the current milestone state but also to short milestone-level momentum, stabilization, regression, or closure movement
 - that reflected goal state can now shape context, motivation, and planning even when the current turn does not restate the full blocker details
 
 Together, they turn cognition into progress.

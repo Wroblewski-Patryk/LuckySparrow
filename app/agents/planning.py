@@ -13,6 +13,7 @@ class PlanningAgent:
         active_goals: list[dict] | None = None,
         active_tasks: list[dict] | None = None,
         active_goal_milestones: list[dict] | None = None,
+        goal_milestone_history: list[dict] | None = None,
         goal_progress_history: list[dict] | None = None,
     ) -> PlanOutput:
         goal = "Provide a clear and useful response to the user event."
@@ -27,6 +28,7 @@ class PlanningAgent:
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
+        goal_milestone_history_signal = self._goal_milestone_history_signal(goal_milestone_history or [])
         goal_history_signal = self._goal_history_signal(goal_progress_history or [])
 
         if motivation.mode == "clarify":
@@ -164,6 +166,14 @@ class PlanningAgent:
         if goal_completion_criteria_step is not None and goal_completion_criteria_step not in steps:
             prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
             steps.insert(prepare_index, goal_completion_criteria_step)
+
+        goal_milestone_history_step = self._goal_milestone_history_step(
+            goal_milestone_history_signal=goal_milestone_history_signal,
+            steps=steps,
+        )
+        if goal_milestone_history_step is not None and goal_milestone_history_step not in steps:
+            prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
+            steps.insert(prepare_index, goal_milestone_history_step)
 
         return PlanOutput(
             goal=goal,
@@ -483,6 +493,37 @@ class PlanningAgent:
             return "advance_next_task"
         return None
 
+    def _goal_milestone_history_step(self, goal_milestone_history_signal: str, steps: list[str]) -> str | None:
+        if goal_milestone_history_signal == "closure_momentum":
+            if (
+                "protect_milestone_closure_momentum" in steps
+                or "validate_milestone_closure" in steps
+                or "drive_goal_to_closure" in steps
+            ):
+                return None
+            return "protect_milestone_closure_momentum"
+        if goal_milestone_history_signal == "recovery_stabilizing":
+            if (
+                "stabilize_milestone_recovery_path" in steps
+                or "stabilize_milestone_recovery" in steps
+                or "stabilize_goal_recovery" in steps
+            ):
+                return None
+            return "stabilize_milestone_recovery_path"
+        if goal_milestone_history_signal == "milestone_regression":
+            if (
+                "rebuild_milestone_stability" in steps
+                or "reduce_milestone_risk" in steps
+                or "restore_completion_window" in steps
+            ):
+                return None
+            return "rebuild_milestone_stability"
+        if goal_milestone_history_signal == "volatile":
+            if "reduce_milestone_volatility" in steps or "monitor_milestone_risk" in steps:
+                return None
+            return "reduce_milestone_volatility"
+        return None
+
     def _apply_active_goal(self, goal: str, relevant_goal: dict) -> str:
         goal_name = str(relevant_goal.get("name", "")).strip()
         if not goal_name:
@@ -551,5 +592,46 @@ class PlanningAgent:
         if delta >= 0.2:
             return "lift"
         if span >= 0.3:
+            return "volatile"
+        return ""
+
+    def _goal_milestone_history_signal(self, goal_milestone_history: list[dict]) -> str:
+        if len(goal_milestone_history) < 2:
+            return ""
+
+        ordered = list(reversed(goal_milestone_history))
+        start = ordered[0]
+        end = ordered[-1]
+        start_phase = str(start.get("phase", "")).strip().lower()
+        end_phase = str(end.get("phase", "")).strip().lower()
+        start_risk = str(start.get("risk_level", "")).strip().lower()
+        end_risk = str(end.get("risk_level", "")).strip().lower()
+        distinct_pairs = {
+            (
+                str(item.get("phase", "")).strip().lower(),
+                str(item.get("risk_level", "")).strip().lower(),
+            )
+            for item in ordered
+        }
+
+        if (
+            start_phase != "completion_window" and end_phase == "completion_window"
+        ) or (
+            start_risk in {"watch", "stabilizing", "on_track"} and end_risk == "ready_to_close"
+        ):
+            return "closure_momentum"
+        if (
+            start_risk == "at_risk" and end_risk in {"watch", "stabilizing", "on_track"}
+        ) or (
+            start_phase == "recovery_phase" and end_phase in {"recovery_phase", "execution_phase"}
+        ):
+            return "recovery_stabilizing"
+        if (
+            start_phase == "completion_window" and end_phase != "completion_window"
+        ) or (
+            start_risk == "ready_to_close" and end_risk in {"watch", "at_risk"}
+        ):
+            return "milestone_regression"
+        if len(distinct_pairs) >= 3:
             return "volatile"
         return ""

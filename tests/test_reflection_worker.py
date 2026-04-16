@@ -11,6 +11,7 @@ class FakeMemoryRepository:
         self.theta_updates: list[dict] = []
         self.runtime_preferences: dict = {}
         self.goal_progress_history: list[dict] = []
+        self.goal_milestone_history: list[dict] = []
         self.goal_progress_snapshots: list[dict] = []
         self.created_tasks: list[dict] = []
         self.pending_tasks: list[dict] = []
@@ -54,9 +55,34 @@ class FakeMemoryRepository:
         return self.active_tasks[:limit]
 
     async def sync_goal_milestone(self, **kwargs) -> dict:
-        payload = {"id": len(self.goal_milestones) + 1, "status": "active", **kwargs}
+        payload = {
+            "id": len(self.goal_milestones) + 1,
+            "name": {
+                "early_stage": "Establish goal foundation",
+                "execution_phase": "Sustain active execution",
+                "recovery_phase": "Stabilize goal recovery",
+                "completion_window": "Drive goal to closure",
+            }.get(kwargs["phase"], "Advance goal milestone"),
+            "status": "active",
+            **kwargs,
+        }
         self.goal_milestones = [item for item in self.goal_milestones if not (item.get("goal_id") == kwargs["goal_id"] and item.get("status") == "active")]
         self.goal_milestones.insert(0, payload)
+        return payload
+
+    async def append_goal_milestone_history(self, **kwargs) -> dict:
+        payload = {"id": len(self.goal_milestone_history) + 1, **kwargs}
+        if self.goal_milestone_history:
+            latest = self.goal_milestone_history[0]
+            if (
+                latest.get("goal_id") == kwargs.get("goal_id")
+                and latest.get("milestone_name") == kwargs.get("milestone_name")
+                and latest.get("phase") == kwargs.get("phase")
+                and (latest.get("risk_level") or "") == (kwargs.get("risk_level") or "")
+                and (latest.get("completion_criteria") or "") == (kwargs.get("completion_criteria") or "")
+            ):
+                return latest
+        self.goal_milestone_history.insert(0, payload)
         return payload
 
     async def enqueue_reflection_task(self, user_id: str, event_id: str) -> dict:
@@ -466,6 +492,10 @@ async def test_reflection_worker_infers_goal_milestone_recovery_phase() -> None:
     } in repository.conclusion_updates
     assert repository.goal_milestones[0]["goal_id"] == 1
     assert repository.goal_milestones[0]["phase"] == "recovery_phase"
+    assert repository.goal_milestone_history[0]["goal_id"] == 1
+    assert repository.goal_milestone_history[0]["phase"] == "recovery_phase"
+    assert repository.goal_milestone_history[0]["risk_level"] == "stabilizing"
+    assert repository.goal_milestone_history[0]["completion_criteria"] == "stabilize_remaining_work"
 
 
 async def test_reflection_worker_infers_early_stage_completion_criteria() -> None:
@@ -499,6 +529,39 @@ async def test_reflection_worker_infers_early_stage_completion_criteria() -> Non
         "source": "background_reflection",
         "supporting_event_id": "evt-goal-early-stage",
     } in repository.conclusion_updates
+
+
+async def test_reflection_worker_appends_distinct_goal_milestone_history_snapshots() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "task_status_update=fix deployment blocker:done; action=success; expression=One."},
+            {"summary": "goal_update=ship the MVP this week; action=success; expression=Two."},
+        ]
+    )
+    repository.active_goals = [
+        {"id": 1, "name": "ship the MVP this week", "priority": "high", "status": "active", "goal_type": "operational"}
+    ]
+    repository.active_tasks = [
+        {"id": 3, "goal_id": 1, "name": "finalize rollout checklist", "priority": "medium", "status": "todo"}
+    ]
+    worker = ReflectionWorker(memory_repository=repository)
+
+    first = await worker.reflect_user(user_id="u-1", event_id="evt-goal-history-1")
+    assert first is True
+
+    repository.recent_memory = [
+        {"summary": "task_status_update=finalize rollout checklist:in_progress; action=success; expression=Three."},
+        {"summary": "goal_update=ship the MVP this week; action=success; expression=Four."},
+    ]
+    repository.active_tasks = [
+        {"id": 3, "goal_id": 1, "name": "finalize rollout checklist", "priority": "medium", "status": "in_progress"}
+    ]
+    second = await worker.reflect_user(user_id="u-1", event_id="evt-goal-history-2")
+
+    assert second is True
+    assert len(repository.goal_milestone_history) == 2
+    assert repository.goal_milestone_history[0]["phase"] == "execution_phase"
+    assert repository.goal_milestone_history[1]["phase"] == "recovery_phase"
 
 
 async def test_reflection_worker_infers_progressing_goal_execution_state_from_done_update() -> None:

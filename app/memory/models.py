@@ -176,6 +176,24 @@ class AionGoalMilestone(Base):
     )
 
 
+class AionGoalMilestoneHistory(Base):
+    __tablename__ = "aion_goal_milestone_history"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    goal_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    milestone_name: Mapped[str] = mapped_column(String(160), nullable=False)
+    phase: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    risk_level: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
+    completion_criteria: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    source_event_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+
 class AionReflectionTask(Base):
     __tablename__ = "aion_reflection_task"
     __table_args__ = (UniqueConstraint("event_id", name="uq_aion_reflection_task_event_id"),)

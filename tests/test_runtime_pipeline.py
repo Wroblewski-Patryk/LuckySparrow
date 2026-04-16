@@ -23,6 +23,7 @@ class FakeMemoryRepository:
         self.active_goals: list[dict] = []
         self.active_tasks: list[dict] = []
         self.active_goal_milestones: list[dict] = []
+        self.goal_milestone_history: list[dict] = []
         self.goal_progress_history: list[dict] = []
 
     async def get_recent_for_user(self, user_id: str, limit: int = 5) -> list[dict]:
@@ -59,6 +60,12 @@ class FakeMemoryRepository:
 
     async def get_recent_goal_progress(self, user_id: str, *, goal_ids: list[int] | None = None, limit: int = 6) -> list[dict]:
         rows = self.goal_progress_history[:]
+        if goal_ids:
+            rows = [row for row in rows if int(row.get("goal_id", -1)) in set(goal_ids)]
+        return rows[:limit]
+
+    async def get_recent_goal_milestone_history(self, user_id: str, *, goal_ids: list[int] | None = None, limit: int = 6) -> list[dict]:
+        rows = self.goal_milestone_history[:]
         if goal_ids:
             rows = [row for row in rows if int(row.get("goal_id", -1)) in set(goal_ids)]
         return rows[:limit]
@@ -121,6 +128,21 @@ class FakeMemoryRepository:
             if not (item.get("goal_id") == kwargs["goal_id"] and item.get("status") == "active")
         ]
         self.active_goal_milestones.append(payload)
+        return payload
+
+    async def append_goal_milestone_history(self, **kwargs) -> dict:
+        payload = {"id": len(self.goal_milestone_history) + 1, "created_at": datetime.now(timezone.utc), **kwargs}
+        if self.goal_milestone_history:
+            latest = self.goal_milestone_history[0]
+            if (
+                latest.get("goal_id") == kwargs.get("goal_id")
+                and latest.get("milestone_name") == kwargs.get("milestone_name")
+                and latest.get("phase") == kwargs.get("phase")
+                and (latest.get("risk_level") or "") == (kwargs.get("risk_level") or "")
+                and (latest.get("completion_criteria") or "") == (kwargs.get("completion_criteria") or "")
+            ):
+                return latest
+        self.goal_milestone_history.insert(0, payload)
         return payload
 
     async def update_task_status(self, *, task_id: int, status: str) -> dict | None:
@@ -227,6 +249,7 @@ async def test_runtime_pipeline_api_source() -> None:
     assert result.active_goals == []
     assert result.active_tasks == []
     assert result.active_goal_milestones == []
+    assert result.goal_milestone_history == []
     assert "Identity stance: direct, supportive, analytical." in result.context.summary
     assert "previous hello" in result.context.summary
     assert "Earlier reply" in result.context.summary
@@ -247,6 +270,7 @@ async def test_runtime_pipeline_api_source() -> None:
         "memory_load",
         "task_load",
         "goal_milestone_load",
+        "goal_milestone_history_load",
         "goal_progress_load",
         "identity_load",
         "perception",
@@ -303,6 +327,28 @@ async def test_runtime_pipeline_loads_active_goals_and_tasks_into_context_and_pl
             "status": "active",
         }
     ]
+    memory.goal_milestone_history = [
+        {
+            "id": 41,
+            "goal_id": 11,
+            "milestone_name": "Stabilize goal recovery",
+            "phase": "recovery_phase",
+            "risk_level": "stabilizing",
+            "completion_criteria": "stabilize_remaining_work",
+            "source_event_id": "evt-history-old",
+            "created_at": datetime.now(timezone.utc),
+        },
+        {
+            "id": 42,
+            "goal_id": 11,
+            "milestone_name": "Drive goal to closure",
+            "phase": "completion_window",
+            "risk_level": "ready_to_close",
+            "completion_criteria": "finish_remaining_active_work",
+            "source_event_id": "evt-history-new",
+            "created_at": datetime.now(timezone.utc),
+        },
+    ]
     memory.user_preferences = {
         "goal_milestone_risk": "stabilizing",
         "goal_completion_criteria": "stabilize_remaining_work",
@@ -338,9 +384,11 @@ async def test_runtime_pipeline_loads_active_goals_and_tasks_into_context_and_pl
     assert result.active_goal_milestones[0].name == "Stabilize goal recovery"
     assert result.active_goal_milestones[0].risk_level == "stabilizing"
     assert result.active_goal_milestones[0].completion_criteria == "stabilize_remaining_work"
+    assert result.goal_milestone_history[0].milestone_name == "Stabilize goal recovery"
     assert "Active goals: ship the MVP this week." in result.context.summary
     assert "Active tasks: fix deployment blocker (blocked)." in result.context.summary
     assert "Active milestones: Stabilize goal recovery (recovery_phase, stabilizing, stabilize remaining work)." in result.context.summary
+    assert "Recent milestone history moved from completion window to recovery phase." in result.context.summary
     assert result.context.related_goals == ["ship the MVP this week"]
     assert "align_with_active_goal" in result.plan.steps
     assert "align_with_active_milestone" in result.plan.steps
@@ -589,6 +637,73 @@ async def test_runtime_pipeline_uses_milestone_risk_and_completion_criteria_acro
     assert result.motivation.importance >= 0.83
     assert "validate_milestone_closure" in result.plan.steps
     assert "finish_remaining_active_work" in result.plan.steps
+
+
+async def test_runtime_pipeline_uses_goal_milestone_history_across_context_motivation_and_planning() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.active_goals = [
+        {
+            "id": 11,
+            "user_id": "u-1",
+            "name": "ship the MVP this week",
+            "description": "User-declared goal: ship the MVP this week",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "operational",
+        }
+    ]
+    memory.goal_milestone_history = [
+        {
+            "id": 31,
+            "goal_id": 11,
+            "milestone_name": "Drive goal to closure",
+            "phase": "completion_window",
+            "risk_level": "ready_to_close",
+            "completion_criteria": "finish_remaining_active_work",
+            "source_event_id": "evt-history-new",
+            "created_at": datetime.now(timezone.utc),
+        },
+        {
+            "id": 30,
+            "goal_id": 11,
+            "milestone_name": "Stabilize goal recovery",
+            "phase": "recovery_phase",
+            "risk_level": "stabilizing",
+            "completion_criteria": "stabilize_remaining_work",
+            "source_event_id": "evt-history-old",
+            "created_at": datetime.now(timezone.utc),
+        },
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-goal-milestone-history-runtime",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "What should I do next for the MVP?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-goal-milestone-history-runtime"),
+    )
+
+    result = await runtime.run(event)
+
+    assert len(result.goal_milestone_history) == 2
+    assert "Recent milestone history moved from recovery phase to completion window." in result.context.summary
+    assert result.motivation.importance >= 0.8
+    assert "protect_milestone_closure_momentum" in result.plan.steps
 
 
 async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_without_recent_memory() -> None:

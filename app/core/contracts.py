@@ -88,6 +88,17 @@ class GoalMilestoneRecordOutput(BaseModel):
     source_event_id: str | None = None
 
 
+class GoalMilestoneHistoryRecordOutput(BaseModel):
+    id: int | None = None
+    goal_id: int
+    milestone_name: str
+    phase: str
+    risk_level: str | None = None
+    completion_criteria: str | None = None
+    source_event_id: str | None = None
+    created_at: datetime
+
+
 class MotivationOutput(BaseModel):
     importance: float
     urgency: float
@@ -135,6 +146,7 @@ class RuntimeResult(BaseModel):
     active_goals: list[GoalRecordOutput] = Field(default_factory=list)
     active_tasks: list[TaskRecordOutput] = Field(default_factory=list)
     active_goal_milestones: list[GoalMilestoneRecordOutput] = Field(default_factory=list)
+    goal_milestone_history: list[GoalMilestoneHistoryRecordOutput] = Field(default_factory=list)
     goal_progress_history: list[GoalProgressRecordOutput] = Field(default_factory=list)
     perception: PerceptionOutput
     context: ContextOutput

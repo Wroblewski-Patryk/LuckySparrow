@@ -7,6 +7,7 @@ from app.memory.models import (
     AionConclusion,
     AionGoal,
     AionGoalMilestone,
+    AionGoalMilestoneHistory,
     AionGoalProgress,
     AionMemory,
     AionProfile,
@@ -234,6 +235,29 @@ class MemoryRepository:
         )
         return [self._serialize_goal_milestone(row) for row in rows[:limit]]
 
+    async def get_recent_goal_milestone_history(
+        self,
+        user_id: str,
+        *,
+        goal_ids: list[int] | None = None,
+        limit: int = 6,
+    ) -> list[dict]:
+        async with self.session_factory() as session:
+            statement = (
+                select(AionGoalMilestoneHistory)
+                .where(AionGoalMilestoneHistory.user_id == user_id)
+                .order_by(AionGoalMilestoneHistory.created_at.desc(), AionGoalMilestoneHistory.id.desc())
+                .limit(limit * 3)
+            )
+            result = await session.execute(statement)
+            rows = result.scalars().all()
+
+        goal_id_set = {goal_id for goal_id in (goal_ids or []) if goal_id is not None}
+        if goal_id_set:
+            rows = [row for row in rows if int(row.goal_id) in goal_id_set]
+
+        return [self._serialize_goal_milestone_history(row) for row in rows[:limit]]
+
     async def upsert_active_goal(
         self,
         *,
@@ -448,6 +472,54 @@ class MemoryRepository:
             await session.refresh(row)
 
         return self._serialize_goal_milestone(row)
+
+    async def append_goal_milestone_history(
+        self,
+        *,
+        user_id: str,
+        goal_id: int,
+        milestone_name: str,
+        phase: str,
+        risk_level: str | None,
+        completion_criteria: str | None,
+        source_event_id: str | None = None,
+    ) -> dict:
+        async with self.session_factory() as session:
+            latest_statement = (
+                select(AionGoalMilestoneHistory)
+                .where(
+                    AionGoalMilestoneHistory.user_id == user_id,
+                    AionGoalMilestoneHistory.goal_id == goal_id,
+                )
+                .order_by(AionGoalMilestoneHistory.created_at.desc(), AionGoalMilestoneHistory.id.desc())
+                .limit(1)
+            )
+            latest_result = await session.execute(latest_statement)
+            latest_row = latest_result.scalar_one_or_none()
+
+            if (
+                latest_row is not None
+                and latest_row.milestone_name == milestone_name
+                and latest_row.phase == phase
+                and (latest_row.risk_level or "") == (risk_level or "")
+                and (latest_row.completion_criteria or "") == (completion_criteria or "")
+            ):
+                return self._serialize_goal_milestone_history(latest_row)
+
+            row = AionGoalMilestoneHistory(
+                user_id=user_id,
+                goal_id=goal_id,
+                milestone_name=milestone_name[:160],
+                phase=phase,
+                risk_level=risk_level,
+                completion_criteria=completion_criteria,
+                source_event_id=source_event_id,
+            )
+            session.add(row)
+            await session.commit()
+            await session.refresh(row)
+
+        return self._serialize_goal_milestone_history(row)
 
     async def get_user_runtime_preferences(self, user_id: str) -> dict:
         async with self.session_factory() as session:
@@ -946,6 +1018,19 @@ class MemoryRepository:
             "source_event_id": row.source_event_id,
             "created_at": row.created_at,
             "updated_at": row.updated_at,
+        }
+
+    def _serialize_goal_milestone_history(self, row: AionGoalMilestoneHistory) -> dict:
+        return {
+            "id": row.id,
+            "user_id": row.user_id,
+            "goal_id": row.goal_id,
+            "milestone_name": row.milestone_name,
+            "phase": row.phase,
+            "risk_level": row.risk_level,
+            "completion_criteria": row.completion_criteria,
+            "source_event_id": row.source_event_id,
+            "created_at": row.created_at,
         }
 
     def _goal_priority_rank(self, priority: str) -> int:

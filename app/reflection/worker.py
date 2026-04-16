@@ -97,13 +97,14 @@ class ReflectionWorker:
                 conclusion["confidence"],
                 conclusion["source"],
             )
+        synced_milestone: dict | None = None
         if primary_goal is not None and primary_goal.get("id") is not None:
             goal_milestone_state = next(
                 (item for item in conclusions if str(item.get("kind")) == "goal_milestone_state"),
                 None,
             )
             if goal_milestone_state is not None:
-                await self.memory_repository.sync_goal_milestone(
+                synced_milestone = await self.memory_repository.sync_goal_milestone(
                     user_id=user_id,
                     goal_id=int(primary_goal["id"]),
                     phase=str(goal_milestone_state["content"]),
@@ -116,6 +117,35 @@ class ReflectionWorker:
                     primary_goal["id"],
                     goal_milestone_state["content"],
                 )
+        if synced_milestone is not None:
+            goal_milestone_risk = next(
+                (item for item in conclusions if str(item.get("kind")) == "goal_milestone_risk"),
+                None,
+            )
+            goal_completion_criteria = next(
+                (item for item in conclusions if str(item.get("kind")) == "goal_completion_criteria"),
+                None,
+            )
+            await self.memory_repository.append_goal_milestone_history(
+                user_id=user_id,
+                goal_id=int(synced_milestone["goal_id"]),
+                milestone_name=str(synced_milestone["name"]),
+                phase=str(synced_milestone["phase"]),
+                risk_level=str(goal_milestone_risk["content"]) if goal_milestone_risk is not None else None,
+                completion_criteria=(
+                    str(goal_completion_criteria["content"]) if goal_completion_criteria is not None else None
+                ),
+                source_event_id=event_id,
+            )
+            self.logger.info(
+                "reflection_goal_milestone_history_appended user_id=%s event_id=%s goal_id=%s phase=%s risk=%s criteria=%s",
+                user_id,
+                event_id,
+                synced_milestone["goal_id"],
+                synced_milestone["phase"],
+                goal_milestone_risk["content"] if goal_milestone_risk is not None else "",
+                goal_completion_criteria["content"] if goal_completion_criteria is not None else "",
+            )
         if primary_goal is not None and primary_goal.get("id") is not None:
             goal_progress_score = next(
                 (item for item in conclusions if str(item.get("kind")) == "goal_progress_score"),

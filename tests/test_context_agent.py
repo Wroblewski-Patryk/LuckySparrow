@@ -427,6 +427,48 @@ def test_context_summary_includes_recent_goal_progress_history() -> None:
     assert "Recent goal history shows lift from 0.26 to 0.72." in result.summary
 
 
+def test_context_summary_includes_recent_goal_milestone_history() -> None:
+    result = ContextAgent().run(
+        event=_event("how should we proceed for the MVP"),
+        perception=_perception(),
+        recent_memory=[],
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+        goal_milestone_history=[
+            {
+                "id": 2,
+                "goal_id": 11,
+                "milestone_name": "Drive goal to closure",
+                "phase": "completion_window",
+                "risk_level": "ready_to_close",
+                "completion_criteria": "finish_remaining_active_work",
+                "source_event_id": "evt-new",
+                "created_at": datetime.now(timezone.utc),
+            },
+            {
+                "id": 1,
+                "goal_id": 11,
+                "milestone_name": "Stabilize goal recovery",
+                "phase": "recovery_phase",
+                "risk_level": "stabilizing",
+                "completion_criteria": "stabilize_remaining_work",
+                "source_event_id": "evt-old",
+                "created_at": datetime.now(timezone.utc),
+            },
+        ],
+    )
+
+    assert "Recent milestone history moved from recovery phase to completion window." in result.summary
+
+
 def test_context_ignores_low_confidence_conclusions() -> None:
     result = ContextAgent().run(
         event=_event("how should we proceed"),
