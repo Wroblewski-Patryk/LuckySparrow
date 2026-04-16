@@ -397,6 +397,46 @@ async def test_memory_repository_exposes_goal_milestone_state_in_runtime_prefere
     await engine.dispose()
 
 
+async def test_memory_repository_exposes_goal_milestone_risk_and_completion_criteria_in_runtime_preferences(tmp_path) -> None:
+    database_path = tmp_path / "memory-goal-milestone-ops.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    async with session_factory() as session:
+        session.add(
+            AionConclusion(
+                user_id="u-1",
+                kind="goal_milestone_risk",
+                content="ready_to_close",
+                confidence=0.79,
+                source="background_reflection",
+                supporting_event_id="evt-goal-milestone-risk",
+            )
+        )
+        session.add(
+            AionConclusion(
+                user_id="u-1",
+                kind="goal_completion_criteria",
+                content="finish_remaining_active_work",
+                confidence=0.8,
+                source="background_reflection",
+                supporting_event_id="evt-goal-completion-criteria",
+            )
+        )
+        await session.commit()
+
+    preferences = await repository.get_user_runtime_preferences(user_id="u-1")
+
+    assert preferences["goal_milestone_risk"] == "ready_to_close"
+    assert preferences["goal_milestone_risk_confidence"] == 0.79
+    assert preferences["goal_completion_criteria"] == "finish_remaining_active_work"
+    assert preferences["goal_completion_criteria_confidence"] == 0.8
+
+    await engine.dispose()
+
+
 async def test_memory_repository_exposes_goal_progress_arc_in_runtime_preferences(tmp_path) -> None:
     database_path = tmp_path / "memory-goal-progress-arc.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
@@ -441,6 +481,8 @@ async def test_memory_repository_runtime_preferences_can_hold_more_than_six_kind
         ("goal_progress_score", "0.61", 0.74),
         ("goal_progress_trend", "improving", 0.73),
         ("goal_progress_arc", "recovery_gaining_traction", 0.76),
+        ("goal_milestone_risk", "ready_to_close", 0.79),
+        ("goal_completion_criteria", "finish_remaining_active_work", 0.80),
     ]
     async with session_factory() as session:
         for index, (kind, content, confidence) in enumerate(rows, start=1):
@@ -465,6 +507,8 @@ async def test_memory_repository_runtime_preferences_can_hold_more_than_six_kind
     assert preferences["goal_progress_score"] == 0.61
     assert preferences["goal_progress_trend"] == "improving"
     assert preferences["goal_progress_arc"] == "recovery_gaining_traction"
+    assert preferences["goal_milestone_risk"] == "ready_to_close"
+    assert preferences["goal_completion_criteria"] == "finish_remaining_active_work"
 
     await engine.dispose()
 

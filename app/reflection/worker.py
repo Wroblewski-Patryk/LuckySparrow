@@ -390,6 +390,7 @@ class ReflectionWorker:
         if goal_progress_arc is not None:
             conclusions.append(goal_progress_arc)
         goal_milestone_state = self._derive_goal_milestone_state(
+            has_active_goal=bool(active_goals),
             current_goal_progress_score=goal_progress_score,
             goal_execution_state=goal_execution_state,
             goal_progress_arc=goal_progress_arc,
@@ -402,6 +403,23 @@ class ReflectionWorker:
         )
         if goal_milestone_transition is not None:
             conclusions.append(goal_milestone_transition)
+        goal_milestone_risk = self._derive_goal_milestone_risk(
+            active_tasks=active_tasks or [],
+            goal_execution_state=goal_execution_state,
+            goal_progress_arc=goal_progress_arc,
+            goal_milestone_state=goal_milestone_state,
+            goal_milestone_transition=goal_milestone_transition,
+        )
+        if goal_milestone_risk is not None:
+            conclusions.append(goal_milestone_risk)
+        goal_completion_criteria = self._derive_goal_completion_criteria(
+            active_tasks=active_tasks or [],
+            goal_execution_state=goal_execution_state,
+            goal_milestone_state=goal_milestone_state,
+            goal_milestone_risk=goal_milestone_risk,
+        )
+        if goal_completion_criteria is not None:
+            conclusions.append(goal_completion_criteria)
 
         deduped: list[dict] = []
         seen: set[tuple[str, str]] = set()
@@ -673,14 +691,24 @@ class ReflectionWorker:
     def _derive_goal_milestone_state(
         self,
         *,
+        has_active_goal: bool,
         current_goal_progress_score: dict | None,
         goal_execution_state: dict | None,
         goal_progress_arc: dict | None,
     ) -> dict | None:
+        if not has_active_goal:
+            return None
         current_score = self._coerce_progress_score(
             current_goal_progress_score.get("content") if current_goal_progress_score else None
         )
-        if current_score is None or current_score <= 0.0:
+        if current_score is None:
+            return {
+                "kind": "goal_milestone_state",
+                "content": "early_stage",
+                "confidence": 0.7,
+                "source": "background_reflection",
+            }
+        if current_score <= 0.0:
             return None
 
         execution_state = str(goal_execution_state.get("content", "")).strip().lower() if goal_execution_state is not None else ""
@@ -713,6 +741,149 @@ class ReflectionWorker:
             "confidence": 0.72,
             "source": "background_reflection",
         }
+
+    def _derive_goal_milestone_risk(
+        self,
+        *,
+        active_tasks: Sequence[dict],
+        goal_execution_state: dict | None,
+        goal_progress_arc: dict | None,
+        goal_milestone_state: dict | None,
+        goal_milestone_transition: dict | None,
+    ) -> dict | None:
+        execution_state = str(goal_execution_state.get("content", "")).strip().lower() if goal_execution_state is not None else ""
+        progress_arc = str(goal_progress_arc.get("content", "")).strip().lower() if goal_progress_arc is not None else ""
+        milestone_state = str(goal_milestone_state.get("content", "")).strip().lower() if goal_milestone_state is not None else ""
+        milestone_transition = (
+            str(goal_milestone_transition.get("content", "")).strip().lower()
+            if goal_milestone_transition is not None
+            else ""
+        )
+        blocked_tasks = [
+            task
+            for task in active_tasks
+            if str(task.get("status", "")).strip().lower() == "blocked"
+        ]
+
+        if blocked_tasks or execution_state == "blocked" or progress_arc == "falling_behind":
+            return {
+                "kind": "goal_milestone_risk",
+                "content": "at_risk",
+                "confidence": 0.81,
+                "source": "background_reflection",
+            }
+        if milestone_transition == "slipped_from_completion_window" or progress_arc == "unstable_progress":
+            return {
+                "kind": "goal_milestone_risk",
+                "content": "watch",
+                "confidence": 0.75,
+                "source": "background_reflection",
+            }
+        if milestone_state == "completion_window":
+            return {
+                "kind": "goal_milestone_risk",
+                "content": "ready_to_close",
+                "confidence": 0.79,
+                "source": "background_reflection",
+            }
+        if milestone_state == "recovery_phase" or progress_arc == "recovery_gaining_traction":
+            return {
+                "kind": "goal_milestone_risk",
+                "content": "stabilizing",
+                "confidence": 0.74,
+                "source": "background_reflection",
+            }
+        if milestone_state in {"execution_phase", "early_stage"} or execution_state in {"advancing", "progressing"}:
+            return {
+                "kind": "goal_milestone_risk",
+                "content": "on_track",
+                "confidence": 0.71,
+                "source": "background_reflection",
+            }
+        return None
+
+    def _derive_goal_completion_criteria(
+        self,
+        *,
+        active_tasks: Sequence[dict],
+        goal_execution_state: dict | None,
+        goal_milestone_state: dict | None,
+        goal_milestone_risk: dict | None,
+    ) -> dict | None:
+        milestone_state = str(goal_milestone_state.get("content", "")).strip().lower() if goal_milestone_state is not None else ""
+        execution_state = str(goal_execution_state.get("content", "")).strip().lower() if goal_execution_state is not None else ""
+        milestone_risk = str(goal_milestone_risk.get("content", "")).strip().lower() if goal_milestone_risk is not None else ""
+        blocked_tasks = [
+            task
+            for task in active_tasks
+            if str(task.get("status", "")).strip().lower() == "blocked"
+        ]
+        in_progress_tasks = [
+            task
+            for task in active_tasks
+            if str(task.get("status", "")).strip().lower() == "in_progress"
+        ]
+        todo_tasks = [
+            task
+            for task in active_tasks
+            if str(task.get("status", "")).strip().lower() == "todo"
+        ]
+
+        if milestone_state == "completion_window":
+            if blocked_tasks:
+                return {
+                    "kind": "goal_completion_criteria",
+                    "content": "resolve_remaining_blocker",
+                    "confidence": 0.82,
+                    "source": "background_reflection",
+                }
+            if in_progress_tasks or todo_tasks:
+                return {
+                    "kind": "goal_completion_criteria",
+                    "content": "finish_remaining_active_work",
+                    "confidence": 0.8,
+                    "source": "background_reflection",
+                }
+            return {
+                "kind": "goal_completion_criteria",
+                "content": "confirm_goal_completion",
+                "confidence": 0.79,
+                "source": "background_reflection",
+            }
+
+        if blocked_tasks:
+            return {
+                "kind": "goal_completion_criteria",
+                "content": "resolve_remaining_blocker",
+                "confidence": 0.82,
+                "source": "background_reflection",
+            }
+
+        if milestone_state == "recovery_phase" or execution_state == "recovering" or milestone_risk == "stabilizing":
+            return {
+                "kind": "goal_completion_criteria",
+                "content": "stabilize_remaining_work",
+                "confidence": 0.76,
+                "source": "background_reflection",
+            }
+
+        if milestone_state == "early_stage":
+            return {
+                "kind": "goal_completion_criteria",
+                "content": "define_first_execution_step",
+                "confidence": 0.72,
+                "source": "background_reflection",
+            }
+
+        if milestone_state == "execution_phase":
+            return {
+                "kind": "goal_completion_criteria",
+                "content": "advance_next_task",
+                "confidence": 0.74,
+                "source": "background_reflection",
+            }
+
+        return None
 
     def _goal_stagnation_signal_count(self, recent_memory: Sequence[dict]) -> int:
         planning_heavy_steps = {

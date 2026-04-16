@@ -25,6 +25,8 @@ class PlanningAgent:
         goal_progress_arc = str((user_preferences or {}).get("goal_progress_arc", "")).strip().lower()
         goal_milestone_state = str((user_preferences or {}).get("goal_milestone_state", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
+        goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
+        goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
         goal_history_signal = self._goal_history_signal(goal_progress_history or [])
 
         if motivation.mode == "clarify":
@@ -88,6 +90,7 @@ class PlanningAgent:
         )
         if relevant_milestone is not None:
             goal = self._apply_active_milestone(goal=goal, relevant_milestone=relevant_milestone)
+            goal = self._apply_active_milestone_signals(goal=goal, relevant_milestone=relevant_milestone)
             if "align_with_active_milestone" not in steps:
                 prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
                 steps.insert(prepare_index, "align_with_active_milestone")
@@ -145,6 +148,22 @@ class PlanningAgent:
         if goal_milestone_transition_step is not None and goal_milestone_transition_step not in steps:
             prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
             steps.insert(prepare_index, goal_milestone_transition_step)
+
+        goal_milestone_risk_step = self._goal_milestone_risk_step(
+            goal_milestone_risk=goal_milestone_risk,
+            steps=steps,
+        )
+        if goal_milestone_risk_step is not None and goal_milestone_risk_step not in steps:
+            prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
+            steps.insert(prepare_index, goal_milestone_risk_step)
+
+        goal_completion_criteria_step = self._goal_completion_criteria_step(
+            goal_completion_criteria=goal_completion_criteria,
+            steps=steps,
+        )
+        if goal_completion_criteria_step is not None and goal_completion_criteria_step not in steps:
+            prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
+            steps.insert(prepare_index, goal_completion_criteria_step)
 
         return PlanOutput(
             goal=goal,
@@ -414,6 +433,56 @@ class PlanningAgent:
             return "drive_goal_to_closure"
         return None
 
+    def _goal_milestone_risk_step(self, goal_milestone_risk: str, steps: list[str]) -> str | None:
+        if goal_milestone_risk == "at_risk":
+            if "reduce_milestone_risk" in steps or "recover_goal_progress" in steps or "correct_goal_drift" in steps:
+                return None
+            return "reduce_milestone_risk"
+        if goal_milestone_risk == "watch":
+            if "monitor_milestone_risk" in steps or "stabilize_goal_progress_arc" in steps:
+                return None
+            return "monitor_milestone_risk"
+        if goal_milestone_risk == "ready_to_close":
+            if "validate_milestone_closure" in steps or "drive_goal_to_closure" in steps or "close_goal_completion_window" in steps:
+                return None
+            return "validate_milestone_closure"
+        if goal_milestone_risk == "stabilizing":
+            if "stabilize_milestone_recovery" in steps or "stabilize_goal_recovery" in steps or "consolidate_goal_recovery" in steps:
+                return None
+            return "stabilize_milestone_recovery"
+        return None
+
+    def _goal_completion_criteria_step(self, goal_completion_criteria: str, steps: list[str]) -> str | None:
+        if goal_completion_criteria == "resolve_remaining_blocker":
+            if "resolve_remaining_blocker" in steps or "unblock_active_task" in steps or "reduce_milestone_risk" in steps:
+                return None
+            return "resolve_remaining_blocker"
+        if goal_completion_criteria == "finish_remaining_active_work":
+            if "finish_remaining_active_work" in steps or "advance_active_task" in steps or "continue_goal_execution" in steps:
+                return None
+            return "finish_remaining_active_work"
+        if goal_completion_criteria == "confirm_goal_completion":
+            if "confirm_goal_completion" in steps or "validate_milestone_closure" in steps or "drive_goal_to_closure" in steps:
+                return None
+            return "confirm_goal_completion"
+        if goal_completion_criteria == "stabilize_remaining_work":
+            if "stabilize_remaining_work" in steps or "stabilize_goal_recovery" in steps or "consolidate_goal_recovery" in steps:
+                return None
+            return "stabilize_remaining_work"
+        if goal_completion_criteria == "unblock_next_task":
+            if "unblock_next_task" in steps or "resolve_remaining_blocker" in steps or "recover_goal_progress" in steps:
+                return None
+            return "unblock_next_task"
+        if goal_completion_criteria == "define_first_execution_step":
+            if "define_first_execution_step" in steps or "establish_goal_foundation" in steps or "increase_goal_progress" in steps:
+                return None
+            return "define_first_execution_step"
+        if goal_completion_criteria == "advance_next_task":
+            if "advance_next_task" in steps or "advance_active_task" in steps or "continue_goal_execution" in steps:
+                return None
+            return "advance_next_task"
+        return None
+
     def _apply_active_goal(self, goal: str, relevant_goal: dict) -> str:
         goal_name = str(relevant_goal.get("name", "")).strip()
         if not goal_name:
@@ -425,6 +494,21 @@ class PlanningAgent:
         if not milestone_name:
             return goal
         return f"{goal} Keep the response aligned with the active milestone '{milestone_name}'."
+
+    def _apply_active_milestone_signals(self, goal: str, relevant_milestone: dict) -> str:
+        risk_level = str(relevant_milestone.get("risk_level", "")).strip().lower()
+        completion_criteria = str(relevant_milestone.get("completion_criteria", "")).strip().lower()
+        hints: list[str] = []
+        if risk_level:
+            hints.append(f"Treat the milestone risk as '{risk_level}'.")
+        if completion_criteria:
+            hints.append(
+                "Use the milestone completion criterion "
+                f"'{completion_criteria.replace('_', ' ')}' as the operational finish line."
+            )
+        if not hints:
+            return goal
+        return f"{goal} {' '.join(hints)}"
 
     def _text_tokens(self, value: str) -> set[str]:
         canonical = "".join(char if char.isalnum() or char.isspace() else " " for char in value.strip().lower())

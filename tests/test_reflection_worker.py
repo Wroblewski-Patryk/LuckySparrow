@@ -358,6 +358,22 @@ async def test_reflection_worker_infers_goal_milestone_transition_into_completio
         "source": "background_reflection",
         "supporting_event_id": "evt-goal-milestone",
     } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_milestone_risk",
+        "content": "ready_to_close",
+        "confidence": 0.79,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-milestone",
+    } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_completion_criteria",
+        "content": "finish_remaining_active_work",
+        "confidence": 0.8,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-milestone",
+    } in repository.conclusion_updates
 
 
 async def test_reflection_worker_infers_goal_milestone_transition_out_of_completion_window() -> None:
@@ -385,6 +401,22 @@ async def test_reflection_worker_infers_goal_milestone_transition_out_of_complet
         "kind": "goal_milestone_transition",
         "content": "slipped_from_completion_window",
         "confidence": 0.78,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-slip",
+    } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_milestone_risk",
+        "content": "at_risk",
+        "confidence": 0.81,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-slip",
+    } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_completion_criteria",
+        "content": "resolve_remaining_blocker",
+        "confidence": 0.82,
         "source": "background_reflection",
         "supporting_event_id": "evt-goal-slip",
     } in repository.conclusion_updates
@@ -416,8 +448,57 @@ async def test_reflection_worker_infers_goal_milestone_recovery_phase() -> None:
         "source": "background_reflection",
         "supporting_event_id": "evt-goal-recovery-phase",
     } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_milestone_risk",
+        "content": "stabilizing",
+        "confidence": 0.74,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-recovery-phase",
+    } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_completion_criteria",
+        "content": "stabilize_remaining_work",
+        "confidence": 0.76,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-recovery-phase",
+    } in repository.conclusion_updates
     assert repository.goal_milestones[0]["goal_id"] == 1
     assert repository.goal_milestones[0]["phase"] == "recovery_phase"
+
+
+async def test_reflection_worker_infers_early_stage_completion_criteria() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "goal_update=ship the MVP this week; action=success; expression=One."},
+        ]
+    )
+    repository.active_goals = [
+        {"id": 1, "name": "ship the MVP this week", "priority": "high", "status": "active", "goal_type": "operational"}
+    ]
+    repository.active_tasks = []
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-goal-early-stage")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_milestone_state",
+        "content": "early_stage",
+        "confidence": 0.7,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-early-stage",
+    } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_completion_criteria",
+        "content": "define_first_execution_step",
+        "confidence": 0.72,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-early-stage",
+    } in repository.conclusion_updates
 
 
 async def test_reflection_worker_infers_progressing_goal_execution_state_from_done_update() -> None:

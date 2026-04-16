@@ -12,6 +12,8 @@ class ContextAgent:
         "goal_progress_arc",
         "goal_milestone_state",
         "goal_milestone_transition",
+        "goal_milestone_risk",
+        "goal_completion_criteria",
     }
     STOPWORDS = {
         "a",
@@ -161,6 +163,10 @@ class ContextAgent:
                 return self._summarize_goal_milestone_state(content)
             if kind == "goal_milestone_transition":
                 return self._summarize_goal_milestone_transition(content)
+            if kind == "goal_milestone_risk":
+                return self._summarize_goal_milestone_risk(content)
+            if kind == "goal_completion_criteria":
+                return self._summarize_goal_completion_criteria(content)
             return ""
         if content == "concise":
             return "prefers concise responses"
@@ -222,6 +228,36 @@ class ContextAgent:
             return "current goal is in a recovery phase"
         if content == "completion_window":
             return "current goal is currently in the completion window"
+        return ""
+
+    def _summarize_goal_milestone_risk(self, content: str) -> str:
+        if content == "at_risk":
+            return "active milestone is currently at risk"
+        if content == "watch":
+            return "active milestone needs closer monitoring"
+        if content == "ready_to_close":
+            return "active milestone looks ready to close"
+        if content == "stabilizing":
+            return "active milestone is stabilizing after recent movement"
+        if content == "on_track":
+            return "active milestone is staying on track"
+        return ""
+
+    def _summarize_goal_completion_criteria(self, content: str) -> str:
+        if content == "resolve_remaining_blocker":
+            return "goal completion depends on resolving the remaining blocker"
+        if content == "finish_remaining_active_work":
+            return "goal completion depends on finishing the remaining active work"
+        if content == "confirm_goal_completion":
+            return "goal completion now depends on confirming closure"
+        if content == "stabilize_remaining_work":
+            return "goal progress now depends on stabilizing the remaining work"
+        if content == "unblock_next_task":
+            return "goal progress now depends on unblocking the next task"
+        if content == "define_first_execution_step":
+            return "goal progress now depends on defining the first execution step"
+        if content == "advance_next_task":
+            return "goal progress now depends on advancing the next active task"
         return ""
 
     def _extract_fields(self, raw_summary: str) -> dict[str, str]:
@@ -572,7 +608,7 @@ class ContextAgent:
         )
         if selected_milestones:
             milestone_parts = [
-                f"{str(item.get('name', '')).strip()} ({str(item.get('phase', '')).strip()})"
+                self._format_milestone_hint(item)
                 for item in selected_milestones
                 if item.get("name")
             ]
@@ -617,3 +653,30 @@ class ContextAgent:
             related_tags=self._related_tags(perception),
             risk_level=risk_level,
         )
+
+    def _format_milestone_hint(self, milestone: dict) -> str:
+        name = str(milestone.get("name", "")).strip()
+        phase = str(milestone.get("phase", "")).strip()
+        risk_level = str(milestone.get("risk_level", "")).strip().lower()
+        completion_criteria = str(milestone.get("completion_criteria", "")).strip().lower()
+
+        details = [phase] if phase else []
+        if risk_level:
+            details.append(risk_level)
+        if completion_criteria:
+            details.append(self._humanize_completion_criteria(completion_criteria))
+
+        if not details:
+            return name
+        return f"{name} ({', '.join(details)})"
+
+    def _humanize_completion_criteria(self, value: str) -> str:
+        return {
+            "resolve_remaining_blocker": "resolve remaining blocker",
+            "finish_remaining_active_work": "finish remaining active work",
+            "confirm_goal_completion": "confirm goal completion",
+            "stabilize_remaining_work": "stabilize remaining work",
+            "unblock_next_task": "unblock next task",
+            "define_first_execution_step": "define first execution step",
+            "advance_next_task": "advance next task",
+        }.get(value, value.replace("_", " "))

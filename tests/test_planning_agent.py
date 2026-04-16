@@ -265,6 +265,51 @@ def test_planning_agent_aligns_with_active_milestone() -> None:
     assert "align_with_active_milestone" in result.steps
 
 
+def test_planning_agent_uses_active_milestone_risk_and_completion_criteria() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="What should I do next for the MVP?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.89,
+            urgency=0.45,
+            valence=0.05,
+            arousal=0.45,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="analyst", confidence=0.8),
+        user_preferences={
+            "goal_milestone_risk": "ready_to_close",
+            "goal_completion_criteria": "finish_remaining_active_work",
+        },
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+        active_goal_milestones=[
+            {
+                "id": 41,
+                "goal_id": 11,
+                "name": "Drive goal to closure",
+                "phase": "completion_window",
+                "status": "active",
+                "risk_level": "ready_to_close",
+                "completion_criteria": "finish_remaining_active_work",
+            }
+        ],
+    )
+
+    assert "ready_to_close" in result.goal
+    assert "finish remaining active work" in result.goal
+    assert "validate_milestone_closure" in result.steps
+    assert "finish_remaining_active_work" in result.steps
+
+
 def test_planning_agent_adds_recover_goal_progress_step_from_reflected_blocked_state() -> None:
     result = PlanningAgent().run(
         event=_event(text="Can you help me move the MVP forward?"),
@@ -350,6 +395,64 @@ def test_planning_agent_adds_goal_closure_step_from_milestone_state() -> None:
 
     assert "align_with_active_goal" in result.steps
     assert "drive_goal_to_closure" in result.steps
+
+
+def test_planning_agent_adds_reduce_milestone_risk_step() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="What should I do next for the MVP?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.84,
+            urgency=0.38,
+            valence=0.05,
+            arousal=0.45,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="analyst", confidence=0.8),
+        user_preferences={"goal_milestone_risk": "at_risk"},
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+    )
+
+    assert "align_with_active_goal" in result.steps
+    assert "reduce_milestone_risk" in result.steps
+
+
+def test_planning_agent_adds_confirm_goal_completion_step() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="What should I do next for the MVP?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.85,
+            urgency=0.4,
+            valence=0.05,
+            arousal=0.45,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="analyst", confidence=0.8),
+        user_preferences={"goal_completion_criteria": "confirm_goal_completion"},
+        active_goals=[
+            {
+                "id": 11,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+    )
+
+    assert "align_with_active_goal" in result.steps
+    assert "confirm_goal_completion" in result.steps
 
 
 def test_planning_agent_adds_preserve_goal_momentum_step_from_reflected_progress_state() -> None:

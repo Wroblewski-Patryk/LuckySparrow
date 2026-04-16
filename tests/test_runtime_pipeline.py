@@ -303,6 +303,10 @@ async def test_runtime_pipeline_loads_active_goals_and_tasks_into_context_and_pl
             "status": "active",
         }
     ]
+    memory.user_preferences = {
+        "goal_milestone_risk": "stabilizing",
+        "goal_completion_criteria": "stabilize_remaining_work",
+    }
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     openai = FakeOpenAIClient()
     reflection = FakeReflectionWorker()
@@ -332,9 +336,11 @@ async def test_runtime_pipeline_loads_active_goals_and_tasks_into_context_and_pl
     assert result.active_goals[0].name == "ship the MVP this week"
     assert result.active_tasks[0].name == "fix deployment blocker"
     assert result.active_goal_milestones[0].name == "Stabilize goal recovery"
+    assert result.active_goal_milestones[0].risk_level == "stabilizing"
+    assert result.active_goal_milestones[0].completion_criteria == "stabilize_remaining_work"
     assert "Active goals: ship the MVP this week." in result.context.summary
     assert "Active tasks: fix deployment blocker (blocked)." in result.context.summary
-    assert "Active milestones: Stabilize goal recovery (recovery_phase)." in result.context.summary
+    assert "Active milestones: Stabilize goal recovery (recovery_phase, stabilizing, stabilize remaining work)." in result.context.summary
     assert result.context.related_goals == ["ship the MVP this week"]
     assert "align_with_active_goal" in result.plan.steps
     assert "align_with_active_milestone" in result.plan.steps
@@ -509,6 +515,80 @@ async def test_runtime_pipeline_uses_goal_milestone_state_after_transition_turn_
     assert "current goal is currently in the completion window" in result.context.summary
     assert result.motivation.importance >= 0.8
     assert "drive_goal_to_closure" in result.plan.steps
+
+
+async def test_runtime_pipeline_uses_milestone_risk_and_completion_criteria_across_runtime() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.user_preferences = {
+        "goal_milestone_risk": "ready_to_close",
+        "goal_completion_criteria": "finish_remaining_active_work",
+    }
+    memory.user_conclusions = [
+        {
+            "kind": "goal_milestone_risk",
+            "content": "ready_to_close",
+            "confidence": 0.79,
+            "source": "background_reflection",
+        },
+        {
+            "kind": "goal_completion_criteria",
+            "content": "finish_remaining_active_work",
+            "confidence": 0.8,
+            "source": "background_reflection",
+        },
+    ]
+    memory.active_goals = [
+        {
+            "id": 11,
+            "user_id": "u-1",
+            "name": "ship the MVP this week",
+            "description": "User-declared goal: ship the MVP this week",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "operational",
+        }
+    ]
+    memory.active_goal_milestones = [
+        {
+            "id": 31,
+            "goal_id": 11,
+            "name": "Drive goal to closure",
+            "phase": "completion_window",
+            "status": "active",
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-goal-milestone-ops-runtime",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "What should I do next for the MVP?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-goal-milestone-ops-runtime"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.active_goal_milestones[0].risk_level == "ready_to_close"
+    assert result.active_goal_milestones[0].completion_criteria == "finish_remaining_active_work"
+    assert "active milestone looks ready to close" in result.context.summary
+    assert result.motivation.importance >= 0.83
+    assert "validate_milestone_closure" in result.plan.steps
+    assert "finish_remaining_active_work" in result.plan.steps
 
 
 async def test_runtime_pipeline_uses_user_profile_language_for_ambiguous_turn_without_recent_memory() -> None:

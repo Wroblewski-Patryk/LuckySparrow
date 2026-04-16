@@ -41,6 +41,56 @@ class RuntimeOrchestrator:
         self.identity_service = identity_service or IdentityService()
         self.logger = get_logger("aion.runtime")
 
+    def _goal_priority_rank(self, priority: str) -> int:
+        return {
+            "low": 1,
+            "medium": 2,
+            "high": 3,
+            "critical": 4,
+        }.get(priority, 0)
+
+    def _primary_goal_id(self, active_goals: list[dict]) -> int | None:
+        if not active_goals:
+            return None
+        ranked = sorted(
+            active_goals,
+            key=lambda goal: (
+                self._goal_priority_rank(str(goal.get("priority", ""))),
+                int(goal.get("id", 0) or 0),
+            ),
+            reverse=True,
+        )
+        top = ranked[0]
+        if top.get("id") is None:
+            return None
+        return int(top["id"])
+
+    def _enrich_goal_milestones(
+        self,
+        *,
+        active_goal_milestones: list[dict],
+        user_preferences: dict,
+        active_goals: list[dict],
+    ) -> list[dict]:
+        if not active_goal_milestones:
+            return []
+
+        primary_goal_id = self._primary_goal_id(active_goals)
+        risk_level = str(user_preferences.get("goal_milestone_risk", "")).strip().lower() or None
+        completion_criteria = str(user_preferences.get("goal_completion_criteria", "")).strip().lower() or None
+
+        enriched: list[dict] = []
+        for milestone in active_goal_milestones:
+            item = dict(milestone)
+            if primary_goal_id is not None and int(item.get("goal_id", -1)) == primary_goal_id:
+                item["risk_level"] = risk_level
+                item["completion_criteria"] = completion_criteria
+            else:
+                item.setdefault("risk_level", None)
+                item.setdefault("completion_criteria", None)
+            enriched.append(item)
+        return enriched
+
     async def run(self, event: Event) -> RuntimeResult:
         started = perf_counter()
         stage_timings_ms: dict[str, int] = {}
@@ -72,6 +122,11 @@ class RuntimeOrchestrator:
             limit=5,
         )
         stage_timings_ms["goal_milestone_load"] = int((perf_counter() - stage_started) * 1000)
+        active_goal_milestones = self._enrich_goal_milestones(
+            active_goal_milestones=active_goal_milestones,
+            user_preferences=user_preferences,
+            active_goals=active_goals,
+        )
 
         stage_started = perf_counter()
         goal_progress_history = await self.memory_repository.get_recent_goal_progress(
@@ -206,7 +261,11 @@ class RuntimeOrchestrator:
             )
             result_active_goals = refreshed_goals
             result_active_tasks = refreshed_tasks
-            result_active_goal_milestones = refreshed_milestones
+            result_active_goal_milestones = self._enrich_goal_milestones(
+                active_goal_milestones=refreshed_milestones,
+                user_preferences=user_preferences,
+                active_goals=refreshed_goals,
+            )
             stage_timings_ms["state_refresh"] = int((perf_counter() - stage_started) * 1000)
         except Exception as exc:  # pragma: no cover - defensive path
             if stage_timings_ms["memory_persist"] == 0:

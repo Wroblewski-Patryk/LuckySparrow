@@ -83,6 +83,8 @@ class GoalMilestoneRecordOutput(BaseModel):
     name: str
     phase: str
     status: str
+    risk_level: str | None = None
+    completion_criteria: str | None = None
     source_event_id: str | None = None
 
 

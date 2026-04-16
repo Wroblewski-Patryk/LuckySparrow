@@ -115,6 +115,8 @@ class MotivationEngine:
         goal_progress_arc = str((user_preferences or {}).get("goal_progress_arc", "")).strip().lower()
         goal_milestone_state = str((user_preferences or {}).get("goal_milestone_state", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
+        goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
+        goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
         goal_history_signal = self._goal_history_signal(goal_progress_history or [])
         related_goal_priority = self._related_goal_priority(text=text, goals=active_goals or [])
         blocked_task_match = self._has_related_blocked_task(text=text, tasks=active_tasks or [])
@@ -181,6 +183,28 @@ class MotivationEngine:
             if goal_milestone_transition == "entered_execution_phase"
             else 0.0
         )
+        importance += (
+            0.06
+            if goal_milestone_risk == "at_risk"
+            else 0.04
+            if goal_milestone_risk == "ready_to_close"
+            else 0.03
+            if goal_milestone_risk in {"watch", "stabilizing"}
+            else 0.01
+            if goal_milestone_risk == "on_track"
+            else 0.0
+        )
+        importance += (
+            0.05
+            if goal_completion_criteria in {"resolve_remaining_blocker", "finish_remaining_active_work"}
+            else 0.04
+            if goal_completion_criteria == "confirm_goal_completion"
+            else 0.03
+            if goal_completion_criteria in {"stabilize_remaining_work", "unblock_next_task"}
+            else 0.02
+            if goal_completion_criteria in {"define_first_execution_step", "advance_next_task"}
+            else 0.0
+        )
         importance += 0.04 if goal_history_signal == "regression" else 0.02 if goal_history_signal == "lift" else 0.0
 
         urgency = 0.2
@@ -231,6 +255,30 @@ class MotivationEngine:
             if goal_milestone_transition == "dropped_back_to_early_stage"
             else 0.03
             if goal_milestone_transition == "entered_execution_phase"
+            else 0.0
+        )
+        urgency += (
+            0.08
+            if goal_milestone_risk == "at_risk"
+            else 0.07
+            if goal_milestone_risk == "ready_to_close"
+            else 0.04
+            if goal_milestone_risk in {"watch", "stabilizing"}
+            else 0.02
+            if goal_milestone_risk == "on_track"
+            else 0.0
+        )
+        urgency += (
+            0.08
+            if goal_completion_criteria == "resolve_remaining_blocker"
+            else 0.07
+            if goal_completion_criteria == "finish_remaining_active_work"
+            else 0.06
+            if goal_completion_criteria == "confirm_goal_completion"
+            else 0.05
+            if goal_completion_criteria in {"stabilize_remaining_work", "unblock_next_task"}
+            else 0.03
+            if goal_completion_criteria in {"define_first_execution_step", "advance_next_task"}
             else 0.0
         )
         urgency += 0.04 if goal_history_signal == "regression" else 0.01 if goal_history_signal == "lift" else 0.0
