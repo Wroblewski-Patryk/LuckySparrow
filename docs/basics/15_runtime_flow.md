@@ -2,674 +2,231 @@
 
 ## Purpose
 
-This document defines how AION operates step by step during runtime.
-
-It describes:
-
-- what enters the system  
-- what happens next  
-- which layer processes what  
-- what gets stored  
-- what gets returned  
-- what is sent to background reflection  
-
-Without this runtime flow, architecture stays theoretical.
-With it, architecture becomes implementable.
-
----
+This document describes the runtime flow that is implemented today and highlights where the broader architecture is still ahead of the code.
 
 ## Core Principle
 
-AION runs as a stateful event-processing system.
+AION stays event-driven and stateful.
 
-Every runtime cycle follows one rule:
+Every foreground cycle starts from an event plus stored state, produces a structured result, persists an episode, and can enqueue reflection work for later consolidation.
 
-event → processing → decision → action → memory → reflection trigger
+## Implemented Foreground Flow
 
-The system does not generate behavior from nothing.
-It always processes an event using current state.
+The current orchestrator runs this sequence:
 
----
+`event -> state load -> identity -> perception -> context -> motivation -> role -> planning -> expression -> action -> memory -> reflection enqueue`
 
-## Runtime Modes
+The intended architecture still treats the action boundary as:
 
-AION operates in two runtime modes:
+`event -> perception -> context -> motivation -> role -> planning -> action -> expression -> memory -> reflection`
 
-### 1. Foreground Runtime
+Current implementation note:
 
-Handles real-time behavior.
+- `expression` is currently produced just before `action`
+- `action` remains the only stage that performs side effects
+- this ordering exists so outbound integrations can reuse the already prepared channel-specific message
 
-Examples:
+## Step-by-Step Foreground Runtime
 
-- user message  
-- API request  
-- alert  
-- explicit trigger  
+### 1. Event normalization
 
-This runtime path is synchronous or near-synchronous.
+Incoming API or Telegram payloads are converted into the canonical `Event` structure with:
 
----
+- `event_id`
+- `source`
+- `subsource`
+- `timestamp`
+- `payload`
+- `meta.user_id`
+- `meta.trace_id`
 
-### 2. Background Runtime
+### 2. State load
 
-Handles delayed cognition.
+Before reasoning starts, runtime loads lightweight user-linked state:
 
-Examples:
+- recent episodic memory
+- user profile
+- runtime preferences and semantic conclusions
+- theta
+- active goals
+- active tasks
+- active goal milestones
+- recent goal milestone history
+- recent goal progress history
 
-- reflection  
-- conclusion generation  
-- theta update  
-- periodic analysis  
+### 3. Identity build
 
-This runtime path is asynchronous.
+`IdentityService` builds a lightweight `IdentitySnapshot` from:
 
----
+- stable product-level mission and values
+- durable profile state
+- semantic conclusions
+- theta orientation
 
-## Foreground Runtime – Full Flow
+### 4. Perception
 
-### Step 1. Event Received
+Perception classifies the event and emits:
 
-System receives input from a source:
+- `event_type`
+- `topic`
+- `topic_tags`
+- `intent`
+- `language`
+- `language_source`
+- `language_confidence`
+- `ambiguity`
+- `initial_salience`
 
-- Telegram  
-- API  
-- scheduler  
-- internal trigger  
+### 5. Context
 
-Raw input must not be processed directly.
+Context combines the current event with:
 
-It must first be normalized into event format.
+- recent episodic memory
+- stable semantic conclusions
+- identity
+- active goals and tasks
+- milestone state and recent histories
 
----
+The output is a compressed situational summary plus related tags and goals.
 
-### Step 2. Event Normalization
+### 6. Motivation
 
-Input is converted into canonical event structure.
+Motivation scores:
 
-Example:
+- importance
+- urgency
+- valence
+- arousal
+- response mode
 
-{
-  "event_id": "uuid",
-  "source": "telegram",
-  "subsource": "user_message",
-  "timestamp": "ISO-8601",
-  "payload": {
-    "text": "..."
-  },
-  "meta": {
-    "user_id": "uuid",
-    "trace_id": "uuid"
-  }
-}
+It can react to active goals, blocked work, milestone pressure, due state, due window, and goal-progress signals.
 
-This is the official entry point into cognition.
+### 7. Role
 
----
+Role selection is lightweight but real. It can use:
 
-### Step 3. Runtime State Initialization
+- event and context heuristics
+- semantic user preferences
+- collaboration preference
+- reflected theta bias
 
-System creates initial runtime state.
+### 8. Planning
 
-Initial state should contain at least:
+Planning turns the current turn into:
 
-- event  
-- identity  
-- theta  
-- empty context  
-- empty retrieved memory  
-- empty role  
-- empty plan  
-- empty result  
+- a response goal
+- ordered plan steps
+- `needs_action`
+- `needs_response`
 
-This state is passed through the rest of the runtime pipeline.
+It is goal-aware and milestone-aware, but still heuristic rather than model-driven.
 
----
+### 9. Expression
 
-### Step 4. Identity and Core Context Load
+Expression prepares the user-visible reply:
 
-Before deeper cognition begins, system loads stable state:
+- message
+- tone
+- channel
+- language
 
-- identity  
-- theta  
-- user profile  
-- active goals  
-- active tasks  
-- relevant metrics  
+It can use identity, role, motivation, preferences, and theta, and can optionally call OpenAI.
 
-This creates the minimal baseline for interpretation.
+### 10. Action
 
-Current MVP status:
+Only the action layer performs side effects. Today that includes:
 
-- runtime now builds a lightweight identity snapshot from a stable code-defined core plus user-linked profile, conclusion, and theta signals
-- this happens before context construction and is exposed in the runtime result for debugging and verification
-- runtime now also loads active goals and active tasks so the conscious loop can connect the current event to ongoing direction and operational blockers
+- Telegram send when applicable
+- persistence of episodic memory and lightweight runtime state changes
+- explicit goal/task updates triggered by user phrases
 
----
+### 11. Memory and state refresh
 
-### Step 5. Perception
+After action execution, runtime persists the episode and refreshes returned goal/task/milestone state so the `/event` response reflects post-write state instead of only pre-write state.
 
-Perception layer determines:
+### 12. Reflection enqueue
 
-- what kind of event this is  
-- what the likely intent is  
-- what topic it concerns  
-- whether it is ambiguous  
-- whether it is likely important  
+When episode persistence succeeds, runtime tries to persist and queue a reflection task.
 
-Output example:
+`reflection_triggered=true` means the task was durably written and accepted by the in-app worker queue.
 
-{
-  "event_type": "question",
-  "topic": "planning",
-  "intent": "request_help",
-  "ambiguity": 0.2,
-  "initial_salience": 0.7
-}
+## Implemented Background Flow
 
-Perception does not decide what to do.
-It only detects what happened.
+Background reflection is now a real subsystem inside the app process.
 
----
+### 1. Durable task persistence
 
-### Step 6. Memory Retrieval
+Reflection work is first stored in `aion_reflection_task`.
 
-System retrieves relevant memory.
+### 2. Worker pickup and retry
 
-This should happen in layers:
+The worker:
 
-1. recent temporal memory  
-2. semantically related episodes  
-3. semantically related conclusions  
-4. linked goals and tasks  
+- claims pending or retryable tasks
+- retries failed tasks with bounded backoff
+- reports queue state through `GET /health`
 
-Retrieved memory must be filtered and compressed.
+### 3. Reflection scope load
 
-Too much memory creates noise.
-Too little memory creates statelessness.
+Reflection loads recent memory and runtime state around the user, including:
 
----
+- episodic summaries
+- conclusions
+- theta
+- active goals and tasks
+- goal progress history
+- goal milestone history
 
-### Step 7. Context Construction
+### 4. Consolidation
 
-Context layer combines:
+Reflection updates lightweight semantic state such as:
 
-- current event  
-- perception output  
-- retrieved memory  
-- goals  
-- tasks  
-- theta  
-- identity  
+- response style
+- collaboration preference
+- preferred role
+- theta orientation
+- goal execution state
+- goal progress score, trend, and arc
+- milestone state, transition, arc, pressure, dependency, due, due window, risk, and completion criteria
 
-Context output should answer:
+### 5. Persistence
 
-- what is happening  
-- why it matters  
-- what it relates to  
-- what background matters now  
+Reflection writes back updated conclusions, theta, progress snapshots, milestone objects, and milestone history.
 
-Output example:
+## Runtime Observability
 
-{
-  "summary": "User is asking for help organizing the day in an ongoing productivity context.",
-  "related_goals": ["goal_1"],
-  "related_tags": ["planning", "life"],
-  "risk_level": 0.1
-}
+The runtime is intentionally debuggable.
 
----
+`POST /event` currently returns:
 
-### Step 8. Motivation Evaluation
+- the full `RuntimeResult`
+- `reflection_triggered`
+- `stage_timings_ms`
+- `duration_ms`
 
-Motivation layer evaluates:
+`GET /health` currently returns:
 
-- importance  
-- urgency  
-- valence  
-- arousal  
-- action tendency  
-- whether response is needed  
-
-Output example:
-
-{
-  "importance": 0.8,
-  "urgency": 0.5,
-  "valence": 0.1,
-  "arousal": 0.6,
-  "mode": "respond"
-}
-
-This stage determines how strongly the system should care.
-
----
-
-### Step 9. Role Selection
-
-System chooses which role should be active.
-
-Selection depends on:
-
-- event type  
-- context  
-- motivation  
-- user situation  
-- goal relevance  
-
-Example outputs:
-
-- advisor  
-- analyst  
-- mentor  
-- executor  
-- friend  
-
-Role affects framing, not truth.
-
----
-
-### Step 10. Planning
-
-Planning layer decides what should happen next.
-
-It may produce:
-
-- communication plan  
-- tool usage plan  
-- internal-only action  
-- no-op decision  
-- escalation recommendation  
-
-Output example:
-
-{
-  "goal": "Help user create a usable daily plan",
-  "steps": [
-    "Identify priorities",
-    "Group by effort",
-    "Return simple structure"
-  ],
-  "needs_action": false,
-  "needs_response": true
-}
-
-Planning proposes.
-It does not execute.
-
----
-
-### Step 11. Action Decision
-
-System decides whether to execute anything externally.
-
-Possible outcomes:
-
-- no external action  
-- database update  
-- Telegram send  
-- internal task creation  
-- external API call  
-- combined action  
-
-Only Action layer can do this.
-
-If no external effect is needed, Action layer still returns structured result.
-
----
-
-### Step 12. Action Execution
-
-If needed, system executes side effects.
-
-Examples:
-
-- write record  
-- update task  
-- call external API  
-- send Telegram message  
-
-Output example:
-
-{
-  "status": "success",
-  "actions": ["send_message"],
-  "notes": "Telegram response sent successfully"
-}
-
-If action fails, system should return structured failure, not crash silently.
-
----
-
-### Step 13. Expression
-
-Expression layer formats user-visible output.
-
-It determines:
-
-- wording  
-- tone  
-- structure  
-- final phrasing  
-- channel adaptation  
-
-It must respect:
-
-- identity  
-- selected role  
-- theta  
-- motivation  
-- context  
-
-Expression converts cognition into communication.
-
----
-
-### Step 14. Episodic Memory Write
-
-After foreground processing completes, the system stores an episode.
-
-Each episode should include:
-
-- event  
-- context summary  
-- role used  
-- motivation snapshot  
-- plan summary  
-- action result  
-- expression summary  
-- importance / salience  
-
-This creates the raw material for future learning.
-
----
-
-### Step 15. Reflection Trigger
-
-After episode write, system should emit a signal for later reflection.
-
-This does not mean reflection happens immediately.
-
-It means the system marks:
-
-- new memory available  
-- new pattern candidate exists  
-- future subconscious processing may be needed  
-
-Foreground runtime ends here.
-
----
-
-## Background Runtime – Full Flow
-
-### Step 1. Reflection Trigger or Schedule
-
-Background runtime starts when:
-
-- scheduler fires  
-- enough episodes accumulate  
-- explicit reflection is requested  
-- periodic cycle begins  
-
-This runtime is not tied to user waiting time.
-
----
-
-### Step 2. Load Reflection Scope
-
-System selects:
-
-- recent episodes  
-- relevant old conclusions  
-- recent theta state  
-- relation notes  
-- relevant goal/task changes  
-
-This defines the scope of reflection.
-
----
-
-### Step 3. Pattern Analysis
-
-System looks for:
-
-- repetition  
-- success patterns  
-- failure patterns  
-- user preference signals  
-- consistency issues  
-- useful generalizations  
-
-This is the start of real adaptation.
-
----
-
-### Step 4. Conclusion Generation
-
-System converts patterns into conclusions.
-
-Possible conclusion types:
-
-- reinforcement  
-- refinement  
-- warning  
-- preference  
-- rhythm  
-- relation  
-- strategy  
-
-Example:
-
-- user responds better to short structured plans  
-- mornings are better for proactive planning  
-- certain style increases clarity  
-
----
-
-### Step 5. Conclusion Update
-
-System must decide:
-
-- create new conclusion  
-- strengthen existing conclusion  
-- weaken old conclusion  
-- replace outdated conclusion  
-
-Reflection is not only adding.
-It is also maintaining quality.
-
----
-
-### Step 6. Theta Update
-
-If justified, system updates theta.
-
-This may affect:
-
-- directness  
-- warmth  
-- reactivity  
-- learning rate  
-- confidence thresholds  
-- reflection depth  
-
-Theta updates must be gradual.
-
-One reflection must not radically rewrite the system.
-
----
-
-### Step 7. Relation Update
-
-If relevant, background runtime updates relation model.
-
-Examples:
-
-- communication preference shift  
-- trust / rapport adjustments  
-- preferred style changes  
-- recurring emotional context  
-
-This helps improve future interaction quality.
-
----
-
-### Step 8. Reflection Persistence
-
-System stores:
-
-- updated conclusions  
-- theta changes  
-- relation notes  
-- reflection log  
-
-Now future foreground runs have better internal guidance.
-
-Background runtime ends here.
-
----
-
-## Runtime State Flow Summary
-
-Foreground:
-
-event  
-→ normalize  
-→ load identity/theta/goals  
-→ perceive  
-→ retrieve memory  
-→ build context  
-→ evaluate motivation  
-→ select role  
-→ plan  
-→ act  
-→ express  
-→ write episode  
-→ emit reflection trigger  
-
-Background:
-
-trigger  
-→ load scope  
-→ analyze patterns  
-→ update conclusions  
-→ update theta  
-→ update relation state  
-→ persist reflection results  
-
----
-
-## Foreground vs Background Responsibility Split
-
-### Foreground runtime
-
-- speed  
-- clarity  
-- action  
-- communication  
-- memory creation  
-
-### Background runtime
-
-- pattern detection  
-- adaptation  
-- consolidation  
-- system refinement  
-
-This separation keeps AION fast and stable.
-
----
-
-## Failure Handling in Runtime
-
-### Foreground failure rules
-
-If one stage fails:
-
-- return structured fallback  
-- log trace  
-- do not lose the event  
-- still attempt memory write if possible  
-
-User-visible runtime should degrade gracefully.
-
----
-
-### Background failure rules
-
-If reflection fails:
-
-- do not break foreground system  
-- log failure  
-- retry later  
-- preserve pending reflection markers  
-
-Background cognition must be isolated from real-time usability.
-
----
-
-## Runtime Logging
-
-Every runtime cycle should log:
-
-- event_id  
-- trace_id  
-- source  
-- selected role  
-- motivation mode  
-- action status  
-- memory write status  
-- reflection trigger status  
-- duration  
-
-This makes the runtime debuggable.
-
----
+- app health status
+- reflection worker running status
+- durable queue counts such as pending, processing, failed, retryable, exhausted, and stuck
 
 ## Runtime Invariants
 
-These rules must always hold:
+The current implementation still aims to preserve these rules:
 
-1. Every input becomes an event before cognition  
-2. Every foreground cycle produces structured result  
-3. Every completed cycle attempts episode storage  
-4. Only Action layer performs side effects  
-5. Reflection never blocks user response  
-6. Identity remains more stable than theta  
-7. Conclusions influence future behavior  
+1. Every input becomes a normalized event before deeper reasoning.
+2. Only the action layer performs side effects.
+3. Every completed foreground cycle attempts episodic memory persistence.
+4. Reflection never blocks the foreground reply path.
+5. Identity remains more stable than theta.
+6. Background reflection updates future behavior through stored state, not hidden in-memory mutation only.
 
-If these break, architecture is drifting.
+## Still Planned
 
----
+The following are still architectural targets rather than implemented runtime facts:
 
-## Minimal MVP Runtime
-
-The smallest acceptable runtime is:
-
-Foreground:
-- event normalization  
-- context build  
-- motivation  
-- planning  
-- expression  
-- memory write  
-
-Background:
-- simple reflection  
-- conclusion generation  
-- small theta updates  
-
-That is enough to prove the system lives across time.
-
----
-
-## Final Principle
-
-Runtime is where architecture becomes reality.
-
-If the runtime flow is clear:
-
-- implementation is possible  
-- debugging is possible  
-- scaling is possible  
-
-If runtime flow is unclear, the whole system remains theory.
+- formal migrations
+- vector retrieval
+- LangGraph or other external orchestration
+- a separate reflection worker service
+- richer relation systems and proactive loops

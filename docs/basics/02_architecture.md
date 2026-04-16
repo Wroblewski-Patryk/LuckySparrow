@@ -2,263 +2,141 @@
 
 ## Core Model
 
-AION operates as a continuous loop:
+AION is an event-driven backend that keeps state across turns.
 
-STATE → PROCESS → ACTION → MEMORY → UPDATE → LOOP
+The architecture still follows the same high-level loop:
 
-The system never starts from zero.  
-Every action is based on an existing state.
+`state -> process -> action boundary -> memory -> update -> next event`
 
----
+The important rule is not that every stage is already "finished", but that responsibilities stay separated while the runtime grows.
+
+## Current Runtime Architecture
+
+The implemented foreground runtime is:
+
+`event -> state load -> identity -> perception -> context -> motivation -> role -> planning -> expression -> action -> memory -> reflection enqueue`
+
+The intended long-term architecture is still described as:
+
+`event -> perception -> context -> motivation -> role -> planning -> action -> expression -> memory -> reflection`
+
+Current implementation note:
+
+- `expression` is currently computed before `action`
+- only `action` performs side effects
+- this is a runtime convenience so integrations can reuse a prepared message payload
 
 ## Main Components
 
-1. Identity  
-2. Memory System  
-3. Conscious Loop  
-4. Subconscious Loop  
-5. Motivation Engine  
-6. Role / Skill System  
-7. Agent Layer  
-8. Action Layer  
-9. Expression Layer  
-10. Infrastructure  
+The live system already has these concrete parts:
 
----
+1. API layer
+2. Identity snapshot builder
+3. Episodic and semantic memory repository
+4. Conscious runtime loop
+5. Reflection worker and durable queue
+6. Goal and task state
+7. Lightweight milestone manager
+8. Action layer
+9. Expression layer
+10. Infrastructure and observability
 
-## Execution Model
+## Conscious Loop
 
-AION is a continuously running backend system.
+The conscious loop handles real-time user-facing work:
 
-It:
+- normalize input into an event
+- load lightweight state
+- interpret the event
+- build context
+- score motivation
+- choose a role
+- produce a plan
+- prepare the reply
+- execute side effects
+- persist the episode
 
-- receives events  
-- processes them through a cognitive pipeline  
-- performs actions when required  
-- stores results  
-- evolves over time  
+This loop is synchronous from the user's point of view, even when some stages use OpenAI.
 
----
+## Reflection Loop
 
-## Two Main Loops
+Reflection is no longer only a design idea. The repo now has a real app-local background worker with a durable Postgres-backed queue.
 
-### Conscious Loop
+Its current job is to consolidate lightweight state such as:
 
-Responsible for real-time behavior.
+- semantic user preferences
+- theta orientation
+- goal execution state
+- goal progress snapshots and trends
+- milestone state, history, and operational signals
 
-- interprets input  
-- makes decisions  
-- executes actions  
-- communicates  
-- writes episodic memory  
+It is still intentionally lightweight:
 
----
+- in-process rather than external
+- retry-based rather than scheduler-heavy
+- semantic and heuristic rather than vector or graph-driven
 
-### Subconscious Loop
+## State Model
 
-Responsible for background cognition.
+The runtime now combines several kinds of state:
 
-- analyzes memory  
-- detects patterns  
-- generates conclusions  
-- updates theta  
-- refines behavior  
+- identity and durable profile state
+- recent episodic memory
+- semantic conclusions
+- lightweight theta
+- active goals and tasks
+- goal progress history
+- active milestone objects and milestone history
 
----
-
-## Unified Cognitive Pipeline
-
-All processing follows one pipeline:
-
-Trigger → Perception → Context → Motivation → Planning → Action → Expression → Memory → Reflection
-
-Each stage:
-
-- has one responsibility  
-- receives structured input  
-- returns structured output  
-- does not perform other stages' responsibilities  
-
----
-
-## Stage Responsibilities
-
-### Perception
-What happened?
-
-### Context
-What does it mean?
-
-### Motivation
-How important is it?
-
-### Planning
-What should be done?
-
-### Action
-Execute changes in the system or outside world.
-
-### Expression
-Communicate result.
-
-### Memory
-Store the experience.
-
-### Reflection
-Learn from it (subconscious loop).
-
----
-
-## Node Contract
-
-Every processing unit must follow structure.
-
-### Input
-
-{
-  "event": {},
-  "context": {},
-  "memory": {},
-  "motivation": {},
-  "identity": {},
-  "theta": {}
-}
-
-### Output
-
-{
-  "result": {}
-}
-
----
-
-## Event Contract
-
-All inputs must follow a unified format:
-
-{
-  "event_id": "uuid",
-  "source": "telegram|system|scheduler|api",
-  "subsource": "...",
-  "timestamp": "ISO-8601",
-  "payload": {},
-  "meta": {
-    "user_id": "...",
-    "trace_id": "..."
-  }
-}
-
----
+This is enough to make the runtime meaningfully stateful without pretending that a full autonomous agent society already exists.
 
 ## Action Boundary
 
-Only the Action layer can:
+The action boundary remains the architectural guardrail:
 
-- write to database  
-- call external APIs  
-- send messages  
-- modify system state  
+- only the action layer performs side effects
+- reasoning stages prepare structure and intent
+- memory and reflection updates are persisted through controlled runtime paths rather than ad hoc stage mutation
 
-Agents and reasoning layers must NOT perform side effects.
-
----
-
-## Expression Layer
-
-Responsible for output formatting.
-
-Examples:
-
-- Telegram messages  
-- future UI responses  
-- logs  
-
-Expression is separate from logic.
-
----
-
-## Performance Constraints
-
-Target latency:
-
-- simple response: 2–5s  
-- normal response: 5–10s  
-- complex response: max 15s  
-
-Optimization strategies:
-
-- minimize LLM calls  
-- cache context  
-- reduce unnecessary memory retrieval  
-- keep subconscious processing async  
-
----
-
-## Failure Handling
-
-Each stage must support:
-
-- validation  
-- retry  
-- fallback  
-- logging  
-
-Failures must not break the entire system.
-
----
+This is one of the most important constraints in the repo and should survive future refactors.
 
 ## Observability
 
-System should track:
+The current architecture is designed to stay inspectable while it evolves.
 
-- event_id  
-- trace_id  
-- stage  
-- execution time  
-- errors  
-- model usage  
+Today that means:
 
-Current MVP status:
+- structured `RuntimeResult` responses from `POST /event`
+- per-stage `stage_timings_ms`
+- reflection queue visibility in `GET /health`
+- runtime logging keyed by `event_id` and `trace_id`
 
-- runtime already carries `event_id` and `trace_id`
-- `POST /event` now also returns per-stage `stage_timings_ms` for the conscious loop, so runtime latency can be inspected without parsing logs only
+## Infrastructure Reality
 
-Without observability, debugging becomes impossible.
+The live repo currently uses:
 
----
+- FastAPI
+- SQLAlchemy async with PostgreSQL
+- optional OpenAI Responses API usage
+- Telegram Bot API integration
+- Docker Compose locally
+- Coolify-targeted deployment on a VPS
 
-## Deployment Model
+Still planned rather than implemented:
 
-Recommended architecture:
+- formal migrations
+- vector memory with `pgvector`
+- LangGraph or a similar external orchestrator
+- a separate reflection worker service
+- richer relation and proactive subsystems
 
-- FastAPI (API layer)  
-- LangGraph (orchestration)  
-- PostgreSQL (data)  
-- pgvector (semantic memory)  
-- Docker (deployment)  
-- VPS (hosting)  
+## Architectural Principle
 
----
+The repo should keep making the architecture more real without pretending the later phases are already done.
 
-## Architectural Principles
+That means:
 
-- Separation of responsibilities  
-- Structured data flow  
-- Controlled side effects  
-- Persistent state  
-- Event-driven processing  
-- Scalable design  
-
----
-
-## Final Principle
-
-AION must remain:
-
-- understandable  
-- structured  
-- debuggable  
-- extensible  
-
-Architecture is more important than intelligence.  
-If architecture breaks, the system becomes chaos.
+- document current behavior honestly
+- keep future shape visible
+- surface gaps explicitly when code and architecture differ
+- prefer small, reversible slices over broad rewrites

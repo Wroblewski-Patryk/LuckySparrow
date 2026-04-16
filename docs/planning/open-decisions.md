@@ -26,9 +26,17 @@ The current repo already works as an MVP slice, but several architecture-level d
 ### 3. Public API Shape
 
 - Current repo fact:
-  - `POST /event` returns the full serialized runtime result, including per-stage `stage_timings_ms` for the conscious loop.
+  - `POST /event` returns the full serialized runtime result, including identity, active goals/tasks/milestones, goal and milestone histories, `reflection_triggered`, and per-stage `stage_timings_ms` for the conscious loop.
 - Decision needed:
   - should this remain a debugging-friendly internal API, or should a smaller stable public response contract be introduced?
+
+### 3a. Expression vs Action Ordering
+
+- Current repo fact:
+  - the intended architecture still describes `... -> action -> expression -> memory -> reflection`.
+  - the current orchestrator computes `expression` before `action`, then passes the prepared message into the action layer so integrations can reuse a ready channel-specific payload while side effects still remain inside action.
+- Decision needed:
+  - should runtime keep this expression-before-action implementation detail, or should action consume a lower-level response plan so final expression can move back after action in a stricter architecture-aligned pipeline?
 
 ### 4. Role Selection
 

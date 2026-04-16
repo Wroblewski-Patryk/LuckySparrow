@@ -2,103 +2,96 @@
 
 ## Purpose
 
-This document defines the exact input and output structures for each agent in AION.
+This document captures the structured contracts used by the current AION runtime modules.
 
-It is the bridge between:
+It focuses on the contracts that are implemented today, not the larger future agent society described elsewhere in the architecture docs.
 
-- architecture  
-- implementation  
+## Shared Runtime State
 
-Without this document:
+The foreground runtime currently passes structured state between stages. Depending on the stage, inputs can include:
 
-- agents become inconsistent  
-- data flow becomes unclear  
-- debugging becomes difficult  
-
----
-
-## Core Principle
-
-Every agent must:
-
-- receive structured input  
-- return structured output  
-- follow a strict contract  
-
-No free-form chaos.
-
----
-
-## Shared Input Structure
-
-All agents receive a subset of the runtime state.
-
-Base structure:
-
+```json
 {
   "event": {},
+  "identity": {},
+  "recent_memory": [],
+  "user_profile": {},
+  "user_preferences": {},
+  "user_conclusions": [],
+  "theta": {},
+  "active_goals": [],
+  "active_tasks": [],
+  "active_goal_milestones": [],
+  "goal_milestone_history": [],
+  "goal_progress_history": [],
   "perception": {},
   "context": {},
-  "memory": {},
-  "conclusions": [],
-  "goals": [],
-  "tasks": [],
-  "identity": {},
-  "theta": {},
   "motivation": {},
   "role": {},
   "plan": {}
 }
+```
 
-Agents should only use relevant fields.
-
----
+Not every stage receives every field.
 
 ## Perception Agent
 
 ### Purpose
 
-Understand what happened.
+Interpret the raw normalized event.
 
 ### Input
 
+```json
 {
   "event": {}
 }
+```
 
 ### Output
 
+```json
 {
   "perception": {
     "event_type": "...",
     "topic": "...",
+    "topic_tags": [],
     "intent": "...",
+    "language": "en",
+    "language_source": "explicit_request|message_heuristic|recent_memory|profile",
+    "language_confidence": 0.0,
     "ambiguity": 0.0,
     "initial_salience": 0.0
   }
 }
-
----
+```
 
 ## Context Agent
 
 ### Purpose
 
-Build situational understanding.
+Compress the current situation into a usable runtime summary.
 
 ### Input
 
+```json
 {
   "event": {},
   "perception": {},
-  "memory": {},
-  "goals": [],
-  "tasks": [],
-  "identity": {}
+  "recent_memory": [],
+  "conclusions": [],
+  "identity": {},
+  "active_goals": [],
+  "active_tasks": [],
+  "active_goal_milestones": [],
+  "goal_milestone_history": [],
+  "goal_progress_history": []
 }
+```
 
 ### Output
 
+```json
 {
   "context": {
     "summary": "...",
@@ -107,81 +100,100 @@ Build situational understanding.
     "risk_level": 0.0
   }
 }
+```
 
----
-
-## Motivation Agent
+## Motivation Engine
 
 ### Purpose
 
-Determine importance and urgency.
+Score how much the system should care and how urgently it should respond.
 
 ### Input
 
+```json
 {
   "event": {},
+  "perception": {},
   "context": {},
-  "goals": [],
-  "theta": {}
+  "user_preferences": {},
+  "theta": {},
+  "active_goals": [],
+  "active_tasks": [],
+  "goal_milestone_history": [],
+  "goal_progress_history": []
 }
+```
 
 ### Output
 
+```json
 {
   "motivation": {
     "importance": 0.0,
     "urgency": 0.0,
     "valence": 0.0,
     "arousal": 0.0,
-    "mode": "respond|ignore|investigate|act_now"
+    "mode": "respond|ignore|analyze|execute|clarify"
   }
 }
+```
 
----
-
-## Role Selection Agent
+## Role Agent
 
 ### Purpose
 
-Choose behavior mode.
+Choose the current behavioral stance.
 
 ### Input
 
+```json
 {
   "event": {},
+  "perception": {},
   "context": {},
-  "motivation": {},
-  "identity": {}
+  "user_preferences": {},
+  "theta": {}
 }
+```
 
 ### Output
 
+```json
 {
   "role": {
-    "selected": "...",
+    "selected": "advisor|analyst|mentor|executor|friend",
     "confidence": 0.0
   }
 }
-
----
+```
 
 ## Planning Agent
 
 ### Purpose
 
-Decide what to do.
+Turn the current turn into a response or action plan.
 
 ### Input
 
+```json
 {
+  "event": {},
   "context": {},
   "motivation": {},
   "role": {},
-  "goals": []
+  "user_preferences": {},
+  "theta": {},
+  "active_goals": [],
+  "active_tasks": [],
+  "active_goal_milestones": [],
+  "goal_milestone_history": [],
+  "goal_progress_history": []
 }
+```
 
 ### Output
 
+```json
 {
   "plan": {
     "goal": "...",
@@ -190,24 +202,62 @@ Decide what to do.
     "needs_response": true
   }
 }
+```
 
----
-
-## Action Layer Contract
+## Expression Agent
 
 ### Purpose
 
-Execute real-world effects.
+Prepare the user-visible reply before the action layer delivers it.
 
 ### Input
 
+```json
 {
+  "event": {},
+  "perception": {},
+  "context": {},
   "plan": {},
-  "event": {}
+  "role": {},
+  "motivation": {},
+  "identity": {},
+  "user_preferences": {},
+  "theta": {}
 }
+```
 
 ### Output
 
+```json
+{
+  "expression": {
+    "message": "...",
+    "tone": "...",
+    "channel": "api|telegram",
+    "language": "en"
+  }
+}
+```
+
+## Action Layer
+
+### Purpose
+
+Perform side effects and runtime persistence only after planning has been decided.
+
+### Input
+
+```json
+{
+  "plan": {},
+  "event": {},
+  "expression": {}
+}
+```
+
+### Output
+
+```json
 {
   "action_result": {
     "status": "success|fail|noop",
@@ -215,130 +265,107 @@ Execute real-world effects.
     "notes": "..."
   }
 }
+```
 
----
-
-## Expression Agent
-
-### Purpose
-
-Generate output for user.
-
-### Input
-
-{
-  "context": {},
-  "role": {},
-  "motivation": {},
-  "plan": {},
-  "action_result": {}
-}
-
-### Output
-
-{
-  "expression": {
-    "message": "...",
-    "tone": "...",
-    "channel": "telegram"
-  }
-}
-
----
-
-## Memory Write Contract
+## Memory Persistence Contract
 
 ### Purpose
 
-Store episode after processing.
+Persist the completed episode and lightweight explicit user-state updates.
 
 ### Input
 
+```json
 {
   "event": {},
+  "perception": {},
   "context": {},
-  "role": {},
   "motivation": {},
+  "role": {},
   "plan": {},
   "action_result": {},
   "expression": {}
 }
+```
 
 ### Output
 
+```json
 {
   "memory_record": {
+    "id": 0,
+    "event_id": "...",
+    "timestamp": "ISO-8601",
     "summary": "...",
     "importance": 0.0
   }
 }
+```
 
----
-
-## Reflection Agent
+## Reflection Worker
 
 ### Purpose
 
-Analyze patterns and update system.
+Consolidate lightweight semantic state asynchronously after foreground completion.
 
-### Input
+### Durable trigger input
 
+```json
+{
+  "user_id": "...",
+  "event_id": "..."
+}
+```
+
+### Reflection scope inputs
+
+```json
 {
   "recent_memory": [],
   "existing_conclusions": [],
-  "theta": {}
+  "theta": {},
+  "active_goals": [],
+  "active_tasks": [],
+  "goal_progress_history": [],
+  "goal_milestone_history": []
 }
+```
 
-### Output
+### Effective outputs
 
+Reflection currently persists lightweight updates such as:
+
+- semantic conclusions in `aion_conclusion`
+- theta updates in `aion_theta`
+- goal progress snapshots in `aion_goal_progress`
+- milestone objects in `aion_goal_milestone`
+- milestone history in `aion_goal_milestone_history`
+
+## Runtime Result Contract
+
+`POST /event` currently returns the full `RuntimeResult`, which includes:
+
+```json
 {
-  "reflection": {
-    "new_conclusions": [],
-    "updated_conclusions": [],
-    "theta_update": {}
-  }
+  "event": {},
+  "identity": {},
+  "active_goals": [],
+  "active_tasks": [],
+  "active_goal_milestones": [],
+  "goal_milestone_history": [],
+  "goal_progress_history": [],
+  "perception": {},
+  "context": {},
+  "motivation": {},
+  "role": {},
+  "plan": {},
+  "action_result": {},
+  "expression": {},
+  "memory_record": {},
+  "reflection_triggered": true,
+  "stage_timings_ms": {},
+  "duration_ms": 0
 }
+```
 
----
-
-## Contract Rules
-
-1. Every agent must return exactly its own field  
-2. No agent returns full system state  
-3. No agent modifies external systems  
-4. No agent mixes responsibilities  
-
----
-
-## Validation
-
-Each output must be:
-
-- JSON-valid  
-- schema-consistent  
-- minimal  
-
----
-
-## Common Mistakes
-
-- returning too much data  
-- mixing multiple responsibilities  
-- free-form text instead of structure  
-- skipping fields  
-
----
-
-## Final Principle
-
-Agents communicate through contracts.
-
-If contracts are clear:
-
-- system is predictable  
-- system is debuggable  
-- system is scalable  
-
-If contracts are unclear:
-
-- system becomes chaos
+This is intentionally verbose today and is still treated as an internal debugging-friendly API contract rather than a final public DTO.

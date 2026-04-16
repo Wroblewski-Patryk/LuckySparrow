@@ -1,15 +1,15 @@
 # Docs Index
 
-This repository now uses a two-layer documentation model:
+This repository uses a two-layer documentation model:
 
-- Numbered files in `docs/basics/` remain the product and architecture narrative for AION.
-- Category folders in `docs/` capture the repo-derived, operational, and governance layer adapted from the shared template.
+- numbered files in `docs/basics/` hold the long-form product and architecture narrative
+- category folders in `docs/` hold repo-derived, operational, and governance truth
 
 ## Start Here
 
-- `overview.md` - short project summary and links to the most important docs.
-- `assumptions/README.md` - how Codex-maintained assumptions work in this repo.
-- `assumptions/runtime-baseline-2026-04-15.md` - current implementation baseline derived from the codebase on 2026-04-15.
+- `overview.md` - short current-state summary of what the runtime actually does today
+- `assumptions/README.md` - how Codex-maintained assumptions work in this repo
+- `assumptions/runtime-baseline-2026-04-15.md` - code-derived runtime baseline and current-vs-planned gaps
 
 ## Existing Narrative Docs
 
@@ -66,4 +66,8 @@ These files describe the intended system shape, MVP scope, and deeper design top
 
 ## Update Rule
 
-When Codex discovers a repo fact that is not yet stable enough to rewrite the narrative docs, put it in `docs/assumptions/` first. Promote it into the main docs only after the repo, product direction, and implementation agree.
+If the repo and the architecture narrative diverge:
+
+- update stable docs when the behavior is already implemented and intentional
+- record the difference in `docs/assumptions/` when the behavior is still transitional or disputed
+- keep `overview.md`, `open-decisions.md`, and `.codex/context/` honest about what is live versus still planned
