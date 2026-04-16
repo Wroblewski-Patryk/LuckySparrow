@@ -85,6 +85,7 @@ class GoalMilestoneRecordOutput(BaseModel):
     status: str
     arc: str | None = None
     pressure_level: str | None = None
+    dependency_state: str | None = None
     risk_level: str | None = None
     completion_criteria: str | None = None
     source_event_id: str | None = None

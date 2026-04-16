@@ -682,6 +682,38 @@ async def test_reflection_worker_derives_lingering_completion_milestone_pressure
     } in repository.conclusion_updates
 
 
+async def test_reflection_worker_derives_multi_step_milestone_dependency_state() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "goal_update=ship the MVP this week; action=success; expression=One."},
+        ]
+    )
+    repository.active_goals = [
+        {"id": 1, "name": "ship the MVP this week", "priority": "high", "status": "active", "goal_type": "operational"}
+    ]
+    repository.active_tasks = [
+        {"id": 2, "goal_id": 1, "name": "finish rollout checklist", "priority": "medium", "status": "in_progress"},
+        {"id": 3, "goal_id": 1, "name": "verify final smoke test", "priority": "medium", "status": "todo"},
+    ]
+    repository.runtime_preferences = {"goal_progress_score": 0.82}
+    repository.goal_progress_history = [
+        {"id": 11, "goal_id": 1, "score": 0.82, "execution_state": "advancing", "progress_trend": "steady"}
+    ]
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-goal-milestone-dependency")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "goal_milestone_dependency_state",
+        "content": "multi_step_dependency",
+        "confidence": 0.76,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-goal-milestone-dependency",
+    } in repository.conclusion_updates
+
+
 async def test_reflection_worker_infers_progressing_goal_execution_state_from_done_update() -> None:
     repository = FakeMemoryRepository(
         recent_memory=[

@@ -1678,3 +1678,73 @@ async def test_runtime_pipeline_uses_goal_milestone_pressure_across_context_moti
     assert result.motivation.importance >= 0.82
     assert "align_with_active_goal" in result.plan.steps
     assert "force_goal_closure_decision" in result.plan.steps
+
+
+async def test_runtime_pipeline_uses_goal_milestone_dependency_state_across_context_motivation_and_plan() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.user_preferences = {
+        "goal_milestone_dependency_state": "multi_step_dependency",
+        "goal_milestone_dependency_state_confidence": 0.76,
+        "goal_milestone_risk": "ready_to_close",
+        "goal_completion_criteria": "finish_remaining_active_work",
+    }
+    memory.user_conclusions = [
+        {
+            "kind": "goal_milestone_dependency_state",
+            "content": "multi_step_dependency",
+            "confidence": 0.76,
+            "source": "background_reflection",
+        }
+    ]
+    memory.active_goals = [
+        {
+            "id": 11,
+            "user_id": "u-1",
+            "name": "ship the MVP this week",
+            "description": "User-declared goal: ship the MVP this week",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "operational",
+        }
+    ]
+    memory.active_goal_milestones = [
+        {
+            "id": 41,
+            "goal_id": 11,
+            "name": "Drive goal to closure",
+            "phase": "completion_window",
+            "status": "active",
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-milestone-dependency",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "What should I do next for the MVP?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-milestone-dependency"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.active_goal_milestones[0].dependency_state == "multi_step_dependency"
+    assert "Stable user preferences: active milestone still depends on multiple remaining work items." in result.context.summary
+    assert "Active milestones: Drive goal to closure (completion_window, multi-step dependency chain, ready_to_close, finish remaining active work)." in result.context.summary
+    assert result.motivation.importance >= 0.79
+    assert "align_with_active_goal" in result.plan.steps
+    assert "sequence_remaining_dependencies" in result.plan.steps

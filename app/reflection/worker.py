@@ -456,6 +456,13 @@ class ReflectionWorker:
         )
         if goal_milestone_pressure is not None:
             conclusions.append(goal_milestone_pressure)
+        goal_milestone_dependency_state = self._derive_goal_milestone_dependency_state(
+            active_tasks=active_tasks or [],
+            goal_milestone_state=goal_milestone_state,
+            goal_execution_state=goal_execution_state,
+        )
+        if goal_milestone_dependency_state is not None:
+            conclusions.append(goal_milestone_dependency_state)
         goal_milestone_risk = self._derive_goal_milestone_risk(
             active_tasks=active_tasks or [],
             goal_execution_state=goal_execution_state,
@@ -967,6 +974,56 @@ class ReflectionWorker:
                 "source": "background_reflection",
             }
 
+        return None
+
+    def _derive_goal_milestone_dependency_state(
+        self,
+        *,
+        active_tasks: Sequence[dict],
+        goal_milestone_state: dict | None,
+        goal_execution_state: dict | None,
+    ) -> dict | None:
+        milestone_state = str(goal_milestone_state.get("content", "")).strip().lower() if goal_milestone_state is not None else ""
+        execution_state = str(goal_execution_state.get("content", "")).strip().lower() if goal_execution_state is not None else ""
+        blocked_tasks = [
+            task
+            for task in active_tasks
+            if str(task.get("status", "")).strip().lower() == "blocked"
+        ]
+        remaining_tasks = [
+            task
+            for task in active_tasks
+            if str(task.get("status", "")).strip().lower() in {"todo", "in_progress", "blocked"}
+        ]
+
+        if blocked_tasks or execution_state == "blocked":
+            return {
+                "kind": "goal_milestone_dependency_state",
+                "content": "blocked_dependency",
+                "confidence": 0.83,
+                "source": "background_reflection",
+            }
+        if len(remaining_tasks) >= 2:
+            return {
+                "kind": "goal_milestone_dependency_state",
+                "content": "multi_step_dependency",
+                "confidence": 0.76,
+                "source": "background_reflection",
+            }
+        if len(remaining_tasks) == 1:
+            return {
+                "kind": "goal_milestone_dependency_state",
+                "content": "single_step_dependency",
+                "confidence": 0.74,
+                "source": "background_reflection",
+            }
+        if milestone_state == "completion_window":
+            return {
+                "kind": "goal_milestone_dependency_state",
+                "content": "clear_to_close",
+                "confidence": 0.79,
+                "source": "background_reflection",
+            }
         return None
 
     def _derive_goal_milestone_risk(

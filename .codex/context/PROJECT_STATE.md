@@ -38,6 +38,7 @@ Last updated: 2026-04-16
 ## Current Focus
 
 - Main active objective: keep growing memory, preference, role, and reflection behavior without losing runtime honesty or deterministic test coverage
+- Current runtime emphasis: lightweight goal and milestone management now includes phase, arc, pressure, dependency, risk, and completion signals, still without a heavyweight milestone engine
 - Top blockers:
   - no formal migration framework yet
   - `/event` still exposes a verbose internal runtime contract

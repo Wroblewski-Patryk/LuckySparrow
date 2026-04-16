@@ -605,6 +605,7 @@ Current MVP status:
 - background reflection now also writes lightweight `aion_goal_milestone_history` snapshots, so runtime can react not only to the current milestone state but also to short milestone-level momentum, stabilization, regression, or closure movement
 - background reflection can now also compress those milestone histories into a semantic `goal_milestone_arc`, and runtime can use that arc to tell apart closure momentum, re-entry into the completion window, recovery backslide, milestone whiplash, or steadier closure posture
 - background reflection can now also derive lightweight `goal_milestone_pressure`, so runtime can tell when a milestone is lingering too long in completion, dragging in recovery, or staying stale in execution or setup
+- background reflection can now also derive lightweight `goal_milestone_dependency_state`, so runtime can tell whether the active milestone is blocked by a dependency, still waiting on several remaining work items, down to a single remaining dependency, or operationally clear to close
 - that reflected goal state can now shape context, motivation, and planning even when the current turn does not restate the full blocker details
 
 Together, they turn cognition into progress.

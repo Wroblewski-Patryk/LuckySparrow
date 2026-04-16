@@ -137,6 +137,7 @@ Current MVP status:
 - reflection now also persists lightweight `aion_goal_milestone_history` snapshots, so runtime can see short milestone-level movement over time instead of only the current milestone state
 - reflection can now also compress short milestone histories into a semantic `goal_milestone_arc`, so runtime can distinguish closure momentum, re-entry into the completion window, recovery backslide, whiplash, or steadier closure patterns
 - reflection can now also derive lightweight `goal_milestone_pressure`, so runtime can notice when a milestone is not just in a phase, but has started lingering too long in completion, recovery, execution, or setup
+- reflection can now also derive lightweight `goal_milestone_dependency_state`, so runtime can tell whether the active milestone is blocked by a dependency, still depends on multiple remaining work items, is down to a single remaining dependency, or is operationally clear to close
 - vector retrieval is still planned, not live
 
 ---

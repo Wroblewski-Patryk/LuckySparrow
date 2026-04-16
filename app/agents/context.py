@@ -13,6 +13,7 @@ class ContextAgent:
         "goal_milestone_state",
         "goal_milestone_arc",
         "goal_milestone_pressure",
+        "goal_milestone_dependency_state",
         "goal_milestone_transition",
         "goal_milestone_risk",
         "goal_completion_criteria",
@@ -167,6 +168,8 @@ class ContextAgent:
                 return self._summarize_goal_milestone_arc(content)
             if kind == "goal_milestone_pressure":
                 return self._summarize_goal_milestone_pressure(content)
+            if kind == "goal_milestone_dependency_state":
+                return self._summarize_goal_milestone_dependency_state(content)
             if kind == "goal_milestone_transition":
                 return self._summarize_goal_milestone_transition(content)
             if kind == "goal_milestone_risk":
@@ -260,6 +263,17 @@ class ContextAgent:
             return "active milestone has stayed in execution too long without phase change"
         if content == "lingering_setup":
             return "active milestone has remained in setup longer than expected"
+        return ""
+
+    def _summarize_goal_milestone_dependency_state(self, content: str) -> str:
+        if content == "blocked_dependency":
+            return "active milestone is blocked by a remaining dependency"
+        if content == "multi_step_dependency":
+            return "active milestone still depends on multiple remaining work items"
+        if content == "single_step_dependency":
+            return "active milestone now depends on a single remaining work item"
+        if content == "clear_to_close":
+            return "active milestone has a clear dependency path to closure"
         return ""
 
     def _summarize_goal_milestone_risk(self, content: str) -> str:
@@ -745,10 +759,12 @@ class ContextAgent:
         phase = str(milestone.get("phase", "")).strip()
         raw_arc = milestone.get("arc")
         raw_pressure_level = milestone.get("pressure_level")
+        raw_dependency_state = milestone.get("dependency_state")
         raw_risk_level = milestone.get("risk_level")
         raw_completion_criteria = milestone.get("completion_criteria")
         arc = str(raw_arc).strip().lower() if raw_arc else ""
         pressure_level = str(raw_pressure_level).strip().lower() if raw_pressure_level else ""
+        dependency_state = str(raw_dependency_state).strip().lower() if raw_dependency_state else ""
         risk_level = str(raw_risk_level).strip().lower() if raw_risk_level else ""
         completion_criteria = str(raw_completion_criteria).strip().lower() if raw_completion_criteria else ""
 
@@ -757,6 +773,8 @@ class ContextAgent:
             details.append(self._humanize_arc(arc))
         if pressure_level:
             details.append(self._humanize_pressure(pressure_level))
+        if dependency_state:
+            details.append(self._humanize_dependency_state(dependency_state))
         if risk_level:
             details.append(risk_level)
         if completion_criteria:
@@ -801,6 +819,14 @@ class ContextAgent:
             "dragging_recovery": "dragging recovery",
             "stale_execution": "stale execution",
             "lingering_setup": "lingering setup",
+        }.get(value, value.replace("_", " "))
+
+    def _humanize_dependency_state(self, value: str) -> str:
+        return {
+            "blocked_dependency": "blocked dependency",
+            "multi_step_dependency": "multi-step dependency chain",
+            "single_step_dependency": "single remaining dependency",
+            "clear_to_close": "dependency path is clear",
         }.get(value, value.replace("_", " "))
 
     def _humanize_risk(self, value: str) -> str:

@@ -117,6 +117,7 @@ class MotivationEngine:
         goal_milestone_state = str((user_preferences or {}).get("goal_milestone_state", "")).strip().lower()
         goal_milestone_arc = str((user_preferences or {}).get("goal_milestone_arc", "")).strip().lower()
         goal_milestone_pressure = str((user_preferences or {}).get("goal_milestone_pressure", "")).strip().lower()
+        goal_milestone_dependency_state = str((user_preferences or {}).get("goal_milestone_dependency_state", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
@@ -222,6 +223,17 @@ class MotivationEngine:
         )
         importance += (
             0.06
+            if goal_milestone_dependency_state == "blocked_dependency"
+            else 0.04
+            if goal_milestone_dependency_state == "multi_step_dependency"
+            else 0.03
+            if goal_milestone_dependency_state == "single_step_dependency"
+            else 0.04
+            if goal_milestone_dependency_state == "clear_to_close"
+            else 0.0
+        )
+        importance += (
+            0.06
             if milestone_arc_signal == "recovery_backslide"
             else 0.05
             if milestone_arc_signal in {"closure_momentum", "reentered_completion_window"}
@@ -316,6 +328,17 @@ class MotivationEngine:
             if goal_milestone_pressure == "stale_execution"
             else 0.05
             if goal_milestone_pressure in {"building_closure_pressure", "lingering_setup"}
+            else 0.0
+        )
+        urgency += (
+            0.08
+            if goal_milestone_dependency_state == "blocked_dependency"
+            else 0.05
+            if goal_milestone_dependency_state == "multi_step_dependency"
+            else 0.04
+            if goal_milestone_dependency_state == "single_step_dependency"
+            else 0.06
+            if goal_milestone_dependency_state == "clear_to_close"
             else 0.0
         )
         urgency += (
