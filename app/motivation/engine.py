@@ -118,6 +118,7 @@ class MotivationEngine:
         goal_milestone_arc = str((user_preferences or {}).get("goal_milestone_arc", "")).strip().lower()
         goal_milestone_pressure = str((user_preferences or {}).get("goal_milestone_pressure", "")).strip().lower()
         goal_milestone_dependency_state = str((user_preferences or {}).get("goal_milestone_dependency_state", "")).strip().lower()
+        goal_milestone_due_state = str((user_preferences or {}).get("goal_milestone_due_state", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
@@ -233,6 +234,17 @@ class MotivationEngine:
             else 0.0
         )
         importance += (
+            0.07
+            if goal_milestone_due_state == "closure_due_now"
+            else 0.06
+            if goal_milestone_due_state == "dependency_due_next"
+            else 0.05
+            if goal_milestone_due_state in {"recovery_due_attention", "execution_due_attention"}
+            else 0.04
+            if goal_milestone_due_state == "setup_due_start"
+            else 0.0
+        )
+        importance += (
             0.06
             if milestone_arc_signal == "recovery_backslide"
             else 0.05
@@ -339,6 +351,17 @@ class MotivationEngine:
             if goal_milestone_dependency_state == "single_step_dependency"
             else 0.06
             if goal_milestone_dependency_state == "clear_to_close"
+            else 0.0
+        )
+        urgency += (
+            0.1
+            if goal_milestone_due_state == "closure_due_now"
+            else 0.08
+            if goal_milestone_due_state == "dependency_due_next"
+            else 0.07
+            if goal_milestone_due_state in {"recovery_due_attention", "execution_due_attention"}
+            else 0.05
+            if goal_milestone_due_state == "setup_due_start"
             else 0.0
         )
         urgency += (

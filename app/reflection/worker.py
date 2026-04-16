@@ -480,6 +480,14 @@ class ReflectionWorker:
         )
         if goal_completion_criteria is not None:
             conclusions.append(goal_completion_criteria)
+        goal_milestone_due_state = self._derive_goal_milestone_due_state(
+            goal_milestone_state=goal_milestone_state,
+            goal_milestone_pressure=goal_milestone_pressure,
+            goal_milestone_dependency_state=goal_milestone_dependency_state,
+            goal_completion_criteria=goal_completion_criteria,
+        )
+        if goal_milestone_due_state is not None:
+            conclusions.append(goal_milestone_due_state)
 
         deduped: list[dict] = []
         seen: set[tuple[str, str]] = set()
@@ -1024,6 +1032,70 @@ class ReflectionWorker:
                 "confidence": 0.79,
                 "source": "background_reflection",
             }
+        return None
+
+    def _derive_goal_milestone_due_state(
+        self,
+        *,
+        goal_milestone_state: dict | None,
+        goal_milestone_pressure: dict | None,
+        goal_milestone_dependency_state: dict | None,
+        goal_completion_criteria: dict | None,
+    ) -> dict | None:
+        milestone_state = str(goal_milestone_state.get("content", "")).strip().lower() if goal_milestone_state is not None else ""
+        pressure = str(goal_milestone_pressure.get("content", "")).strip().lower() if goal_milestone_pressure is not None else ""
+        dependency_state = (
+            str(goal_milestone_dependency_state.get("content", "")).strip().lower()
+            if goal_milestone_dependency_state is not None
+            else ""
+        )
+        completion_criteria = (
+            str(goal_completion_criteria.get("content", "")).strip().lower()
+            if goal_completion_criteria is not None
+            else ""
+        )
+
+        if milestone_state == "completion_window":
+            if dependency_state == "clear_to_close" or completion_criteria == "confirm_goal_completion":
+                return {
+                    "kind": "goal_milestone_due_state",
+                    "content": "closure_due_now",
+                    "confidence": 0.82,
+                    "source": "background_reflection",
+                }
+            if dependency_state in {"blocked_dependency", "single_step_dependency", "multi_step_dependency"}:
+                return {
+                    "kind": "goal_milestone_due_state",
+                    "content": "dependency_due_next",
+                    "confidence": 0.79,
+                    "source": "background_reflection",
+                }
+            return None
+
+        if milestone_state == "recovery_phase" and pressure == "dragging_recovery":
+            return {
+                "kind": "goal_milestone_due_state",
+                "content": "recovery_due_attention",
+                "confidence": 0.77,
+                "source": "background_reflection",
+            }
+
+        if milestone_state == "execution_phase" and pressure == "stale_execution":
+            return {
+                "kind": "goal_milestone_due_state",
+                "content": "execution_due_attention",
+                "confidence": 0.75,
+                "source": "background_reflection",
+            }
+
+        if milestone_state == "early_stage" and pressure == "lingering_setup":
+            return {
+                "kind": "goal_milestone_due_state",
+                "content": "setup_due_start",
+                "confidence": 0.74,
+                "source": "background_reflection",
+            }
+
         return None
 
     def _derive_goal_milestone_risk(

@@ -576,6 +576,35 @@ async def test_memory_repository_exposes_goal_milestone_dependency_state_in_runt
     await engine.dispose()
 
 
+async def test_memory_repository_exposes_goal_milestone_due_state_in_runtime_preferences(tmp_path) -> None:
+    database_path = tmp_path / "memory-goal-milestone-due.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    async with session_factory() as session:
+        session.add(
+            AionConclusion(
+                user_id="u-1",
+                kind="goal_milestone_due_state",
+                content="dependency_due_next",
+                confidence=0.79,
+                source="background_reflection",
+                supporting_event_id="evt-goal-milestone-due",
+            )
+        )
+        await session.commit()
+
+    preferences = await repository.get_user_runtime_preferences(user_id="u-1")
+
+    assert preferences["goal_milestone_due_state"] == "dependency_due_next"
+    assert preferences["goal_milestone_due_state_confidence"] == 0.79
+    assert preferences["goal_milestone_due_state_source"] == "background_reflection"
+
+    await engine.dispose()
+
+
 async def test_memory_repository_exposes_goal_progress_arc_in_runtime_preferences(tmp_path) -> None:
     database_path = tmp_path / "memory-goal-progress-arc.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
@@ -623,6 +652,7 @@ async def test_memory_repository_runtime_preferences_can_hold_more_than_six_kind
         ("goal_milestone_arc", "closure_momentum", 0.76),
         ("goal_milestone_pressure", "building_closure_pressure", 0.74),
         ("goal_milestone_dependency_state", "multi_step_dependency", 0.76),
+        ("goal_milestone_due_state", "dependency_due_next", 0.79),
         ("goal_milestone_risk", "ready_to_close", 0.79),
         ("goal_completion_criteria", "finish_remaining_active_work", 0.80),
     ]
@@ -652,6 +682,7 @@ async def test_memory_repository_runtime_preferences_can_hold_more_than_six_kind
     assert preferences["goal_milestone_arc"] == "closure_momentum"
     assert preferences["goal_milestone_pressure"] == "building_closure_pressure"
     assert preferences["goal_milestone_dependency_state"] == "multi_step_dependency"
+    assert preferences["goal_milestone_due_state"] == "dependency_due_next"
     assert preferences["goal_milestone_risk"] == "ready_to_close"
     assert preferences["goal_completion_criteria"] == "finish_remaining_active_work"
 

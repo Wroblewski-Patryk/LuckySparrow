@@ -276,6 +276,40 @@ def test_context_summary_formats_active_goal_milestone_with_dependency_state() -
     )
 
 
+def test_context_summary_formats_active_goal_milestone_with_due_state() -> None:
+    result = ContextAgent().run(
+        event=_event("can you help me finish the mvp"),
+        perception=_perception(),
+        recent_memory=[],
+        active_goals=[
+            {
+                "id": 1,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+        active_goal_milestones=[
+            {
+                "id": 3,
+                "goal_id": 1,
+                "name": "Drive goal to closure",
+                "phase": "completion_window",
+                "status": "active",
+                "due_state": "dependency_due_next",
+                "risk_level": "ready_to_close",
+            }
+        ],
+    )
+
+    assert (
+        "Active milestones: Drive goal to closure (completion_window, next dependency is due now, ready_to_close)."
+        in result.summary
+    )
+
+
 def test_context_summary_includes_collaboration_preference_from_conclusions() -> None:
     result = ContextAgent().run(
         event=_event("how should we proceed"),
@@ -508,6 +542,24 @@ def test_context_summary_includes_goal_milestone_dependency_state_from_conclusio
     )
 
     assert "Stable user preferences: active milestone still depends on multiple remaining work items." in result.summary
+
+
+def test_context_summary_includes_goal_milestone_due_state_from_conclusions() -> None:
+    result = ContextAgent().run(
+        event=_event("how should we close this out"),
+        perception=_perception(),
+        recent_memory=[],
+        conclusions=[
+            {
+                "kind": "goal_milestone_due_state",
+                "content": "dependency_due_next",
+                "confidence": 0.79,
+                "source": "background_reflection",
+            }
+        ],
+    )
+
+    assert "Stable user preferences: active milestone is due to resolve its next dependency." in result.summary
 
 
 def test_context_summary_includes_goal_milestone_risk_and_completion_criteria_from_conclusions() -> None:

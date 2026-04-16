@@ -79,6 +79,7 @@ class RuntimeOrchestrator:
         arc = str(user_preferences.get("goal_milestone_arc", "")).strip().lower() or None
         pressure_level = str(user_preferences.get("goal_milestone_pressure", "")).strip().lower() or None
         dependency_state = str(user_preferences.get("goal_milestone_dependency_state", "")).strip().lower() or None
+        due_state = str(user_preferences.get("goal_milestone_due_state", "")).strip().lower() or None
         risk_level = str(user_preferences.get("goal_milestone_risk", "")).strip().lower() or None
         completion_criteria = str(user_preferences.get("goal_completion_criteria", "")).strip().lower() or None
 
@@ -89,12 +90,14 @@ class RuntimeOrchestrator:
                 item["arc"] = arc
                 item["pressure_level"] = pressure_level
                 item["dependency_state"] = dependency_state
+                item["due_state"] = due_state
                 item["risk_level"] = risk_level
                 item["completion_criteria"] = completion_criteria
             else:
                 item.setdefault("arc", None)
                 item.setdefault("pressure_level", None)
                 item.setdefault("dependency_state", None)
+                item.setdefault("due_state", None)
                 item.setdefault("risk_level", None)
                 item.setdefault("completion_criteria", None)
             enriched.append(item)

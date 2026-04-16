@@ -28,6 +28,7 @@ class PlanningAgent:
         goal_milestone_arc = str((user_preferences or {}).get("goal_milestone_arc", "")).strip().lower()
         goal_milestone_pressure = str((user_preferences or {}).get("goal_milestone_pressure", "")).strip().lower()
         goal_milestone_dependency_state = str((user_preferences or {}).get("goal_milestone_dependency_state", "")).strip().lower()
+        goal_milestone_due_state = str((user_preferences or {}).get("goal_milestone_due_state", "")).strip().lower()
         goal_milestone_transition = str((user_preferences or {}).get("goal_milestone_transition", "")).strip().lower()
         goal_milestone_risk = str((user_preferences or {}).get("goal_milestone_risk", "")).strip().lower()
         goal_completion_criteria = str((user_preferences or {}).get("goal_completion_criteria", "")).strip().lower()
@@ -177,6 +178,14 @@ class PlanningAgent:
         if goal_milestone_dependency_step is not None and goal_milestone_dependency_step not in steps:
             prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
             steps.insert(prepare_index, goal_milestone_dependency_step)
+
+        goal_milestone_due_step = self._goal_milestone_due_step(
+            goal_milestone_due_state=goal_milestone_due_state,
+            steps=steps,
+        )
+        if goal_milestone_due_step is not None and goal_milestone_due_step not in steps:
+            prepare_index = steps.index("prepare_response") if "prepare_response" in steps else len(steps)
+            steps.insert(prepare_index, goal_milestone_due_step)
 
         goal_completion_criteria_step = self._goal_completion_criteria_step(
             goal_completion_criteria=goal_completion_criteria,
@@ -538,6 +547,49 @@ class PlanningAgent:
             return "confirm_dependency_clearance"
         return None
 
+    def _goal_milestone_due_step(self, goal_milestone_due_state: str, steps: list[str]) -> str | None:
+        if goal_milestone_due_state == "closure_due_now":
+            if (
+                "make_due_closure_call" in steps
+                or "confirm_goal_completion" in steps
+                or "validate_milestone_closure" in steps
+            ):
+                return None
+            return "make_due_closure_call"
+        if goal_milestone_due_state == "dependency_due_next":
+            if (
+                "finish_due_dependency" in steps
+                or "sequence_remaining_dependencies" in steps
+                or "finish_last_dependency" in steps
+            ):
+                return None
+            return "finish_due_dependency"
+        if goal_milestone_due_state == "recovery_due_attention":
+            if (
+                "restore_due_recovery" in steps
+                or "stabilize_goal_recovery" in steps
+                or "break_recovery_drag" in steps
+            ):
+                return None
+            return "restore_due_recovery"
+        if goal_milestone_due_state == "execution_due_attention":
+            if (
+                "push_due_execution" in steps
+                or "continue_goal_execution" in steps
+                or "unstick_execution_phase" in steps
+            ):
+                return None
+            return "push_due_execution"
+        if goal_milestone_due_state == "setup_due_start":
+            if (
+                "start_due_execution" in steps
+                or "define_first_execution_step" in steps
+                or "force_first_execution_step" in steps
+            ):
+                return None
+            return "start_due_execution"
+        return None
+
     def _goal_completion_criteria_step(self, goal_completion_criteria: str, steps: list[str]) -> str | None:
         if goal_completion_criteria == "resolve_remaining_blocker":
             if "resolve_remaining_blocker" in steps or "unblock_active_task" in steps or "reduce_milestone_risk" in steps:
@@ -616,6 +668,7 @@ class PlanningAgent:
 
     def _apply_active_milestone_signals(self, goal: str, relevant_milestone: dict) -> str:
         dependency_state = str(relevant_milestone.get("dependency_state", "")).strip().lower()
+        due_state = str(relevant_milestone.get("due_state", "")).strip().lower()
         risk_level = str(relevant_milestone.get("risk_level", "")).strip().lower()
         completion_criteria = str(relevant_milestone.get("completion_criteria", "")).strip().lower()
         hints: list[str] = []
@@ -623,6 +676,11 @@ class PlanningAgent:
             hints.append(
                 "Treat the milestone dependency state as "
                 f"'{dependency_state.replace('_', ' ')}'."
+            )
+        if due_state:
+            hints.append(
+                "Treat the milestone due state as "
+                f"'{due_state.replace('_', ' ')}'."
             )
         if risk_level:
             hints.append(f"Treat the milestone risk as '{risk_level}'.")
