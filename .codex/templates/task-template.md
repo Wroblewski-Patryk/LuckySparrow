@@ -5,13 +5,14 @@
 - ID: PRJ-XXX
 - Title:
 - Status: BACKLOG | READY | IN_PROGRESS | BLOCKED | REVIEW | DONE
-- Owner: Planner | Product Docs | Backend Builder | Frontend Builder | QA/Test | Security | DB/Migrations | Ops/Release | Review
+- Owner: Planning Agent | Product Docs Agent | Backend Builder | Frontend
+  Builder | QA/Test | Security | DB/Migrations | Ops/Release | Review
 - Depends on:
 - Priority: P0 | P1 | P2
 
 ## Description
 
-One short paragraph with expected business or technical outcome.
+One short paragraph with expected outcome.
 
 ## Acceptance Criteria
 
@@ -19,21 +20,20 @@ One short paragraph with expected business or technical outcome.
 - [ ] Criterion 2
 - [ ] Criterion 3
 
-## Validation Evidence
+## Validation Plan
 
-- Tests:
-- Manual checks:
-- Screenshots or logs:
+- Automated:
+- Manual:
+- Out-of-scope checks:
 
-## UX/UI Evidence
+## Review Checklist
 
-- Design source type: figma | approved_snapshot | n/a
-- Design source reference:
-- Stitch used: yes | no
-- State checks: loading | empty | error | success | n/a
-- Responsive checks: desktop | mobile | n/a
-- Accessibility checks:
+- [ ] acceptance criteria are verified
+- [ ] relevant validations were run
+- [ ] docs or context were updated if repo truth changed
+- [ ] architecture follow-up was captured if discovered
+- [ ] learning journal was updated if a recurring pitfall was confirmed
 
 ## Notes
 
-Risks, assumptions, links.
+Implementation notes, risks, links.

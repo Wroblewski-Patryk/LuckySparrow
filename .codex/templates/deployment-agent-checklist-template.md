@@ -2,7 +2,8 @@
 
 ## Mission
 
-Deploy `Personality / AION` to `<ENV>` using SHA `<SHA>` and return only after health plus smoke validation.
+Deploy `Personality / AION` to `<ENV>` using SHA `<SHA>` and return only after
+health plus smoke validation.
 
 ## Inputs
 

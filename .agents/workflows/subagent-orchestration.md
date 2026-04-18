@@ -2,23 +2,25 @@
 
 ## Objective
 
-Use delegation safely in a backend-first Python project with a shared runtime and shared docs.
+Standardize safe delegation and parallelization behavior for Personality / AION
+work.
 
 ## Steps
 
-1. Keep the critical-path runtime change local.
-2. Delegate only independent side work such as:
-   - docs alignment
-   - isolated tests
-   - bounded ops/checklist updates
-3. Assign clear ownership and explicit file scope.
-4. Continue non-overlapping local work while subagents run.
-5. Integrate and verify delegated output before closing the task.
+1. Keep the critical-path implementation local and use
+   `.codex/context/TASK_BOARD.md` as the source of truth.
+2. Delegate only independent side tasks such as docs sync, isolated tests, or
+   contained runtime slices.
+3. Assign clear file ownership, expected output, and required checks to each
+   subagent.
+4. Continue local non-overlapping work while subagents run.
+5. Integrate outputs, run the relevant validations, and sync project state if
+   repo truth changed.
 
 ## Guardrails
 
 - no overlapping write ownership
 - no duplicate implementation effort
-- no waiting unless blocked on the result
-- no delegation of under-specified runtime behavior
-- no blind trust on delegated code without local verification
+- no blocking wait loops without reason
+- no delegation of unclear or under-specified tasks
+- no drift between delegated work and task board status

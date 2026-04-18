@@ -20,6 +20,12 @@
 - Technical impact:
 - Delivery impact:
 
+## Validation
+
+- Commands run:
+- Evidence:
+
 ## Follow-up Needed
 
--
+- Architecture follow-up:
+- Task board updates:
