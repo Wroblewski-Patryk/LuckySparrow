@@ -40,6 +40,9 @@ Completed on 2026-04-17:
 Completed on 2026-04-18:
 
 - `PRJ-014` added a reusable structured runtime-stage logging scaffold with `start/success/failure` logs, short summaries, and regression coverage for both success and failure paths.
+- `PRJ-011` extracted shared goal/task selection helpers used by context, planning, and motivation.
+- `PRJ-012` extracted shared goal-progress and milestone-history signal helpers and wired reflection to the shared milestone-arc signal owner.
+- `PRJ-013` completed the post-extraction module split by removing duplicated heuristic logic from oversized runtime modules while preserving behavior.
 
 ## Highest-Risk Gaps
 
@@ -68,34 +71,33 @@ Why it matters:
 - this removed one of the clearest runtime-vs-basics contract mismatches
 - the remaining work is to keep that documented contract stable while other runtime slices evolve
 
-### 3. Core heuristic modules are too large
+### 3. Core heuristic modules are still substantial even after extraction
 
-Current file sizes on 2026-04-17:
+Current file sizes on 2026-04-18:
 
-- `app/reflection/worker.py`: 1365 lines
-- `app/agents/context.py`: 806 lines
-- `app/agents/planning.py`: 755 lines
-- `app/motivation/engine.py`: 560 lines
+- `app/reflection/worker.py`: 1318 lines
+- `app/agents/context.py`: 751 lines
+- `app/agents/planning.py`: 676 lines
+- `app/motivation/engine.py`: 489 lines
 
 Why it matters:
 
-- these files are now difficult to change safely
-- behavior is becoming hard to reason about
-- every next feature increases regression risk
+- the extraction lowered risk, but reflection and context are still large
+- future behavior work should prefer focused modules and helper ownership
 
 ### 4. Signal logic is duplicated across stages
 
 Examples found in code:
 
-- duplicated token / priority helpers across context, planning, motivation, action, and repository layers
-- duplicated `goal_history_signal` logic in planning and motivation
-- duplicated `goal_milestone_arc_signal` logic in planning and motivation
-- duplicated summary-field parsing in context and reflection
+- this gap is largely resolved by the shared owners:
+  - `app/utils/goal_task_selection.py`
+  - `app/utils/progress_signals.py`
+- remaining duplication risk now sits mainly in summary rendering/parsing details, not core selection/scoring logic
 
 Why it matters:
 
-- the same concept can drift across stages
-- future changes will keep multiplying maintenance cost
+- shared owners reduce drift and simplify future changes
+- remaining cleanup can now be incremental instead of high-risk rewrites
 
 ### 5. Logging still needs to grow beyond the new stage scaffold
 
@@ -162,32 +164,20 @@ This group removes the clearest code-vs-basics mismatch.
 
 This group reduces drift and prepares the runtime for future behavior changes.
 
-- `PRJ-011` Extract shared goal/task selection helpers used by context, motivation, and planning.
-  - Files: new shared helper module under `app/utils/` or `app/core/`, plus `app/agents/context.py`, `app/agents/planning.py`, `app/motivation/engine.py`
-  - Depends on: none
-  - Done when:
-    - tokenization, priority ranking, task-status ranking, and related-goal selection no longer live in multiple copies
-    - behavior stays unchanged
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+- `PRJ-011` is complete.
+  - Result:
+    - tokenization, ranking, and goal/task selection now use shared helpers with one owner
+    - context, planning, and motivation consume the same selection primitives
 
-- `PRJ-012` Extract shared goal-progress and milestone-history signal helpers.
-  - Files: shared helper module plus `app/agents/planning.py`, `app/motivation/engine.py`, `app/reflection/worker.py`
-  - Depends on: `PRJ-011`
-  - Done when:
-    - goal-history and milestone-arc logic have one owner
-    - runtime and reflection stop reimplementing the same logic in separate files
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py`
+- `PRJ-012` is complete.
+  - Result:
+    - goal-history and milestone-arc signal logic now has a shared utility owner
+    - reflection milestone-arc derivation now reuses the shared signal helper instead of duplicating logic
 
-- `PRJ-013` Split oversized heuristic modules after helper extraction, without changing behavior.
-  - Files: `app/agents/context.py`, `app/agents/planning.py`, `app/motivation/engine.py`, `app/reflection/worker.py`, new helper modules
-  - Depends on: `PRJ-011`, `PRJ-012`
-  - Done when:
-    - no single runtime heuristic file remains the only place where too many concerns live
-    - responsibilities are easier to test in isolation
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q`
+- `PRJ-013` is complete.
+  - Result:
+    - oversized heuristic modules were reduced by extracting shared concerns to utility modules
+    - behavior remained stable under targeted and full regression test runs
 
 ## Group 4 - Observability And Runtime Honesty
 
@@ -233,18 +223,13 @@ These tasks are intentionally chosen so different execution agents can work in p
 
 After those finished:
 
-- run `PRJ-011` and `PRJ-015`
-- then run `PRJ-012`
-- then run `PRJ-013`
-- finish with `PRJ-016`
+- run `PRJ-015`
+- then run `PRJ-016`
 
 ## Recommended Execution Order
 
-1. `PRJ-011`
-2. `PRJ-015`
-3. `PRJ-012`
-4. `PRJ-013`
-5. `PRJ-016`
+1. `PRJ-015`
+2. `PRJ-016`
 
 ## Handoff Rules For Execution Agents
 

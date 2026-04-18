@@ -1,4 +1,15 @@
 from app.core.contracts import ContextOutput, Event, MotivationOutput, PlanOutput, RoleOutput
+from app.utils.goal_task_selection import (
+    priority_rank as shared_priority_rank,
+    select_relevant_goal as shared_select_relevant_goal,
+    select_relevant_task as shared_select_relevant_task,
+    task_status_rank as shared_task_status_rank,
+    text_tokens as shared_text_tokens,
+)
+from app.utils.progress_signals import (
+    goal_history_signal as shared_goal_history_signal,
+    goal_milestone_arc_signal as shared_goal_milestone_arc_signal,
+)
 
 
 class PlanningAgent:
@@ -275,42 +286,19 @@ class PlanningAgent:
         return goal
 
     def _select_relevant_goal(self, event: Event, active_goals: list[dict]) -> dict | None:
-        tokens = self._text_tokens(str(event.payload.get("text", "")))
-        ranked = sorted(
-            active_goals,
-            key=lambda goal: (
-                len(tokens.intersection(self._text_tokens(str(goal.get("name", "")) + " " + str(goal.get("description", ""))))),
-                self._priority_rank(str(goal.get("priority", ""))),
-            ),
-            reverse=True,
+        return shared_select_relevant_goal(
+            event_text=str(event.payload.get("text", "")),
+            active_goals=active_goals,
+            tokenize=self._text_tokens,
         )
-        if not ranked:
-            return None
-        top = ranked[0]
-        overlap = len(tokens.intersection(self._text_tokens(str(top.get("name", "")) + " " + str(top.get("description", "")))))
-        if overlap <= 0 and tokens:
-            return None
-        return top
 
     def _select_relevant_task(self, event: Event, active_tasks: list[dict], relevant_goal_id: int | None) -> dict | None:
-        tokens = self._text_tokens(str(event.payload.get("text", "")))
-        ranked = sorted(
-            active_tasks,
-            key=lambda task: (
-                1 if relevant_goal_id is not None and task.get("goal_id") == relevant_goal_id else 0,
-                len(tokens.intersection(self._text_tokens(str(task.get("name", "")) + " " + str(task.get("description", ""))))),
-                self._task_status_rank(str(task.get("status", ""))),
-                self._priority_rank(str(task.get("priority", ""))),
-            ),
-            reverse=True,
+        return shared_select_relevant_task(
+            event_text=str(event.payload.get("text", "")),
+            active_tasks=active_tasks,
+            tokenize=self._text_tokens,
+            relevant_goal_id=relevant_goal_id,
         )
-        if not ranked:
-            return None
-        top = ranked[0]
-        overlap = len(tokens.intersection(self._text_tokens(str(top.get("name", "")) + " " + str(top.get("description", "")))))
-        if overlap <= 0 and relevant_goal_id is None and tokens:
-            return None
-        return top
 
     def _task_plan_step(self, task: dict | None) -> str | None:
         if not task:
@@ -728,90 +716,16 @@ class PlanningAgent:
         return f"{goal} {' '.join(hints)}"
 
     def _text_tokens(self, value: str) -> set[str]:
-        canonical = "".join(char if char.isalnum() or char.isspace() else " " for char in value.strip().lower())
-        return {token for token in canonical.split() if len(token) >= 3}
+        return shared_text_tokens(value, normalize=False)
 
     def _priority_rank(self, priority: str) -> int:
-        return {
-            "low": 1,
-            "medium": 2,
-            "high": 3,
-            "critical": 4,
-        }.get(priority, 0)
+        return shared_priority_rank(priority)
 
     def _task_status_rank(self, status: str) -> int:
-        return {
-            "todo": 1,
-            "in_progress": 2,
-            "blocked": 3,
-        }.get(status, 0)
+        return shared_task_status_rank(status)
 
     def _goal_history_signal(self, goal_progress_history: list[dict]) -> str:
-        if len(goal_progress_history) < 2:
-            return ""
-
-        ordered = list(reversed(goal_progress_history))
-        scores: list[float] = []
-        for item in ordered:
-            try:
-                scores.append(float(item.get("score", 0.0)))
-            except (TypeError, ValueError):
-                continue
-
-        if len(scores) < 2:
-            return ""
-
-        delta = round(scores[-1] - scores[0], 2)
-        span = round(max(scores) - min(scores), 2)
-        if delta <= -0.2:
-            return "regression"
-        if delta >= 0.2:
-            return "lift"
-        if span >= 0.3:
-            return "volatile"
-        return ""
+        return shared_goal_history_signal(goal_progress_history)
 
     def _goal_milestone_arc_signal(self, goal_milestone_history: list[dict]) -> str:
-        if len(goal_milestone_history) < 2:
-            return ""
-
-        ordered = list(reversed(goal_milestone_history))
-        states: list[tuple[str, str]] = []
-        for item in ordered:
-            pair = (
-                str(item.get("phase", "")).strip().lower(),
-                str(item.get("risk_level", "")).strip().lower(),
-            )
-            if not pair[0] and not pair[1]:
-                continue
-            if not states or states[-1] != pair:
-                states.append(pair)
-
-        if len(states) < 2:
-            return ""
-
-        previous_phase, previous_risk = states[-2]
-        current_phase, current_risk = states[-1]
-        had_completion_before = any(phase == "completion_window" for phase, _ in states[:-1])
-        had_recovery_before = any(phase == "recovery_phase" for phase, _ in states[:-1])
-        phase_changes = sum(
-            1
-            for index in range(1, len(states))
-            if states[index][0] and states[index - 1][0] and states[index][0] != states[index - 1][0]
-        )
-        distinct_phases = {phase for phase, _ in states if phase}
-
-        if current_phase == "completion_window" and had_completion_before and had_recovery_before and previous_phase != "completion_window":
-            return "reentered_completion_window"
-        if current_phase == "recovery_phase" and had_completion_before:
-            return "recovery_backslide"
-        if len(distinct_phases) >= 3 and phase_changes >= 3:
-            return "milestone_whiplash"
-        if current_phase == "completion_window" and previous_phase == "completion_window":
-            return "steady_closure"
-        if current_phase == "completion_window" and (
-            previous_phase != "completion_window"
-            or (previous_risk in {"watch", "stabilizing", "on_track"} and current_risk == "ready_to_close")
-        ):
-            return "closure_momentum"
-        return ""
+        return shared_goal_milestone_arc_signal(goal_milestone_history)

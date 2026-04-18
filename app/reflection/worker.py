@@ -5,6 +5,8 @@ from collections.abc import Sequence
 from app.core.logging import get_logger
 from app.memory.episodic import extract_episode_fields
 from app.memory.repository import MemoryRepository
+from app.utils.goal_task_selection import priority_rank as shared_priority_rank
+from app.utils.progress_signals import goal_milestone_arc_signal as shared_goal_milestone_arc_signal
 
 
 class ReflectionWorker:
@@ -835,72 +837,28 @@ class ReflectionWorker:
             if goal_milestone_transition is not None
             else ""
         )
-        ordered_history = list(reversed(recent_goal_milestone_history))
-        states: list[tuple[str, str]] = []
-        for item in ordered_history:
-            phase = str(item.get("phase", "")).strip().lower()
-            risk = str(item.get("risk_level", "")).strip().lower()
-            if not phase and not risk:
-                continue
-            pair = (phase, risk)
-            if not states or states[-1] != pair:
-                states.append(pair)
-
-        current_pair = (current_phase, "")
-        if not states or states[-1][0] != current_phase:
-            states.append(current_pair)
-        else:
-            states[-1] = (current_phase, states[-1][1])
-
-        if len(states) < 2:
+        content = shared_goal_milestone_arc_signal(
+            list(recent_goal_milestone_history),
+            current_phase=current_phase,
+            transition=transition,
+            require_transition_for_reentry=True,
+        )
+        if not content:
             return None
 
-        previous_phase, _ = states[-2]
-        phase_changes = sum(
-            1
-            for index in range(1, len(states))
-            if states[index][0] and states[index - 1][0] and states[index][0] != states[index - 1][0]
-        )
-        distinct_phases = {phase for phase, _ in states if phase}
-        had_completion_before = any(phase == "completion_window" for phase, _ in states[:-1])
-        had_recovery_before = any(phase == "recovery_phase" for phase, _ in states[:-1])
-
-        if current_phase == "completion_window" and transition == "entered_completion_window" and had_completion_before and had_recovery_before:
-            return {
-                "kind": "goal_milestone_arc",
-                "content": "reentered_completion_window",
-                "confidence": 0.79,
-                "source": "background_reflection",
-            }
-        if current_phase == "recovery_phase" and had_completion_before:
-            return {
-                "kind": "goal_milestone_arc",
-                "content": "recovery_backslide",
-                "confidence": 0.78,
-                "source": "background_reflection",
-            }
-        if len(distinct_phases) >= 3 and phase_changes >= 3:
-            return {
-                "kind": "goal_milestone_arc",
-                "content": "milestone_whiplash",
-                "confidence": 0.77,
-                "source": "background_reflection",
-            }
-        if current_phase == "completion_window" and previous_phase == "completion_window":
-            return {
-                "kind": "goal_milestone_arc",
-                "content": "steady_closure",
-                "confidence": 0.75,
-                "source": "background_reflection",
-            }
-        if current_phase == "completion_window" and previous_phase != "completion_window":
-            return {
-                "kind": "goal_milestone_arc",
-                "content": "closure_momentum",
-                "confidence": 0.76,
-                "source": "background_reflection",
-            }
-        return None
+        confidence = {
+            "reentered_completion_window": 0.79,
+            "recovery_backslide": 0.78,
+            "milestone_whiplash": 0.77,
+            "closure_momentum": 0.76,
+            "steady_closure": 0.75,
+        }.get(content, 0.74)
+        return {
+            "kind": "goal_milestone_arc",
+            "content": content,
+            "confidence": confidence,
+            "source": "background_reflection",
+        }
 
     def _derive_goal_milestone_pressure(
         self,
@@ -1483,9 +1441,4 @@ class ReflectionWorker:
             return None
 
     def _goal_priority_rank(self, priority: str) -> int:
-        return {
-            "low": 1,
-            "medium": 2,
-            "high": 3,
-            "critical": 4,
-        }.get(priority, 0)
+        return shared_priority_rank(priority)

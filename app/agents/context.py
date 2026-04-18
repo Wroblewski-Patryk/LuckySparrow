@@ -1,4 +1,11 @@
 from app.core.contracts import ContextOutput, Event, IdentityOutput, PerceptionOutput
+from app.utils.goal_task_selection import (
+    priority_rank as shared_priority_rank,
+    select_active_goals as shared_select_active_goals,
+    select_active_tasks as shared_select_active_tasks,
+    task_status_rank as shared_task_status_rank,
+    text_tokens as shared_text_tokens,
+)
 from app.memory.episodic import extract_episode_fields
 
 
@@ -70,12 +77,7 @@ class ContextAgent:
         return "".join(char if char.isalnum() or char.isspace() else " " for char in normalized).strip()
 
     def _text_tokens(self, value: str) -> set[str]:
-        canonical = self._canonical_text(value)
-        return {
-            token
-            for token in canonical.split()
-            if len(token) >= 3 and token not in self.STOPWORDS
-        }
+        return shared_text_tokens(value, stopwords=self.STOPWORDS, normalize=False)
 
     def _current_topic_tokens(self, event: Event, perception: PerceptionOutput) -> set[str]:
         tokens = set(perception.topic_tags)
@@ -95,19 +97,10 @@ class ContextAgent:
         return related_tags
 
     def _priority_rank(self, priority: str) -> int:
-        return {
-            "low": 1,
-            "medium": 2,
-            "high": 3,
-            "critical": 4,
-        }.get(priority, 0)
+        return shared_priority_rank(priority)
 
     def _task_status_rank(self, status: str) -> int:
-        return {
-            "todo": 1,
-            "in_progress": 2,
-            "blocked": 3,
-        }.get(status, 0)
+        return shared_task_status_rank(status)
 
     def _summarize_conclusions(self, conclusions: list[dict] | None) -> str:
         if not conclusions:
@@ -500,33 +493,12 @@ class ContextAgent:
         return selected
 
     def _select_active_goals(self, active_goals: list[dict], current_tokens: set[str], limit: int = 2) -> list[dict]:
-        if not active_goals:
-            return []
-
-        ranked = sorted(
-            active_goals,
-            key=lambda goal: (
-                len(
-                    current_tokens.intersection(
-                        self._text_tokens(str(goal.get("name", "")) + " " + str(goal.get("description", "")))
-                    )
-                ),
-                self._priority_rank(str(goal.get("priority", ""))),
-            ),
-            reverse=True,
+        return shared_select_active_goals(
+            active_goals=active_goals,
+            current_tokens=current_tokens,
+            tokenize=self._text_tokens,
+            limit=limit,
         )
-        selected = [goal for goal in ranked if goal.get("name")]
-        if current_tokens:
-            topical = [
-                goal
-                for goal in selected
-                if current_tokens.intersection(
-                    self._text_tokens(str(goal.get("name", "")) + " " + str(goal.get("description", "")))
-                )
-            ]
-            if topical:
-                selected = topical
-        return selected[:limit]
 
     def _select_active_tasks(
         self,
@@ -535,37 +507,13 @@ class ContextAgent:
         selected_goals: list[dict],
         limit: int = 2,
     ) -> list[dict]:
-        if not active_tasks:
-            return []
-
-        goal_ids = {goal.get("id") for goal in selected_goals if goal.get("id") is not None}
-        ranked = sorted(
-            active_tasks,
-            key=lambda task: (
-                1 if task.get("goal_id") in goal_ids and goal_ids else 0,
-                len(
-                    current_tokens.intersection(
-                        self._text_tokens(str(task.get("name", "")) + " " + str(task.get("description", "")))
-                    )
-                ),
-                self._task_status_rank(str(task.get("status", ""))),
-                self._priority_rank(str(task.get("priority", ""))),
-            ),
-            reverse=True,
+        return shared_select_active_tasks(
+            active_tasks=active_tasks,
+            current_tokens=current_tokens,
+            selected_goals=selected_goals,
+            tokenize=self._text_tokens,
+            limit=limit,
         )
-        selected = [task for task in ranked if task.get("name")]
-        if current_tokens:
-            topical = [
-                task
-                for task in selected
-                if current_tokens.intersection(
-                    self._text_tokens(str(task.get("name", "")) + " " + str(task.get("description", "")))
-                )
-                or (task.get("goal_id") in goal_ids and goal_ids)
-            ]
-            if topical:
-                selected = topical
-        return selected[:limit]
 
     def _select_goal_progress_history(
         self,

@@ -1,5 +1,15 @@
 from app.core.contracts import ContextOutput, Event, MotivationOutput, PerceptionOutput
+from app.utils.goal_task_selection import (
+    has_related_blocked_task as shared_has_related_blocked_task,
+    priority_rank as shared_priority_rank,
+    related_goal_priority as shared_related_goal_priority,
+    text_tokens as shared_text_tokens,
+)
 from app.utils.language import normalize_for_matching
+from app.utils.progress_signals import (
+    goal_history_signal as shared_goal_history_signal,
+    goal_milestone_arc_signal as shared_goal_milestone_arc_signal,
+)
 
 
 class MotivationEngine:
@@ -459,40 +469,16 @@ class MotivationEngine:
         )
 
     def _related_goal_priority(self, text: str, goals: list[dict]) -> str | None:
-        tokens = self._text_tokens(text)
-        best_priority: str | None = None
-        best_rank = 0
-        for goal in goals:
-            goal_tokens = self._text_tokens(str(goal.get("name", "")) + " " + str(goal.get("description", "")))
-            if tokens and not tokens.intersection(goal_tokens):
-                continue
-            rank = self._priority_rank(str(goal.get("priority", "")))
-            if rank > best_rank:
-                best_rank = rank
-                best_priority = str(goal.get("priority", "")).strip().lower() or None
-        return best_priority
+        return shared_related_goal_priority(text=text, goals=goals, tokenize=self._text_tokens)
 
     def _has_related_blocked_task(self, text: str, tasks: list[dict]) -> bool:
-        tokens = self._text_tokens(text)
-        for task in tasks:
-            if str(task.get("status", "")).strip().lower() != "blocked":
-                continue
-            task_tokens = self._text_tokens(str(task.get("name", "")) + " " + str(task.get("description", "")))
-            if not tokens or tokens.intersection(task_tokens):
-                return True
-        return False
+        return shared_has_related_blocked_task(text=text, tasks=tasks, tokenize=self._text_tokens)
 
     def _text_tokens(self, value: str) -> set[str]:
-        canonical = normalize_for_matching(value)
-        return {token for token in canonical.split() if len(token) >= 3}
+        return shared_text_tokens(value, normalize=True)
 
     def _priority_rank(self, priority: str) -> int:
-        return {
-            "low": 1,
-            "medium": 2,
-            "high": 3,
-            "critical": 4,
-        }.get(priority, 0)
+        return shared_priority_rank(priority)
 
     def _clamp(self, value: float) -> float:
         return max(0.0, min(1.0, round(value, 2)))
@@ -519,71 +505,7 @@ class MotivationEngine:
         return None
 
     def _goal_history_signal(self, goal_progress_history: list[dict]) -> str:
-        if len(goal_progress_history) < 2:
-            return ""
-
-        ordered = list(reversed(goal_progress_history))
-        scores: list[float] = []
-        for item in ordered:
-            try:
-                scores.append(float(item.get("score", 0.0)))
-            except (TypeError, ValueError):
-                continue
-
-        if len(scores) < 2:
-            return ""
-
-        delta = round(scores[-1] - scores[0], 2)
-        span = round(max(scores) - min(scores), 2)
-        if delta <= -0.2:
-            return "regression"
-        if delta >= 0.2:
-            return "lift"
-        if span >= 0.3:
-            return "volatile"
-        return ""
+        return shared_goal_history_signal(goal_progress_history)
 
     def _goal_milestone_arc_signal(self, goal_milestone_history: list[dict]) -> str:
-        if len(goal_milestone_history) < 2:
-            return ""
-
-        ordered = list(reversed(goal_milestone_history))
-        states: list[tuple[str, str]] = []
-        for item in ordered:
-            pair = (
-                str(item.get("phase", "")).strip().lower(),
-                str(item.get("risk_level", "")).strip().lower(),
-            )
-            if not pair[0] and not pair[1]:
-                continue
-            if not states or states[-1] != pair:
-                states.append(pair)
-
-        if len(states) < 2:
-            return ""
-
-        previous_phase, previous_risk = states[-2]
-        current_phase, current_risk = states[-1]
-        had_completion_before = any(phase == "completion_window" for phase, _ in states[:-1])
-        had_recovery_before = any(phase == "recovery_phase" for phase, _ in states[:-1])
-        phase_changes = sum(
-            1
-            for index in range(1, len(states))
-            if states[index][0] and states[index - 1][0] and states[index][0] != states[index - 1][0]
-        )
-        distinct_phases = {phase for phase, _ in states if phase}
-
-        if current_phase == "completion_window" and had_completion_before and had_recovery_before and previous_phase != "completion_window":
-            return "reentered_completion_window"
-        if current_phase == "recovery_phase" and had_completion_before:
-            return "recovery_backslide"
-        if len(distinct_phases) >= 3 and phase_changes >= 3:
-            return "milestone_whiplash"
-        if current_phase == "completion_window" and previous_phase == "completion_window":
-            return "steady_closure"
-        if current_phase == "completion_window" and (
-            previous_phase != "completion_window"
-            or (previous_risk in {"watch", "stabilizing", "on_track"} and current_risk == "ready_to_close")
-        ):
-            return "closure_momentum"
-        return ""
+        return shared_goal_milestone_arc_signal(goal_milestone_history)

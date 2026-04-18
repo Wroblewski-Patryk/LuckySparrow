@@ -26,6 +26,10 @@ Last updated: 2026-04-18
 - 2026-04-18: runtime stages emit structured `start/success/failure` logs with
   `event_id`, `trace_id`, stage name, duration, and short summaries through the
   shared scaffold in `app/core/logging.py`.
+- 2026-04-18: goal/task selection and progress-history signal logic now has
+  shared utility owners in `app/utils/goal_task_selection.py` and
+  `app/utils/progress_signals.py`, and runtime heuristics consume those helpers
+  across context, planning, motivation, and reflection.
 
 ## Technical Baseline
 
@@ -81,12 +85,12 @@ Last updated: 2026-04-18
 - Main active objective: harden runtime contracts that future behavior depends
   on before adding more heuristics
 - Top blockers:
-  - goal and milestone signal logic is duplicated across context, motivation,
-    planning, and reflection
   - startup is still on a temporary dual-path schema model: Alembic baseline
     plus startup `create_tables()`
+  - event normalization rules are still too implicit compared with the desired
+    public API boundary
 - Success criteria for this phase:
-  - shared goal and milestone signals have one clear implementation owner
+  - shared goal and milestone signals keep one clear implementation owner
   - runtime stage decisions are observable through structured logs
   - docs, task board, learning journal, and code stay synchronized after each
     slice
@@ -105,6 +109,10 @@ Last updated: 2026-04-18
 - 2026-04-18: runtime now emits structured stage-level logs for `memory_load`
   through `state_refresh`, and regression tests cover both success and failure
   logging paths.
+- 2026-04-18: shared signal extraction group is complete (`PRJ-011..PRJ-013`);
+  heuristic modules were reduced (`context: 801->751`, `planning: 755->676`,
+  `motivation: 560->489`, `reflection: 1362->1318`) with behavior preserved by
+  regression tests.
 
 ## Working Agreements
 

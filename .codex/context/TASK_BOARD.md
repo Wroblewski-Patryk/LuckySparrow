@@ -18,45 +18,26 @@ Last updated: 2026-04-18
 
 ## READY
 
-- [ ] PRJ-011 Extract shared goal/task selection helpers
-  - Status: READY
-  - Group: Shared Signal Engine Extraction
-  - Owner: Backend Builder
-  - Depends on: none
-  - Priority: P1
-  - Files:
-    - `app/agents/context.py`
-    - `app/agents/planning.py`
-    - `app/motivation/engine.py`
-    - `app/utils/`
-  - Done when:
-    - tokenization, priority ranking, task-status ranking, and related-goal selection no longer live in multiple copies
-    - behavior stays unchanged
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
-
-## BACKLOG
-
-- [ ] PRJ-012 Extract shared goal-progress and milestone-history signal helpers
-  - Status: BACKLOG
-  - Group: Shared Signal Engine Extraction
-  - Owner: Backend Builder
-  - Depends on: PRJ-011
-  - Priority: P1
-
-- [ ] PRJ-013 Split oversized heuristic modules after helper extraction
-  - Status: BACKLOG
-  - Group: Shared Signal Engine Extraction
-  - Owner: Backend Builder
-  - Depends on: PRJ-011, PRJ-012
-  - Priority: P2
-
 - [ ] PRJ-015 Tighten the event normalization and public API boundary
-  - Status: BACKLOG
+  - Status: READY
   - Group: Observability And Runtime Honesty
   - Owner: Planner
   - Depends on: none
   - Priority: P2
+  - Files:
+    - `app/core/events.py`
+    - `app/api/routes.py`
+    - `app/api/schemas.py`
+    - `tests/test_event_normalization.py`
+    - `tests/test_api_routes.py`
+  - Done when:
+    - input normalization rules are explicit and test-covered
+    - the public `/event` contract stays small and intentional
+    - debug behavior remains clearly internal
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_event_normalization.py tests/test_api_routes.py`
+
+## BACKLOG
 
 - [ ] PRJ-016 Move startup toward migration-first schema ownership
   - Status: BACKLOG
@@ -96,3 +77,30 @@ Last updated: 2026-04-18
     - related docs or project state mention the new observability surface if it changes repo truth
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py`
+- [x] PRJ-011 Extract shared goal/task selection helpers
+  - Status: DONE
+  - Group: Shared Signal Engine Extraction
+  - Owner: Backend Builder
+  - Depends on: none
+  - Priority: P1
+  - Done when:
+    - tokenization, priority ranking, task-status ranking, and related-goal selection no longer live in multiple copies
+    - behavior stays unchanged
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+- [x] PRJ-012 Extract shared goal-progress and milestone-history signal helpers
+  - Status: DONE
+  - Group: Shared Signal Engine Extraction
+  - Owner: Backend Builder
+  - Depends on: PRJ-011
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py`
+- [x] PRJ-013 Split oversized heuristic modules after helper extraction
+  - Status: DONE
+  - Group: Shared Signal Engine Extraction
+  - Owner: Backend Builder
+  - Depends on: PRJ-011, PRJ-012
+  - Priority: P2
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q`
