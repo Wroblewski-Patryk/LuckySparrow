@@ -49,6 +49,21 @@ Last updated: 2026-04-19
 
 ## DONE
 
+- [x] PRJ-029 Split canonical architecture docs from transitional runtime reality
+  - Status: DONE
+  - Group: Documentation Integrity
+  - Owner: Product Docs
+  - Depends on: PRJ-028
+  - Priority: P2
+  - Result:
+    - `docs/architecture/` now again describes the canonical AION architecture
+      and human-oriented cognitive flow
+    - transitional runtime details were moved into
+      `docs/implementation/runtime-reality.md`
+    - docs index and project context now describe the two-layer documentation
+      model explicitly
+  - Validation:
+    - doc-only change, no automated validation required
 - [x] PRJ-000 Establish Personality-specific agent workflow scaffolding
 - [x] PRJ-001..PRJ-010 Runtime contract, release-smoke, memory, and motivation alignment slices completed and captured in docs and tests
 - [x] PRJ-014 Add a reusable stage-level structured logging scaffold

@@ -25,6 +25,36 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-19 - Canonical architecture docs must stay separate from runtime shortcuts
+- Context: architecture documentation drifted when live runtime implementation
+  details and transport-oriented shortcuts were mixed directly into canonical
+  architecture files.
+- Symptom: the same `docs/architecture/` files tried to describe both the
+  intended human-oriented cognitive order and temporary implementation wiring,
+  which made it unclear whether a statement was architectural intent or current
+  repo behavior.
+- Root cause: implementation reality was documented in the same layer as
+  canonical design, so runtime convenience decisions could silently overwrite
+  the architecture narrative.
+- Guardrail: keep `docs/architecture/` for canonical design only, and place
+  live or transitional runtime details in `docs/implementation/`,
+  `docs/overview.md`, and operations docs.
+- Preferred pattern:
+  - update canonical architecture only when the intended design changed
+  - record implementation shortcuts outside `docs/architecture/`
+  - link both layers clearly from `docs/README.md`
+  - sync `.codex/context/PROJECT_STATE.md` when the documentation model changes
+- Avoid:
+  - using canonical architecture files as a changelog of temporary runtime
+    wiring
+  - silently changing cognitive stage order just because the implementation
+    currently uses a delivery shortcut
+- Evidence:
+  - `docs/architecture/02_architecture.md`
+  - `docs/architecture/15_runtime_flow.md`
+  - `docs/architecture/16_agent_contracts.md`
+  - `docs/implementation/runtime-reality.md`
+
 ### 2026-04-18 - Schema work must validate both migration and startup paths
 - Context: database and runtime tasks while the repository still carries both
   Alembic baseline ownership and a compatibility `create_tables()` startup path.

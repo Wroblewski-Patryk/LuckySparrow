@@ -2,58 +2,64 @@
 
 ## Purpose
 
-This document captures the structured contracts used by the current AION runtime modules.
+This document defines the canonical contracts between AION stages.
 
-It focuses on the contracts that are implemented today, not the larger future agent society described elsewhere in the architecture docs.
+It exists to keep:
+
+- stage boundaries explicit
+- data flow predictable
+- implementation aligned with architecture
+
+These contracts describe cognitive responsibilities.
+Transport- or endpoint-specific envelopes belong outside `docs/architecture/`.
+
+---
+
+## Core Principle
+
+Every stage must:
+
+- receive structured input
+- return structured output
+- own one responsibility
+- avoid hidden side effects
+
+No stage should absorb the responsibilities of another stage.
+
+---
 
 ## Shared Runtime State
 
-The foreground runtime currently passes structured state between stages. Depending on the stage, inputs can include:
+Stages receive only the subset of state they need.
+
+Canonical shared runtime state may include:
 
 ```json
 {
   "event": {},
   "identity": {},
-  "recent_memory": [],
-  "user_profile": {},
-  "user_preferences": {},
-  "user_conclusions": [],
+  "memory": {},
+  "conclusions": [],
   "theta": {},
-  "active_goals": [],
-  "active_tasks": [],
-  "active_goal_milestones": [],
-  "goal_milestone_history": [],
-  "goal_progress_history": [],
+  "goals": [],
+  "tasks": [],
   "perception": {},
   "context": {},
   "motivation": {},
   "role": {},
-  "plan": {}
+  "plan": {},
+  "expression": {},
+  "action_result": {}
 }
 ```
 
-Not every stage receives every field.
-
-## Contract Ownership And Validation
-
-| Contract | Main code owner | Primary validation surface |
-| --- | --- | --- |
-| Event normalization (`Event`) | `app/core/events.py`, `app/api/routes.py` | `tests/test_event_normalization.py`, `tests/test_api_routes.py` |
-| Perception output | `app/agents/perception.py`, `app/core/contracts.py` | `tests/test_perception_agent.py`, `tests/test_runtime_pipeline.py` |
-| Context output | `app/agents/context.py`, `app/core/contracts.py` | `tests/test_context_agent.py`, `tests/test_runtime_pipeline.py` |
-| Motivation output | `app/motivation/engine.py`, `app/core/contracts.py` | `tests/test_motivation_engine.py`, `tests/test_runtime_pipeline.py` |
-| Role output | `app/agents/role.py`, `app/core/contracts.py` | `tests/test_role_agent.py`, `tests/test_runtime_pipeline.py` |
-| Plan output | `app/agents/planning.py`, `app/core/contracts.py` | `tests/test_planning_agent.py`, `tests/test_runtime_pipeline.py` |
-| Expression output | `app/expression/generator.py`, `app/core/contracts.py` | `tests/test_expression_agent.py`, `tests/test_runtime_pipeline.py` |
-| Action delivery and result | `app/core/runtime.py`, `app/core/action.py`, `app/integrations/delivery_router.py`, `app/core/contracts.py` | `tests/test_action_executor.py`, `tests/test_delivery_router.py`, `tests/test_runtime_pipeline.py`, `tests/test_api_routes.py` |
-| Memory record | `app/core/action.py`, `app/memory/repository.py`, `app/core/contracts.py` | `tests/test_action_executor.py`, `tests/test_memory_repository.py`, `tests/test_runtime_pipeline.py` |
-| Reflection durable contract | `app/reflection/worker.py`, `app/memory/repository.py` | `tests/test_reflection_worker.py`, `tests/test_api_routes.py` |
+---
 
 ## Perception Agent
 
 ### Purpose
 
-Interpret the raw normalized event.
+Identify what happened.
 
 ### Input
 
@@ -70,22 +76,21 @@ Interpret the raw normalized event.
   "perception": {
     "event_type": "...",
     "topic": "...",
-    "topic_tags": [],
     "intent": "...",
     "language": "en",
-    "language_source": "explicit_request|message_heuristic|recent_memory|profile",
-    "language_confidence": 0.0,
     "ambiguity": 0.0,
     "initial_salience": 0.0
   }
 }
 ```
 
+---
+
 ## Context Agent
 
 ### Purpose
 
-Compress the current situation into a usable runtime summary.
+Build situational understanding for the current turn.
 
 ### Input
 
@@ -93,14 +98,12 @@ Compress the current situation into a usable runtime summary.
 {
   "event": {},
   "perception": {},
-  "recent_memory": [],
+  "memory": {},
   "conclusions": [],
+  "goals": [],
+  "tasks": [],
   "identity": {},
-  "active_goals": [],
-  "active_tasks": [],
-  "active_goal_milestones": [],
-  "goal_milestone_history": [],
-  "goal_progress_history": []
+  "theta": {}
 }
 ```
 
@@ -117,25 +120,24 @@ Compress the current situation into a usable runtime summary.
 }
 ```
 
-## Motivation Engine
+---
+
+## Motivation Agent
 
 ### Purpose
 
-Score how much the system should care and how urgently it should respond.
+Determine how strongly the system should care.
 
 ### Input
 
 ```json
 {
   "event": {},
-  "perception": {},
   "context": {},
-  "user_preferences": {},
+  "goals": [],
+  "tasks": [],
   "theta": {},
-  "active_goals": [],
-  "active_tasks": [],
-  "goal_milestone_history": [],
-  "goal_progress_history": []
+  "identity": {}
 }
 ```
 
@@ -153,20 +155,22 @@ Score how much the system should care and how urgently it should respond.
 }
 ```
 
-## Role Agent
+---
+
+## Role Selection Agent
 
 ### Purpose
 
-Choose the current behavioral stance.
+Select the behavioral stance for the turn.
 
 ### Input
 
 ```json
 {
   "event": {},
-  "perception": {},
   "context": {},
-  "user_preferences": {},
+  "motivation": {},
+  "identity": {},
   "theta": {}
 }
 ```
@@ -182,27 +186,24 @@ Choose the current behavioral stance.
 }
 ```
 
+---
+
 ## Planning Agent
 
 ### Purpose
 
-Turn the current turn into a response or action plan.
+Decide what should happen next.
 
 ### Input
 
 ```json
 {
-  "event": {},
   "context": {},
   "motivation": {},
   "role": {},
-  "user_preferences": {},
-  "theta": {},
-  "active_goals": [],
-  "active_tasks": [],
-  "active_goal_milestones": [],
-  "goal_milestone_history": [],
-  "goal_progress_history": []
+  "goals": [],
+  "tasks": [],
+  "theta": {}
 }
 ```
 
@@ -219,24 +220,24 @@ Turn the current turn into a response or action plan.
 }
 ```
 
+---
+
 ## Expression Agent
 
 ### Purpose
 
-Prepare the user-visible reply before the action layer delivers it.
+Form the outward communication of the turn.
 
 ### Input
 
 ```json
 {
   "event": {},
-  "perception": {},
   "context": {},
-  "plan": {},
-  "role": {},
   "motivation": {},
+  "role": {},
+  "plan": {},
   "identity": {},
-  "user_preferences": {},
   "theta": {}
 }
 ```
@@ -254,66 +255,20 @@ Prepare the user-visible reply before the action layer delivers it.
 }
 ```
 
-## Action Layer
+---
+
+## Action Layer Contract
 
 ### Purpose
 
-Perform side effects and runtime persistence only after planning has been decided.
-
-### Expression-To-Action Handoff
-
-Runtime now creates an explicit `ActionDelivery` contract after expression:
-
-```json
-{
-  "delivery": {
-    "message": "...",
-    "tone": "...",
-    "channel": "api|telegram",
-    "language": "en",
-    "chat_id": "optional channel target"
-  }
-}
-```
-
-### Input
-
-```json
-{
-  "plan": {},
-  "delivery": {}
-}
-```
-
-### Output
-
-```json
-{
-  "action_result": {
-    "status": "success|fail|noop",
-    "actions": [],
-    "notes": "..."
-  }
-}
-```
-
-## Memory Persistence Contract
-
-### Purpose
-
-Persist the completed episode and lightweight explicit user-state updates.
+Execute the required side effects.
 
 ### Input
 
 ```json
 {
   "event": {},
-  "perception": {},
-  "context": {},
-  "motivation": {},
-  "role": {},
   "plan": {},
-  "action_result": {},
   "expression": {}
 }
 ```
@@ -322,78 +277,122 @@ Persist the completed episode and lightweight explicit user-state updates.
 
 ```json
 {
+  "action_result": {
+    "status": "success|partial|fail|noop",
+    "actions": [],
+    "notes": "..."
+  }
+}
+```
+
+---
+
+## Memory Write Contract
+
+### Purpose
+
+Persist the finished episode after the turn.
+
+### Input
+
+```json
+{
+  "event": {},
+  "context": {},
+  "role": {},
+  "motivation": {},
+  "plan": {},
+  "expression": {},
+  "action_result": {}
+}
+```
+
+### Output
+
+```json
+{
   "memory_record": {
-    "id": 0,
-    "event_id": "...",
-    "timestamp": "ISO-8601",
     "summary": "...",
     "importance": 0.0
   }
 }
 ```
 
-## Reflection Worker
+---
+
+## Reflection Agent
 
 ### Purpose
 
-Consolidate lightweight semantic state asynchronously after foreground completion.
+Analyze patterns across memory and update slower-moving state.
 
-### Durable trigger input
-
-```json
-{
-  "user_id": "...",
-  "event_id": "..."
-}
-```
-
-### Reflection scope inputs
+### Input
 
 ```json
 {
   "recent_memory": [],
   "existing_conclusions": [],
   "theta": {},
-  "active_goals": [],
-  "active_tasks": [],
-  "goal_progress_history": [],
-  "goal_milestone_history": []
+  "goals": [],
+  "tasks": []
 }
 ```
 
-### Effective outputs
-
-Reflection currently persists lightweight updates such as:
-
-- semantic conclusions in `aion_conclusion`
-- theta updates in `aion_theta`
-- goal progress snapshots in `aion_goal_progress`
-- milestone objects in `aion_goal_milestone`
-- milestone history in `aion_goal_milestone_history`
-
-## Runtime Result Contract
-
-`POST /event` now returns a compact public response by default:
+### Output
 
 ```json
 {
-  "event_id": "...",
-  "trace_id": "...",
-  "source": "api|telegram",
-  "reply": {
-    "message": "...",
-    "language": "en",
-    "tone": "...",
-    "channel": "api|telegram"
-  },
-  "runtime": {
-    "role": "...",
-    "motivation_mode": "respond|ignore|analyze|execute|clarify",
-    "action_status": "success|fail|noop",
-    "reflection_triggered": true
+  "reflection": {
+    "new_conclusions": [],
+    "updated_conclusions": [],
+    "theta_update": {},
+    "relation_update": {},
+    "progress_update": {}
   }
 }
 ```
 
-`POST /event?debug=true` includes the full internal `RuntimeResult` payload for
-runtime debugging.
+---
+
+## Contract Rules
+
+1. every stage returns only its own output field
+2. no stage returns the full system state as its main output
+3. no stage except Action performs side effects
+4. expression shapes communication before action executes it
+5. reflection updates future state asynchronously
+
+---
+
+## Validation
+
+Each contract should be:
+
+- schema-valid
+- minimal
+- explicit
+- testable
+
+---
+
+## Common Mistakes
+
+- mixing cognition with side effects
+- returning too much state from one stage
+- letting action decide message content
+- letting expression mutate durable state
+- letting reflection silently rewrite identity
+
+---
+
+## Final Principle
+
+Contracts are what keep AION coherent while the implementation evolves.
+
+If contracts are clear:
+
+- the runtime is predictable
+- testing is straightforward
+- refactors stay safe
+
+If contracts are unclear, architectural drift becomes invisible.

@@ -6,16 +6,16 @@ This document defines how AION manages environment variables and configuration.
 
 Proper configuration ensures:
 
-- security  
-- flexibility  
-- scalability  
-- clean deployment  
+- security
+- flexibility
+- safe deployment
+- clean separation between code and environment
 
 Without it:
 
-- secrets leak  
-- code becomes hardcoded  
-- environments break  
+- secrets leak
+- runtime behavior becomes inconsistent
+- environments drift
 
 ---
 
@@ -25,24 +25,26 @@ Configuration must be external.
 
 Never hardcode:
 
-- API keys  
-- database credentials  
-- tokens  
-- environment-specific values  
+- API keys
+- database credentials
+- tokens
+- deployment-specific flags
 
 ---
 
 ## Environment File
 
-Use `.env` file for local development.
+Use `.env` for local development.
 
 Example:
 
-OPENAI_API_KEY=your_openai_key  
-TELEGRAM_BOT_TOKEN=your_telegram_token  
-DATABASE_URL=postgresql://user:password@db:5432/aion  
-APP_ENV=development  
-APP_PORT=8000  
+```text
+OPENAI_API_KEY=your_openai_key
+TELEGRAM_BOT_TOKEN=your_telegram_token
+DATABASE_URL=postgresql://user:password@db:5432/aion
+APP_ENV=development
+APP_PORT=8000
+```
 
 ---
 
@@ -50,127 +52,102 @@ APP_PORT=8000
 
 ### Core
 
-OPENAI_API_KEY  
-Used for LLM calls  
+`OPENAI_API_KEY`
 
----
+Used for LLM calls.
 
-TELEGRAM_BOT_TOKEN  
-Used for Telegram bot  
+`TELEGRAM_BOT_TOKEN`
 
----
+Used for Telegram integration.
 
-DATABASE_URL  
-Used for PostgreSQL connection  
+`DATABASE_URL`
 
----
+Used for PostgreSQL connection.
 
-APP_ENV  
-Defines environment:
+`APP_ENV`
 
-- development  
-- staging  
-- production  
+Defines runtime environment:
 
----
+- development
+- staging
+- production
 
-APP_PORT  
-Port for FastAPI server  
+`APP_PORT`
+
+Defines the FastAPI port.
 
 ---
 
 ## Optional Variables
 
-REDIS_URL  
-Used if Redis is added  
+`LOG_LEVEL`
 
----
-
-LOG_LEVEL  
 Options:
 
-- debug  
-- info  
-- warning  
-- error  
+- debug
+- info
+- warning
+- error
 
----
+`STARTUP_SCHEMA_MODE`
 
-STARTUP_SCHEMA_MODE  
-Controls schema bootstrap strategy on app startup.
-
-Allowed values:
-
-- migrate (default)
-- create_tables (compatibility fallback)
-
----
-
-EVENT_DEBUG_ENABLED  
-Controls whether `POST /event?debug=true` can return the full internal runtime
-payload.
-
-Default:
-
-- environment-aware default:
-  - non-production: enabled
-  - production: disabled unless explicitly set
-
----
-
-PRODUCTION_POLICY_ENFORCEMENT
-Controls production startup behavior when runtime policy mismatches are detected
-(for example `EVENT_DEBUG_ENABLED=true` or
-`STARTUP_SCHEMA_MODE=create_tables`).
+Controls schema bootstrap strategy on startup.
 
 Allowed values:
 
-- warn (default)
+- migrate
+- create_tables
+
+`EVENT_DEBUG_ENABLED`
+
+Controls whether debug runtime payloads may be exposed through the event API.
+
+`PRODUCTION_POLICY_ENFORCEMENT`
+
+Controls how production policy mismatches are handled.
+
+Allowed values:
+
+- warn
 - strict
 
-Behavior:
+`REFLECTION_INTERVAL`
 
-- `warn`: emit startup warnings only
-- `strict`: block startup in production on policy mismatch
+Controls background reflection cadence when such scheduling is enabled.
 
----
+`PROACTIVE_ENABLED`
 
-REFLECTION_INTERVAL  
-Controls background loop frequency  
-
----
-
-PROACTIVE_ENABLED  
-Enable/disable proactive system  
+Enables or disables proactive system behavior when that subsystem exists.
 
 ---
 
 ## Configuration Loading
 
-Use a config loader in Python.
+Use a central config loader in Python.
 
-Example:
+Recommended shape:
 
-- pydantic settings  
-- dotenv  
+- pydantic settings
+- environment variable loading
+- startup-time validation
 
-Config should be loaded once at startup.
+Config should be loaded once at startup and passed through the app as a shared runtime object.
 
 ---
 
 ## Config Structure (Example)
 
-config:
+Logical groups:
 
-- api_keys  
-- database  
-- runtime  
-- features  
+- api_keys
+- database
+- runtime
+- features
+- policy
 
----
+Example object:
 
-## Example Config Object
-
+```json
 {
   "api_keys": {
     "openai": "...",
@@ -181,36 +158,41 @@ config:
   },
   "runtime": {
     "env": "development",
-    "port": 8000
+    "port": 8000,
+    "log_level": "info"
+  },
+  "policy": {
+    "startup_schema_mode": "migrate",
+    "event_debug_enabled": true,
+    "production_policy_enforcement": "warn"
   }
 }
+```
 
 ---
 
 ## Environment Separation
 
-Different environments must have different configs.
+Different environments must use different configuration values.
 
 ### Development
 
-- local DB  
-- debug logs  
-- test keys  
-
----
+- local database
+- local secrets
+- verbose logging
+- permissive debugging
 
 ### Staging
 
-- production-like setup  
-- limited access  
-
----
+- production-like configuration
+- safe but realistic validation path
 
 ### Production
 
-- real keys  
-- secure environment  
-- optimized settings  
+- real secrets
+- explicit policy posture
+- minimal debug exposure
+- safe startup behavior
 
 ---
 
@@ -218,15 +200,15 @@ Different environments must have different configs.
 
 Never:
 
-- commit `.env` to Git  
-- expose keys in logs  
-- share credentials  
+- commit `.env` to Git
+- expose secrets in logs
+- place secrets in docs or sample payloads
 
 Use:
 
-- .env locally  
-- environment variables in VPS  
-- secret managers in future  
+- `.env` locally
+- environment variables in deployment
+- secret management tooling when infrastructure matures
 
 ---
 
@@ -234,59 +216,67 @@ Use:
 
 Pass variables via:
 
-- docker-compose.yml  
-- environment section  
+- `docker-compose.yml`
+- deployment environment configuration
 
 Example:
 
+```yaml
 environment:
-- OPENAI_API_KEY=${OPENAI_API_KEY}
-- DATABASE_URL=${DATABASE_URL}
+  - OPENAI_API_KEY=${OPENAI_API_KEY}
+  - DATABASE_URL=${DATABASE_URL}
+```
 
 ---
 
 ## Validation
 
-At startup, system must:
+At startup, the system should:
 
-- check required variables  
-- fail fast if missing  
-- log clear error  
+- validate required variables
+- fail fast when critical config is missing
+- expose only safe policy visibility
+- log clear configuration errors
 
 ---
 
 ## Default Values
 
-Only safe defaults allowed:
+Only safe defaults should exist for:
 
-- port  
-- log level  
+- port
+- log level
+- non-secret runtime behavior
 
-Never default:
+Never provide silent defaults for:
 
-- API keys  
-- database credentials  
+- API keys
+- database credentials
+- externally sensitive production behavior
 
 ---
 
 ## Feature Flags
 
-Use config to enable/disable features.
+Configuration may enable or disable subsystems such as:
 
-Examples:
+- reflection loop
+- proactive behavior
+- debug payload exposure
 
-- proactive system  
-- reflection loop  
-- debug mode  
+Feature flags must remain explicit and discoverable.
 
 ---
 
 ## Runtime Access
 
-All modules should access config through:
+All modules should access configuration through:
 
-- central config object  
-- not directly from environment  
+- a central config object
+- injected app state
+- typed runtime settings
+
+Not by reading environment variables ad hoc throughout the codebase.
 
 ---
 
@@ -294,42 +284,29 @@ All modules should access config through:
 
 Config should define:
 
-- log level  
-- output format  
-- debug mode  
-
----
-
-## Example Usage
-
-Instead of:
-
-hardcoded API key  
-
-Use:
-
-config.api_keys.openai  
+- log level
+- structured logging posture
+- debug exposure posture
+- production policy handling
 
 ---
 
 ## Future Extensions
 
-- config versioning  
-- dynamic config reload  
-- remote config service  
+- config versioning
+- remote config service
+- dynamic reload for selected flags
 
 ---
 
 ## Final Principle
 
-Configuration separates system from environment.
+Configuration separates the system from its environment.
 
 If config is clean:
 
-- deployment is easy  
-- scaling is easy  
-- debugging is easier  
+- deployment is safer
+- runtime policy is inspectable
+- debugging is easier
 
-If config is messy:
-
-- everything becomes fragile
+If config is messy, the whole runtime becomes fragile.

@@ -1,162 +1,309 @@
 # Architecture
 
+## Purpose
+
+This document defines the canonical AION architecture.
+
+It describes the intended cognitive model of the system:
+
+- how AION receives a stimulus
+- how it forms understanding
+- how it prepares expression
+- how it performs action
+- how it learns over time
+
+Temporary implementation details belong outside `docs/architecture/`.
+
+---
+
 ## Core Model
 
-AION is an event-driven backend that keeps state across turns.
+AION is a stateful event-driven cognitive runtime.
 
-The architecture still follows the same high-level loop:
+It does not start from zero on each turn.
+Every new event is processed through existing identity, memory, and adaptive state.
 
-`state -> process -> action boundary -> memory -> update -> next event`
+The canonical loop is:
 
-The important rule is not that every stage is already "finished", but that responsibilities stay separated while the runtime grows.
+`state -> event -> interpretation -> expression -> action -> memory -> reflection -> updated state`
 
-## Current Runtime Architecture
-
-The implemented foreground runtime is:
-
-`event -> state load -> identity -> perception -> context -> motivation -> role -> planning -> expression -> action -> memory -> reflection enqueue`
-
-The intended long-term architecture is still described as:
-
-`event -> perception -> context -> motivation -> role -> planning -> action -> expression -> memory -> reflection`
-
-Current implementation note:
-
-- `expression` is currently computed before `action`
-- runtime now creates an explicit `ActionDelivery` handoff from expression into
-  action
-- only `action` performs side effects
-- this is a runtime convenience so integrations can reuse a prepared message payload
+---
 
 ## Main Components
 
-The live system already has these concrete parts:
+1. Identity
+2. Memory System
+3. Conscious Loop
+4. Subconscious Loop
+5. Motivation Engine
+6. Role and Skill Layer
+7. Planning Layer
+8. Expression Layer
+9. Action Layer
+10. Infrastructure
 
-1. API layer
-2. Identity snapshot builder
-3. Episodic and semantic memory repository
-4. Conscious runtime loop
-5. Reflection worker and durable queue
-6. Goal and task state
-7. Lightweight milestone manager
-8. Action layer
-9. Expression layer
-10. Infrastructure and observability
+---
 
-## Stage Ownership And Traceability
+## Execution Model
 
-To keep architecture drift visible, each runtime stage has one primary code
-owner and one primary regression surface:
+AION operates through two cooperating loops.
 
-| Stage | Main code owner | Primary validation surface |
-| --- | --- | --- |
-| Event normalization | `app/core/events.py`, `app/api/routes.py` | `tests/test_event_normalization.py`, `tests/test_api_routes.py` |
-| State load and identity | `app/core/runtime.py`, `app/identity/service.py` | `tests/test_runtime_pipeline.py` |
-| Perception | `app/agents/perception.py` | `tests/test_perception_agent.py`, `tests/test_runtime_pipeline.py` |
-| Context | `app/agents/context.py` | `tests/test_context_agent.py`, `tests/test_runtime_pipeline.py` |
-| Motivation | `app/motivation/engine.py` | `tests/test_motivation_engine.py`, `tests/test_runtime_pipeline.py` |
-| Role | `app/agents/role.py` | `tests/test_role_agent.py`, `tests/test_runtime_pipeline.py` |
-| Planning | `app/agents/planning.py` | `tests/test_planning_agent.py`, `tests/test_runtime_pipeline.py` |
-| Expression | `app/expression/generator.py` | `tests/test_expression_agent.py`, `tests/test_runtime_pipeline.py` |
-| Action delivery and side effects | `app/core/runtime.py`, `app/core/action.py`, `app/integrations/delivery_router.py` | `tests/test_action_executor.py`, `tests/test_delivery_router.py`, `tests/test_runtime_pipeline.py`, `tests/test_api_routes.py` |
-| Memory persistence | `app/core/action.py`, `app/memory/repository.py` | `tests/test_action_executor.py`, `tests/test_memory_repository.py` |
-| Reflection enqueue and worker | `app/core/runtime.py`, `app/reflection/worker.py`, `app/memory/repository.py` | `tests/test_reflection_worker.py`, `tests/test_api_routes.py`, `tests/test_runtime_pipeline.py` |
+The conscious loop handles real-time turns:
 
-## Conscious Loop
+- receives an event
+- interprets it
+- selects a role
+- prepares a response or action
+- executes the required side effects
+- writes memory
 
-The conscious loop handles real-time user-facing work:
+The subconscious loop handles delayed cognition:
 
-- normalize input into an event
-- load lightweight state
-- interpret the event
-- build context
-- score motivation
-- choose a role
-- produce a plan
-- prepare the reply
-- execute side effects
-- persist the episode
+- analyzes stored episodes
+- detects recurring patterns
+- updates conclusions
+- adjusts theta and relation state
 
-This loop is synchronous from the user's point of view, even when some stages use OpenAI.
+---
 
-## Reflection Loop
+## Unified Cognitive Pipeline
 
-Reflection is no longer only a design idea. The repo now has a real app-local background worker with a durable Postgres-backed queue.
+The canonical foreground pipeline is:
 
-Its current job is to consolidate lightweight state such as:
+`event -> perception -> context -> motivation -> role -> planning -> expression -> action -> memory -> reflection`
 
-- semantic user preferences
-- theta orientation
-- goal execution state
-- goal progress snapshots and trends
-- milestone state, history, and operational signals
+Each stage has one responsibility:
 
-It is still intentionally lightweight:
+- perception identifies what happened
+- context explains what it means now
+- motivation scores importance and urgency
+- role selects behavioral stance
+- planning decides what should happen next
+- expression shapes outward communication
+- action executes side effects
+- memory stores the episode
+- reflection improves future behavior
 
-- in-process rather than external
-- retry-based rather than scheduler-heavy
-- semantic and heuristic rather than vector or graph-driven
+---
 
-## State Model
+## Stage Responsibilities
 
-The runtime now combines several kinds of state:
+### Perception
 
-- identity and durable profile state
-- recent episodic memory
-- semantic conclusions
-- lightweight theta
-- active goals and tasks
-- goal progress history
-- active milestone objects and milestone history
+Recognize the event.
 
-This is enough to make the runtime meaningfully stateful without pretending that a full autonomous agent society already exists.
+Questions answered:
+
+- what happened?
+- what kind of event is this?
+- what is the likely intent?
+
+### Context
+
+Build situational understanding.
+
+Questions answered:
+
+- what does this event mean?
+- what background matters now?
+- what memories or goals are relevant?
+
+### Motivation
+
+Determine how strongly the system should care.
+
+Questions answered:
+
+- how important is this?
+- how urgent is this?
+- should AION respond, clarify, analyze, execute, or ignore?
+
+### Role
+
+Select the behavioral mode for this turn.
+
+Questions answered:
+
+- what stance best fits the situation?
+- how should identity be expressed here?
+
+### Planning
+
+Turn understanding into intended next steps.
+
+Questions answered:
+
+- what should happen next?
+- what needs response?
+- what needs action?
+
+### Expression
+
+Form the outward message or communicative structure.
+
+Questions answered:
+
+- what should be said?
+- in what tone?
+- in what structure or language?
+
+### Action
+
+Perform side effects in the system or outside world.
+
+Questions answered:
+
+- what must be written, sent, updated, or triggered?
+- did execution succeed?
+
+### Memory
+
+Store the finished episode for future retrieval and learning.
+
+### Reflection
+
+Analyze patterns across episodes and update future behavior.
+
+---
+
+## Event Contract
+
+All inputs must be normalized into a shared event shape before deeper cognition.
+
+Minimum canonical structure:
+
+```json
+{
+  "event_id": "uuid",
+  "source": "telegram|api|system|scheduler",
+  "subsource": "...",
+  "timestamp": "ISO-8601",
+  "payload": {},
+  "meta": {
+    "user_id": "...",
+    "trace_id": "..."
+  }
+}
+```
+
+---
+
+## Runtime Node Contract
+
+Each processing node must:
+
+- receive structured input
+- return structured output
+- avoid hidden side effects
+- avoid doing another stage's work
+
+Canonical shared runtime state can include:
+
+```json
+{
+  "event": {},
+  "identity": {},
+  "memory": {},
+  "theta": {},
+  "perception": {},
+  "context": {},
+  "motivation": {},
+  "role": {},
+  "plan": {},
+  "expression": {},
+  "action_result": {}
+}
+```
+
+Not every stage uses every field.
+
+---
 
 ## Action Boundary
 
-The action boundary remains the architectural guardrail:
+The action boundary is a non-negotiable architectural rule.
 
-- only the action layer performs side effects
-- reasoning stages prepare structure and intent
-- memory and reflection updates are persisted through controlled runtime paths rather than ad hoc stage mutation
+Only the Action layer may:
 
-This is one of the most important constraints in the repo and should survive future refactors.
+- write to persistent storage
+- call external APIs
+- send outbound messages
+- modify system state outside the local reasoning object
+- trigger external or background execution
+
+Reasoning stages may prepare intent, but they may not perform side effects.
+
+---
+
+## Expression Layer
+
+Expression is distinct from action.
+
+Expression decides:
+
+- wording
+- tone
+- structure
+- channel adaptation
+
+Action decides:
+
+- what is executed
+- where it is delivered
+- what is persisted or triggered
+
+This mirrors the intended human-like flow from stimulus to expression and then to action.
+
+---
 
 ## Observability
 
-The current architecture is designed to stay inspectable while it evolves.
+Architecture must remain inspectable.
 
-Today that means:
+Core observability expectations:
 
-- structured `RuntimeResult` responses from `POST /event`
-- per-stage `stage_timings_ms`
-- reflection queue visibility in `GET /health`
-- runtime logging keyed by `event_id` and `trace_id`
+- event and trace identifiers
+- per-stage timing
+- structured stage outcomes
+- failure visibility
+- runtime policy visibility
 
-## Infrastructure Reality
+Without observability, architecture degrades into guesswork.
 
-The live repo currently uses:
+---
 
-- FastAPI
-- SQLAlchemy async with PostgreSQL
-- optional OpenAI Responses API usage
-- Telegram Bot API integration
-- Docker Compose locally
-- Coolify-targeted deployment on a VPS
+## Deployment Model
 
-Still planned rather than implemented:
+The long-term deployment shape remains:
 
-- vector memory with `pgvector`
-- LangGraph or a similar external orchestrator
-- a separate reflection worker service
-- richer relation and proactive subsystems
+- FastAPI as API boundary
+- PostgreSQL as durable state
+- background reflection execution
+- containerized deployment
 
-## Architectural Principle
+Supporting technologies may evolve, but the cognitive architecture should remain stable.
 
-The repo should keep making the architecture more real without pretending the later phases are already done.
+---
 
-That means:
+## Architectural Principles
 
-- document current behavior honestly
-- keep future shape visible
-- surface gaps explicitly when code and architecture differ
-- prefer small, reversible slices over broad rewrites
+- keep stage responsibilities explicit
+- keep side effects controlled
+- preserve identity continuity
+- let memory influence future behavior
+- keep reflection asynchronous to foreground interaction
+- prefer small, inspectable runtime contracts
+
+---
+
+## Final Principle
+
+Architecture is the system's cognitive spine.
+
+If the architectural order is clear:
+
+- implementation can evolve safely
+- debugging stays possible
+- future capability can grow without chaos
+
+If the architectural order drifts, the system stops being coherent.

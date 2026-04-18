@@ -6,9 +6,9 @@ The motivation engine determines what matters, how much it matters, and what the
 
 Without motivation:
 
-- everything is equally important  
-- decisions become random  
-- behavior becomes flat  
+- everything is equally important
+- decisions become random
+- behavior becomes flat
 
 Motivation gives direction to cognition.
 
@@ -22,53 +22,61 @@ Motivation is functional prioritization.
 
 It answers:
 
-- is this important?  
-- is this urgent?  
-- should I act now?  
-- should I ignore it?  
-- should I investigate further?  
+- is this important?
+- is this urgent?
+- should AION respond?
+- should AION clarify before acting?
+- should AION execute something?
+- should AION ignore this?
 
 ---
 
 ## Base Model
 
-motivation = f(importance, urgency, context, goals, memory)
+`motivation = f(importance, urgency, context, goals, memory, theta)`
 
 ---
 
 ## Key Parameters
 
-- importance  
-- urgency  
-- valence  
-- arousal  
-- goal relevance  
-- uncertainty  
-- risk  
+- importance
+- urgency
+- valence
+- arousal
+- goal relevance
+- uncertainty
+- risk
 
 ---
 
 ## Definitions
 
 ### Importance
+
 How much the event matters overall.
 
 ### Urgency
+
 How quickly action is required.
 
 ### Valence
-Positive / negative / neutral nature.
+
+Positive, negative, or neutral character of the event.
 
 ### Arousal
+
 Level of activation or intensity.
 
 ### Goal Relevance
+
 Connection to active goals.
 
 ### Uncertainty
+
 How unclear the situation is.
 
 ### Risk
+
 Potential negative outcome.
 
 ---
@@ -77,11 +85,11 @@ Potential negative outcome.
 
 A simple functional model:
 
-- Reward → positive outcome  
-- Gain → opportunity  
-- Danger → threat  
+- Reward -> positive outcome
+- Gain -> opportunity
+- Danger -> threat
 
-This helps bias behavior.
+This helps bias behavior without making motivation arbitrary.
 
 ---
 
@@ -89,6 +97,7 @@ This helps bias behavior.
 
 Example:
 
+```json
 {
   "importance": 0.8,
   "urgency": 0.5,
@@ -96,20 +105,27 @@ Example:
   "arousal": 0.6,
   "mode": "respond"
 }
+```
 
 ---
 
 ## Action Tendencies
 
-Motivation should map to actions:
+The motivation layer should ultimately resolve to one of the shared operating modes:
 
-- act_now  
-- respond  
-- investigate  
-- defer  
-- ignore  
-- escalate  
-- initiate  
+- `respond`
+- `ignore`
+- `analyze`
+- `execute`
+- `clarify`
+
+Meaning:
+
+- `respond` = reply is needed
+- `ignore` = no meaningful response or action is needed
+- `analyze` = deeper reasoning is needed before commitment
+- `execute` = action-oriented handling is needed
+- `clarify` = the system should ask for missing or ambiguous information
 
 ---
 
@@ -117,21 +133,21 @@ Motivation should map to actions:
 
 Examples:
 
-High urgency + high risk → direct, fast response  
-Low urgency + high uncertainty → exploration  
-High reward → encouraging behavior  
+- high urgency plus high risk -> direct, fast handling
+- low urgency plus high uncertainty -> analysis or clarification
+- high reward plus clear path -> constructive response or execution
 
 ---
 
 ## Motivation and Memory
 
-Higher motivation → higher memory importance
+Higher motivation should generally increase memory importance.
 
 Important events:
 
-- are stored more strongly  
-- are retrieved more often  
-- influence future decisions  
+- are stored more strongly
+- are retrieved more often
+- influence future decisions more clearly
 
 ---
 
@@ -141,23 +157,28 @@ Theta modifies how motivation is expressed.
 
 Example:
 
-- high directness → sharper responses  
-- high emotional reactivity → stronger reactions  
+- higher directness -> sharper responses
+- higher emotional reactivity -> stronger activation
+- stronger execution bias -> more action-oriented handling
 
 ---
 
 ## Computation Strategy
 
-Use hybrid approach:
+Use a hybrid approach:
 
-Deterministic:
-- urgency  
-- repetition  
-- risk  
+Deterministic inputs:
 
-LLM:
-- context interpretation  
-- subtle meaning  
+- urgency
+- repetition
+- risk
+- goal relevance
+
+Higher-level interpretation:
+
+- context meaning
+- ambiguity
+- subtle social or behavioral cues
 
 ---
 
@@ -165,11 +186,11 @@ LLM:
 
 Motivation exists to prevent randomness.
 
-System must:
+The system must:
 
-- prioritize  
-- choose  
-- act intentionally  
+- prioritize
+- choose
+- act intentionally
 
 ---
 
@@ -177,9 +198,9 @@ System must:
 
 Motivation must not:
 
-- overreact to single event  
-- amplify noise  
-- destabilize identity  
+- overreact to a single event
+- amplify noise
+- destabilize identity
 
 ---
 
@@ -187,9 +208,9 @@ Motivation must not:
 
 Motivation must decide:
 
-- should respond or not  
-- how strong response should be  
-- what type of action  
+- whether a response is needed
+- how strong the response posture should be
+- which shared mode best fits the turn
 
 ---
 
@@ -201,4 +222,4 @@ Motivation transforms:
 
 into
 
-"this is what matters and what to do"
+"this is what matters and how strongly the system should care"

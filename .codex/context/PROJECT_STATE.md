@@ -54,6 +54,10 @@ Last updated: 2026-04-19
   lifespan-level regression test that verifies block-before-database-init.
 - 2026-04-19: startup strict-policy fail-fast lifecycle coverage now spans both
   mismatch families (debug exposure and schema compatibility mode).
+- 2026-04-19: documentation now explicitly separates canonical architecture in
+  `docs/architecture/` from transitional implementation reality in
+  `docs/implementation/runtime-reality.md`, so human-oriented design intent can
+  stay stable while runtime details remain searchable.
 
 ## Technical Baseline
 
@@ -179,6 +183,10 @@ Last updated: 2026-04-19
 - 2026-04-19: `PRJ-028` is complete: strict startup-policy lifecycle tests now
   cover both debug and schema mismatch paths, confirming fail-fast behavior
   before database initialization side effects.
+- 2026-04-19: architecture docs were realigned so `docs/architecture/` again
+  describes the canonical cognitive flow, while runtime-delivery shortcuts,
+  live storage names, and policy details were moved into
+  `docs/implementation/runtime-reality.md` and linked from the docs index.
 
 ## Working Agreements
 
@@ -222,3 +230,4 @@ Last updated: 2026-04-19
 
 - Add only if the repository truly needs them.
 - Record their canonical paths here once they exist.
+- `docs/implementation/runtime-reality.md`

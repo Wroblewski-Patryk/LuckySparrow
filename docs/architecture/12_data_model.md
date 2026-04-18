@@ -2,16 +2,16 @@
 
 ## Purpose
 
-This document defines the core data structure for AION.
+This document defines the canonical data model of AION.
 
 The goal is to support:
 
-- memory  
-- identity  
-- adaptation  
-- decision making  
+- memory
+- identity
+- adaptation
+- decision making
 
-Without proper data structure, AION cannot function as a persistent system.
+Without proper structure, AION cannot function as a persistent cognitive system.
 
 ---
 
@@ -21,198 +21,189 @@ Data must reflect cognition.
 
 If the system:
 
-- remembers  
-- learns  
-- adapts  
+- remembers
+- learns
+- adapts
 
-then the database must support those operations.
+then the data model must support those operations explicitly.
 
 ---
 
-## Core Tables
+## Core Entities
 
 ### users
 
-Stores system owner.
+Stores the owner or user identity root.
 
 Fields:
 
-- id  
-- created_at  
-- updated_at  
-- name  
+- id
+- created_at
+- updated_at
+- name
 
----
+### identity
 
-### aion_identity
-
-Stores identity definition.
+Stores the stable identity definition.
 
 Fields:
 
-- id  
-- user_id  
-- mission  
-- values  
-- behavior_rules  
-- created_at  
-- updated_at  
+- id
+- user_id
+- mission
+- values
+- behavior_rules
+- created_at
+- updated_at
 
----
-
-### aion_theta
+### theta
 
 Stores adaptive parameters.
 
 Fields:
 
-- id  
-- user_id  
-- emotional  
-- display  
-- learning  
-- cognitive  
-- updated_at  
+- id
+- user_id
+- emotional
+- display
+- learning
+- cognitive
+- updated_at
 
----
+### episodic_memory
 
-### aion_memory
-
-Stores episodic memory.
+Stores episode history.
 
 Fields:
 
-- id  
-- user_id  
-- event_id  
-- timestamp  
-- summary  
-- context  
-- role  
-- plan  
-- result  
-- importance  
+- id
+- user_id
+- event_id
+- timestamp
+- summary
+- context
+- role
+- plan
+- result
+- importance
 
----
+### conclusions
 
-### aion_conclusions
-
-Stores learned patterns.
+Stores learned patterns and semantic summaries.
 
 Fields:
 
-- id  
-- user_id  
-- type  
-- content  
-- confidence  
-- created_at  
-- updated_at  
-
----
+- id
+- user_id
+- type
+- content
+- confidence
+- created_at
+- updated_at
 
 ### goals
 
-Stores goals.
+Stores long-lived direction.
 
 Fields:
 
-- id  
-- user_id  
-- name  
-- description  
-- priority  
-- status  
-
----
+- id
+- user_id
+- name
+- description
+- priority
+- status
 
 ### tasks
 
-Stores tasks.
+Stores actionable work linked to goals when possible.
 
 Fields:
 
-- id  
-- user_id  
-- goal_id  
-- name  
-- status  
-- priority  
-
----
+- id
+- user_id
+- goal_id
+- name
+- status
+- priority
 
 ### metrics
 
-Stores measurable data.
+Stores measurable runtime or behavioral data.
 
 Fields:
 
-- id  
-- user_id  
-- name  
-- value  
-- timestamp  
+- id
+- user_id
+- name
+- value
+- timestamp
 
 ---
 
 ## Relationships
 
-- user → identity (1:1)  
-- user → theta (1:1)  
-- user → memory (1:N)  
-- user → conclusions (1:N)  
-- user → goals (1:N)  
-- goals → tasks (1:N)  
+- user -> identity (1:1)
+- user -> theta (1:1)
+- user -> episodic_memory (1:N)
+- user -> conclusions (1:N)
+- user -> goals (1:N)
+- goals -> tasks (1:N)
 
 ---
 
 ## Storage
 
-- PostgreSQL for structured data  
-- pgvector for semantic search  
+The canonical model requires durable structured storage.
+
+It may later be extended with:
+
+- vector retrieval
+- relation graphs
+- richer memory-link structures
+
+Those extensions should not replace the core entities above.
 
 ---
 
 ## Memory Priority
 
-Not all data is equal.
+Not all stored data is equal.
 
-Each memory should have:
+Each retrievable memory should preserve:
 
-- importance  
-- relevance  
-- recency  
+- importance
+- relevance
+- recency
 
-This controls retrieval.
-
----
-
-## Minimal MVP Tables
-
-- users  
-- identity  
-- theta  
-- memory  
-- conclusions  
-- goals  
-- tasks  
+These signals influence retrieval quality.
 
 ---
 
-## Optional Tables (Future)
+## Minimal MVP Entities
 
-- relation_notes  
-- event_logs  
-- memory_links  
-- theta_history  
+- users
+- identity
+- theta
+- episodic_memory
+- conclusions
+
+Goals and tasks may be introduced early, but the minimal architecture only requires enough persistence to preserve continuity and learning.
+
+---
+
+## Optional Future Entities
+
+- relation_notes
+- event_logs
+- memory_links
+- theta_history
+- proactive_triggers
 
 ---
 
 ## Final Principle
 
-Database is not storage.
+Database design is part of cognition design.
 
-Database is the memory system of AION.
-
-If data model is weak,
-system cannot become intelligent.
+If the data model is weak, the system cannot become meaningfully stateful.
