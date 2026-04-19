@@ -346,6 +346,10 @@ Completed on 2026-04-18:
 - `PRJ-275` is complete: planning/docs/context are synchronized through
   `PRJ-275` with targeted regression coverage for source-rollout enforcement
   recommendation/alignment diagnostics.
+- `PRJ-276` is complete: canonical runtime-flow and agent-contract docs now
+  define one explicit foreground ownership split (runtime pre/post graph vs
+  graph stage spine) plus migration invariants for stable stage contracts and
+  ordering while convergence continues.
 
 ## Highest-Risk Gaps
 
@@ -1288,10 +1292,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-276` is currently the execution-ready slice in the board.
+`PRJ-277` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-276` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-277` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

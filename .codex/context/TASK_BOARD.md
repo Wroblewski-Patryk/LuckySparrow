@@ -16,7 +16,7 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-276` is currently `READY` and begins the target-state architecture
+- `PRJ-277` is currently `READY` and continues the target-state architecture
   convergence queue described in `docs/planning/next-iteration-plan.md`.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
@@ -28,26 +28,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-276 Define target-state foreground ownership and graph boundary invariants
-  - Status: READY
-  - Group: Foreground Runtime Convergence
-  - Owner: Planner + Backend Builder
-  - Depends on: PRJ-275
-  - Priority: P1
-  - Result:
-    - target-state ownership is explicit for graph-owned versus runtime-owned
-      foreground segments (`baseline load`, stage graph, episodic memory write,
-      reflection trigger)
-    - migration invariants define which contracts must stay stable while the
-      runtime converges toward canonical architecture
-  - Validation:
-    - doc-and-context sync plus targeted contract diff review recorded in this
-      slice
-
-## BACKLOG
-
 - [ ] PRJ-277 Introduce an explicit response-execution contract for expression-to-action handoff
-  - Status: BACKLOG
+  - Status: READY
   - Group: Foreground Runtime Convergence
   - Owner: Backend Builder
   - Depends on: PRJ-276
@@ -59,6 +41,8 @@ Last updated: 2026-04-20
       and action
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py`
+
+## BACKLOG
 
 - [ ] PRJ-278 Align graph/runtime orchestration boundaries for baseline load, memory write, and reflection trigger
   - Status: BACKLOG
@@ -380,6 +364,25 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-276 Define target-state foreground ownership and graph boundary invariants
+  - Status: DONE
+  - Group: Foreground Runtime Convergence
+  - Owner: Planner + Backend Builder
+  - Depends on: PRJ-275
+  - Priority: P1
+  - Result:
+    - target-state ownership is now explicit for graph-owned versus
+      runtime-owned foreground segments (`baseline load`, stage graph,
+      episodic memory write, reflection trigger)
+    - canonical contracts now include migration invariants that keep stage
+      output keys, ordering, and side-effect ownership stable during
+      orchestration convergence
+  - Validation:
+    - doc-and-context sync completed; targeted contract diff review recorded
+      across `docs/architecture/15_runtime_flow.md`,
+      `docs/architecture/16_agent_contracts.md`, and
+      `docs/implementation/runtime-reality.md`
 
 - [x] PRJ-275 Sync source-rollout enforcement recommendation/alignment slice across docs, planning, and context
   - Status: DONE

@@ -161,13 +161,14 @@ The current repo already works as an MVP slice, but several architecture-level d
   - runtime now has an explicit graph-compatibility boundary
     (`GraphRuntimeState`, conversion helpers, and stage adapters around current
     modules), so migration can proceed incrementally.
+  - `PRJ-276` now defines the target foreground ownership boundary and migration
+    invariants in canonical docs:
+    - runtime-owned: baseline load, episodic memory write, reflection trigger
+    - graph-owned: cognitive stage graph (`perception -> ... -> action`)
   - `LangChain` is described as optional support, not the architectural core.
 - Decision needed:
-  - which non-stage runtime segments (baseline load, post-action persistence,
-    reflection enqueue) should remain outside graph execution vs move into
-    graph-owned nodes?
-  - which stage and observability contracts must remain fixed while the
-    remaining migration boundary is finalized?
+  - how should implementation converge to the documented ownership split with
+    minimal runtime risk (`PRJ-277..PRJ-279`)?
   - where does LangChain actually reduce complexity, and where would it only
     add more framework surface?
 

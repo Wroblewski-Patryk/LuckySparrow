@@ -398,9 +398,10 @@ Last updated: 2026-04-20
   explicit without regressing current runtime behavior, then deepen the runtime
   toward affective understanding, scoped memory, and stronger action intent
   ownership
-- Active `PRJ` execution queue is complete through `PRJ-237`; the next slice
-  should be derived from `docs/planning/open-decisions.md` and registered as
-  `READY` before implementation.
+- Active `PRJ` execution queue is complete through `PRJ-299`; execution is
+  currently in Group 17 foreground convergence slices.
+- `PRJ-277` is the current `READY` implementation slice after `PRJ-276`
+  defined the target-state foreground ownership and migration invariants.
 - Top blockers:
   - runtime currently emits connector intents and permission gates but does not
     yet execute provider-backed calendar/task/drive integrations
@@ -413,6 +414,11 @@ Last updated: 2026-04-20
 
 ## Recent Progress
 
+- 2026-04-20: `PRJ-276` is complete: canonical runtime-flow and
+  agent-contract docs now define one explicit foreground ownership split
+  (runtime baseline-load and post-action follow-up segments versus graph-owned
+  stage spine), and migration invariants now pin stable stage outputs, stage
+  ordering, and side-effect ownership while convergence continues.
 - 2026-04-19: `PRJ-237` is complete: source-coverage posture for semantic
   retrieval is now operator-visible in `/health.memory_retrieval`, and startup
   warnings now use the same shared coverage-state semantics when vectors are
@@ -791,9 +797,8 @@ Last updated: 2026-04-20
   target-state convergence across foreground runtime boundaries, background
   reflection topology, production retrieval rollout, adaptive governance,
   dual-loop execution boundaries, and operational hardening.
-- 2026-04-20: `PRJ-276` is the next `READY` slice and defines target-state
-  ownership for graph-owned versus runtime-owned foreground segments before
-  further runtime wiring changes are taken.
+- 2026-04-20: `PRJ-276` is complete; `PRJ-277` is now the next `READY` slice
+  for explicit response-execution handoff convergence.
 
 ## Working Agreements
 
