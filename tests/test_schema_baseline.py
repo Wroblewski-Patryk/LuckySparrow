@@ -30,7 +30,7 @@ def test_schema_baseline_preserves_named_unique_constraints() -> None:
         if isinstance(constraint, UniqueConstraint)
     }
 
-    assert "uq_aion_conclusion_user_kind" in conclusion_constraints
+    assert "uq_aion_conclusion_user_kind_scope" in conclusion_constraints
     assert "uq_aion_reflection_task_event_id" in reflection_constraints
 
 

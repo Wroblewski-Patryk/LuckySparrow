@@ -115,9 +115,10 @@ The current repo already works as an MVP slice, but several architecture-level d
 ### 5c. Reflection Scope And Multi-Goal Leakage
 
 - Current repo fact:
-  - reflection currently persists many progress and milestone conclusions as
-    one latest value per `(user_id, kind)`, which can leak one active goal's
-    state into another goal's foreground turn.
+  - reflection now supports scoped conclusions (`scope_type`, `scope_key`) and
+    persists goal-operational conclusions with goal scope.
+  - runtime consumers still read mixed scopes in a mostly global way, so
+    cross-goal leakage risk remains until scope-aware consumption is completed.
 - Decision needed:
   - which reflection outputs should be global per user, and which must become
     goal-scoped or task-scoped before the runtime grows further?

@@ -8,6 +8,7 @@ class FakeMemoryRepository:
     def __init__(self, recent_memory: list[dict]):
         self.recent_memory = recent_memory
         self.conclusion_updates: list[dict] = []
+        self.raw_conclusion_updates: list[dict] = []
         self.theta_updates: list[dict] = []
         self.runtime_preferences: dict = {}
         self.goal_progress_history: list[dict] = []
@@ -53,7 +54,13 @@ class FakeMemoryRepository:
         return payload
 
     async def upsert_conclusion(self, **kwargs) -> dict:
-        self.conclusion_updates.append(kwargs)
+        self.raw_conclusion_updates.append(dict(kwargs))
+        stripped = {
+            key: value
+            for key, value in kwargs.items()
+            if key not in {"scope_type", "scope_key"}
+        }
+        self.conclusion_updates.append(stripped)
         return kwargs
 
     async def upsert_theta(self, **kwargs) -> dict:
@@ -392,6 +399,32 @@ async def test_reflection_worker_infers_blocked_goal_execution_state() -> None:
         "source": "background_reflection",
         "supporting_event_id": "evt-goal-blocked",
     } in repository.conclusion_updates
+
+
+async def test_reflection_worker_writes_goal_operational_conclusions_with_goal_scope() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {"summary": "goal_update=ship the MVP this week; action=success; expression=One."},
+            {"summary": "task_update=fix deployment blocker; action=success; expression=Two."},
+        ]
+    )
+    repository.active_goals = [
+        {"id": 11, "name": "ship the MVP this week", "priority": "high", "status": "active", "goal_type": "operational"}
+    ]
+    repository.active_tasks = [
+        {"id": 2, "goal_id": 11, "name": "fix deployment blocker", "priority": "high", "status": "blocked"}
+    ]
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-goal-scope")
+
+    assert result is True
+    assert any(
+        update.get("kind") == "goal_execution_state"
+        and update.get("scope_type") == "goal"
+        and update.get("scope_key") == "11"
+        for update in repository.raw_conclusion_updates
+    )
 
 
 async def test_reflection_worker_infers_goal_milestone_transition_into_completion_window() -> None:

@@ -354,6 +354,131 @@ async def test_memory_repository_allows_dynamic_goal_execution_state_transition(
     await engine.dispose()
 
 
+async def test_memory_repository_supports_scoped_goal_runtime_preferences(tmp_path) -> None:
+    database_path = tmp_path / "memory-goal-scoped-preferences.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="goal_execution_state",
+        content="stagnating",
+        confidence=0.7,
+        source="background_reflection",
+        supporting_event_id="evt-global",
+    )
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="goal_execution_state",
+        content="recovering",
+        confidence=0.77,
+        source="background_reflection",
+        supporting_event_id="evt-goal-11",
+        scope_type="goal",
+        scope_key="11",
+    )
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="goal_execution_state",
+        content="blocked",
+        confidence=0.82,
+        source="background_reflection",
+        supporting_event_id="evt-goal-22",
+        scope_type="goal",
+        scope_key="22",
+    )
+
+    global_preferences = await repository.get_user_runtime_preferences(
+        user_id="u-1",
+        scope_type="global",
+        scope_key="global",
+    )
+    goal_11_preferences = await repository.get_user_runtime_preferences(
+        user_id="u-1",
+        scope_type="goal",
+        scope_key="11",
+        include_global=True,
+    )
+    goal_22_preferences = await repository.get_user_runtime_preferences(
+        user_id="u-1",
+        scope_type="goal",
+        scope_key="22",
+        include_global=True,
+    )
+
+    assert global_preferences["goal_execution_state"] == "stagnating"
+    assert global_preferences["goal_execution_state_scope_type"] == "global"
+    assert goal_11_preferences["goal_execution_state"] == "recovering"
+    assert goal_11_preferences["goal_execution_state_scope_type"] == "goal"
+    assert goal_11_preferences["goal_execution_state_scope_key"] == "11"
+    assert goal_22_preferences["goal_execution_state"] == "blocked"
+    assert goal_22_preferences["goal_execution_state_scope_key"] == "22"
+
+    await engine.dispose()
+
+
+async def test_memory_repository_get_user_conclusions_can_filter_by_scope(tmp_path) -> None:
+    database_path = tmp_path / "memory-conclusions-scope-filter.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="response_style",
+        content="structured",
+        confidence=0.9,
+        source="background_reflection",
+        supporting_event_id="evt-global-style",
+    )
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="goal_progress_arc",
+        content="recovery_gaining_traction",
+        confidence=0.76,
+        source="background_reflection",
+        supporting_event_id="evt-goal-11-arc",
+        scope_type="goal",
+        scope_key="11",
+    )
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="goal_progress_arc",
+        content="falling_behind",
+        confidence=0.78,
+        source="background_reflection",
+        supporting_event_id="evt-goal-22-arc",
+        scope_type="goal",
+        scope_key="22",
+    )
+
+    goal_only = await repository.get_user_conclusions(
+        user_id="u-1",
+        limit=5,
+        scope_type="goal",
+        scope_key="11",
+    )
+    goal_with_global = await repository.get_user_conclusions(
+        user_id="u-1",
+        limit=5,
+        scope_type="goal",
+        scope_key="11",
+        include_global=True,
+    )
+
+    assert len(goal_only) == 1
+    assert goal_only[0]["scope_type"] == "goal"
+    assert goal_only[0]["scope_key"] == "11"
+    assert goal_only[0]["content"] == "recovery_gaining_traction"
+    assert any(item["scope_type"] == "global" and item["kind"] == "response_style" for item in goal_with_global)
+    assert any(item["scope_type"] == "goal" and item["scope_key"] == "11" for item in goal_with_global)
+
+    await engine.dispose()
+
+
 async def test_memory_repository_exposes_goal_progress_score_in_runtime_preferences(tmp_path) -> None:
     database_path = tmp_path / "memory-goal-progress-score.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")

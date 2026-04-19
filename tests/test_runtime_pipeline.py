@@ -1,6 +1,8 @@
 import json
 from datetime import datetime, timezone
 
+import pytest
+
 from app.affective.assessor import AffectiveAssessor
 from app.agents.context import ContextAgent
 from app.agents.perception import PerceptionAgent
@@ -11,6 +13,7 @@ from app.core.contracts import Event, EventMeta
 from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.motivation.engine import MotivationEngine
+from tests.empathy_fixtures import EMPATHY_SUPPORT_SCENARIOS
 
 
 class FakeMemoryRepository:
@@ -623,6 +626,104 @@ async def test_runtime_pipeline_routes_emotional_turn_through_documented_contrac
     assert result.expression.tone == "supportive"
     assert openai.calls[0]["motivation_mode"] == "respond"
     assert openai.calls[0]["response_tone"] == "supportive"
+    assert result.reflection_triggered is True
+
+
+@pytest.mark.parametrize("scenario", EMPATHY_SUPPORT_SCENARIOS, ids=lambda scenario: scenario.key)
+async def test_runtime_pipeline_pins_empathy_quality_for_heavy_ambiguous_and_mixed_turns(scenario) -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    classifier = FakeAffectiveClassifierClient(scenario.classifier_payload())
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+        affective_assessor=AffectiveAssessor(classifier_client=classifier),
+    )
+
+    event = Event(
+        event_id=f"evt-empathy-{scenario.key}",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": scenario.text},
+        meta=EventMeta(user_id="u-1", trace_id=f"t-empathy-{scenario.key}"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.affective.affect_label == scenario.affect_label
+    assert result.affective.needs_support is True
+    assert result.motivation.mode == "respond"
+    assert result.motivation.urgency >= scenario.expected_min_urgency
+    assert result.role.selected == "friend"
+    assert "acknowledge_emotion" in result.plan.steps
+    assert "reduce_pressure" in result.plan.steps
+    assert result.expression.tone == "supportive"
+    assert openai.calls[0]["response_tone"] == "supportive"
+    assert result.reflection_triggered is True
+
+
+async def test_runtime_pipeline_accepts_goal_scoped_conclusions_in_runtime_context() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.active_goals = [
+        {
+            "id": 11,
+            "user_id": "u-1",
+            "name": "ship the MVP this week",
+            "description": "User-declared goal: ship the MVP this week",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "operational",
+        }
+    ]
+    memory.user_conclusions = [
+        {
+            "kind": "goal_execution_state",
+            "content": "blocked",
+            "confidence": 0.82,
+            "source": "background_reflection",
+            "scope_type": "goal",
+            "scope_key": "11",
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-scoped-conclusion",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "What should I do next for this goal?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-scoped-conclusion"),
+    )
+
+    result = await runtime.run(event)
+
+    assert "current goal progress is blocked by an active task" in result.context.summary
+    assert result.motivation.mode == "analyze"
+    assert result.action_result.status == "success"
     assert result.reflection_triggered is True
 
 

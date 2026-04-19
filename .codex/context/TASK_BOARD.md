@@ -16,31 +16,29 @@ Last updated: 2026-04-19
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue now extends through `PRJ-068`.
-- The next executable slice is `PRJ-056`.
+- The next executable slice is `PRJ-058`.
 - Additional architecture-alignment work should be appended after that queue so
   the backlog stays explicitly open for later discovery instead of pretending
   the plan is complete.
 
 ## READY
 
-- [ ] PRJ-056 Add empathy-oriented evaluation fixtures and regression tests
+- [ ] PRJ-058 Refactor runtime consumers to use scoped reflection state
   - Status: READY
-  - Group: Affective Understanding And Empathy
-  - Owner: QA/Test
-  - Depends on: PRJ-055
+  - Group: Scoped Memory And Retrieval Depth
+  - Owner: Backend Builder
+  - Depends on: PRJ-057
   - Priority: P1
   - Result:
-    - emotionally heavy, ambiguous, and mixed-intent turns gain explicit
-      empathy-focused fixtures
-    - regression coverage pins support quality through affective contract-driven
-      runtime behavior
+    - context, motivation, planning, and milestone enrichment consume goal-scoped
+      reflection state when a goal is relevant
+    - unrelated goals stop leaking pressure, risk, or completion heuristics into
+      the current turn
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_expression_agent.py tests/test_motivation_engine.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
 
 ## BACKLOG
 
-- [ ] PRJ-057 Introduce scoped conclusions for global, goal, and task context
-- [ ] PRJ-058 Refactor runtime consumers to use scoped reflection state
 - [ ] PRJ-059 Add an affective memory layer and reflection outputs
 - [ ] PRJ-060 Add retrieval ranking and compression beyond the latest-five load
 - [ ] PRJ-061 Formalize memory-layer contracts in docs and repository APIs
@@ -586,6 +584,37 @@ Last updated: 2026-04-19
       paths and runtime pipeline integration
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_role_agent.py tests/test_expression_agent.py tests/test_runtime_pipeline.py`
+    - `.\.venv\Scripts\python -m pytest -q`
+- [x] PRJ-056 Add empathy-oriented evaluation fixtures and regression tests
+  - Status: DONE
+  - Group: Affective Understanding And Empathy
+  - Owner: QA/Test
+  - Depends on: PRJ-055
+  - Priority: P1
+  - Result:
+    - empathy-focused shared fixtures now cover emotionally heavy, ambiguous,
+      and mixed-intent turns
+    - motivation, expression, and runtime regression tests now parametrize these
+      fixtures to pin support quality through the affective contract path
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_expression_agent.py tests/test_motivation_engine.py`
+- [x] PRJ-057 Introduce scoped conclusions for global, goal, and task context
+  - Status: DONE
+  - Group: Scoped Memory And Retrieval Depth
+  - Owner: Backend Builder
+  - Depends on: PRJ-056
+  - Priority: P1
+  - Result:
+    - `aion_conclusion` now supports scoped records (`scope_type`, `scope_key`)
+      for `global|goal|task` context with scoped uniqueness guarantees
+    - reflection now persists goal-operational conclusions with goal scope instead
+      of forcing all operational state into one user-global slot
+    - memory repository APIs now support scoped conclusion and runtime-preference
+      queries, including scope-aware filtering with optional global fallback
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_schema_baseline.py`
+    - `.\.venv\Scripts\python -m alembic upgrade head --sql`
     - `.\.venv\Scripts\python -m pytest -q`
 - [x] PRJ-011 Extract shared goal/task selection helpers
   - Status: DONE

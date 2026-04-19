@@ -90,6 +90,7 @@ class ReflectionWorker:
                 return False
 
         for conclusion in conclusions:
+            scope_type, scope_key = self._conclusion_scope(kind=str(conclusion["kind"]), primary_goal=primary_goal)
             await self.memory_repository.upsert_conclusion(
                 user_id=user_id,
                 kind=conclusion["kind"],
@@ -97,15 +98,19 @@ class ReflectionWorker:
                 confidence=conclusion["confidence"],
                 source=conclusion["source"],
                 supporting_event_id=event_id,
+                scope_type=scope_type,
+                scope_key=scope_key,
             )
             self.logger.info(
-                "reflection_conclusion_updated user_id=%s event_id=%s kind=%s content=%s confidence=%.2f source=%s",
+                "reflection_conclusion_updated user_id=%s event_id=%s kind=%s content=%s confidence=%.2f source=%s scope_type=%s scope_key=%s",
                 user_id,
                 event_id,
                 conclusion["kind"],
                 conclusion["content"],
                 conclusion["confidence"],
                 conclusion["source"],
+                scope_type,
+                scope_key,
             )
         synced_milestone: dict | None = None
         if primary_goal is not None and primary_goal.get("id") is not None:
@@ -1442,3 +1447,8 @@ class ReflectionWorker:
 
     def _goal_priority_rank(self, priority: str) -> int:
         return shared_priority_rank(priority)
+
+    def _conclusion_scope(self, *, kind: str, primary_goal: dict | None) -> tuple[str, str]:
+        if kind.startswith("goal_") and primary_goal is not None and primary_goal.get("id") is not None:
+            return "goal", str(primary_goal["id"])
+        return "global", "global"

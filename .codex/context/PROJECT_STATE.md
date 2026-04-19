@@ -77,6 +77,13 @@ Last updated: 2026-04-19
 - 2026-04-19: motivation, role, and expression now consume
   `perception.affective` as the primary support/emotion signal, making
   supportive behavior traceable to one affective owner across runtime stages.
+- 2026-04-19: empathy-oriented regression fixtures now pin emotionally heavy,
+  ambiguous, and mixed-intent support quality across motivation, expression,
+  and runtime integration tests.
+- 2026-04-19: conclusions now support scoped storage
+  (`scope_type=global|goal|task`, `scope_key`) and reflection writes
+  goal-operational conclusions with goal scope, enabling scope-aware repository
+  queries.
 - 2026-04-19: documentation now explicitly separates canonical architecture in
   `docs/architecture/` from transitional implementation reality in
   `docs/implementation/runtime-reality.md`, so human-oriented design intent can
@@ -139,10 +146,9 @@ Last updated: 2026-04-19
   ownership
 - Active execution queue now extends through `PRJ-068`.
 - Top blockers:
-  - affective memory is still missing, and empathy-quality regression fixtures
-    for ambiguous/mixed-intent turns are not complete yet
-  - reflection still stores several operational conclusions globally per user,
-    which can leak one goal's state into another
+  - affective memory is still missing
+  - scoped conclusions now exist, but runtime consumers still need explicit
+    goal/task-scoped consumption to avoid cross-goal leakage (`PRJ-058`)
   - action still reparses user text for some durable writes instead of relying
     on explicit typed intents from planning
 - Success criteria for this phase:
@@ -246,6 +252,12 @@ Last updated: 2026-04-19
   the shared affective contract (`perception.affective`) as their support
   signal owner, replacing local emotional keyword ladders and adding
   affective-driven regression coverage.
+- 2026-04-19: `PRJ-056` is complete: empathy-oriented shared fixtures now cover
+  emotionally heavy, ambiguous, and mixed-intent turns, and support-quality
+  regression coverage was expanded across motivation, expression, and runtime.
+- 2026-04-19: `PRJ-057` is complete: scoped conclusions were introduced for
+  global/goal/task context in schema, repository APIs, and reflection writes,
+  with scope-aware tests and migration validation synchronized.
 - 2026-04-19: architecture docs were realigned so `docs/architecture/` again
   describes the canonical cognitive flow, while runtime-delivery shortcuts,
   live storage names, and policy details were moved into

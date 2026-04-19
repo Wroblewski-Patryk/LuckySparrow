@@ -1,7 +1,10 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from app.core.contracts import AffectiveAssessmentOutput, ContextOutput, Event, EventMeta, PerceptionOutput
 from app.motivation.engine import MotivationEngine
+from tests.empathy_fixtures import EMPATHY_SUPPORT_SCENARIOS
 
 
 def _event(text: str) -> Event:
@@ -85,6 +88,20 @@ def test_motivation_engine_describes_affective_distress_without_undocumented_sup
     assert result.mode == "respond"
     assert result.valence <= -0.45
     assert result.arousal >= 0.5
+
+
+@pytest.mark.parametrize("scenario", EMPATHY_SUPPORT_SCENARIOS, ids=lambda scenario: scenario.key)
+def test_motivation_engine_keeps_empathy_quality_for_heavy_ambiguous_and_mixed_turns(scenario) -> None:
+    result = MotivationEngine().run(
+        event=_event(scenario.text),
+        context=_context(),
+        perception=_perception(affective=scenario.affective()),
+    )
+
+    assert result.mode == "respond"
+    assert result.urgency >= scenario.expected_min_urgency
+    assert result.valence <= scenario.expected_max_valence
+    assert result.arousal >= scenario.expected_min_arousal
 
 
 def test_motivation_engine_uses_execute_mode_for_urgent_action_requests() -> None:

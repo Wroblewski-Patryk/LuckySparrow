@@ -79,6 +79,19 @@ Current implementation posture:
 - motivation, role, and expression now consume `perception.affective` as the
   primary support/emotion signal owner for turn behavior
 
+### Scoped conclusions
+
+The live runtime now supports scoped semantic conclusions:
+
+- `aion_conclusion` rows include `scope_type` and `scope_key`
+- scoped uniqueness is `(user_id, kind, scope_type, scope_key)`
+- reflection writes goal-operational conclusions with goal scope
+
+Current transition note:
+
+- runtime consumers still need explicit scope-aware selection across context,
+  motivation, and planning to fully eliminate cross-goal leakage
+
 ### Event API behavior
 
 `POST /event` currently returns:

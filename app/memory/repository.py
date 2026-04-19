@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.memory.models import (
@@ -22,6 +22,8 @@ class MemoryRepository:
     ACTIVE_GOAL_STATUSES = ("active",)
     ACTIVE_TASK_STATUSES = ("todo", "in_progress", "blocked")
     ACTIVE_MILESTONE_STATUSES = ("active",)
+    GLOBAL_SCOPE_TYPE = "global"
+    GLOBAL_SCOPE_KEY = "global"
 
     def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
         self.session_factory = session_factory
@@ -514,15 +516,48 @@ class MemoryRepository:
 
         return self._serialize_goal_milestone_history(row)
 
-    async def get_user_runtime_preferences(self, user_id: str) -> dict:
+    async def get_user_runtime_preferences(
+        self,
+        user_id: str,
+        *,
+        scope_type: str | None = None,
+        scope_key: str | None = None,
+        include_global: bool = True,
+    ) -> dict:
+        normalized_scope_type, normalized_scope_key = self._normalize_conclusion_scope(
+            scope_type=scope_type,
+            scope_key=scope_key,
+        )
+        use_scope_filter = scope_type is not None or scope_key is not None
+
+        where_clauses = [AionConclusion.user_id == user_id]
+        if use_scope_filter:
+            scoped_clause = and_(
+                AionConclusion.scope_type == normalized_scope_type,
+                AionConclusion.scope_key == normalized_scope_key,
+            )
+            if include_global and (
+                normalized_scope_type != self.GLOBAL_SCOPE_TYPE
+                or normalized_scope_key != self.GLOBAL_SCOPE_KEY
+            ):
+                where_clauses.append(
+                    or_(
+                        scoped_clause,
+                        and_(
+                            AionConclusion.scope_type == self.GLOBAL_SCOPE_TYPE,
+                            AionConclusion.scope_key == self.GLOBAL_SCOPE_KEY,
+                        ),
+                    )
+                )
+            else:
+                where_clauses.append(scoped_clause)
+
         async with self.session_factory() as session:
             statement = (
                 select(AionConclusion)
-                .where(
-                    AionConclusion.user_id == user_id,
-                )
+                .where(*where_clauses)
                 .order_by(AionConclusion.updated_at.desc(), AionConclusion.id.desc())
-                .limit(18)
+                .limit(36)
             )
             result = await session.execute(statement)
             rows = result.scalars().all()
@@ -531,98 +566,100 @@ class MemoryRepository:
             return {}
 
         preferences: dict[str, object] = {}
+
+        def set_preference(key: str, value: object, row: AionConclusion) -> None:
+            if key in preferences:
+                return
+            preferences[key] = value
+            preferences[f"{key}_confidence"] = row.confidence
+            preferences[f"{key}_source"] = row.source
+            preferences[f"{key}_updated_at"] = row.updated_at
+            preferences[f"{key}_scope_type"] = row.scope_type
+            preferences[f"{key}_scope_key"] = row.scope_key
+
         for row in rows:
             if row.kind == "response_style":
-                preferences["response_style"] = row.content
-                preferences["response_style_confidence"] = row.confidence
-                preferences["response_style_source"] = row.source
-                preferences["response_style_updated_at"] = row.updated_at
+                set_preference("response_style", row.content, row)
             elif row.kind == "preferred_role":
-                preferences["preferred_role"] = row.content
-                preferences["preferred_role_confidence"] = row.confidence
-                preferences["preferred_role_source"] = row.source
-                preferences["preferred_role_updated_at"] = row.updated_at
+                set_preference("preferred_role", row.content, row)
             elif row.kind == "collaboration_preference":
-                preferences["collaboration_preference"] = row.content
-                preferences["collaboration_preference_confidence"] = row.confidence
-                preferences["collaboration_preference_source"] = row.source
-                preferences["collaboration_preference_updated_at"] = row.updated_at
+                set_preference("collaboration_preference", row.content, row)
             elif row.kind == "goal_execution_state":
-                preferences["goal_execution_state"] = row.content
-                preferences["goal_execution_state_confidence"] = row.confidence
-                preferences["goal_execution_state_source"] = row.source
-                preferences["goal_execution_state_updated_at"] = row.updated_at
+                set_preference("goal_execution_state", row.content, row)
             elif row.kind == "goal_progress_score":
+                if "goal_progress_score" in preferences:
+                    continue
                 try:
-                    preferences["goal_progress_score"] = float(row.content)
+                    score = float(row.content)
                 except ValueError:
                     continue
-                preferences["goal_progress_score_confidence"] = row.confidence
-                preferences["goal_progress_score_source"] = row.source
-                preferences["goal_progress_score_updated_at"] = row.updated_at
+                set_preference("goal_progress_score", score, row)
             elif row.kind == "goal_progress_trend":
-                preferences["goal_progress_trend"] = row.content
-                preferences["goal_progress_trend_confidence"] = row.confidence
-                preferences["goal_progress_trend_source"] = row.source
-                preferences["goal_progress_trend_updated_at"] = row.updated_at
+                set_preference("goal_progress_trend", row.content, row)
             elif row.kind == "goal_progress_arc":
-                preferences["goal_progress_arc"] = row.content
-                preferences["goal_progress_arc_confidence"] = row.confidence
-                preferences["goal_progress_arc_source"] = row.source
-                preferences["goal_progress_arc_updated_at"] = row.updated_at
+                set_preference("goal_progress_arc", row.content, row)
             elif row.kind == "goal_milestone_transition":
-                preferences["goal_milestone_transition"] = row.content
-                preferences["goal_milestone_transition_confidence"] = row.confidence
-                preferences["goal_milestone_transition_source"] = row.source
-                preferences["goal_milestone_transition_updated_at"] = row.updated_at
+                set_preference("goal_milestone_transition", row.content, row)
             elif row.kind == "goal_milestone_state":
-                preferences["goal_milestone_state"] = row.content
-                preferences["goal_milestone_state_confidence"] = row.confidence
-                preferences["goal_milestone_state_source"] = row.source
-                preferences["goal_milestone_state_updated_at"] = row.updated_at
+                set_preference("goal_milestone_state", row.content, row)
             elif row.kind == "goal_milestone_arc":
-                preferences["goal_milestone_arc"] = row.content
-                preferences["goal_milestone_arc_confidence"] = row.confidence
-                preferences["goal_milestone_arc_source"] = row.source
-                preferences["goal_milestone_arc_updated_at"] = row.updated_at
+                set_preference("goal_milestone_arc", row.content, row)
             elif row.kind == "goal_milestone_pressure":
-                preferences["goal_milestone_pressure"] = row.content
-                preferences["goal_milestone_pressure_confidence"] = row.confidence
-                preferences["goal_milestone_pressure_source"] = row.source
-                preferences["goal_milestone_pressure_updated_at"] = row.updated_at
+                set_preference("goal_milestone_pressure", row.content, row)
             elif row.kind == "goal_milestone_dependency_state":
-                preferences["goal_milestone_dependency_state"] = row.content
-                preferences["goal_milestone_dependency_state_confidence"] = row.confidence
-                preferences["goal_milestone_dependency_state_source"] = row.source
-                preferences["goal_milestone_dependency_state_updated_at"] = row.updated_at
+                set_preference("goal_milestone_dependency_state", row.content, row)
             elif row.kind == "goal_milestone_due_state":
-                preferences["goal_milestone_due_state"] = row.content
-                preferences["goal_milestone_due_state_confidence"] = row.confidence
-                preferences["goal_milestone_due_state_source"] = row.source
-                preferences["goal_milestone_due_state_updated_at"] = row.updated_at
+                set_preference("goal_milestone_due_state", row.content, row)
             elif row.kind == "goal_milestone_due_window":
-                preferences["goal_milestone_due_window"] = row.content
-                preferences["goal_milestone_due_window_confidence"] = row.confidence
-                preferences["goal_milestone_due_window_source"] = row.source
-                preferences["goal_milestone_due_window_updated_at"] = row.updated_at
+                set_preference("goal_milestone_due_window", row.content, row)
             elif row.kind == "goal_milestone_risk":
-                preferences["goal_milestone_risk"] = row.content
-                preferences["goal_milestone_risk_confidence"] = row.confidence
-                preferences["goal_milestone_risk_source"] = row.source
-                preferences["goal_milestone_risk_updated_at"] = row.updated_at
+                set_preference("goal_milestone_risk", row.content, row)
             elif row.kind == "goal_completion_criteria":
-                preferences["goal_completion_criteria"] = row.content
-                preferences["goal_completion_criteria_confidence"] = row.confidence
-                preferences["goal_completion_criteria_source"] = row.source
-                preferences["goal_completion_criteria_updated_at"] = row.updated_at
+                set_preference("goal_completion_criteria", row.content, row)
 
         return preferences
 
-    async def get_user_conclusions(self, user_id: str, limit: int = 3) -> list[dict]:
+    async def get_user_conclusions(
+        self,
+        user_id: str,
+        limit: int = 3,
+        *,
+        scope_type: str | None = None,
+        scope_key: str | None = None,
+        include_global: bool = False,
+    ) -> list[dict]:
+        normalized_scope_type, normalized_scope_key = self._normalize_conclusion_scope(
+            scope_type=scope_type,
+            scope_key=scope_key,
+        )
+        use_scope_filter = scope_type is not None or scope_key is not None
+
+        where_clauses = [AionConclusion.user_id == user_id]
+        if use_scope_filter:
+            scoped_clause = and_(
+                AionConclusion.scope_type == normalized_scope_type,
+                AionConclusion.scope_key == normalized_scope_key,
+            )
+            if include_global and (
+                normalized_scope_type != self.GLOBAL_SCOPE_TYPE
+                or normalized_scope_key != self.GLOBAL_SCOPE_KEY
+            ):
+                where_clauses.append(
+                    or_(
+                        scoped_clause,
+                        and_(
+                            AionConclusion.scope_type == self.GLOBAL_SCOPE_TYPE,
+                            AionConclusion.scope_key == self.GLOBAL_SCOPE_KEY,
+                        ),
+                    )
+                )
+            else:
+                where_clauses.append(scoped_clause)
+
         async with self.session_factory() as session:
             statement = (
                 select(AionConclusion)
-                .where(AionConclusion.user_id == user_id)
+                .where(*where_clauses)
                 .order_by(AionConclusion.updated_at.desc(), AionConclusion.id.desc())
                 .limit(limit)
             )
@@ -637,6 +674,8 @@ class MemoryRepository:
                 "confidence": row.confidence,
                 "source": row.source,
                 "supporting_event_id": row.supporting_event_id,
+                "scope_type": row.scope_type,
+                "scope_key": row.scope_key,
                 "updated_at": row.updated_at,
             }
             for row in rows
@@ -694,13 +733,21 @@ class MemoryRepository:
         confidence: float,
         source: str,
         supporting_event_id: str | None = None,
+        scope_type: str | None = None,
+        scope_key: str | None = None,
     ) -> dict:
+        normalized_scope_type, normalized_scope_key = self._normalize_conclusion_scope(
+            scope_type=scope_type,
+            scope_key=scope_key,
+        )
         async with self.session_factory() as session:
             statement = (
                 select(AionConclusion)
                 .where(
                     AionConclusion.user_id == user_id,
                     AionConclusion.kind == kind,
+                    AionConclusion.scope_type == normalized_scope_type,
+                    AionConclusion.scope_key == normalized_scope_key,
                 )
                 .limit(1)
             )
@@ -715,6 +762,8 @@ class MemoryRepository:
                     confidence=confidence,
                     source=source,
                     supporting_event_id=supporting_event_id,
+                    scope_type=normalized_scope_type,
+                    scope_key=normalized_scope_key,
                 )
                 session.add(row)
             elif self._should_update_conclusion(
@@ -746,6 +795,8 @@ class MemoryRepository:
             "confidence": row.confidence,
             "source": row.source,
             "supporting_event_id": row.supporting_event_id,
+            "scope_type": row.scope_type,
+            "scope_key": row.scope_key,
             "updated_at": row.updated_at,
         }
 
@@ -937,6 +988,22 @@ class MemoryRepository:
         if current_language == next_language:
             return min(0.99, max(current_confidence, next_confidence))
         return next_confidence
+
+    def _normalize_conclusion_scope(
+        self,
+        *,
+        scope_type: str | None,
+        scope_key: str | None,
+    ) -> tuple[str, str]:
+        normalized_scope_type = str(scope_type or self.GLOBAL_SCOPE_TYPE).strip().lower()
+        normalized_scope_key = str(scope_key or "").strip()
+        if normalized_scope_type not in {"global", "goal", "task"}:
+            return self.GLOBAL_SCOPE_TYPE, self.GLOBAL_SCOPE_KEY
+        if normalized_scope_type == self.GLOBAL_SCOPE_TYPE:
+            return self.GLOBAL_SCOPE_TYPE, self.GLOBAL_SCOPE_KEY
+        if not normalized_scope_key:
+            return self.GLOBAL_SCOPE_TYPE, self.GLOBAL_SCOPE_KEY
+        return normalized_scope_type, normalized_scope_key
 
     def _should_update_conclusion(
         self,

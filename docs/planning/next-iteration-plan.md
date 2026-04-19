@@ -65,6 +65,8 @@ Completed on 2026-04-18:
 - `PRJ-053` added a first-class affective assessment contract and runtime placeholder slot (`affect_label`, `intensity`, `needs_support`, `confidence`, `source`, `evidence`) emitted by perception for follow-up empathy slices.
 - `PRJ-054` added an AI-assisted affective assessor stage with deterministic fallback, including normalized LLM output handling and runtime log traceability of affective source (`ai_classifier|fallback`).
 - `PRJ-055` wired motivation, role, and expression to consume `perception.affective` as the shared support signal owner, replacing local emotional keyword ladders and adding affective-driven regression coverage.
+- `PRJ-056` added empathy-oriented shared fixtures for emotionally heavy, ambiguous, and mixed-intent turns, and expanded support-quality regressions across motivation, expression, and runtime integration.
+- `PRJ-057` introduced scoped conclusions for `global|goal|task` context, including schema/repository support and goal-scoped reflection writes.
 
 ## Highest-Risk Gaps
 
@@ -324,7 +326,7 @@ keeping deterministic fallback behavior.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_role_agent.py tests/test_expression_agent.py tests/test_runtime_pipeline.py`
 
-- `PRJ-056` Add empathy-oriented evaluation fixtures and regression tests.
+- `PRJ-056` is complete.
   - Result:
     - emotionally heavy, ambiguous, and mixed-intent turns have explicit
       contract fixtures
@@ -339,7 +341,7 @@ This group makes memory richer and less misleading by separating memory layers,
 introducing affective memory, and removing the current user-global leakage of
 goal-specific reflection signals.
 
-- `PRJ-057` Introduce scoped conclusions for global, goal, and task context.
+- `PRJ-057` is complete.
   - Result:
     - conclusions such as progress, milestone, and completion state are no
       longer stored as one flat user-global bag
@@ -459,7 +461,7 @@ signals such as theta, role preference, and collaboration preference.
 ## Next Derived Slice
 
 The planning queue is now extended through `PRJ-068`.
-The next execution-ready slice is `PRJ-056`, with later groups staying ordered
+The next execution-ready slice is `PRJ-058`, with later groups staying ordered
 behind it.
 
 ## Parallel-Ready Lanes
@@ -482,10 +484,9 @@ After those finished:
 
 ## Recommended Execution Order
 
-1. `PRJ-055..PRJ-056` Affective understanding and empathy
-2. `PRJ-057..PRJ-061` Scoped memory and retrieval depth
-3. `PRJ-062..PRJ-064` Planning and action intent hardening
-4. `PRJ-065..PRJ-068` Adaptive signal governance and heuristic reduction
+1. `PRJ-058..PRJ-061` Scoped memory and retrieval depth
+2. `PRJ-062..PRJ-064` Planning and action intent hardening
+3. `PRJ-065..PRJ-068` Adaptive signal governance and heuristic reduction
 
 The queue should still be treated as intentionally open after those items.
 Additional small architecture-alignment slices may still be discovered while

@@ -49,11 +49,15 @@ class AionProfile(Base):
 
 class AionConclusion(Base):
     __tablename__ = "aion_conclusion"
-    __table_args__ = (UniqueConstraint("user_id", "kind", name="uq_aion_conclusion_user_kind"),)
+    __table_args__ = (
+        UniqueConstraint("user_id", "kind", "scope_type", "scope_key", name="uq_aion_conclusion_user_kind_scope"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     kind: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    scope_type: Mapped[str] = mapped_column(String(16), nullable=False, default="global", index=True)
+    scope_key: Mapped[str] = mapped_column(String(64), nullable=False, default="global", index=True)
     content: Mapped[str] = mapped_column(String(128), nullable=False)
     confidence: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     source: Mapped[str] = mapped_column(String(32), nullable=False, default="system")
