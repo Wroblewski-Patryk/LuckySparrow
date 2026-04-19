@@ -512,6 +512,43 @@ def test_startup_skips_embedding_source_coverage_warning_when_semantic_and_affec
     assert not any("embedding_source_coverage_warning" in message for message in messages)
 
 
+def test_startup_logs_embedding_source_rollout_hint_when_next_source_is_pending(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("INFO", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="deterministic",
+        embedding_model="deterministic-v1",
+        embedding_source_kinds="episodic,semantic,affective",
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert any("embedding_source_rollout_hint" in message for message in messages)
+    assert any("rollout_next_source_kind=relation" in message for message in messages)
+    assert any("rollout_completion_state=baseline_complete_relation_pending" in message for message in messages)
+    assert any("rollout_progress_percent=67" in message for message in messages)
+
+
+def test_startup_skips_embedding_source_rollout_hint_when_all_sources_are_enabled(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("INFO", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="deterministic",
+        embedding_model="deterministic-v1",
+        embedding_source_kinds="episodic,semantic,affective,relation",
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert not any("embedding_source_rollout_hint" in message for message in messages)
+
+
 def test_startup_logs_embedding_refresh_warning_when_manual_refresh_mode_is_enabled(caplog) -> None:
     logger_name = "aion.app"
     caplog.set_level("WARNING", logger=logger_name)

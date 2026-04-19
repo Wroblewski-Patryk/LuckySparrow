@@ -317,6 +317,16 @@ The current repo already works as an MVP slice, but several architecture-level d
     `semantic_embedding_enforcement_alignment_state`,
     `semantic_embedding_enforcement_alignment_hint`); startup now emits
     `embedding_strategy_hint` for rollout guidance.
+  - source-rollout sequencing posture is now explicit through shared diagnostics
+    (`semantic_embedding_source_rollout_order`,
+    `semantic_embedding_source_rollout_enabled_sources`,
+    `semantic_embedding_source_rollout_missing_sources`,
+    `semantic_embedding_source_rollout_next_source_kind`,
+    `semantic_embedding_source_rollout_completion_state`,
+    `semantic_embedding_source_rollout_phase_index`,
+    `semantic_embedding_source_rollout_phase_total`,
+    `semantic_embedding_source_rollout_progress_percent`), and startup now
+    emits `embedding_source_rollout_hint` while rollout remains in progress.
 - Decision needed:
   - which embedding provider and refresh strategy should own semantic memory
     vectors?

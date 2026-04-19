@@ -496,6 +496,14 @@ def test_health_endpoint_returns_ok() -> None:
             "semantic_embedding_source_rollout_state": "semantic_affective_baseline",
             "semantic_embedding_source_rollout_hint": "high_signal_sources_active",
             "semantic_embedding_source_rollout_recommendation": "add_relation_source_after_baseline_stabilizes",
+            "semantic_embedding_source_rollout_order": ["semantic", "affective", "relation"],
+            "semantic_embedding_source_rollout_enabled_sources": ["semantic", "affective"],
+            "semantic_embedding_source_rollout_missing_sources": ["relation"],
+            "semantic_embedding_source_rollout_next_source_kind": "relation",
+            "semantic_embedding_source_rollout_completion_state": "baseline_complete_relation_pending",
+            "semantic_embedding_source_rollout_phase_index": 2,
+            "semantic_embedding_source_rollout_phase_total": 3,
+            "semantic_embedding_source_rollout_progress_percent": 67,
             "semantic_embedding_refresh_mode": "on_write",
             "semantic_embedding_refresh_interval_seconds": 21600,
             "semantic_embedding_refresh_state": "on_write_refresh_active",
@@ -618,6 +626,14 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
         "semantic_embedding_source_rollout_state": "vectors_disabled",
         "semantic_embedding_source_rollout_hint": "enable_vectors_before_source_rollout",
         "semantic_embedding_source_rollout_recommendation": "defer_source_rollout_until_vectors_enabled",
+        "semantic_embedding_source_rollout_order": ["semantic", "affective", "relation"],
+        "semantic_embedding_source_rollout_enabled_sources": ["semantic", "affective"],
+        "semantic_embedding_source_rollout_missing_sources": ["relation"],
+        "semantic_embedding_source_rollout_next_source_kind": "none",
+        "semantic_embedding_source_rollout_completion_state": "vectors_disabled",
+        "semantic_embedding_source_rollout_phase_index": 2,
+        "semantic_embedding_source_rollout_phase_total": 3,
+        "semantic_embedding_source_rollout_progress_percent": 67,
         "semantic_embedding_refresh_mode": "on_write",
         "semantic_embedding_refresh_interval_seconds": 21600,
         "semantic_embedding_refresh_state": "vectors_disabled",
@@ -680,6 +696,14 @@ def test_health_endpoint_exposes_embedding_provider_fallback_posture_when_non_de
         "semantic_embedding_source_rollout_state": "semantic_affective_baseline",
         "semantic_embedding_source_rollout_hint": "high_signal_sources_active",
         "semantic_embedding_source_rollout_recommendation": "add_relation_source_after_baseline_stabilizes",
+        "semantic_embedding_source_rollout_order": ["semantic", "affective", "relation"],
+        "semantic_embedding_source_rollout_enabled_sources": ["semantic", "affective"],
+        "semantic_embedding_source_rollout_missing_sources": ["relation"],
+        "semantic_embedding_source_rollout_next_source_kind": "relation",
+        "semantic_embedding_source_rollout_completion_state": "baseline_complete_relation_pending",
+        "semantic_embedding_source_rollout_phase_index": 2,
+        "semantic_embedding_source_rollout_phase_total": 3,
+        "semantic_embedding_source_rollout_progress_percent": 67,
         "semantic_embedding_refresh_mode": "on_write",
         "semantic_embedding_refresh_interval_seconds": 21600,
         "semantic_embedding_refresh_state": "on_write_refresh_active",
@@ -705,6 +729,40 @@ def test_health_endpoint_exposes_configured_embedding_source_kinds() -> None:
         body["memory_retrieval"]["semantic_embedding_source_rollout_recommendation"]
         == "enable_semantic_then_affective_sources"
     )
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_enabled_sources"] == ["relation"]
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_missing_sources"] == ["semantic", "affective"]
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_next_source_kind"] == "semantic"
+    assert (
+        body["memory_retrieval"]["semantic_embedding_source_rollout_completion_state"]
+        == "baseline_blocked_semantic_missing"
+    )
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_progress_percent"] == 33
+
+
+def test_health_endpoint_marks_source_rollout_fully_enabled_when_relation_is_included() -> None:
+    client, _, _ = _client(embedding_source_kinds="episodic,semantic,affective,relation")
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_state"] == "all_vector_sources_enabled"
+    assert (
+        body["memory_retrieval"]["semantic_embedding_source_rollout_hint"]
+        == "semantic_affective_relation_sources_enabled"
+    )
+    assert (
+        body["memory_retrieval"]["semantic_embedding_source_rollout_recommendation"]
+        == "maintain_current_source_rollout"
+    )
+    assert (
+        body["memory_retrieval"]["semantic_embedding_source_rollout_enabled_sources"]
+        == ["semantic", "affective", "relation"]
+    )
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_missing_sources"] == []
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_next_source_kind"] == "none"
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_completion_state"] == "fully_enabled"
+    assert body["memory_retrieval"]["semantic_embedding_source_rollout_progress_percent"] == 100
 
 
 def test_health_endpoint_exposes_embedding_model_governance_posture_for_deterministic_custom_model() -> None:

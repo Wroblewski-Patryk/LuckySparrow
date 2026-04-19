@@ -217,6 +217,22 @@ Last updated: 2026-04-20
 - 2026-04-20: startup now emits `embedding_strategy_hint` with strict-rollout
   readiness, violation summary, recommendation, and enforcement-alignment
   diagnostics from one shared embedding strategy snapshot owner.
+- 2026-04-20: source-rollout sequencing posture is now explicit through shared
+  diagnostics
+  (`semantic_embedding_source_rollout_order`,
+  `semantic_embedding_source_rollout_enabled_sources`,
+  `semantic_embedding_source_rollout_missing_sources`,
+  `semantic_embedding_source_rollout_next_source_kind`,
+  `semantic_embedding_source_rollout_completion_state`,
+  `semantic_embedding_source_rollout_phase_index`,
+  `semantic_embedding_source_rollout_phase_total`,
+  `semantic_embedding_source_rollout_progress_percent`) in
+  `/health.memory_retrieval`.
+- 2026-04-20: source-rollout state now distinguishes relation-inclusive full
+  activation posture (`all_vector_sources_enabled`) from semantic+affective
+  baseline rollout posture.
+- 2026-04-20: startup now emits `embedding_source_rollout_hint` whenever
+  vectors are enabled and source rollout still has a pending next source kind.
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,

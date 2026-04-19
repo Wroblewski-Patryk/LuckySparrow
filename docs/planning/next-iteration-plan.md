@@ -270,6 +270,23 @@ Completed on 2026-04-18:
   diagnostics from the same shared helper used by `/health`.
 - `PRJ-250` is complete: planning/docs/context are synchronized through
   `PRJ-250` with targeted regression coverage for embedding strategy posture.
+- `PRJ-251` is complete: source-rollout relation-aware completion posture is now
+  explicit in shared diagnostics (`all_vector_sources_enabled`,
+  `semantic_embedding_source_rollout_completion_state`,
+  `semantic_embedding_source_rollout_next_source_kind`).
+- `PRJ-252` is complete: source-rollout sequencing diagnostics are now explicit
+  in shared helper outputs (`semantic_embedding_source_rollout_order`,
+  `semantic_embedding_source_rollout_enabled_sources`,
+  `semantic_embedding_source_rollout_missing_sources`).
+- `PRJ-253` is complete: source-rollout progress diagnostics are now explicit
+  (`semantic_embedding_source_rollout_phase_index`,
+  `semantic_embedding_source_rollout_phase_total`,
+  `semantic_embedding_source_rollout_progress_percent`).
+- `PRJ-254` is complete: startup now emits `embedding_source_rollout_hint`
+  while vectors are enabled and rollout still has pending source kinds.
+- `PRJ-255` is complete: planning/docs/context are synchronized through
+  `PRJ-255` with targeted regression coverage for source-rollout sequencing
+  diagnostics.
 
 ## Highest-Risk Gaps
 
@@ -960,7 +977,7 @@ implicit or uncontrolled side effects.
 
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-250`.
+The planning queue is complete through `PRJ-255`.
 There is currently no execution-ready PRJ slice in the board.
 Before the next implementation slice:
 

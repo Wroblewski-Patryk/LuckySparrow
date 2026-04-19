@@ -53,16 +53,24 @@ def embedding_strategy_snapshot(
     refresh_interval_seconds: int | None = None,
     provider_ownership_enforcement: str | None = None,
     model_governance_enforcement: str | None = None,
-) -> dict[str, str | bool | int]:
+) -> dict[str, str | bool | int | list[str]]:
     posture = resolve_embedding_posture(provider=provider, model=model)
     if source_kinds is None:
         normalized_source_kinds = normalize_embedding_source_kinds(None)
     else:
         normalized_source_kinds = normalize_embedding_source_kinds(",".join(source_kinds))
     source_kind_set = set(normalized_source_kinds)
+    vector_source_order = ("semantic", "affective", "relation")
+    source_rollout_enabled_sources = [
+        kind for kind in vector_source_order if kind in source_kind_set
+    ]
+    source_rollout_missing_sources = [
+        kind for kind in vector_source_order if kind not in source_kind_set
+    ]
     provider_ready = posture["provider_requested"] == posture["provider_effective"]
     semantic_ready = "semantic" in source_kind_set
     affective_ready = "affective" in source_kind_set
+    relation_ready = "relation" in source_kind_set
     if not semantic_vector_enabled:
         source_coverage_state = "vectors_disabled"
         source_coverage_hint = "not_applicable_vectors_disabled"
@@ -80,6 +88,10 @@ def embedding_strategy_snapshot(
         source_rollout_state = "vectors_disabled"
         source_rollout_hint = "enable_vectors_before_source_rollout"
         source_rollout_recommendation = "defer_source_rollout_until_vectors_enabled"
+    elif semantic_ready and affective_ready and relation_ready:
+        source_rollout_state = "all_vector_sources_enabled"
+        source_rollout_hint = "semantic_affective_relation_sources_enabled"
+        source_rollout_recommendation = "maintain_current_source_rollout"
     elif semantic_ready and affective_ready:
         source_rollout_state = "semantic_affective_baseline"
         source_rollout_hint = "high_signal_sources_active"
@@ -96,6 +108,30 @@ def embedding_strategy_snapshot(
         source_rollout_state = "foundational_sources_only"
         source_rollout_hint = "semantic_and_affective_sources_missing"
         source_rollout_recommendation = "enable_semantic_then_affective_sources"
+
+    source_rollout_phase_total = len(vector_source_order)
+    if not semantic_vector_enabled:
+        source_rollout_completion_state = "vectors_disabled"
+        source_rollout_next_source_kind = "none"
+    elif semantic_ready and affective_ready and relation_ready:
+        source_rollout_completion_state = "fully_enabled"
+        source_rollout_next_source_kind = "none"
+    elif semantic_ready and affective_ready:
+        source_rollout_completion_state = "baseline_complete_relation_pending"
+        source_rollout_next_source_kind = "relation"
+    elif semantic_ready:
+        source_rollout_completion_state = "baseline_in_progress_affective_pending"
+        source_rollout_next_source_kind = "affective"
+    elif affective_ready or relation_ready:
+        source_rollout_completion_state = "baseline_blocked_semantic_missing"
+        source_rollout_next_source_kind = "semantic"
+    else:
+        source_rollout_completion_state = "not_started"
+        source_rollout_next_source_kind = "semantic"
+    source_rollout_phase_index = len(source_rollout_enabled_sources)
+    source_rollout_progress_percent = int(
+        round((source_rollout_phase_index / source_rollout_phase_total) * 100)
+    )
 
     if not semantic_vector_enabled:
         warning_state = "vectors_disabled"
@@ -355,6 +391,14 @@ def embedding_strategy_snapshot(
         "semantic_embedding_source_rollout_state": source_rollout_state,
         "semantic_embedding_source_rollout_hint": source_rollout_hint,
         "semantic_embedding_source_rollout_recommendation": source_rollout_recommendation,
+        "semantic_embedding_source_rollout_order": list(vector_source_order),
+        "semantic_embedding_source_rollout_enabled_sources": list(source_rollout_enabled_sources),
+        "semantic_embedding_source_rollout_missing_sources": list(source_rollout_missing_sources),
+        "semantic_embedding_source_rollout_next_source_kind": source_rollout_next_source_kind,
+        "semantic_embedding_source_rollout_completion_state": source_rollout_completion_state,
+        "semantic_embedding_source_rollout_phase_index": source_rollout_phase_index,
+        "semantic_embedding_source_rollout_phase_total": source_rollout_phase_total,
+        "semantic_embedding_source_rollout_progress_percent": source_rollout_progress_percent,
         "semantic_embedding_warning_state": warning_state,
         "semantic_embedding_warning_hint": warning_hint,
         "semantic_embedding_refresh_mode": normalized_refresh_mode,

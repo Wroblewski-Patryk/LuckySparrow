@@ -15,7 +15,7 @@ Last updated: 2026-04-20
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The planning queue is complete through `PRJ-250`.
+- The planning queue is complete through `PRJ-255`.
 - No `READY` PRJ slice is currently registered; derive the next smallest slice
   from `docs/planning/open-decisions.md` and sync it with the board before
   implementation.
@@ -48,6 +48,87 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-255 Sync embedding source-rollout sequencing slice across docs, planning, and context
+  - Status: DONE
+  - Group: Embedding Source Rollout Sequencing
+  - Owner: Product Docs + Backend Builder
+  - Depends on: PRJ-254
+  - Priority: P2
+  - Result:
+    - task board, project state, iteration plan, and open-decisions docs are
+      synchronized through `PRJ-255`
+    - canonical env/config and runtime ops docs now include source-rollout
+      sequencing and progress diagnostics
+    - runtime reality docs now record startup source-rollout hint behavior
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
+    - `.\.venv\Scripts\python -m pytest -q`
+
+- [x] PRJ-254 Add startup source-rollout hint logs from shared sequencing diagnostics
+  - Status: DONE
+  - Group: Embedding Source Rollout Sequencing
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-253
+  - Priority: P2
+  - Result:
+    - startup source-coverage warnings now include rollout completion and
+      progress context from one shared snapshot owner
+    - startup now emits `embedding_source_rollout_hint` when vectors are
+      enabled and rollout still has a pending next source kind
+    - runtime log regressions now pin rollout hint behavior for pending and
+      all-sources-enabled states
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
+
+- [x] PRJ-253 Add source-rollout progress diagnostics in shared embedding strategy snapshot
+  - Status: DONE
+  - Group: Embedding Source Rollout Sequencing
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-252
+  - Priority: P2
+  - Result:
+    - shared embedding strategy snapshot now exposes source-rollout progress
+      fields (`semantic_embedding_source_rollout_phase_index`,
+      `semantic_embedding_source_rollout_phase_total`,
+      `semantic_embedding_source_rollout_progress_percent`)
+    - `/health.memory_retrieval` now surfaces rollout progress posture across
+      vectors-disabled, partial, baseline, and full-source states
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py`
+
+- [x] PRJ-252 Add source-rollout sequencing diagnostics in shared embedding strategy snapshot
+  - Status: DONE
+  - Group: Embedding Source Rollout Sequencing
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-251
+  - Priority: P2
+  - Result:
+    - shared embedding strategy snapshot now exposes explicit source sequencing
+      diagnostics (`semantic_embedding_source_rollout_order`,
+      `semantic_embedding_source_rollout_enabled_sources`,
+      `semantic_embedding_source_rollout_missing_sources`,
+      `semantic_embedding_source_rollout_next_source_kind`)
+    - `/health.memory_retrieval` now exposes machine-readable next-source
+      guidance for rollout operations
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py`
+
+- [x] PRJ-251 Add relation-aware source-rollout completion posture in shared embedding strategy snapshot
+  - Status: DONE
+  - Group: Embedding Source Rollout Sequencing
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-250
+  - Priority: P2
+  - Result:
+    - source-rollout state now distinguishes full vector-source activation
+      (`all_vector_sources_enabled`) from semantic+affective baseline
+    - shared diagnostics now expose explicit completion posture through
+      `semantic_embedding_source_rollout_completion_state`
+    - `/health.memory_retrieval` and unit tests now pin relation-inclusive
+      full rollout behavior
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py`
 
 - [x] PRJ-250 Sync embedding strict-rollout guidance slice across docs, planning, and context
   - Status: DONE

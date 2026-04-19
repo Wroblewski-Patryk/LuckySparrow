@@ -341,6 +341,14 @@ Allowed values:
 - `semantic_embedding_source_rollout_state`
 - `semantic_embedding_source_rollout_hint`
 - `semantic_embedding_source_rollout_recommendation`
+- `semantic_embedding_source_rollout_order`
+- `semantic_embedding_source_rollout_enabled_sources`
+- `semantic_embedding_source_rollout_missing_sources`
+- `semantic_embedding_source_rollout_next_source_kind`
+- `semantic_embedding_source_rollout_completion_state`
+- `semantic_embedding_source_rollout_phase_index`
+- `semantic_embedding_source_rollout_phase_total`
+- `semantic_embedding_source_rollout_progress_percent`
 - `semantic_embedding_refresh_mode`
 - `semantic_embedding_refresh_interval_seconds`
 - `semantic_embedding_refresh_state`

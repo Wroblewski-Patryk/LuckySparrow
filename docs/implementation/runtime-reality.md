@@ -224,6 +224,16 @@ Current limitation:
   `semantic_embedding_source_rollout_hint`,
   `semantic_embedding_source_rollout_recommendation`) for semantic+affective
   baseline, single-source rollout phases, and foundational-only source sets.
+- source-rollout sequencing posture is now explicit through helper-owned
+  diagnostics (`semantic_embedding_source_rollout_order`,
+  `semantic_embedding_source_rollout_enabled_sources`,
+  `semantic_embedding_source_rollout_missing_sources`,
+  `semantic_embedding_source_rollout_next_source_kind`,
+  `semantic_embedding_source_rollout_completion_state`,
+  `semantic_embedding_source_rollout_phase_index`,
+  `semantic_embedding_source_rollout_phase_total`,
+  `semantic_embedding_source_rollout_progress_percent`), including explicit
+  all-sources-enabled posture (`all_vector_sources_enabled`).
 - strict-rollout preflight posture is now explicit through helper-owned
   diagnostics (`semantic_embedding_strict_rollout_violations`,
   `semantic_embedding_strict_rollout_violation_count`,
@@ -241,6 +251,8 @@ Current limitation:
 - startup now emits `embedding_strategy_hint` with strict-rollout readiness,
   recommendation, violation summary, and enforcement-alignment diagnostics when
   vectors are enabled.
+- startup now also emits `embedding_source_rollout_hint` when vectors are
+  enabled and rollout still has a pending next source kind.
 
 ### Event API behavior
 

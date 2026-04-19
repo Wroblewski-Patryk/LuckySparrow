@@ -187,13 +187,33 @@ def _log_embedding_strategy_warnings(*, settings, logger) -> None:
         "missing_for_current_retrieval_path",
     }:
         logger.warning(
-            "embedding_source_coverage_warning semantic_vector_enabled=%s source_kinds=%s coverage_state=%s hint=%s rollout_state=%s rollout_hint=%s rollout_recommendation=%s recommendation=enable_semantic_and_affective_sources_for_vector_hits",
+            "embedding_source_coverage_warning semantic_vector_enabled=%s source_kinds=%s coverage_state=%s hint=%s rollout_state=%s rollout_hint=%s rollout_recommendation=%s rollout_next_source_kind=%s rollout_completion_state=%s rollout_progress_percent=%s recommendation=enable_semantic_and_affective_sources_for_vector_hits",
             bool(snapshot["semantic_vector_enabled"]),
             ",".join(str(item) for item in snapshot["semantic_embedding_source_kinds"]),
             str(snapshot["semantic_embedding_source_coverage_state"]),
             str(snapshot["semantic_embedding_source_coverage_hint"]),
             str(snapshot["semantic_embedding_source_rollout_state"]),
             str(snapshot["semantic_embedding_source_rollout_hint"]),
+            str(snapshot["semantic_embedding_source_rollout_recommendation"]),
+            str(snapshot["semantic_embedding_source_rollout_next_source_kind"]),
+            str(snapshot["semantic_embedding_source_rollout_completion_state"]),
+            int(snapshot["semantic_embedding_source_rollout_progress_percent"]),
+        )
+    if (
+        bool(snapshot["semantic_vector_enabled"])
+        and str(snapshot["semantic_embedding_source_rollout_next_source_kind"]) != "none"
+    ):
+        logger.info(
+            "embedding_source_rollout_hint semantic_vector_enabled=%s rollout_state=%s rollout_completion_state=%s rollout_next_source_kind=%s rollout_enabled_sources=%s rollout_missing_sources=%s rollout_phase_index=%s rollout_phase_total=%s rollout_progress_percent=%s rollout_recommendation=%s",
+            bool(snapshot["semantic_vector_enabled"]),
+            str(snapshot["semantic_embedding_source_rollout_state"]),
+            str(snapshot["semantic_embedding_source_rollout_completion_state"]),
+            str(snapshot["semantic_embedding_source_rollout_next_source_kind"]),
+            ",".join(str(item) for item in snapshot["semantic_embedding_source_rollout_enabled_sources"]),
+            ",".join(str(item) for item in snapshot["semantic_embedding_source_rollout_missing_sources"]),
+            int(snapshot["semantic_embedding_source_rollout_phase_index"]),
+            int(snapshot["semantic_embedding_source_rollout_phase_total"]),
+            int(snapshot["semantic_embedding_source_rollout_progress_percent"]),
             str(snapshot["semantic_embedding_source_rollout_recommendation"]),
         )
     if str(snapshot["semantic_embedding_refresh_state"]) == "manual_refresh_required":
