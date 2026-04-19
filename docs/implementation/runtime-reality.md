@@ -167,11 +167,15 @@ Hybrid retrieval surfaces are now also explicit:
   candidates with lexical overlap plus vector similarity scoring
 - runtime logs and memory diagnostics now expose hybrid retrieval signals
   (lexical/vector hit counts) for observability
+- conclusion-driven semantic/affective embedding shells now persist with
+  configured effective embedding model/dimensions plus requested/effective
+  provider metadata and explicit `pending_vector_materialization` status
 
 Current limitation:
 
-- deterministic fallback embeddings are live; provider-owned embedding lifecycle
-  and tuning are still planned follow-up work.
+- deterministic fallback embeddings are live; requested non-implemented
+  providers still fall back to deterministic execution, and provider-owned
+  embedding lifecycle/tuning are planned follow-up work.
 
 ### Event API behavior
 

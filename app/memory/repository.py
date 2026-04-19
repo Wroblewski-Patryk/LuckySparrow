@@ -4,7 +4,7 @@ from sqlalchemy import and_, or_, select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.core.contracts import MemoryLayerKind
-from app.memory.embeddings import cosine_similarity
+from app.memory.embeddings import cosine_similarity, resolve_embedding_posture
 from app.memory.models import (
     AionConclusion,
     AionGoal,
@@ -57,8 +57,20 @@ class MemoryRepository:
     GLOBAL_SCOPE_TYPE = "global"
     GLOBAL_SCOPE_KEY = "global"
 
-    def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
+    def __init__(
+        self,
+        session_factory: async_sessionmaker[AsyncSession],
+        *,
+        embedding_provider: str = "deterministic",
+        embedding_model: str = "deterministic-v1",
+        embedding_dimensions: int = 32,
+    ):
         self.session_factory = session_factory
+        self.embedding_dimensions = max(1, int(embedding_dimensions))
+        self.embedding_posture = resolve_embedding_posture(
+            provider=embedding_provider,
+            model=embedding_model,
+        )
 
     async def create_tables(self, engine: AsyncEngine) -> None:
         async with engine.begin() as conn:
@@ -1298,12 +1310,18 @@ class MemoryRepository:
                 scope_key=normalized_scope_key,
                 content=content,
                 embedding=None,
-                embedding_model="pending",
-                embedding_dimensions=0,
+                embedding_model=self.embedding_posture["model_effective"],
+                embedding_dimensions=self.embedding_dimensions,
                 metadata={
                     "kind": kind,
                     "confidence": confidence,
                     "source": source,
+                    "embedding_status": "pending_vector_materialization",
+                    "embedding_provider_requested": self.embedding_posture["provider_requested"],
+                    "embedding_provider_effective": self.embedding_posture["provider_effective"],
+                    "embedding_provider_hint": self.embedding_posture["provider_hint"],
+                    "embedding_model_requested": self.embedding_posture["model_requested"],
+                    "embedding_model_effective": self.embedding_posture["model_effective"],
                 },
             )
 

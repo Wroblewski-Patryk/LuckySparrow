@@ -15,7 +15,7 @@ Last updated: 2026-04-19
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The planning queue is complete through `PRJ-233`.
+- The planning queue is complete through `PRJ-234`.
 - No `READY` PRJ slice is currently registered; derive the next smallest slice
   from `docs/planning/open-decisions.md` and sync it with the board before
   implementation.
@@ -48,6 +48,25 @@ Last updated: 2026-04-19
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-234 Align conclusion embedding shell metadata with configured embedding strategy posture
+  - Status: DONE
+  - Group: Embedding Strategy Posture
+  - Owner: Backend Builder + QA/Test + Product Docs
+  - Depends on: PRJ-233
+  - Priority: P2
+  - Result:
+    - `MemoryRepository` now owns embedding strategy posture
+      (`provider/model/dimensions`) so conclusion-driven semantic/affective
+      embedding shells no longer use hardcoded `pending/0` values
+    - conclusion embedding shells now persist effective model/dimensions plus
+      requested-vs-effective provider metadata and explicit
+      `pending_vector_materialization` status
+    - app startup wiring now passes embedding strategy settings into
+      `MemoryRepository`
+    - docs/context/planning are synchronized through `PRJ-234`
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_main_runtime_policy.py tests/test_main_lifespan_policy.py`
 
 - [x] PRJ-233 Add embedding provider readiness posture and startup fallback warning
   - Status: DONE

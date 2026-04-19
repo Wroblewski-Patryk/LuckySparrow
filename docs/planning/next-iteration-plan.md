@@ -184,6 +184,10 @@ Completed on 2026-04-18:
   in `/health.memory_retrieval` (`semantic_embedding_provider_ready`,
   `semantic_embedding_posture`) and startup now warns when requested embedding
   provider falls back to deterministic execution.
+- `PRJ-234` is complete: conclusion embedding shells now align with configured
+  embedding strategy posture (`provider/model/dimensions`) and persist
+  requested-vs-effective provider metadata with explicit
+  `pending_vector_materialization` status.
 
 ## Highest-Risk Gaps
 
@@ -874,7 +878,7 @@ implicit or uncontrolled side effects.
 
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-233`.
+The planning queue is complete through `PRJ-234`.
 There is currently no execution-ready PRJ slice in the board.
 Before the next implementation slice:
 

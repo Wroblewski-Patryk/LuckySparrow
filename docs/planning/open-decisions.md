@@ -245,6 +245,9 @@ The current repo already works as an MVP slice, but several architecture-level d
     `semantic_embedding_posture`) and startup logs now emit
     `embedding_strategy_warning` when a requested provider falls back to
     deterministic execution.
+  - conclusion-driven semantic/affective embedding shells now persist with
+    configured effective model/dimensions plus requested/effective provider
+    metadata and explicit `pending_vector_materialization` status.
   - provider ownership, refresh cadence, and embedding model governance are
     still open.
 - Decision needed:

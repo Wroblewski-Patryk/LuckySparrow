@@ -144,6 +144,10 @@ Last updated: 2026-04-19
   `semantic_embedding_posture=ready|fallback_deterministic`) and startup now
   emits `embedding_strategy_warning` when requested provider posture falls
   back to deterministic execution.
+- 2026-04-19: `MemoryRepository` now persists conclusion embedding shells with
+  configured effective embedding posture (model/dimensions) and explicit
+  requested-vs-effective provider metadata instead of hardcoded
+  `pending/0` placeholders.
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,
@@ -282,7 +286,7 @@ Last updated: 2026-04-19
   explicit without regressing current runtime behavior, then deepen the runtime
   toward affective understanding, scoped memory, and stronger action intent
   ownership
-- Active `PRJ` execution queue is complete through `PRJ-233`; the next slice
+- Active `PRJ` execution queue is complete through `PRJ-234`; the next slice
   should be derived from `docs/planning/open-decisions.md` and registered as
   `READY` before implementation.
 - Top blockers:
@@ -297,6 +301,13 @@ Last updated: 2026-04-19
 
 ## Recent Progress
 
+- 2026-04-19: `PRJ-234` is complete: conclusion-driven semantic/affective
+  embedding shells now use configured effective embedding model/dimensions and
+  store requested-vs-effective provider metadata with explicit
+  `pending_vector_materialization` status.
+- 2026-04-19: `PRJ-234` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_main_runtime_policy.py tests/test_main_lifespan_policy.py`
+  passed with `51 passed`.
 - 2026-04-19: `PRJ-233` is complete: embedding-provider fallback readiness is
   now operator-visible in `/health.memory_retrieval`, and startup logs now
   warn when configured embedding provider/model posture is not yet executable

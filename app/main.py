@@ -125,7 +125,12 @@ async def lifespan(app: FastAPI):
     _log_embedding_strategy_warnings(settings=settings, logger=logger)
 
     database = Database(settings.database_url)  # type: ignore[arg-type]
-    memory_repository = MemoryRepository(database.session_factory)
+    memory_repository = MemoryRepository(
+        database.session_factory,
+        embedding_provider=str(getattr(settings, "embedding_provider", "deterministic")),
+        embedding_model=str(getattr(settings, "embedding_model", "deterministic-v1")),
+        embedding_dimensions=int(getattr(settings, "embedding_dimensions", 32)),
+    )
     if settings.startup_schema_mode == "create_tables":
         await memory_repository.create_tables(database.engine)
         logger.warning(

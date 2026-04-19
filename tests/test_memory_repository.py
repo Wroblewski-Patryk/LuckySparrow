@@ -172,7 +172,60 @@ async def test_memory_repository_upsert_conclusion_creates_embedding_shell_for_s
     assert rows[0].source_kind == "affective"
     assert rows[0].source_id.startswith("conclusion:")
     assert rows[0].embedding is None
-    assert rows[0].embedding_model == "pending"
+    assert rows[0].embedding_model == "deterministic-v1"
+    assert rows[0].embedding_dimensions == 32
+    assert rows[0].metadata_json["embedding_status"] == "pending_vector_materialization"
+    assert rows[0].metadata_json["embedding_provider_requested"] == "deterministic"
+    assert rows[0].metadata_json["embedding_provider_effective"] == "deterministic"
+    assert rows[0].metadata_json["embedding_provider_hint"] == "deterministic_baseline"
+
+    await engine.dispose()
+
+
+async def test_memory_repository_upsert_conclusion_uses_effective_embedding_posture_when_provider_is_not_implemented(
+    tmp_path,
+) -> None:
+    database_path = tmp_path / "memory-conclusion-embedding-fallback.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(
+        session_factory=session_factory,
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=24,
+    )
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="custom_semantic_fact",
+        content="deployment blockers require explicit rollback paths",
+        confidence=0.77,
+        source="background_reflection",
+        supporting_event_id="evt-sem-shell",
+    )
+
+    async with session_factory() as session:
+        rows = (
+            await session.execute(
+                select(AionSemanticEmbedding).order_by(AionSemanticEmbedding.id.asc())
+            )
+        ).scalars().all()
+
+    assert len(rows) == 1
+    assert rows[0].source_kind == "semantic"
+    assert rows[0].embedding is None
+    assert rows[0].embedding_model == "deterministic-v1"
+    assert rows[0].embedding_dimensions == 24
+    assert rows[0].metadata_json["embedding_provider_requested"] == "openai"
+    assert rows[0].metadata_json["embedding_provider_effective"] == "deterministic"
+    assert (
+        rows[0].metadata_json["embedding_provider_hint"]
+        == "provider_not_implemented_fallback_deterministic"
+    )
+    assert rows[0].metadata_json["embedding_model_requested"] == "text-embedding-3-small"
+    assert rows[0].metadata_json["embedding_model_effective"] == "deterministic-v1"
+    assert rows[0].metadata_json["embedding_status"] == "pending_vector_materialization"
 
     await engine.dispose()
 
