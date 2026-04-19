@@ -173,6 +173,10 @@ Last updated: 2026-04-19
   diagnostics (`semantic_embedding_model_governance_state`,
   `semantic_embedding_model_governance_hint`) reused by `/health.memory_retrieval`
   and startup warning flow (`embedding_model_governance_warning`).
+- 2026-04-19: embedding provider-ownership posture is now explicit through
+  shared diagnostics (`semantic_embedding_provider_ownership_state`,
+  `semantic_embedding_provider_ownership_hint`) reused by
+  `/health.memory_retrieval` and startup fallback warning flow.
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,

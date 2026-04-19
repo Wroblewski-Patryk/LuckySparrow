@@ -339,6 +339,7 @@ def test_startup_logs_embedding_strategy_warning_when_provider_falls_back_to_det
     assert any("embedding_strategy_warning" in message for message in messages)
     assert any("requested_provider=openai" in message for message in messages)
     assert any("effective_provider=deterministic" in message for message in messages)
+    assert any("ownership_state=provider_fallback_active" in message for message in messages)
     assert not any("embedding_model_governance_warning" in message for message in messages)
 
 

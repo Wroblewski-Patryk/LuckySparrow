@@ -281,6 +281,8 @@ Allowed values:
 - `semantic_embedding_provider_requested`
 - `semantic_embedding_provider_effective`
 - `semantic_embedding_provider_hint`
+- `semantic_embedding_provider_ownership_state`
+- `semantic_embedding_provider_ownership_hint`
 - `semantic_embedding_model_requested`
 - `semantic_embedding_model_effective`
 - `semantic_embedding_model_governance_state`

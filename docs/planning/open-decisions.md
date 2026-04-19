@@ -273,7 +273,12 @@ The current repo already works as an MVP slice, but several architecture-level d
     `semantic_embedding_model_governance_hint`) and startup warning visibility
     (`embedding_model_governance_warning`) for deterministic custom-model-name
     posture.
-  - provider ownership and model-governance enforcement policy are still open.
+  - provider-ownership posture is now explicit through shared diagnostics
+    (`semantic_embedding_provider_ownership_state`,
+    `semantic_embedding_provider_ownership_hint`) and startup fallback warning
+    enrichment.
+  - provider-ownership enforcement policy and model-governance enforcement
+    policy are still open.
 - Decision needed:
   - which embedding provider and refresh strategy should own semantic memory
     vectors?

@@ -15,6 +15,11 @@ def test_embedding_strategy_snapshot_marks_no_warning_when_deterministic_provide
     assert snapshot["semantic_embedding_source_coverage_hint"] == "semantic_and_affective_sources_enabled"
     assert snapshot["semantic_embedding_warning_state"] == "no_warning"
     assert snapshot["semantic_embedding_warning_hint"] == "embedding_strategy_ready"
+    assert snapshot["semantic_embedding_provider_ownership_state"] == "deterministic_baseline_owner"
+    assert (
+        snapshot["semantic_embedding_provider_ownership_hint"]
+        == "deterministic_provider_owns_embedding_execution"
+    )
     assert snapshot["semantic_embedding_model_governance_state"] == "model_contract_aligned"
     assert (
         snapshot["semantic_embedding_model_governance_hint"]
@@ -42,6 +47,8 @@ def test_embedding_strategy_snapshot_marks_vectors_disabled_warning_state() -> N
         snapshot["semantic_embedding_warning_hint"]
         == "enable_semantic_vectors_to_activate_embedding_strategy"
     )
+    assert snapshot["semantic_embedding_provider_ownership_state"] == "vectors_disabled"
+    assert snapshot["semantic_embedding_provider_ownership_hint"] == "not_applicable_vectors_disabled"
     assert snapshot["semantic_embedding_model_governance_state"] == "vectors_disabled"
     assert snapshot["semantic_embedding_model_governance_hint"] == "not_applicable_vectors_disabled"
     assert snapshot["semantic_embedding_refresh_state"] == "vectors_disabled"
@@ -64,6 +71,11 @@ def test_embedding_strategy_snapshot_marks_provider_fallback_warning_state() -> 
     assert (
         snapshot["semantic_embedding_warning_hint"]
         == "provider_not_implemented_using_deterministic_fallback"
+    )
+    assert snapshot["semantic_embedding_provider_ownership_state"] == "provider_fallback_active"
+    assert (
+        snapshot["semantic_embedding_provider_ownership_hint"]
+        == "requested_provider_not_effective_owner"
     )
     assert snapshot["semantic_embedding_model_governance_state"] == "provider_fallback_effective_model"
     assert (

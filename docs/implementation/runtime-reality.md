@@ -198,6 +198,10 @@ Current limitation:
   (`semantic_embedding_model_governance_state`,
   `semantic_embedding_model_governance_hint`) so startup and health align on
   deterministic custom-model-name visibility.
+- provider-ownership posture is now explicit through shared diagnostics
+  (`semantic_embedding_provider_ownership_state`,
+  `semantic_embedding_provider_ownership_hint`) so startup fallback warnings
+  and health diagnostics use the same ownership semantics.
 
 ### Event API behavior
 

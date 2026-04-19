@@ -73,6 +73,8 @@ retrieval posture:
 - `semantic_embedding_provider_requested`
 - `semantic_embedding_provider_effective`
 - `semantic_embedding_provider_hint`
+- `semantic_embedding_provider_ownership_state`
+- `semantic_embedding_provider_ownership_hint`
 - `semantic_embedding_model_requested`
 - `semantic_embedding_model_effective`
 - `semantic_embedding_model_governance_state`
@@ -91,7 +93,7 @@ retrieval posture:
 When semantic vectors are enabled and a non-implemented provider is requested
 (for example `EMBEDDING_PROVIDER=openai` today), startup emits
 `embedding_strategy_warning` with requested/effective provider-model posture
-and deterministic fallback hint.
+and deterministic fallback hint, plus provider-ownership diagnostics.
 
 When semantic vectors are enabled with `EMBEDDING_PROVIDER=deterministic` and a
 non-baseline model name is requested, startup emits

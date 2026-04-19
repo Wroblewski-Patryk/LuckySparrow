@@ -81,6 +81,19 @@ def embedding_strategy_snapshot(
         warning_hint = "provider_not_implemented_using_deterministic_fallback"
 
     if not semantic_vector_enabled:
+        provider_ownership_state = "vectors_disabled"
+        provider_ownership_hint = "not_applicable_vectors_disabled"
+    elif posture["provider_requested"] != posture["provider_effective"]:
+        provider_ownership_state = "provider_fallback_active"
+        provider_ownership_hint = "requested_provider_not_effective_owner"
+    elif posture["provider_effective"] == DEFAULT_EMBEDDING_PROVIDER:
+        provider_ownership_state = "deterministic_baseline_owner"
+        provider_ownership_hint = "deterministic_provider_owns_embedding_execution"
+    else:
+        provider_ownership_state = "provider_owned_execution"
+        provider_ownership_hint = "provider_controls_embedding_execution"
+
+    if not semantic_vector_enabled:
         model_governance_state = "vectors_disabled"
         model_governance_hint = "not_applicable_vectors_disabled"
     elif posture["provider_effective"] != posture["provider_requested"]:
@@ -118,6 +131,8 @@ def embedding_strategy_snapshot(
         "semantic_embedding_provider_requested": posture["provider_requested"],
         "semantic_embedding_provider_effective": posture["provider_effective"],
         "semantic_embedding_provider_hint": posture["provider_hint"],
+        "semantic_embedding_provider_ownership_state": provider_ownership_state,
+        "semantic_embedding_provider_ownership_hint": provider_ownership_hint,
         "semantic_embedding_model_requested": posture["model_requested"],
         "semantic_embedding_model_effective": posture["model_effective"],
         "semantic_embedding_model_governance_state": model_governance_state,
