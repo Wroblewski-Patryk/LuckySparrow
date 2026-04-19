@@ -1034,44 +1034,301 @@ implicit or uncontrolled side effects.
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_reflection_worker.py`
     - `.\.venv\Scripts\python -m pytest -q`
 
+## Group 17 - Foreground Runtime Convergence
+
+This group closes the remaining ambiguity in the foreground execution spine so
+the live runtime can keep moving toward the canonical architecture without
+reopening basic stage-ownership questions on every slice.
+
+- `PRJ-276` Define target-state foreground ownership and graph boundary invariants.
+  - Result:
+    - one explicit target-state ownership contract defines which foreground
+      segments stay graph-owned versus runtime-owned (`baseline load`, stage
+      graph, episodic memory write, reflection trigger)
+    - migration invariants make it explicit which stage contracts and ordering
+      guarantees must remain stable while the orchestration boundary evolves
+  - Validation:
+    - doc-and-context sync plus targeted contract diff review recorded in this
+      slice
+
+- `PRJ-277` Introduce an explicit response-execution contract for expression-to-action handoff.
+  - Result:
+    - expression produces a handoff that preserves wording/tone ownership while
+      action remains the sole execution owner
+    - the repo no longer depends on implicit delivery coupling to keep
+      expression-before-action behavior working
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py`
+
+- `PRJ-278` Align graph/runtime orchestration boundaries for baseline load, memory write, and reflection trigger.
+  - Result:
+    - graph-owned and runtime-owned segments are explicit in code rather than
+      hidden in orchestration shortcuts
+    - foreground flow can evolve toward the canonical architecture without
+      losing traceability or breaking the action boundary
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_graph_state_contract.py tests/test_graph_stage_adapters.py tests/test_main_lifespan_policy.py`
+
+- `PRJ-279` Add foreground architecture-parity regressions and sync docs/context.
+  - Result:
+    - regression coverage now fails quickly when foreground ordering or stage
+      ownership drifts away from the agreed target-state contract
+    - architecture, planning, and context docs describe the same foreground
+      boundary truth
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_logging.py tests/test_graph_state_contract.py`
+
+## Group 18 - Background Reflection Topology
+
+This group turns reflection from a "current app-local behavior plus future
+intent" story into an explicit topology contract that can support either
+in-process or external execution without rewriting the cognitive boundary.
+
+- `PRJ-280` Define target-state reflection topology and worker-mode contract.
+  - Result:
+    - reflection ownership becomes explicit across in-process scheduler mode,
+      external worker mode, queue semantics, and operator health posture
+    - the repo records which background concerns are durable architecture and
+      which are temporary execution choices
+  - Validation:
+    - doc-and-context sync plus targeted topology review recorded in this slice
+
+- `PRJ-281` Extract the reflection enqueue/dispatch boundary from app-local scheduler ownership.
+  - Result:
+    - reflection enqueue and dispatch stop assuming one in-process owner
+    - scheduler and runtime can share one explicit dispatch boundary instead of
+      duplicating reflection ownership rules
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_main_lifespan_policy.py`
+
+- `PRJ-282` Add worker-mode health, queue-drain, and retry handoff contract.
+  - Result:
+    - `/health` and runtime logs expose the worker-mode posture needed for
+      in-process and external-driver operation
+    - queue-drain and retry behavior can be safely handed to an external driver
+      without changing reflection semantics
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_api_routes.py tests/test_scheduler_worker.py tests/test_logging.py`
+
+- `PRJ-283` Add background-topology regressions and sync docs/context.
+  - Result:
+    - background execution ownership, retry posture, and worker-mode guarantees
+      are pinned by tests
+    - planning, project state, and operations docs stay aligned with the new
+      reflection topology contract
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_api_routes.py tests/test_main_lifespan_policy.py`
+
+## Group 19 - Production Memory Retrieval Rollout
+
+This group moves retrieval from "contracts plus diagnostics" toward a planned
+production baseline that is explicit about provider ownership, refresh
+semantics, and family-by-family rollout.
+
+- `PRJ-284` Define the production retrieval baseline for provider, refresh ownership, and family rollout order.
+  - Result:
+    - the repo records one target production baseline for embedding provider,
+      refresh strategy, default vector posture, and memory-family rollout order
+    - later retrieval work can implement toward a stable target instead of
+      reopening rollout strategy on each slice
+  - Validation:
+    - doc-and-context sync plus targeted retrieval-baseline review recorded in
+      this slice
+
+- `PRJ-285` Implement the provider-owned semantic and episodic vector materialization path.
+  - Result:
+    - semantic and episodic records can materialize provider-backed vectors with
+      explicit fallback and refresh ownership
+    - retrieval stops treating semantic vectors as mostly diagnostic shells
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
+
+- `PRJ-286` Extend vector rollout to affective and relation families with explicit gating.
+  - Result:
+    - affective and relation memory families join the rollout behind explicit
+      source-family gates and completion semantics
+    - retrieval posture can distinguish baseline semantic rollout from full
+      target-state memory coverage
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-287` Add production retrieval rollout regressions and sync docs/context.
+  - Result:
+    - health diagnostics, runtime defaults, and retrieval behavior are pinned
+      against the agreed production rollout posture
+    - planning, context, and operations docs now describe the same retrieval
+      baseline
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
+
+## Group 20 - Adaptive Cognition Governance
+
+This group keeps richer cognition aligned with the architecture by making
+evidence thresholds and influence scope explicit before adaptive signals spread
+further through runtime behavior.
+
+- `PRJ-288` Define evidence thresholds and influence policy for adaptive signals.
+  - Result:
+    - the repo has one explicit policy for how affective, relation, preference,
+      and theta signals may influence future runtime behavior
+    - adaptive signals stop expanding through undocumented tie-breakers
+  - Validation:
+    - doc-and-context sync plus targeted adaptive-policy review recorded in
+      this slice
+
+- `PRJ-289` Refactor role, motivation, and planning to consume governed adaptive influence rules.
+  - Result:
+    - core cognition stages consume one governed adaptive-policy owner instead
+      of ad hoc signal checks
+    - role and planning behavior remain explainable as the architecture grows
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+
+- `PRJ-290` Extend proactive and attention logic to consume governed relation/theta signals.
+  - Result:
+    - proactive and attention behavior can use relation/theta context only
+      through explicit policy surfaces
+    - adaptive cues do not silently bypass attention or anti-spam guardrails
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-291` Add adaptive-governance regressions and sync docs/context.
+  - Result:
+    - anti-feedback-loop, cross-goal-leakage, and adaptive influence scope
+      expectations are pinned by regression coverage
+    - docs and context describe the same adaptive governance rules
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_role_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+
+## Group 21 - Attention And Proposal Execution Boundary
+
+This group finishes the dual-loop execution boundary so subconscious proposals,
+turn assembly, proactive delivery, and external permission gates all pass
+through one explicit conscious ownership path.
+
+- `PRJ-292` Define a durable proposal lifecycle and canonical turn-assembly ownership contract.
+  - Result:
+    - proposal persistence, handoff decisions, and pending-turn ownership have
+      one explicit contract owner
+    - future dual-loop changes no longer need to infer whether attention or
+      planning owns a boundary
+  - Validation:
+    - doc-and-context sync plus targeted dual-loop contract review recorded in
+      this slice
+
+- `PRJ-293` Implement end-to-end proposal persistence and conscious handoff decisions.
+  - Result:
+    - subconscious proposals can persist durably and re-enter conscious runtime
+      through explicit handoff decisions
+    - user-visible actions remain blocked until conscious runtime accepts or
+      merges a proposal
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py tests/test_planning_agent.py`
+
+- `PRJ-294` Route proactive outreach and connector permission gates through the shared attention/proposal boundary.
+  - Result:
+    - proactive delivery and external-connector permission outcomes now share
+      one conscious execution boundary
+    - connector suggestions and outreach plans stop bypassing the same gating
+      model used for batched conversation handling
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_planning_agent.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- `PRJ-295` Add dual-loop execution-boundary regressions and sync docs/context.
+  - Result:
+    - turn assembly, proposal handoff, proactive delivery, and permission-gated
+      external intent flows are pinned end to end
+    - docs and context now describe one coherent dual-loop execution model
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_reflection_worker.py tests/test_action_executor.py tests/test_planning_agent.py`
+
+## Group 22 - Operational Hardening And Release Truth
+
+This group turns the remaining production and release posture questions into an
+explicit target baseline so the repo can be built toward the intended system,
+not around temporary convenience defaults.
+
+- `PRJ-296` Define the target production posture for migration-only startup, strict defaults, and the internal debug boundary.
+  - Result:
+    - one target production baseline defines migration-only startup posture,
+      strict policy defaults, and the intended internal-versus-public debug
+      boundary
+    - later hardening slices can remove temporary rollout ambiguity instead of
+      creating more diagnostic layers
+  - Validation:
+    - doc-and-context sync plus targeted production-baseline review recorded in
+      this slice
+
+- `PRJ-297` Enforce migration-first and internal-debug posture through explicit runtime gates.
+  - Result:
+    - runtime and config boundaries reflect the agreed production target while
+      keeping any temporary escape hatches explicit and reviewable
+    - startup and API policy posture move closer to the final deployment shape
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_api_routes.py tests/test_main_lifespan_policy.py`
+
+- `PRJ-298` Finalize deployment and release truth for Coolify/manual fallback and smoke ownership.
+  - Result:
+    - deployment automation, manual fallback, and release smoke ownership are
+      documented as one coherent operational path
+    - execution work stops assuming deploy behavior that operations cannot yet
+      prove
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q`
+
+- `PRJ-299` Add release-readiness regressions and sync docs/context/runbook.
+  - Result:
+    - release-readiness checks and operational docs now match the target-state
+      production baseline
+    - planning, project state, and runbook truth remain synchronized at the end
+      of the convergence queue
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q`
+
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-275`.
-There is currently no execution-ready PRJ slice in the board.
+The planning queue is complete through `PRJ-299`.
+`PRJ-276` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- derive the next smallest architecture-alignment task from
-  `docs/planning/open-decisions.md`
-- register it as `READY` in `.codex/context/TASK_BOARD.md`
-- keep the implementation scope bounded to one reversible slice
+- take `PRJ-276` directly from `.codex/context/TASK_BOARD.md`
+- keep the implementation scope bounded to that one reversible slice
+- preserve target-state architecture bias when resolving local runtime choices
 
 ## Parallel-Ready Lanes
 
-These tasks are intentionally chosen so different execution agents can work in parallel with minimal overlap:
+The next three groups intentionally stay sequential because they define shared
+runtime boundaries that later work depends on:
 
-- Completed lane examples:
-  - `PRJ-006`
-    - ownership: memory schema, repository, action persistence
-  - `PRJ-009`
-    - ownership: motivation/planning/expression contract alignment
-  - `PRJ-014`
-    - ownership: runtime logging scaffold
+- `PRJ-276..PRJ-279`
+- `PRJ-280..PRJ-283`
+- `PRJ-284..PRJ-287`
 
-After those finished:
+After those groups are stable, the next two lanes can be worked with minimal
+overlap:
 
-- derive the next smallest architecture-alignment task from
-  `docs/planning/open-decisions.md`
-- register that task in `.codex/context/TASK_BOARD.md` before implementation
+- `PRJ-288..PRJ-291`
+  - ownership: adaptive governance across role, motivation, planning, and
+    reflection consumers
+- `PRJ-292..PRJ-295`
+  - ownership: attention inbox, proposal handoff, proactive gating, and
+    connector execution boundary
+
+`PRJ-296..PRJ-299` should start only after both lanes stabilize, because that
+group locks the production and release baseline for the converged runtime.
 
 ## Recommended Execution Order
 
-1. `PRJ-083..PRJ-084` Scheduled and proactive runtime
-2. `PRJ-085..PRJ-092` Attention gating and dual-loop coordination
-3. `PRJ-093..PRJ-097` External productivity connectors
+1. `PRJ-276..PRJ-279` Foreground runtime convergence
+2. `PRJ-280..PRJ-283` Background reflection topology
+3. `PRJ-284..PRJ-287` Production memory retrieval rollout
+4. `PRJ-288..PRJ-291` Adaptive cognition governance
+5. `PRJ-292..PRJ-295` Attention and proposal execution boundary
+6. `PRJ-296..PRJ-299` Operational hardening and release truth
 
 The queue should still be treated as intentionally open after those items.
 Additional small architecture-alignment slices may still be discovered while
-executing Groups 4 through 16.
+executing Groups 17 through 22.
 
 ## Handoff Rules For Execution Agents
 
@@ -1087,10 +1344,16 @@ When taking the next task:
 
 This phase is complete when:
 
-- episodic memory uses a typed machine-readable contract instead of summary-string parsing as the primary path
-- motivation uses only documented shared modes
-- duplicated signal logic has one clear owner
-- stage-level logging makes runtime decisions observable
-- startup schema ownership is migration-first or explicitly guarded as temporary
-- runtime stage ownership is traceable from docs to code and tests
+- foreground runtime ownership is explicit across graph execution, baseline
+  load, action handoff, episodic memory write, and reflection trigger
+- background reflection topology is explicit, operator-visible, and ready for
+  either in-process or external execution without semantic drift
+- semantic retrieval has a production baseline with explicit provider,
+  refresh-owner, and family-rollout semantics
+- adaptive signals influence behavior only through documented, evidence-based
+  policy surfaces
+- attention, proposal handoff, proactive outreach, and connector permission
+  gates share one conscious execution boundary
+- production startup, debug posture, and release workflow describe the intended
+  target-state baseline rather than temporary convenience defaults
 - docs, code, and `.codex/context/` describe the same runtime truth

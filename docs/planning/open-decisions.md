@@ -4,6 +4,32 @@
 
 The current repo already works as an MVP slice, but several architecture-level docs describe systems that are not implemented yet. This file keeps the next real decisions visible and tied to the current codebase.
 
+## Target-State Convergence Stance (2026-04-20)
+
+- For the next execution queue, prefer slices that reduce transitional wiring
+  and move code toward the canonical architecture even when the current
+  implementation can support temporary shortcuts.
+- Treat `docs/architecture/02_architecture.md`,
+  `docs/architecture/15_runtime_flow.md`, and
+  `docs/architecture/16_agent_contracts.md` as the target shape for new work.
+  Use `docs/implementation/runtime-reality.md` to describe current constraints
+  and rollout guardrails, not to redefine the architecture.
+- Resolve the currently open decision clusters through the queued groups in
+  `docs/planning/next-iteration-plan.md` and
+  `.codex/context/TASK_BOARD.md`:
+  - `PRJ-276..PRJ-279`: foreground runtime convergence (`3a`, `3b`)
+  - `PRJ-280..PRJ-283`: background reflection topology (`1`, `12`)
+  - `PRJ-284..PRJ-287`: production memory retrieval rollout (`5`, `5d`,
+    `5e`, `9a`)
+  - `PRJ-288..PRJ-291`: adaptive cognition governance (`4`, `4a`, `10`,
+    `10a`, `10b`, `11`)
+  - `PRJ-292..PRJ-295`: attention/proposal execution boundary (`12a`, `12b`,
+    `12c`)
+  - `PRJ-296..PRJ-299`: operational hardening and release truth (`2`, `3`,
+    `6`, `7`)
+- Introduce new feature surface only when it advances one of those convergence
+  lanes or removes a documented transitional shortcut.
+
 ## Active Decisions
 
 ### 1. Reflection Placeholder vs Real Reflection

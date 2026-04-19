@@ -9,7 +9,7 @@ Last updated: 2026-04-20
   structured pipeline, replies through API or Telegram, and learns lightweight
   user preferences over time
 - Commercial model: TBD
-- Current phase: runtime contract hardening and observability uplift
+- Current phase: target-state architecture convergence planning and execution
 
 ## Product Decisions (Confirmed)
 
@@ -786,6 +786,14 @@ Last updated: 2026-04-20
   scoped memory, explicit action intents, adaptive-signal governance, graph
   orchestration adoption, semantic retrieval infrastructure, relation system,
   and scheduled/proactive runtime.
+- 2026-04-20: planning, board, and open-decisions context now extend through
+  `PRJ-299`, shifting the next queue from generic architecture hardening toward
+  target-state convergence across foreground runtime boundaries, background
+  reflection topology, production retrieval rollout, adaptive governance,
+  dual-loop execution boundaries, and operational hardening.
+- 2026-04-20: `PRJ-276` is the next `READY` slice and defines target-state
+  ownership for graph-owned versus runtime-owned foreground segments before
+  further runtime wiring changes are taken.
 
 ## Working Agreements
 

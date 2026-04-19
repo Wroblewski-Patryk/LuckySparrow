@@ -15,25 +15,357 @@ Last updated: 2026-04-20
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The planning queue is complete through `PRJ-275`.
-- No `READY` PRJ slice is currently registered; derive the next smallest slice
-  from `docs/planning/open-decisions.md` and sync it with the board before
-  implementation.
+- The planning queue is complete through `PRJ-299`.
+- `PRJ-276` is currently `READY` and begins the target-state architecture
+  convergence queue described in `docs/planning/next-iteration-plan.md`.
+- Subsequent slices should follow the grouped execution order for foreground
+  runtime convergence, background topology, production retrieval rollout,
+  adaptive governance, dual-loop execution boundaries, and operational
+  hardening.
 - Additional architecture-alignment work should be appended after that queue so
   the backlog stays explicitly open for later discovery instead of pretending
   the plan is complete.
 
 ## READY
 
-- [ ] (none)
+- [ ] PRJ-276 Define target-state foreground ownership and graph boundary invariants
+  - Status: READY
+  - Group: Foreground Runtime Convergence
+  - Owner: Planner + Backend Builder
+  - Depends on: PRJ-275
+  - Priority: P1
+  - Result:
+    - target-state ownership is explicit for graph-owned versus runtime-owned
+      foreground segments (`baseline load`, stage graph, episodic memory write,
+      reflection trigger)
+    - migration invariants define which contracts must stay stable while the
+      runtime converges toward canonical architecture
+  - Validation:
+    - doc-and-context sync plus targeted contract diff review recorded in this
+      slice
 
 ## BACKLOG
 
-- [ ] (none)
+- [ ] PRJ-277 Introduce an explicit response-execution contract for expression-to-action handoff
+  - Status: BACKLOG
+  - Group: Foreground Runtime Convergence
+  - Owner: Backend Builder
+  - Depends on: PRJ-276
+  - Priority: P1
+  - Result:
+    - expression produces an explicit execution handoff that preserves wording
+      and tone ownership while action remains the sole execution owner
+    - response delivery stops depending on implicit coupling between expression
+      and action
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py`
+
+- [ ] PRJ-278 Align graph/runtime orchestration boundaries for baseline load, memory write, and reflection trigger
+  - Status: BACKLOG
+  - Group: Foreground Runtime Convergence
+  - Owner: Backend Builder
+  - Depends on: PRJ-277
+  - Priority: P1
+  - Result:
+    - graph-owned and runtime-owned segments are explicit in code rather than
+      hidden in orchestration shortcuts
+    - foreground flow can move toward canonical architecture without breaking
+      traceability or the action boundary
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_graph_state_contract.py tests/test_graph_stage_adapters.py tests/test_main_lifespan_policy.py`
+
+- [ ] PRJ-279 Add foreground architecture-parity regressions and sync docs/context
+  - Status: BACKLOG
+  - Group: Foreground Runtime Convergence
+  - Owner: QA/Test + Product Docs
+  - Depends on: PRJ-278
+  - Priority: P1
+  - Result:
+    - regression coverage fails quickly when foreground ordering or stage
+      ownership drifts away from the agreed target-state contract
+    - docs, planning, and context stay synchronized with the converged
+      foreground boundary
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_logging.py tests/test_graph_state_contract.py`
+
+- [ ] PRJ-280 Define target-state reflection topology and worker-mode contract
+  - Status: BACKLOG
+  - Group: Background Reflection Topology
+  - Owner: Planner + Ops/Release
+  - Depends on: PRJ-279
+  - Priority: P1
+  - Result:
+    - reflection ownership is explicit across in-process scheduler mode,
+      external worker mode, queue semantics, and operator health posture
+    - the repo records which background concerns are durable architecture and
+      which are temporary execution choices
+  - Validation:
+    - doc-and-context sync plus targeted topology review recorded in this slice
+
+- [ ] PRJ-281 Extract the reflection enqueue/dispatch boundary from app-local scheduler ownership
+  - Status: BACKLOG
+  - Group: Background Reflection Topology
+  - Owner: Backend Builder
+  - Depends on: PRJ-280
+  - Priority: P1
+  - Result:
+    - reflection enqueue and dispatch stop assuming one in-process owner
+    - scheduler and runtime share one explicit dispatch boundary instead of
+      duplicating reflection ownership rules
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_main_lifespan_policy.py`
+
+- [ ] PRJ-282 Add worker-mode health, queue-drain, and retry handoff contract
+  - Status: BACKLOG
+  - Group: Background Reflection Topology
+  - Owner: Backend Builder + Ops/Release
+  - Depends on: PRJ-281
+  - Priority: P1
+  - Result:
+    - `/health` and runtime logs expose worker-mode posture for in-process and
+      external-driver operation
+    - queue-drain and retry behavior can be safely handed to an external driver
+      without changing reflection semantics
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_api_routes.py tests/test_scheduler_worker.py tests/test_logging.py`
+
+- [ ] PRJ-283 Add background-topology regressions and sync docs/context
+  - Status: BACKLOG
+  - Group: Background Reflection Topology
+  - Owner: QA/Test + Product Docs
+  - Depends on: PRJ-282
+  - Priority: P1
+  - Result:
+    - background execution ownership, retry posture, and worker-mode guarantees
+      are pinned by tests
+    - planning, project state, and operations docs stay aligned with the new
+      reflection topology contract
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_api_routes.py tests/test_main_lifespan_policy.py`
+
+- [ ] PRJ-284 Define the production retrieval baseline for provider, refresh ownership, and family rollout order
+  - Status: BACKLOG
+  - Group: Production Memory Retrieval Rollout
+  - Owner: Planner + Backend Builder
+  - Depends on: PRJ-283
+  - Priority: P1
+  - Result:
+    - one target production baseline defines embedding provider, refresh
+      strategy, default vector posture, and memory-family rollout order
+    - retrieval work can implement toward a stable target instead of reopening
+      rollout strategy on each slice
+  - Validation:
+    - doc-and-context sync plus targeted retrieval-baseline review recorded in
+      this slice
+
+- [ ] PRJ-285 Implement the provider-owned semantic and episodic vector materialization path
+  - Status: BACKLOG
+  - Group: Production Memory Retrieval Rollout
+  - Owner: Backend Builder
+  - Depends on: PRJ-284
+  - Priority: P1
+  - Result:
+    - semantic and episodic records can materialize provider-backed vectors
+      with explicit fallback and refresh ownership
+    - retrieval stops treating semantic vectors as mostly diagnostic shells
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-286 Extend vector rollout to affective and relation families with explicit gating
+  - Status: BACKLOG
+  - Group: Production Memory Retrieval Rollout
+  - Owner: Backend Builder
+  - Depends on: PRJ-285
+  - Priority: P1
+  - Result:
+    - affective and relation memory families join the rollout behind explicit
+      source-family gates and completion semantics
+    - retrieval posture can distinguish baseline semantic rollout from full
+      target-state memory coverage
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- [ ] PRJ-287 Add production retrieval rollout regressions and sync docs/context
+  - Status: BACKLOG
+  - Group: Production Memory Retrieval Rollout
+  - Owner: QA/Test + Product Docs
+  - Depends on: PRJ-286
+  - Priority: P1
+  - Result:
+    - health diagnostics, runtime defaults, and retrieval behavior are pinned
+      against the agreed production rollout posture
+    - planning, context, and operations docs now describe the same retrieval
+      baseline
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
 
 ## FUTURE
 
-- [ ] (none)
+- [ ] PRJ-288 Define evidence thresholds and influence policy for adaptive signals
+  - Status: FUTURE
+  - Group: Adaptive Cognition Governance
+  - Owner: Planner
+  - Depends on: PRJ-287
+  - Priority: P1
+  - Result:
+    - the repo has one explicit policy for how affective, relation, preference,
+      and theta signals may influence future runtime behavior
+    - adaptive signals stop expanding through undocumented tie-breakers
+  - Validation:
+    - doc-and-context sync plus targeted adaptive-policy review recorded in
+      this slice
+
+- [ ] PRJ-289 Refactor role, motivation, and planning to consume governed adaptive influence rules
+  - Status: FUTURE
+  - Group: Adaptive Cognition Governance
+  - Owner: Backend Builder
+  - Depends on: PRJ-288
+  - Priority: P1
+  - Result:
+    - core cognition stages consume one governed adaptive-policy owner instead
+      of ad hoc signal checks
+    - role and planning behavior remain explainable as the architecture grows
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-290 Extend proactive and attention logic to consume governed relation/theta signals
+  - Status: FUTURE
+  - Group: Adaptive Cognition Governance
+  - Owner: Backend Builder
+  - Depends on: PRJ-289
+  - Priority: P1
+  - Result:
+    - proactive and attention behavior can use relation/theta context only
+      through explicit policy surfaces
+    - adaptive cues do not silently bypass attention or anti-spam guardrails
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- [ ] PRJ-291 Add adaptive-governance regressions and sync docs/context
+  - Status: FUTURE
+  - Group: Adaptive Cognition Governance
+  - Owner: QA/Test + Product Docs
+  - Depends on: PRJ-290
+  - Priority: P1
+  - Result:
+    - anti-feedback-loop, cross-goal-leakage, and adaptive influence scope
+      expectations are pinned by regression coverage
+    - docs and context describe the same adaptive governance rules
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_role_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-292 Define a durable proposal lifecycle and canonical turn-assembly ownership contract
+  - Status: FUTURE
+  - Group: Attention And Proposal Execution Boundary
+  - Owner: Planner
+  - Depends on: PRJ-291
+  - Priority: P1
+  - Result:
+    - proposal persistence, handoff decisions, and pending-turn ownership have
+      one explicit contract owner
+    - future dual-loop changes no longer need to infer whether attention or
+      planning owns a boundary
+  - Validation:
+    - doc-and-context sync plus targeted dual-loop contract review recorded in
+      this slice
+
+- [ ] PRJ-293 Implement end-to-end proposal persistence and conscious handoff decisions
+  - Status: FUTURE
+  - Group: Attention And Proposal Execution Boundary
+  - Owner: Backend Builder
+  - Depends on: PRJ-292
+  - Priority: P1
+  - Result:
+    - subconscious proposals can persist durably and re-enter conscious runtime
+      through explicit handoff decisions
+    - user-visible actions remain blocked until conscious runtime accepts or
+      merges a proposal
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py tests/test_planning_agent.py`
+
+- [ ] PRJ-294 Route proactive outreach and connector permission gates through the shared attention/proposal boundary
+  - Status: FUTURE
+  - Group: Attention And Proposal Execution Boundary
+  - Owner: Backend Builder
+  - Depends on: PRJ-293
+  - Priority: P1
+  - Result:
+    - proactive delivery and external-connector permission outcomes now share
+      one conscious execution boundary
+    - connector suggestions and outreach plans stop bypassing the same gating
+      model used for batched conversation handling
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_planning_agent.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-295 Add dual-loop execution-boundary regressions and sync docs/context
+  - Status: FUTURE
+  - Group: Attention And Proposal Execution Boundary
+  - Owner: QA/Test + Product Docs
+  - Depends on: PRJ-294
+  - Priority: P1
+  - Result:
+    - turn assembly, proposal handoff, proactive delivery, and permission-gated
+      external intent flows are pinned end to end
+    - docs and context now describe one coherent dual-loop execution model
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_reflection_worker.py tests/test_action_executor.py tests/test_planning_agent.py`
+
+- [ ] PRJ-296 Define the target production posture for migration-only startup, strict defaults, and the internal debug boundary
+  - Status: FUTURE
+  - Group: Operational Hardening And Release Truth
+  - Owner: Planner + Ops/Release
+  - Depends on: PRJ-295
+  - Priority: P1
+  - Result:
+    - one target production baseline defines migration-only startup posture,
+      strict policy defaults, and the intended internal-versus-public debug
+      boundary
+    - later hardening slices can remove temporary rollout ambiguity instead of
+      creating more diagnostic layers
+  - Validation:
+    - doc-and-context sync plus targeted production-baseline review recorded in
+      this slice
+
+- [ ] PRJ-297 Enforce migration-first and internal-debug posture through explicit runtime gates
+  - Status: FUTURE
+  - Group: Operational Hardening And Release Truth
+  - Owner: Backend Builder
+  - Depends on: PRJ-296
+  - Priority: P1
+  - Result:
+    - runtime and config boundaries reflect the agreed production target while
+      keeping any temporary escape hatches explicit and reviewable
+    - startup and API policy posture move closer to the final deployment shape
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_api_routes.py tests/test_main_lifespan_policy.py`
+
+- [ ] PRJ-298 Finalize deployment and release truth for Coolify/manual fallback and smoke ownership
+  - Status: FUTURE
+  - Group: Operational Hardening And Release Truth
+  - Owner: Ops/Release
+  - Depends on: PRJ-297
+  - Priority: P1
+  - Result:
+    - deployment automation, manual fallback, and release smoke ownership are
+      documented as one coherent operational path
+    - execution work stops assuming deploy behavior that operations cannot yet
+      prove
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q`
+
+- [ ] PRJ-299 Add release-readiness regressions and sync docs/context/runbook
+  - Status: FUTURE
+  - Group: Operational Hardening And Release Truth
+  - Owner: QA/Test + Product Docs + Ops/Release
+  - Depends on: PRJ-298
+  - Priority: P1
+  - Result:
+    - release-readiness checks and operational docs now match the target-state
+      production baseline
+    - planning, project state, and runbook truth remain synchronized at the end
+      of the convergence queue
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q`
 
 ## IN_PROGRESS
 
