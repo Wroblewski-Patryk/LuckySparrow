@@ -1,7 +1,7 @@
 import logging
 from types import SimpleNamespace
 
-from app.main import _log_runtime_policy_warnings
+from app.main import _log_embedding_strategy_warnings, _log_runtime_policy_warnings
 
 
 def test_startup_logs_warning_when_production_runs_with_debug_payload_enabled(caplog) -> None:
@@ -321,3 +321,37 @@ def test_startup_skips_debug_token_warning_when_production_token_requirement_is_
         "enable_production_debug_token_requirement_or_configure_event_debug_token" in message
         for message in messages
     )
+
+
+def test_startup_logs_embedding_strategy_warning_when_provider_falls_back_to_deterministic(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("WARNING", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert any("embedding_strategy_warning" in message for message in messages)
+    assert any("requested_provider=openai" in message for message in messages)
+    assert any("effective_provider=deterministic" in message for message in messages)
+
+
+def test_startup_skips_embedding_strategy_warning_when_requested_provider_is_effective(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("WARNING", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="deterministic",
+        embedding_model="deterministic-v1",
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert not any("embedding_strategy_warning" in message for message in messages)

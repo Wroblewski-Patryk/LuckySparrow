@@ -86,9 +86,12 @@ def _memory_retrieval_snapshot_from_settings(settings) -> dict[str, Any]:
         provider=str(getattr(settings, "embedding_provider", "deterministic")),
         model=str(getattr(settings, "embedding_model", "deterministic-v1")),
     )
+    provider_ready = posture["provider_requested"] == posture["provider_effective"]
     return {
         "semantic_vector_enabled": semantic_vector_enabled,
         "semantic_retrieval_mode": "hybrid_vector_lexical" if semantic_vector_enabled else "lexical_only",
+        "semantic_embedding_provider_ready": provider_ready,
+        "semantic_embedding_posture": "ready" if provider_ready else "fallback_deterministic",
         "semantic_embedding_provider_requested": posture["provider_requested"],
         "semantic_embedding_provider_effective": posture["provider_effective"],
         "semantic_embedding_provider_hint": posture["provider_hint"],

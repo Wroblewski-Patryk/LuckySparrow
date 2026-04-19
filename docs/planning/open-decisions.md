@@ -240,6 +240,11 @@ The current repo already works as an MVP slice, but several architecture-level d
     `/health.memory_retrieval` now exposes requested/effective
     provider-model posture plus deterministic-fallback hint for
     non-implemented providers.
+  - `/health.memory_retrieval` now also exposes explicit provider readiness
+    posture (`semantic_embedding_provider_ready`,
+    `semantic_embedding_posture`) and startup logs now emit
+    `embedding_strategy_warning` when a requested provider falls back to
+    deterministic execution.
   - provider ownership, refresh cadence, and embedding model governance are
     still open.
 - Decision needed:

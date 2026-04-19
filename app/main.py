@@ -25,6 +25,7 @@ from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.integrations.openai.client import OpenAIClient
 from app.integrations.telegram.client import TelegramClient
+from app.memory.embeddings import resolve_embedding_posture
 from app.memory.repository import MemoryRepository
 from app.motivation.engine import MotivationEngine
 from app.reflection.worker import ReflectionWorker
@@ -95,6 +96,24 @@ def _log_runtime_policy_warnings(*, settings, logger) -> None:
         )
 
 
+def _log_embedding_strategy_warnings(*, settings, logger) -> None:
+    semantic_vector_enabled = bool(getattr(settings, "semantic_vector_enabled", True))
+    posture = resolve_embedding_posture(
+        provider=str(getattr(settings, "embedding_provider", "deterministic")),
+        model=str(getattr(settings, "embedding_model", "deterministic-v1")),
+    )
+    if semantic_vector_enabled and posture["provider_requested"] != posture["provider_effective"]:
+        logger.warning(
+            "embedding_strategy_warning semantic_vector_enabled=%s requested_provider=%s effective_provider=%s requested_model=%s effective_model=%s hint=%s recommendation=keep_deterministic_or_implement_provider_execution",
+            semantic_vector_enabled,
+            posture["provider_requested"],
+            posture["provider_effective"],
+            posture["model_requested"],
+            posture["model_effective"],
+            posture["provider_hint"],
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -103,6 +122,7 @@ async def lifespan(app: FastAPI):
     setup_logging(settings.log_level)
     logger = get_logger("aion.app")
     _log_runtime_policy_warnings(settings=settings, logger=logger)
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
 
     database = Database(settings.database_url)  # type: ignore[arg-type]
     memory_repository = MemoryRepository(database.session_factory)

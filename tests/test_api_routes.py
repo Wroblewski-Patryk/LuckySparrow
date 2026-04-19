@@ -435,6 +435,8 @@ def test_health_endpoint_returns_ok() -> None:
         "memory_retrieval": {
             "semantic_vector_enabled": True,
             "semantic_retrieval_mode": "hybrid_vector_lexical",
+            "semantic_embedding_provider_ready": True,
+            "semantic_embedding_posture": "ready",
             "semantic_embedding_provider_requested": "deterministic",
             "semantic_embedding_provider_effective": "deterministic",
             "semantic_embedding_provider_hint": "deterministic_baseline",
@@ -518,6 +520,8 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
     assert body["memory_retrieval"] == {
         "semantic_vector_enabled": False,
         "semantic_retrieval_mode": "lexical_only",
+        "semantic_embedding_provider_ready": True,
+        "semantic_embedding_posture": "ready",
         "semantic_embedding_provider_requested": "deterministic",
         "semantic_embedding_provider_effective": "deterministic",
         "semantic_embedding_provider_hint": "deterministic_baseline",
@@ -541,6 +545,8 @@ def test_health_endpoint_exposes_embedding_provider_fallback_posture_when_non_de
     assert body["memory_retrieval"] == {
         "semantic_vector_enabled": True,
         "semantic_retrieval_mode": "hybrid_vector_lexical",
+        "semantic_embedding_provider_ready": False,
+        "semantic_embedding_posture": "fallback_deterministic",
         "semantic_embedding_provider_requested": "openai",
         "semantic_embedding_provider_effective": "deterministic",
         "semantic_embedding_provider_hint": "provider_not_implemented_fallback_deterministic",

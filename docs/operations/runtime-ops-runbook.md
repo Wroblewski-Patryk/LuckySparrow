@@ -68,12 +68,19 @@ retrieval posture:
 
 - `semantic_vector_enabled`
 - `semantic_retrieval_mode` (`hybrid_vector_lexical|lexical_only`)
+- `semantic_embedding_provider_ready`
+- `semantic_embedding_posture` (`ready|fallback_deterministic`)
 - `semantic_embedding_provider_requested`
 - `semantic_embedding_provider_effective`
 - `semantic_embedding_provider_hint`
 - `semantic_embedding_model_requested`
 - `semantic_embedding_model_effective`
 - `semantic_embedding_dimensions`
+
+When semantic vectors are enabled and a non-implemented provider is requested
+(for example `EMBEDDING_PROVIDER=openai` today), startup emits
+`embedding_strategy_warning` with requested/effective provider-model posture
+and deterministic fallback hint.
 
 On startup, production now emits an explicit warning when
 `EVENT_DEBUG_ENABLED=true`. Treat this warning as a release-hardening signal:

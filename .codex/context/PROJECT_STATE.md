@@ -138,6 +138,12 @@ Last updated: 2026-04-19
   `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, and `EMBEDDING_DIMENSIONS` with
   deterministic-fallback visibility in `GET /health.memory_retrieval`
   (requested vs effective provider/model plus fallback hint).
+- 2026-04-19: embedding provider readiness posture is now explicit through
+  `GET /health.memory_retrieval` fields
+  (`semantic_embedding_provider_ready`,
+  `semantic_embedding_posture=ready|fallback_deterministic`) and startup now
+  emits `embedding_strategy_warning` when requested provider posture falls
+  back to deterministic execution.
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,
@@ -276,7 +282,7 @@ Last updated: 2026-04-19
   explicit without regressing current runtime behavior, then deepen the runtime
   toward affective understanding, scoped memory, and stronger action intent
   ownership
-- Active `PRJ` execution queue is complete through `PRJ-232`; the next slice
+- Active `PRJ` execution queue is complete through `PRJ-233`; the next slice
   should be derived from `docs/planning/open-decisions.md` and registered as
   `READY` before implementation.
 - Top blockers:
@@ -291,6 +297,13 @@ Last updated: 2026-04-19
 
 ## Recent Progress
 
+- 2026-04-19: `PRJ-233` is complete: embedding-provider fallback readiness is
+  now operator-visible in `/health.memory_retrieval`, and startup logs now
+  warn when configured embedding provider/model posture is not yet executable
+  and falls back to deterministic vectors.
+- 2026-04-19: `PRJ-233` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_main_runtime_policy.py tests/test_config.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+  passed with `158 passed`.
 - 2026-04-19: `PRJ-232` is complete: embedding strategy config posture is now
   explicit (`EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIMENSIONS`),
   runtime/action keep deterministic fallback semantics for non-implemented

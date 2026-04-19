@@ -180,6 +180,10 @@ Completed on 2026-04-18:
   runtime config (`EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`,
   `EMBEDDING_DIMENSIONS`) and `/health.memory_retrieval` requested/effective
   provider-model visibility with deterministic-fallback hints.
+- `PRJ-233` is complete: embedding provider readiness posture is now explicit
+  in `/health.memory_retrieval` (`semantic_embedding_provider_ready`,
+  `semantic_embedding_posture`) and startup now warns when requested embedding
+  provider falls back to deterministic execution.
 
 ## Highest-Risk Gaps
 
@@ -870,7 +874,7 @@ implicit or uncontrolled side effects.
 
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-232`.
+The planning queue is complete through `PRJ-233`.
 There is currently no execution-ready PRJ slice in the board.
 Before the next implementation slice:
 

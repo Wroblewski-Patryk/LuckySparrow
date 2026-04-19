@@ -244,6 +244,9 @@ Allowed values:
 - `semantic_vector_enabled`
 - `semantic_retrieval_mode`
   (`hybrid_vector_lexical|lexical_only`)
+- `semantic_embedding_provider_ready`
+- `semantic_embedding_posture`
+  (`ready|fallback_deterministic`)
 - `semantic_embedding_provider_requested`
 - `semantic_embedding_provider_effective`
 - `semantic_embedding_provider_hint`
