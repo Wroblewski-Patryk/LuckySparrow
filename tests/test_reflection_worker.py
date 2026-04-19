@@ -373,6 +373,114 @@ async def test_reflection_worker_prefers_explicit_guided_collaboration_update() 
     } in repository.conclusion_updates
 
 
+async def test_reflection_worker_derives_recurring_distress_affective_pattern() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {
+                "payload": {
+                    "payload_version": 1,
+                    "event": "I am overwhelmed by this release",
+                    "affect_label": "support_distress",
+                    "affect_needs_support": True,
+                    "action": "success",
+                    "expression": "Let's break this down together.",
+                }
+            },
+            {
+                "payload": {
+                    "payload_version": 1,
+                    "event": "I still feel stressed",
+                    "affect_label": "support_distress",
+                    "affect_needs_support": True,
+                    "action": "success",
+                    "expression": "You're not alone in this.",
+                }
+            },
+            {
+                "payload": {
+                    "payload_version": 1,
+                    "event": "This keeps getting heavy",
+                    "affect_label": "support_distress",
+                    "affect_needs_support": True,
+                    "action": "success",
+                    "expression": "Let's choose one manageable next step.",
+                }
+            },
+        ]
+    )
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-affective-recurring")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "affective_support_pattern",
+        "content": "recurring_distress",
+        "confidence": 0.76,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-affective-recurring",
+    } in repository.conclusion_updates
+    assert {
+        "user_id": "u-1",
+        "kind": "affective_support_sensitivity",
+        "content": "high",
+        "confidence": 0.78,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-affective-recurring",
+    } in repository.conclusion_updates
+
+
+async def test_reflection_worker_derives_confidence_recovery_affective_pattern() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {
+                "payload": {
+                    "payload_version": 1,
+                    "event": "I feel better about this now",
+                    "affect_label": "positive_engagement",
+                    "affect_needs_support": False,
+                    "action": "success",
+                    "expression": "Great momentum.",
+                }
+            },
+            {
+                "payload": {
+                    "payload_version": 1,
+                    "event": "This is starting to click",
+                    "affect_label": "positive_engagement",
+                    "affect_needs_support": False,
+                    "action": "success",
+                    "expression": "Let's keep that confidence.",
+                }
+            },
+            {
+                "payload": {
+                    "payload_version": 1,
+                    "event": "I can handle the next step",
+                    "affect_label": "positive_engagement",
+                    "affect_needs_support": False,
+                    "action": "success",
+                    "expression": "Good progress.",
+                }
+            },
+        ]
+    )
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-affective-recovery")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "kind": "affective_support_pattern",
+        "content": "confidence_recovery",
+        "confidence": 0.74,
+        "source": "background_reflection",
+        "supporting_event_id": "evt-affective-recovery",
+    } in repository.conclusion_updates
+
+
 async def test_reflection_worker_infers_blocked_goal_execution_state() -> None:
     repository = FakeMemoryRepository(
         recent_memory=[

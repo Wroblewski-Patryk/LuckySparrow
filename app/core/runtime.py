@@ -20,6 +20,8 @@ T = TypeVar("T")
 
 
 class RuntimeOrchestrator:
+    MEMORY_LOAD_LIMIT = 12
+
     def __init__(
         self,
         perception_agent: PerceptionAgent,
@@ -189,13 +191,48 @@ class RuntimeOrchestrator:
         self.logger.info("start event_id=%s trace_id=%s source=%s", event.event_id, event.meta.trace_id, event.source)
 
         async def load_memory_bundle():
-            return await asyncio.gather(
-                self.memory_repository.get_recent_for_user(user_id=event.meta.user_id, limit=5),
+            memory, user_profile, user_theta, active_goals = await asyncio.gather(
+                self.memory_repository.get_recent_for_user(
+                    user_id=event.meta.user_id,
+                    limit=self.MEMORY_LOAD_LIMIT,
+                ),
                 self.memory_repository.get_user_profile(user_id=event.meta.user_id),
-                self.memory_repository.get_user_runtime_preferences(user_id=event.meta.user_id),
-                self.memory_repository.get_user_conclusions(user_id=event.meta.user_id, limit=3),
                 self.memory_repository.get_user_theta(user_id=event.meta.user_id),
                 self.memory_repository.get_active_goals(user_id=event.meta.user_id, limit=5),
+            )
+            primary_goal_id = self._primary_goal_id(active_goals)
+            preference_kwargs: dict[str, str | bool] = {}
+            conclusion_kwargs: dict[str, str | bool | int] = {"limit": 3}
+            if primary_goal_id is not None:
+                scope_key = str(primary_goal_id)
+                preference_kwargs = {
+                    "scope_type": "goal",
+                    "scope_key": scope_key,
+                    "include_global": True,
+                }
+                conclusion_kwargs = {
+                    "limit": 3,
+                    "scope_type": "goal",
+                    "scope_key": scope_key,
+                    "include_global": True,
+                }
+            user_preferences, user_conclusions = await asyncio.gather(
+                self.memory_repository.get_user_runtime_preferences(
+                    user_id=event.meta.user_id,
+                    **preference_kwargs,
+                ),
+                self.memory_repository.get_user_conclusions(
+                    user_id=event.meta.user_id,
+                    **conclusion_kwargs,
+                ),
+            )
+            return (
+                memory,
+                user_profile,
+                user_preferences,
+                user_conclusions,
+                user_theta,
+                active_goals,
             )
 
         memory, user_profile, user_preferences, user_conclusions, user_theta, active_goals = await self._run_async_stage(

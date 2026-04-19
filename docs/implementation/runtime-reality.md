@@ -79,6 +79,18 @@ Current implementation posture:
 - motivation, role, and expression now consume `perception.affective` as the
   primary support/emotion signal owner for turn behavior
 
+### Affective memory signals
+
+The live runtime now persists lightweight affective memory hints in episodic
+payloads and reflects them into slower-moving semantic signals:
+
+- episodic payload fields: `affect_label`, `affect_intensity`,
+  `affect_needs_support`, `affect_source`, `affect_evidence`
+- reflection conclusions: `affective_support_pattern`,
+  `affective_support_sensitivity`
+- runtime consumption: context summary and motivation scoring can reuse these
+  reflected affective signals across turns
+
 ### Scoped conclusions
 
 The live runtime now supports scoped semantic conclusions:
@@ -89,8 +101,18 @@ The live runtime now supports scoped semantic conclusions:
 
 Current transition note:
 
-- runtime consumers still need explicit scope-aware selection across context,
-  motivation, and planning to fully eliminate cross-goal leakage
+- runtime consumers now perform scope-aware reads by primary active goal with
+  global fallback, reducing cross-goal leakage in context, motivation,
+  planning, and milestone enrichment
+
+### Retrieval depth and compression
+
+The live runtime no longer depends on a strict latest-five memory fetch:
+
+- runtime currently loads up to 12 recent episodes before context selection
+- context applies ranking/compression across language match, memory layer mode,
+  topical overlap, affective relevance, and importance
+- final context memory hint remains compressed to the top relevant items
 
 ### Event API behavior
 

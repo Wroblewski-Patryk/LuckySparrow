@@ -584,6 +584,10 @@ class MemoryRepository:
                 set_preference("preferred_role", row.content, row)
             elif row.kind == "collaboration_preference":
                 set_preference("collaboration_preference", row.content, row)
+            elif row.kind == "affective_support_pattern":
+                set_preference("affective_support_pattern", row.content, row)
+            elif row.kind == "affective_support_sensitivity":
+                set_preference("affective_support_sensitivity", row.content, row)
             elif row.kind == "goal_execution_state":
                 set_preference("goal_execution_state", row.content, row)
             elif row.kind == "goal_progress_score":
@@ -1032,6 +1036,8 @@ class MemoryRepository:
             "goal_milestone_transition",
             "goal_milestone_risk",
             "goal_completion_criteria",
+            "affective_support_pattern",
+            "affective_support_sensitivity",
         }:
             return True
         return next_confidence >= current_confidence

@@ -102,6 +102,10 @@ class MotivationEngine:
         has_positive_signal = affective_label == "positive_engagement"
         is_brief_turn = len(lowered.split()) <= 4
         collaboration_preference = str((user_preferences or {}).get("collaboration_preference", "")).strip().lower()
+        affective_support_pattern = str((user_preferences or {}).get("affective_support_pattern", "")).strip().lower()
+        affective_support_sensitivity = str(
+            (user_preferences or {}).get("affective_support_sensitivity", "")
+        ).strip().lower()
         goal_execution_state = str((user_preferences or {}).get("goal_execution_state", "")).strip().lower()
         goal_progress_score = float((user_preferences or {}).get("goal_progress_score", 0.0) or 0.0)
         goal_progress_trend = str((user_preferences or {}).get("goal_progress_trend", "")).strip().lower()
@@ -124,6 +128,20 @@ class MotivationEngine:
         importance += 0.15 if has_question else 0.0
         importance += 0.2 if has_urgent_signal else 0.0
         importance += min(context.risk_level, 0.2)
+        importance += (
+            0.06
+            if affective_support_pattern == "recurring_distress"
+            else 0.03
+            if affective_support_pattern == "confidence_recovery"
+            else 0.0
+        )
+        importance += (
+            0.04
+            if affective_support_sensitivity == "high"
+            else 0.02
+            if affective_support_sensitivity == "moderate"
+            else 0.0
+        )
         importance += {"medium": 0.05, "high": 0.1, "critical": 0.18}.get(related_goal_priority, 0.0)
         importance += 0.08 if blocked_task_match else 0.0
         importance += (
@@ -264,6 +282,20 @@ class MotivationEngine:
         urgency = 0.2
         urgency += 0.45 if has_urgent_signal else 0.0
         urgency += 0.1 if has_execution_signal else 0.0
+        urgency += (
+            0.05
+            if affective_support_pattern == "recurring_distress"
+            else 0.02
+            if affective_support_pattern == "confidence_recovery"
+            else 0.0
+        )
+        urgency += (
+            0.04
+            if affective_support_sensitivity == "high"
+            else 0.02
+            if affective_support_sensitivity == "moderate"
+            else 0.0
+        )
         urgency += 0.15 if blocked_task_match else 0.0
         urgency += (
             0.08
@@ -398,6 +430,8 @@ class MotivationEngine:
             valence = min(1.0, 0.15 + (0.45 * affective_intensity))
         elif has_urgent_signal:
             valence = -0.1
+        elif affective_support_pattern == "recurring_distress":
+            valence = -0.08
         else:
             valence = 0.05
 

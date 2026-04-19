@@ -11,7 +11,7 @@ The goal is to make the current AION runtime more correct, more inspectable, and
 
 Confirmed on 2026-04-19:
 
-- `.\.venv\Scripts\python -m pytest -q` passes with `321 passed`
+- `.\.venv\Scripts\python -m pytest -q` passes with `342 passed`
 - the live runtime already covers:
   - event normalization
   - state load
@@ -67,6 +67,9 @@ Completed on 2026-04-18:
 - `PRJ-055` wired motivation, role, and expression to consume `perception.affective` as the shared support signal owner, replacing local emotional keyword ladders and adding affective-driven regression coverage.
 - `PRJ-056` added empathy-oriented shared fixtures for emotionally heavy, ambiguous, and mixed-intent turns, and expanded support-quality regressions across motivation, expression, and runtime integration.
 - `PRJ-057` introduced scoped conclusions for `global|goal|task` context, including schema/repository support and goal-scoped reflection writes.
+- `PRJ-058` refactored runtime consumers to use goal-scoped reflection state with global fallback, closing cross-goal leakage in context/motivation/planning paths.
+- `PRJ-059` added an affective memory layer in episodic payloads plus reflection-derived affective conclusions reusable across turns.
+- `PRJ-060` expanded runtime retrieval depth and affective-aware ranking/compression beyond the previous latest-five loading strategy.
 
 ## Highest-Risk Gaps
 
@@ -350,7 +353,7 @@ goal-specific reflection signals.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py`
 
-- `PRJ-058` Refactor runtime consumers to use scoped reflection state.
+- `PRJ-058` is complete.
   - Result:
     - context, motivation, planning, and milestone enrichment consume
       goal-scoped state when a goal is relevant
@@ -359,7 +362,7 @@ goal-specific reflection signals.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
 
-- `PRJ-059` Add an affective memory layer and reflection outputs.
+- `PRJ-059` is complete.
   - Result:
     - episodes can persist lightweight affective tags or summaries
     - reflection can derive slower-moving affective patterns such as recurring
@@ -369,7 +372,7 @@ goal-specific reflection signals.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py`
 
-- `PRJ-060` Add retrieval ranking and compression beyond the latest-five load.
+- `PRJ-060` is complete.
   - Result:
     - runtime retrieval can rank across recency, topical relevance, memory
       layer, and affective relevance
@@ -458,10 +461,164 @@ signals such as theta, role preference, and collaboration preference.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_context_agent.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
 
+## Group 11 - Graph Orchestration Adoption
+
+This group aligns the runtime with the architecture-level stack direction
+without forcing a big-bang rewrite of the current working orchestrator.
+
+- `PRJ-069` Define the LangGraph migration boundary and compatibility contract.
+  - Result:
+    - docs and runtime contracts describe which current orchestrator fields map
+      directly into graph state
+    - migration can proceed incrementally instead of rewriting all stages at
+      once
+  - Validation:
+    - doc-and-contract sync plus targeted runtime-state model tests
+
+- `PRJ-070` Introduce graph-compatible state adapters around current stage modules.
+  - Result:
+    - current perception, context, motivation, role, planning, expression, and
+      action modules can be called through graph-ready adapters
+    - repo preserves current behavior while preparing the LangGraph runtime
+      shape
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_logging.py`
+
+- `PRJ-071` Migrate the foreground runtime orchestration to LangGraph.
+  - Result:
+    - the main foreground pipeline runs through LangGraph while preserving
+      existing stage boundaries, logs, and response contracts
+    - current runtime behavior stays regression-covered during the migration
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_logging.py`
+
+- `PRJ-072` Add optional LangChain utility wrappers only where they reduce code.
+  - Result:
+    - LangChain is used narrowly for prompt templates, retrievers, or parsing
+      where it materially reduces boilerplate
+    - the repo avoids turning LangChain into the architectural core
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_runtime_pipeline.py`
+
+## Group 12 - Semantic Retrieval Infrastructure
+
+This group upgrades memory retrieval from heuristics-only ranking to a hybrid
+system that can use embeddings and pgvector where that improves relevance.
+
+- `PRJ-073` Define the embedding and semantic retrieval contract.
+  - Result:
+    - repo has one explicit contract for embeddings, vectorized records, and
+      similarity retrieval inputs/outputs
+    - semantic retrieval can evolve without leaking provider-specific details
+      into stage logic
+  - Validation:
+    - doc-and-contract sync plus targeted repository model tests
+
+- `PRJ-074` Add pgvector-backed storage and migration scaffolding.
+  - Result:
+    - PostgreSQL gains pgvector-compatible schema and indexes for semantic
+      retrieval
+    - deploy and migration docs explicitly cover the new dependency
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_schema_baseline.py tests/test_memory_repository.py`
+    - `.\.venv\Scripts\python -m alembic upgrade head --sql`
+
+- `PRJ-075` Implement hybrid retrieval across episodic, semantic, and affective memory.
+  - Result:
+    - runtime can rank memory using recency, explicit scope, lexical overlap,
+      and vector similarity
+    - semantic retrieval complements rather than replaces current deterministic
+      retrieval behavior
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
+
+- `PRJ-076` Add semantic retrieval evaluation and observability.
+  - Result:
+    - logs and tests show when vector retrieval helps, misses, or conflicts
+      with lexical ranking
+    - retrieval quality becomes measurable instead of anecdotal
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_logging.py tests/test_runtime_pipeline.py`
+
+## Group 13 - Relation System
+
+This group adds the user-specific relation layer described in architecture so
+the personality can accumulate durable interpersonal understanding, not only
+generic conclusions and task state.
+
+- `PRJ-077` Define the relation data model, scopes, and repository surface.
+  - Result:
+    - repo gets an explicit relation model with confidence, scope, and decay
+      semantics
+    - relation storage is separated from generic conclusions
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_schema_baseline.py`
+
+- `PRJ-078` Extend reflection to derive and maintain relation updates.
+  - Result:
+    - subconscious processing can derive relation hypotheses from repeated
+      interactions and update them gradually
+    - relation updates follow explicit confidence and safety rules
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_runtime_pipeline.py`
+
+- `PRJ-079` Make runtime relation-aware in retrieval, context, role, planning, and expression.
+  - Result:
+    - runtime can retrieve relevant high-confidence relations per turn
+    - relation signals influence behavior in a controlled, testable way
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_role_agent.py tests/test_planning_agent.py tests/test_expression_agent.py tests/test_runtime_pipeline.py`
+
+## Group 14 - Scheduled And Proactive Runtime
+
+This group adds the missing background cadence and proactive behavior described
+in architecture so the personality can initiate helpful, bounded actions over
+time rather than only react to incoming events.
+
+- `PRJ-080` Define scheduler events, cadence rules, and runtime boundaries.
+  - Result:
+    - scheduler-originated events become a first-class documented input source
+    - reflection cadence, maintenance cadence, and proactive cadence have one
+      contract owner
+  - Validation:
+    - doc-and-contract sync plus targeted event normalization tests
+
+- `PRJ-081` Make the reflection runtime ready for scheduled and out-of-process execution.
+  - Result:
+    - reflection ownership no longer assumes only in-process wakeups
+    - runtime can move toward a dedicated worker or scheduled execution without
+      rewriting reflection logic again
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-082` Add scheduled reflection and maintenance cadence.
+  - Result:
+    - scheduler can trigger periodic reflection, cleanup, or maintenance
+      workflows
+    - the background loop no longer depends only on post-event enqueue
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_api_routes.py tests/test_config.py`
+
+- `PRJ-083` Add a proactive decision engine with interruption guardrails.
+  - Result:
+    - proactive suggestions, reminders, warnings, or encouragement can be
+      selected from explicit triggers and bounded decision rules
+    - interruption cost and user context are part of the decision model
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+
+- `PRJ-084` Add proactive delivery controls, throttling, and regression coverage.
+  - Result:
+    - proactive outputs obey frequency limits, opt-in guards, and delivery
+      constraints
+    - proactive behavior is measurable and test-covered instead of ad hoc
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
 ## Next Derived Slice
 
-The planning queue is now extended through `PRJ-068`.
-The next execution-ready slice is `PRJ-058`, with later groups staying ordered
+The planning queue is now extended through `PRJ-084`.
+The next execution-ready slice is `PRJ-061`, with later groups staying ordered
 behind it.
 
 ## Parallel-Ready Lanes
@@ -484,13 +641,17 @@ After those finished:
 
 ## Recommended Execution Order
 
-1. `PRJ-058..PRJ-061` Scoped memory and retrieval depth
+1. `PRJ-061` Formalize memory-layer contracts in docs and repository APIs
 2. `PRJ-062..PRJ-064` Planning and action intent hardening
 3. `PRJ-065..PRJ-068` Adaptive signal governance and heuristic reduction
+4. `PRJ-069..PRJ-072` Graph orchestration adoption
+5. `PRJ-073..PRJ-076` Semantic retrieval infrastructure
+6. `PRJ-077..PRJ-079` Relation system
+7. `PRJ-080..PRJ-084` Scheduled and proactive runtime
 
 The queue should still be treated as intentionally open after those items.
 Additional small architecture-alignment slices may still be discovered while
-executing Groups 4 through 6.
+executing Groups 4 through 14.
 
 ## Handoff Rules For Execution Agents
 

@@ -84,6 +84,16 @@ Last updated: 2026-04-19
   (`scope_type=global|goal|task`, `scope_key`) and reflection writes
   goal-operational conclusions with goal scope, enabling scope-aware repository
   queries.
+- 2026-04-19: runtime memory consumers now resolve scoped reflection state by
+  primary active goal with global fallback, reducing cross-goal leakage across
+  context, motivation, planning, and milestone enrichment.
+- 2026-04-19: episodic payloads now persist lightweight affective tags and
+  reflection derives reusable affective conclusions
+  (`affective_support_pattern`, `affective_support_sensitivity`) consumed by
+  runtime preferences, context summaries, and motivation scoring.
+- 2026-04-19: runtime memory retrieval now loads deeper context
+  (`MEMORY_LOAD_LIMIT=12`) and ranks memory candidates with affective relevance
+  in addition to language, layer mode, topical overlap, and importance.
 - 2026-04-19: documentation now explicitly separates canonical architecture in
   `docs/architecture/` from transitional implementation reality in
   `docs/implementation/runtime-reality.md`, so human-oriented design intent can
@@ -144,13 +154,15 @@ Last updated: 2026-04-19
   explicit without regressing current runtime behavior, then deepen the runtime
   toward affective understanding, scoped memory, and stronger action intent
   ownership
-- Active execution queue now extends through `PRJ-068`.
+- Active execution queue now extends through `PRJ-084`.
 - Top blockers:
-  - affective memory is still missing
-  - scoped conclusions now exist, but runtime consumers still need explicit
-    goal/task-scoped consumption to avoid cross-goal leakage (`PRJ-058`)
+  - memory-layer contracts are now implemented in code, but still need explicit
+    formalization in canonical docs and repository API guidance (`PRJ-061`)
   - action still reparses user text for some durable writes instead of relying
     on explicit typed intents from planning
+  - architecture-level stack directions (`LangGraph`, `pgvector`, scheduler,
+    relation system, proactive runtime) still are not implemented in the live
+    runtime and now require explicit rollout groups
 - Success criteria for this phase:
   - shared goal and milestone signals keep one clear implementation owner
   - runtime stage decisions are observable through structured logs
@@ -258,13 +270,24 @@ Last updated: 2026-04-19
 - 2026-04-19: `PRJ-057` is complete: scoped conclusions were introduced for
   global/goal/task context in schema, repository APIs, and reflection writes,
   with scope-aware tests and migration validation synchronized.
+- 2026-04-19: `PRJ-058` is complete: runtime now consumes goal-scoped
+  reflection state with global fallback, and regression tests pin no-leakage
+  behavior across context, motivation, planning, and runtime.
+- 2026-04-19: `PRJ-059` is complete: episodic memory now carries affective
+  tags, reflection derives slower-moving affective conclusions, and runtime
+  consumers reuse those signals across turns.
+- 2026-04-19: `PRJ-060` is complete: runtime memory loading and context
+  retrieval now go beyond latest-five depth with affective-aware ranking and
+  compression.
 - 2026-04-19: architecture docs were realigned so `docs/architecture/` again
   describes the canonical cognitive flow, while runtime-delivery shortcuts,
   live storage names, and policy details were moved into
   `docs/implementation/runtime-reality.md` and linked from the docs index.
 - 2026-04-19: planning docs and execution context were extended through
-  `PRJ-068`, adding grouped follow-up slices for affective understanding,
-  scoped memory, explicit action intents, and adaptive-signal governance.
+  `PRJ-084`, adding grouped follow-up slices for affective understanding,
+  scoped memory, explicit action intents, adaptive-signal governance, graph
+  orchestration adoption, semantic retrieval infrastructure, relation system,
+  and scheduled/proactive runtime.
 
 ## Working Agreements
 

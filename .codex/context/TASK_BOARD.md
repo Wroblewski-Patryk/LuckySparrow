@@ -15,33 +15,30 @@ Last updated: 2026-04-19
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The planning queue now extends through `PRJ-068`.
-- The next executable slice is `PRJ-058`.
+- The planning queue now extends through `PRJ-084`.
+- The next executable slice is `PRJ-061`.
 - Additional architecture-alignment work should be appended after that queue so
   the backlog stays explicitly open for later discovery instead of pretending
   the plan is complete.
 
 ## READY
 
-- [ ] PRJ-058 Refactor runtime consumers to use scoped reflection state
+- [ ] PRJ-061 Formalize memory-layer contracts in docs and repository APIs
   - Status: READY
   - Group: Scoped Memory And Retrieval Depth
-  - Owner: Backend Builder
-  - Depends on: PRJ-057
+  - Owner: Product Docs
+  - Depends on: PRJ-060
   - Priority: P1
   - Result:
-    - context, motivation, planning, and milestone enrichment consume goal-scoped
-      reflection state when a goal is relevant
-    - unrelated goals stop leaking pressure, risk, or completion heuristics into
-      the current turn
+    - docs and code contracts distinguish episodic, semantic, affective, and
+      operational memory views with one shared vocabulary
+    - repository/runtime boundary for memory retrieval and persistence is explicit
+      and test-covered
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
 
 ## BACKLOG
 
-- [ ] PRJ-059 Add an affective memory layer and reflection outputs
-- [ ] PRJ-060 Add retrieval ranking and compression beyond the latest-five load
-- [ ] PRJ-061 Formalize memory-layer contracts in docs and repository APIs
 - [ ] PRJ-062 Add explicit domain action intents to the planning and action contract
 - [ ] PRJ-063 Move durable domain writes from text parsing to explicit intents
 - [ ] PRJ-064 Add contract tests for planning-owned intent and action-owned execution
@@ -49,6 +46,22 @@ Last updated: 2026-04-19
 - [ ] PRJ-066 Add anti-self-reinforcement rules for adaptive signals
 - [ ] PRJ-067 Audit and prune low-leverage milestone heuristics
 - [ ] PRJ-068 Add multi-goal-aware reflection and planning tests
+- [ ] PRJ-069 Define the LangGraph migration boundary and compatibility contract
+- [ ] PRJ-070 Introduce graph-compatible state adapters around current stage modules
+- [ ] PRJ-071 Migrate the foreground runtime orchestration to LangGraph
+- [ ] PRJ-072 Add optional LangChain utility wrappers only where they reduce code
+- [ ] PRJ-073 Define the embedding and semantic retrieval contract
+- [ ] PRJ-074 Add pgvector-backed storage and migration scaffolding
+- [ ] PRJ-075 Implement hybrid retrieval across episodic, semantic, and affective memory
+- [ ] PRJ-076 Add semantic retrieval evaluation and observability
+- [ ] PRJ-077 Define the relation data model, scopes, and repository surface
+- [ ] PRJ-078 Extend reflection to derive and maintain relation updates
+- [ ] PRJ-079 Make runtime relation-aware in retrieval, context, role, planning, and expression
+- [ ] PRJ-080 Define scheduler events, cadence rules, and runtime boundaries
+- [ ] PRJ-081 Make the reflection runtime ready for scheduled and out-of-process execution
+- [ ] PRJ-082 Add scheduled reflection and maintenance cadence
+- [ ] PRJ-083 Add a proactive decision engine with interruption guardrails
+- [ ] PRJ-084 Add proactive delivery controls, throttling, and regression coverage
 
 ## FUTURE
 
@@ -616,6 +629,52 @@ Last updated: 2026-04-19
     - `.\.venv\Scripts\python -m pytest -q tests/test_schema_baseline.py`
     - `.\.venv\Scripts\python -m alembic upgrade head --sql`
     - `.\.venv\Scripts\python -m pytest -q`
+- [x] PRJ-058 Refactor runtime consumers to use scoped reflection state
+  - Status: DONE
+  - Group: Scoped Memory And Retrieval Depth
+  - Owner: Backend Builder
+  - Depends on: PRJ-057
+  - Priority: P1
+  - Result:
+    - runtime state load now resolves a primary active goal and reads scoped
+      runtime preferences and scoped conclusions with global fallback
+    - context, motivation, planning, and milestone enrichment consume the
+      scoped state for the active goal path
+    - regression coverage now pins that unrelated goal conclusions do not leak
+      into the current turn
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
+- [x] PRJ-059 Add an affective memory layer and reflection outputs
+  - Status: DONE
+  - Group: Scoped Memory And Retrieval Depth
+  - Owner: Backend Builder
+  - Depends on: PRJ-058
+  - Priority: P1
+  - Result:
+    - episodic payloads now persist lightweight affective tags
+      (`affect_label`, `affect_intensity`, `affect_needs_support`,
+      `affect_source`, `affect_evidence`)
+    - reflection now derives slower-moving affective conclusions
+      (`affective_support_pattern`, `affective_support_sensitivity`)
+    - runtime preferences, context summaries, and motivation scoring now consume
+      those affective reflection signals
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_context_agent.py tests/test_motivation_engine.py tests/test_runtime_pipeline.py`
+- [x] PRJ-060 Add retrieval ranking and compression beyond the latest-five load
+  - Status: DONE
+  - Group: Scoped Memory And Retrieval Depth
+  - Owner: Backend Builder
+  - Depends on: PRJ-059
+  - Priority: P1
+  - Result:
+    - runtime memory load depth now fetches beyond a fixed latest-five limit
+      (`RuntimeOrchestrator.MEMORY_LOAD_LIMIT=12`)
+    - context retrieval ranking now includes affective relevance in addition to
+      language, layer mode, topical overlap, and importance
+    - runtime integration tests pin that deeper history can surface ranked
+      relevant memory instead of being cut off by shallow fetch depth
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_runtime_pipeline.py`
 - [x] PRJ-011 Extract shared goal/task selection helpers
   - Status: DONE
   - Group: Shared Signal Engine Extraction

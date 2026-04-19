@@ -14,6 +14,8 @@ class ContextAgent:
     SUPPORTED_CONCLUSION_KINDS = {
         "response_style",
         "collaboration_preference",
+        "affective_support_pattern",
+        "affective_support_sensitivity",
         "goal_execution_state",
         "goal_progress_score",
         "goal_progress_trend",
@@ -141,6 +143,10 @@ class ContextAgent:
                     return "prefers concrete execution help"
                 if content == "guided":
                     return "prefers guided step by step help"
+            if kind == "affective_support_pattern":
+                return self._summarize_affective_support_pattern(content)
+            if kind == "affective_support_sensitivity":
+                return self._summarize_affective_support_sensitivity(content)
             if kind == "goal_execution_state":
                 if content == "blocked":
                     return "current goal progress is blocked by an active task"
@@ -181,6 +187,20 @@ class ContextAgent:
             return "prefers concise responses"
         if content == "structured":
             return "prefers structured responses"
+        return ""
+
+    def _summarize_affective_support_pattern(self, content: str) -> str:
+        if content == "recurring_distress":
+            return "recent turns show recurring stress signals and benefit from supportive pacing"
+        if content == "confidence_recovery":
+            return "recent turns show confidence recovery after earlier stress"
+        return ""
+
+    def _summarize_affective_support_sensitivity(self, content: str) -> str:
+        if content == "high":
+            return "responds best to explicit emotional validation on challenging turns"
+        if content == "moderate":
+            return "responds well to brief supportive check-ins during problem solving"
         return ""
 
     def _summarize_goal_progress_score(self, content: str) -> str:
@@ -377,6 +397,16 @@ class ContextAgent:
         fields = extract_episode_fields(memory_item)
         return fields.get("memory_kind")
 
+    def _memory_affect_label(self, memory_item: dict) -> str | None:
+        fields = extract_episode_fields(memory_item)
+        value = str(fields.get("affect_label", "")).strip().lower()
+        return value or None
+
+    def _memory_affect_needs_support(self, memory_item: dict) -> bool:
+        fields = extract_episode_fields(memory_item)
+        value = str(fields.get("affect_needs_support", "")).strip().lower()
+        return value in {"1", "true", "yes"}
+
     def _memory_topics(self, memory_item: dict) -> set[str]:
         fields = extract_episode_fields(memory_item)
         topics = fields.get("memory_topics", "")
@@ -406,7 +436,8 @@ class ContextAgent:
         current_tokens: set[str],
         preferred_language: str,
         current_mode: str,
-    ) -> tuple[float, float, int, float]:
+        perception: PerceptionOutput,
+    ) -> tuple[float, float, int, float, float]:
         fields = extract_episode_fields(memory_item)
         memory_language = self._memory_language(memory_item)
         memory_kind = self._memory_kind(memory_item)
@@ -415,9 +446,20 @@ class ContextAgent:
         overlap = len(current_tokens.intersection(memory_tokens))
         language_bonus = 1.0 if memory_language == preferred_language else 0.4 if memory_language is None else 0.0
         mode_bonus = 1.0 if memory_kind == current_mode else 0.45 if memory_kind is None else 0.0
+        affective_bonus = 0.0
+        memory_affect_label = self._memory_affect_label(memory_item)
+        current_affect_label = str(perception.affective.affect_label).strip().lower()
+        if perception.affective.needs_support and self._memory_affect_needs_support(memory_item):
+            affective_bonus += 0.9
+        if (
+            current_affect_label
+            and current_affect_label != "neutral"
+            and memory_affect_label == current_affect_label
+        ):
+            affective_bonus += 0.7
         importance = float(memory_item.get("importance", 0.0))
 
-        return (language_bonus, mode_bonus, overlap, importance)
+        return (language_bonus, mode_bonus, overlap, affective_bonus, importance)
 
     def _specific_topic_tags(self, perception: PerceptionOutput) -> set[str]:
         return {tag for tag in perception.topic_tags if tag not in self.GENERIC_TAGS}
@@ -458,6 +500,7 @@ class ContextAgent:
                     current_tokens=current_tokens,
                     preferred_language=preferred_language,
                     current_mode=current_mode,
+                    perception=perception,
                 ),
             )
             for index, item in enumerate(fallback)

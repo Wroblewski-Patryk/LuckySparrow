@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from app.agents.context import ContextAgent
-from app.core.contracts import Event, EventMeta, IdentityOutput, PerceptionOutput
+from app.core.contracts import AffectiveAssessmentOutput, Event, EventMeta, IdentityOutput, PerceptionOutput
 
 
 def _event(text: str = "hello") -> Event:
@@ -68,6 +68,24 @@ def test_context_summary_includes_stable_user_preferences_from_conclusions() -> 
     assert "Stable user preferences: prefers concise responses." in result.summary
 
 
+def test_context_summary_includes_affective_support_pattern_from_conclusions() -> None:
+    result = ContextAgent().run(
+        event=_event("how should we proceed"),
+        perception=_perception(),
+        recent_memory=[],
+        conclusions=[
+            {
+                "kind": "affective_support_pattern",
+                "content": "recurring_distress",
+                "confidence": 0.76,
+                "source": "background_reflection",
+            }
+        ],
+    )
+
+    assert "Stable user preferences: recent turns show recurring stress signals and benefit from supportive pacing." in result.summary
+
+
 def test_context_summary_can_include_identity_stance() -> None:
     result = ContextAgent().run(
         event=_event("how should we proceed"),
@@ -109,6 +127,60 @@ def test_context_summary_includes_relevant_active_goals_and_tasks() -> None:
     assert "Active goals: ship the MVP this week." in result.summary
     assert "Active tasks: fix deployment blocker (blocked)." in result.summary
     assert result.related_goals == ["ship the MVP this week"]
+
+
+def test_context_prefers_affective_relevant_memory_order_when_support_is_needed() -> None:
+    perception = _perception().model_copy(
+        update={
+            "affective": AffectiveAssessmentOutput(
+                affect_label="support_distress",
+                intensity=0.8,
+                needs_support=True,
+                confidence=0.79,
+                source="ai_classifier",
+                evidence=["overwhelmed"],
+            )
+        }
+    )
+    result = ContextAgent().run(
+        event=_event("I am overwhelmed about deployment"),
+        perception=perception,
+        recent_memory=[
+            {
+                "summary": "older neutral deployment memory",
+                "importance": 0.91,
+                "payload": {
+                    "payload_version": 1,
+                    "event": "deployment checklist review",
+                    "memory_kind": "semantic",
+                    "memory_topics": ["deployment", "checklist"],
+                    "response_language": "en",
+                    "affect_label": "neutral",
+                    "affect_needs_support": False,
+                    "action": "success",
+                    "expression": "Let's review the checklist.",
+                },
+            },
+            {
+                "summary": "older supportive deployment memory",
+                "importance": 0.7,
+                "payload": {
+                    "payload_version": 1,
+                    "event": "overwhelmed during deployment",
+                    "memory_kind": "semantic",
+                    "memory_topics": ["deployment", "overwhelmed"],
+                    "response_language": "en",
+                    "affect_label": "support_distress",
+                    "affect_needs_support": True,
+                    "action": "success",
+                    "expression": "You are not alone; let's do one step at a time.",
+                },
+            },
+        ],
+    )
+
+    assert "Relevant recent memory:" in result.summary
+    assert result.summary.index("overwhelmed during deployment") < result.summary.index("deployment checklist review")
 
 
 def test_context_summary_includes_active_goal_milestones() -> None:

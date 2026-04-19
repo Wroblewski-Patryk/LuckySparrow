@@ -19,11 +19,14 @@ from tests.empathy_fixtures import EMPATHY_SUPPORT_SCENARIOS
 class FakeMemoryRepository:
     def __init__(self, recent_memory: list[dict] | None = None, user_profile: dict | None = None):
         self.recent_memory = recent_memory or []
+        self.recent_limits: list[int] = []
         self.user_profile = user_profile
         self.profile_updates: list[dict] = []
         self.conclusion_updates: list[dict] = []
         self.user_preferences: dict = {}
+        self.scoped_user_preferences: dict[tuple[str, str], dict] = {}
         self.user_conclusions: list[dict] = []
+        self.scoped_user_conclusions: list[dict] = []
         self.user_theta: dict | None = None
         self.active_goals: list[dict] = []
         self.active_tasks: list[dict] = []
@@ -32,16 +35,58 @@ class FakeMemoryRepository:
         self.goal_progress_history: list[dict] = []
 
     async def get_recent_for_user(self, user_id: str, limit: int = 5) -> list[dict]:
+        self.recent_limits.append(limit)
         return self.recent_memory[:limit]
 
     async def get_user_profile(self, user_id: str) -> dict | None:
         return self.user_profile
 
-    async def get_user_runtime_preferences(self, user_id: str) -> dict:
-        return self.user_preferences
+    async def get_user_runtime_preferences(
+        self,
+        user_id: str,
+        *,
+        scope_type: str | None = None,
+        scope_key: str | None = None,
+        include_global: bool = True,
+    ) -> dict:
+        normalized_scope_type, normalized_scope_key = self._normalize_scope(scope_type=scope_type, scope_key=scope_key)
+        if scope_type is None and scope_key is None:
+            return self.user_preferences
+        if normalized_scope_type == "global":
+            return self.user_preferences
+        scoped = self.scoped_user_preferences.get((normalized_scope_type, normalized_scope_key), {})
+        if include_global:
+            merged = dict(self.user_preferences)
+            merged.update(scoped)
+            return merged
+        return dict(scoped)
 
-    async def get_user_conclusions(self, user_id: str, limit: int = 3) -> list[dict]:
-        return self.user_conclusions[:limit]
+    async def get_user_conclusions(
+        self,
+        user_id: str,
+        limit: int = 3,
+        *,
+        scope_type: str | None = None,
+        scope_key: str | None = None,
+        include_global: bool = False,
+    ) -> list[dict]:
+        rows = [*self.user_conclusions, *self.scoped_user_conclusions]
+        if scope_type is None and scope_key is None:
+            return rows[:limit]
+        normalized_scope_type, normalized_scope_key = self._normalize_scope(scope_type=scope_type, scope_key=scope_key)
+        if normalized_scope_type == "global":
+            scoped_rows = [row for row in rows if str(row.get("scope_type", "global")) == "global"]
+            return scoped_rows[:limit]
+        scoped_rows = [
+            row
+            for row in rows
+            if str(row.get("scope_type", "global")) == normalized_scope_type
+            and str(row.get("scope_key", "global")) == normalized_scope_key
+        ]
+        if include_global:
+            global_rows = [row for row in rows if str(row.get("scope_type", "global")) == "global"]
+            return [*scoped_rows, *global_rows][:limit]
+        return scoped_rows[:limit]
 
     async def get_user_theta(self, user_id: str) -> dict | None:
         return self.user_theta
@@ -74,6 +119,15 @@ class FakeMemoryRepository:
         if goal_ids:
             rows = [row for row in rows if int(row.get("goal_id", -1)) in set(goal_ids)]
         return rows[:limit]
+
+    def _normalize_scope(self, *, scope_type: str | None, scope_key: str | None) -> tuple[str, str]:
+        normalized_scope_type = str(scope_type or "global").strip().lower()
+        normalized_scope_key = str(scope_key or "").strip()
+        if normalized_scope_type not in {"global", "goal", "task"}:
+            return "global", "global"
+        if normalized_scope_type == "global" or not normalized_scope_key:
+            return "global", "global"
+        return normalized_scope_type, normalized_scope_key
 
     async def write_episode(self, **kwargs) -> dict:
         return {
@@ -298,7 +352,10 @@ async def test_runtime_pipeline_api_source() -> None:
     assert result.memory_record.payload["memory_kind"] == "continuity"
     assert result.memory_record.payload["memory_topics"] == ["general", "hello"]
     assert result.memory_record.payload["response_language"] == "en"
+    assert result.memory_record.payload["affect_label"] == "neutral"
+    assert result.memory_record.payload["affect_needs_support"] is False
     assert result.reflection_triggered is True
+    assert memory.recent_limits[0] == 12
     assert set(result.stage_timings_ms) == {
         "memory_load",
         "task_load",
@@ -326,6 +383,80 @@ async def test_runtime_pipeline_api_source() -> None:
     assert openai.calls[0]["response_tone"] == "supportive"
     assert openai.calls[0]["collaboration_preference"] == ""
     assert "constructive support" in openai.calls[0]["identity_summary"]
+
+
+async def test_runtime_pipeline_loads_memory_beyond_latest_five_and_surfaces_ranked_relevant_item() -> None:
+    memory = FakeMemoryRepository(
+        recent_memory=[
+            {
+                "id": 101,
+                "event_id": "evt-irr-1",
+                "summary": "event=weather update; memory_kind=semantic; memory_topics=weather,rain; response_language=en; action=success; expression=Weather summary",
+                "importance": 0.8,
+                "event_timestamp": datetime.now(timezone.utc),
+            },
+            {
+                "id": 102,
+                "event_id": "evt-irr-2",
+                "summary": "event=coffee chat; memory_kind=continuity; memory_topics=coffee,chat; response_language=en; action=success; expression=Coffee summary",
+                "importance": 0.8,
+                "event_timestamp": datetime.now(timezone.utc),
+            },
+            {
+                "id": 103,
+                "event_id": "evt-irr-3",
+                "summary": "event=book notes; memory_kind=semantic; memory_topics=book,notes; response_language=en; action=success; expression=Book summary",
+                "importance": 0.8,
+                "event_timestamp": datetime.now(timezone.utc),
+            },
+            {
+                "id": 104,
+                "event_id": "evt-irr-4",
+                "summary": "event=travel plan; memory_kind=semantic; memory_topics=travel,plan; response_language=en; action=success; expression=Travel summary",
+                "importance": 0.8,
+                "event_timestamp": datetime.now(timezone.utc),
+            },
+            {
+                "id": 105,
+                "event_id": "evt-irr-5",
+                "summary": "event=music playlist; memory_kind=continuity; memory_topics=music,playlist; response_language=en; action=success; expression=Music summary",
+                "importance": 0.8,
+                "event_timestamp": datetime.now(timezone.utc),
+            },
+            {
+                "id": 106,
+                "event_id": "evt-rel-6",
+                "summary": "event=deployment blocker follow-up; memory_kind=semantic; memory_topics=deploy,blocker,release; response_language=en; action=success; expression=Let's remove the blocker first",
+                "importance": 0.74,
+                "event_timestamp": datetime.now(timezone.utc),
+            },
+        ]
+    )
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+    event = Event(
+        event_id="evt-memory-depth",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Can you help me fix the deployment blocker?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-memory-depth"),
+    )
+
+    result = await runtime.run(event)
+
+    assert memory.recent_limits[0] == 12
+    assert "deployment blocker follow-up" in result.context.summary
 
 
 async def test_runtime_pipeline_uses_ai_assisted_affective_assessor_when_available() -> None:
@@ -725,6 +856,90 @@ async def test_runtime_pipeline_accepts_goal_scoped_conclusions_in_runtime_conte
     assert result.motivation.mode == "analyze"
     assert result.action_result.status == "success"
     assert result.reflection_triggered is True
+
+
+async def test_runtime_pipeline_uses_primary_goal_scoped_state_without_cross_goal_leakage() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.active_goals = [
+        {
+            "id": 11,
+            "user_id": "u-1",
+            "name": "ship the MVP this week",
+            "description": "User-declared goal: ship the MVP this week",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "operational",
+        },
+        {
+            "id": 22,
+            "user_id": "u-1",
+            "name": "prepare post-launch documentation",
+            "description": "User-declared goal: prepare post-launch documentation",
+            "priority": "medium",
+            "status": "active",
+            "goal_type": "operational",
+        },
+    ]
+    memory.scoped_user_preferences[("goal", "11")] = {
+        "goal_execution_state": "blocked",
+        "goal_execution_state_confidence": 0.82,
+        "goal_execution_state_source": "background_reflection",
+    }
+    memory.scoped_user_preferences[("goal", "22")] = {
+        "goal_execution_state": "advancing",
+        "goal_execution_state_confidence": 0.75,
+        "goal_execution_state_source": "background_reflection",
+    }
+    memory.scoped_user_conclusions = [
+        {
+            "kind": "goal_execution_state",
+            "content": "blocked",
+            "confidence": 0.82,
+            "source": "background_reflection",
+            "scope_type": "goal",
+            "scope_key": "11",
+        },
+        {
+            "kind": "goal_execution_state",
+            "content": "advancing",
+            "confidence": 0.75,
+            "source": "background_reflection",
+            "scope_type": "goal",
+            "scope_key": "22",
+        },
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-scoped-primary-goal",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "What should I do next for the MVP?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-scoped-primary-goal"),
+    )
+
+    result = await runtime.run(event)
+
+    assert "Stable user preferences: current goal progress is blocked by an active task." in result.context.summary
+    assert "Stable user preferences: current goal work is actively advancing." not in result.context.summary
+    assert result.motivation.mode == "analyze"
+    assert "recover_goal_progress" in result.plan.steps
+    assert "continue_goal_execution" not in result.plan.steps
+    assert result.action_result.status == "success"
 
 
 async def test_runtime_pipeline_loads_active_goals_and_tasks_into_context_and_plan() -> None:

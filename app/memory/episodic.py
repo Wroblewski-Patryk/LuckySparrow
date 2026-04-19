@@ -13,6 +13,11 @@ def extract_episode_fields(memory_item: Mapping[str, Any] | None) -> dict[str, s
             "memory_kind": _as_text(payload.get("memory_kind")),
             "memory_topics": ",".join(_as_text_list(payload.get("memory_topics"))),
             "response_language": _as_text(payload.get("response_language") or payload.get("language")),
+            "affect_label": _as_text(payload.get("affect_label")),
+            "affect_intensity": _as_text(payload.get("affect_intensity")),
+            "affect_needs_support": _as_text(payload.get("affect_needs_support")),
+            "affect_source": _as_text(payload.get("affect_source")),
+            "affect_evidence": ",".join(_as_text_list(payload.get("affect_evidence"))),
             "preference_update": _as_text(payload.get("preference_update")),
             "collaboration_update": _as_text(payload.get("collaboration_update")),
             "goal_update": _as_text(payload.get("goal_update")),
@@ -42,6 +47,8 @@ def build_episode_summary(payload: Mapping[str, Any], *, max_length: int = 1000)
     expression_text = _clip_text(_as_text(payload.get("expression")), max_length=180)
     memory_kind = _as_text(payload.get("memory_kind"))
     memory_topics = _as_text_list(payload.get("memory_topics"))
+    affect_label = _as_text(payload.get("affect_label"))
+    affect_needs_support = _as_text(payload.get("affect_needs_support"))
     motivation = _as_text(payload.get("motivation"))
     role = _as_text(payload.get("role"))
     action = _as_text(payload.get("action"))
@@ -57,6 +64,10 @@ def build_episode_summary(payload: Mapping[str, Any], *, max_length: int = 1000)
         details.append(f"memory={memory_kind}")
     if memory_topics:
         details.append(f"topics={', '.join(memory_topics)}")
+    if affect_label:
+        details.append(f"affect={affect_label}")
+    if affect_needs_support:
+        details.append(f"support={affect_needs_support}")
     if motivation:
         details.append(f"motivation={motivation}")
     if role:

@@ -323,6 +323,40 @@ async def test_memory_repository_exposes_goal_execution_state_in_runtime_prefere
     await engine.dispose()
 
 
+async def test_memory_repository_exposes_affective_reflection_preferences(tmp_path) -> None:
+    database_path = tmp_path / "memory-affective-preferences.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="affective_support_pattern",
+        content="recurring_distress",
+        confidence=0.76,
+        source="background_reflection",
+        supporting_event_id="evt-aff-pattern",
+    )
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="affective_support_sensitivity",
+        content="high",
+        confidence=0.78,
+        source="background_reflection",
+        supporting_event_id="evt-aff-sensitivity",
+    )
+
+    preferences = await repository.get_user_runtime_preferences(user_id="u-1")
+
+    assert preferences["affective_support_pattern"] == "recurring_distress"
+    assert preferences["affective_support_pattern_confidence"] == 0.76
+    assert preferences["affective_support_sensitivity"] == "high"
+    assert preferences["affective_support_sensitivity_confidence"] == 0.78
+
+    await engine.dispose()
+
+
 async def test_memory_repository_allows_dynamic_goal_execution_state_transition(tmp_path) -> None:
     database_path = tmp_path / "memory-goal-execution-transition.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")

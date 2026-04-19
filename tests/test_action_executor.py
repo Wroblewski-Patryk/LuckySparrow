@@ -186,6 +186,9 @@ async def test_persist_episode_marks_specific_request_as_semantic_memory() -> No
     assert "User said 'deploy the fix to production now'." in record.summary
     assert record.payload["memory_kind"] == "semantic"
     assert record.payload["memory_topics"] == ["general", "deploy", "production", "fix"]
+    assert record.payload["affect_label"] == "neutral"
+    assert record.payload["affect_needs_support"] is False
+    assert record.payload["affect_source"] == "deterministic_placeholder"
     assert record.payload["preference_update"] == ""
     assert record.payload["motivation"] == "respond"
     assert record.payload["role"] == "executor"
@@ -219,6 +222,8 @@ async def test_persist_episode_marks_short_follow_up_as_continuity_memory() -> N
     assert "User said 'ok'." in record.summary
     assert record.payload["memory_kind"] == "continuity"
     assert record.payload["memory_topics"] == ["general"]
+    assert record.payload["affect_label"] == "neutral"
+    assert record.payload["affect_needs_support"] is False
     assert record.payload["preference_update"] == ""
     assert record.payload["motivation"] == "respond"
     assert record.payload["role"] == "advisor"

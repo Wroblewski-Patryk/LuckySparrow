@@ -62,6 +62,18 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Decision needed:
   - should runtime keep this expression-before-action implementation detail, or should action consume a lower-level response plan so final expression can move back after action in a stricter architecture-aligned pipeline?
 
+### 3b. Graph Orchestration Adoption
+
+- Current repo fact:
+  - architecture docs describe `LangGraph` as the intended orchestration layer,
+    but the current runtime still uses a hand-written Python orchestrator.
+  - `LangChain` is described as optional support, not the architectural core.
+- Decision needed:
+  - when should the repo migrate the foreground runtime onto LangGraph?
+  - which current stage contracts must stay stable during that migration?
+  - where does LangChain actually reduce complexity, and where would it only
+    add more framework surface?
+
 ### 4. Role Selection
 
 - Current repo fact:
@@ -89,23 +101,27 @@ The current repo already works as an MVP slice, but several architecture-level d
 ### 5. Memory Retrieval Depth
 
 - Current repo fact:
-  - only the latest five user memory rows are loaded.
+  - runtime now loads up to 12 recent memory rows for context selection.
   - persisted episodes now keep lightweight structured runtime fields in a typed payload, while still keeping a readable summary.
   - perception now emits lightweight `topic_tags`, and memory persistence reuses them before falling back to raw lexical tokens.
   - context and reflection now read episodic memory payload-first and fall back to old summary-only rows only when needed.
   - context now prefers memories tagged with the same response language as the current turn before falling back to untagged older context.
-  - within that pool, context now distinguishes between `continuity` and `semantic` memory and prefers topically overlapping memories before falling back to lower-signal items.
+  - within that pool, context now distinguishes between `continuity` and `semantic` memory, applies affective relevance scoring, and prefers topically overlapping memories before falling back to lower-signal items.
   - for more specific requests, context now skips unrelated memory entirely instead of forcing a weak fallback; ambiguous short follow-ups can still reuse continuity memory.
   - context also now receives lightweight semantic conclusions and can include stable user preferences alongside episodic recall.
 - Decision needed:
-  - when to add filtering, ranking, summarization, or episodic/semantic split memory?
+  - when to replace heuristic ranking with a hybrid lexical plus vector retrieval path?
+  - what should be the default load depth in production once vector retrieval exists?
 
 ### 5b. Affective Memory Model
 
 - Current repo fact:
-  - the repo persists episodic memory, semantic conclusions, and lightweight
-    adaptive state, but it does not yet have a first-class affective memory
-    layer.
+  - episodic payloads now persist lightweight affective tags
+    (`affect_label`, `affect_intensity`, `affect_needs_support`,
+    `affect_source`, `affect_evidence`).
+  - reflection now derives slower-moving affective conclusions
+    (`affective_support_pattern`, `affective_support_sensitivity`) from recent
+    episodic traces.
 - Decision needed:
   - should affective memory be a separate persisted memory family, or an
     orthogonal layer carried by episodic and semantic records?
@@ -117,11 +133,35 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Current repo fact:
   - reflection now supports scoped conclusions (`scope_type`, `scope_key`) and
     persists goal-operational conclusions with goal scope.
-  - runtime consumers still read mixed scopes in a mostly global way, so
-    cross-goal leakage risk remains until scope-aware consumption is completed.
+  - runtime consumers now resolve a primary active goal and read scoped
+    conclusions/preferences with global fallback, reducing cross-goal leakage in
+    context, motivation, planning, and milestone enrichment.
 - Decision needed:
   - which reflection outputs should be global per user, and which must become
     goal-scoped or task-scoped before the runtime grows further?
+
+### 5d. Vector Retrieval Activation
+
+- Current repo fact:
+  - architecture docs name `pgvector` and semantic retrieval as part of the
+    target memory stack, but the current implementation does not yet use vector
+    search or embeddings.
+- Decision needed:
+  - when should hybrid lexical plus vector retrieval become part of the live
+    runtime?
+  - should vector retrieval start as optional enrichment behind feature flags,
+    or become part of the default retrieval path once it exists?
+
+### 5e. Embedding Strategy
+
+- Current repo fact:
+  - architecture allows vector or embedding-based retrieval later, but current
+    code does not define embedding ownership, refresh rules, or provider scope.
+- Decision needed:
+  - which embedding provider and refresh strategy should own semantic memory
+    vectors?
+  - which memory families should be embedded first: episodic, semantic,
+    affective, relation, or all of them?
 
 ### 5a. Goal And Task Scope
 
@@ -161,6 +201,18 @@ The current repo already works as an MVP slice, but several architecture-level d
   - runtime now persists a lightweight language preference in `aion_profile`, keeps semantic preferences in `aion_conclusion`, and builds a lightweight runtime `IdentitySnapshot` from that state plus theta.
 - Decision needed:
   - should `aion_profile` remain limited to durable interaction preferences such as language, while `aion_conclusion` carries generalized learned preferences, or should those concerns merge into one wider identity-linked profile later?
+
+### 9a. Relation System Rollout
+
+- Current repo fact:
+  - architecture docs define a relation system with scoped, confidence-bearing
+    user-specific knowledge, but the current runtime does not yet persist or
+    retrieve relations as a first-class subsystem.
+- Decision needed:
+  - when should relation storage and retrieval move from architecture intent
+    into the live runtime?
+  - which behavior layers should relations influence first: context,
+    expression, planning, role selection, or proactive behavior?
 
 ### 10. Preference Influence Scope
 
@@ -203,3 +255,19 @@ The current repo already works as an MVP slice, but several architecture-level d
   - reflection now updates a lightweight `aion_theta` state from repeated recent role patterns, and runtime can use that state as a soft bias for role selection, motivation, planning, and expression on ambiguous turns.
 - Decision needed:
   - should theta stay as a lightweight behavioral bias derived from recent runtime patterns, or evolve into a broader long-term identity state with stronger influence over planning, motivation, expression, and proactive behavior?
+
+### 12. Scheduler And Proactive Runtime
+
+- Current repo fact:
+  - architecture docs define scheduler-driven events, periodic reflection, and
+    proactive behavior, but the live runtime still depends mainly on reactive
+    event handling plus post-event reflection enqueue.
+  - config docs already reserve fields such as `REFLECTION_INTERVAL` and
+    `PROACTIVE_ENABLED`, but those subsystems are not fully implemented yet.
+- Decision needed:
+  - when should scheduler-originated events become a real production runtime
+    path?
+  - should proactive behavior start with reminders and check-ins only, or
+    include richer warnings, encouragement, and insights from the start?
+  - should scheduled reflection stay in-process first, or move directly toward
+    dedicated worker execution?

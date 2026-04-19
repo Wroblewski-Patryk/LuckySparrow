@@ -90,6 +90,28 @@ def test_motivation_engine_describes_affective_distress_without_undocumented_sup
     assert result.arousal >= 0.5
 
 
+def test_motivation_engine_uses_reflected_affective_support_preferences() -> None:
+    baseline = MotivationEngine().run(
+        event=_event("Can you help me think this through?"),
+        context=_context(),
+        perception=_perception(event_type="question", intent="request_help"),
+    )
+    reflected = MotivationEngine().run(
+        event=_event("Can you help me think this through?"),
+        context=_context(),
+        perception=_perception(event_type="question", intent="request_help"),
+        user_preferences={
+            "affective_support_pattern": "recurring_distress",
+            "affective_support_sensitivity": "high",
+        },
+    )
+
+    assert reflected.mode == "analyze"
+    assert reflected.importance > baseline.importance
+    assert reflected.urgency > baseline.urgency
+    assert reflected.valence <= baseline.valence
+
+
 @pytest.mark.parametrize("scenario", EMPATHY_SUPPORT_SCENARIOS, ids=lambda scenario: scenario.key)
 def test_motivation_engine_keeps_empathy_quality_for_heavy_ambiguous_and_mixed_turns(scenario) -> None:
     result = MotivationEngine().run(
