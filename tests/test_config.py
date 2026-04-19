@@ -15,6 +15,9 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.event_debug_query_compat_recent_window == 20
     assert settings.event_debug_query_compat_stale_after_seconds == 86400
     assert settings.semantic_vector_enabled is True
+    assert settings.embedding_provider == "deterministic"
+    assert settings.embedding_model == "deterministic-v1"
+    assert settings.embedding_dimensions == 32
     assert settings.reflection_runtime_mode == "in_process"
     assert settings.scheduler_enabled is False
     assert settings.reflection_interval == 900
@@ -136,6 +139,19 @@ def test_settings_allow_disabling_semantic_vector_retrieval() -> None:
     )
 
     assert settings.semantic_vector_enabled is False
+
+
+def test_settings_allow_explicit_embedding_provider_model_and_dimensions() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=1536,
+    )
+
+    assert settings.embedding_provider == "openai"
+    assert settings.embedding_model == "text-embedding-3-small"
+    assert settings.embedding_dimensions == 1536
 
 
 def test_settings_allow_strict_production_policy_enforcement_mode() -> None:
@@ -297,3 +313,31 @@ def test_settings_reject_too_low_event_debug_query_compat_stale_after_seconds() 
         raise AssertionError(
             "Expected Settings validation to reject too-low debug query compat stale threshold."
         )
+
+
+def test_settings_reject_too_low_embedding_dimensions() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        embedding_dimensions=0,
+    )
+
+    try:
+        settings.validate_required()
+    except ValueError as exc:
+        assert "EMBEDDING_DIMENSIONS" in str(exc)
+    else:  # pragma: no cover - defensive fallback
+        raise AssertionError("Expected Settings validation to reject too-low embedding dimensions.")
+
+
+def test_settings_reject_empty_embedding_model() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        embedding_model="   ",
+    )
+
+    try:
+        settings.validate_required()
+    except ValueError as exc:
+        assert "EMBEDDING_MODEL" in str(exc)
+    else:  # pragma: no cover - defensive fallback
+        raise AssertionError("Expected Settings validation to reject empty embedding model.")

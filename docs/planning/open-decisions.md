@@ -235,6 +235,11 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Current repo fact:
   - code now defines embedding contracts and deterministic fallback vectors for
     episodic/semantic retrieval surfaces.
+  - embedding strategy config posture is now explicit
+    (`EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIMENSIONS`) and
+    `/health.memory_retrieval` now exposes requested/effective
+    provider-model posture plus deterministic-fallback hint for
+    non-implemented providers.
   - provider ownership, refresh cadence, and embedding model governance are
     still open.
 - Decision needed:

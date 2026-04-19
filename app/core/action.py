@@ -22,7 +22,7 @@ from app.core.contracts import (
 )
 from app.integrations.delivery_router import DeliveryRouter
 from app.integrations.telegram.client import TelegramClient
-from app.memory.embeddings import deterministic_embedding
+from app.memory.embeddings import deterministic_embedding, resolve_embedding_posture
 from app.memory.episodic import build_episode_summary
 from app.memory.repository import MemoryRepository
 
@@ -37,10 +37,18 @@ class ActionExecutor:
         telegram_client: TelegramClient,
         *,
         semantic_vector_enabled: bool = True,
+        embedding_provider: str = "deterministic",
+        embedding_model: str = "deterministic-v1",
+        embedding_dimensions: int = 32,
     ):
         self.memory_repository = memory_repository
         self.delivery_router = DeliveryRouter(telegram_client=telegram_client)
         self.semantic_vector_enabled = semantic_vector_enabled
+        self.embedding_dimensions = max(1, int(embedding_dimensions))
+        self.embedding_posture = resolve_embedding_posture(
+            provider=embedding_provider,
+            model=embedding_model,
+        )
 
     async def execute(self, plan: PlanOutput, delivery: ActionDelivery) -> ActionResult:
         proactive_delivery_guard = plan.proactive_delivery_guard
@@ -123,7 +131,7 @@ class ActionExecutor:
         if self.semantic_vector_enabled and hasattr(self.memory_repository, "upsert_semantic_embedding"):
             episode_embedding = deterministic_embedding(
                 f"{payload['event']} {payload['context']} {payload['expression']}",
-                dimensions=32,
+                dimensions=self.embedding_dimensions,
             )
             await self.memory_repository.upsert_semantic_embedding(
                 user_id=event.meta.user_id,
@@ -134,14 +142,19 @@ class ActionExecutor:
                 scope_key="global",
                 content=str(payload["event"]),
                 embedding=episode_embedding,
-                embedding_model="deterministic-v1",
-                embedding_dimensions=32,
+                embedding_model=self.embedding_posture["model_effective"],
+                embedding_dimensions=self.embedding_dimensions,
                 metadata={
                     "memory_kind": memory_kind,
                     "memory_topics": memory_topics,
                     "response_language": expression.language,
                     "affect_label": perception.affective.affect_label,
                     "affect_needs_support": perception.affective.needs_support,
+                    "embedding_provider_requested": self.embedding_posture["provider_requested"],
+                    "embedding_provider_effective": self.embedding_posture["provider_effective"],
+                    "embedding_provider_hint": self.embedding_posture["provider_hint"],
+                    "embedding_model_requested": self.embedding_posture["model_requested"],
+                    "embedding_model_effective": self.embedding_posture["model_effective"],
                 },
             )
 

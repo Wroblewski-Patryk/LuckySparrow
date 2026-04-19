@@ -179,6 +179,9 @@ class FakeSettings:
         event_debug_query_compat_recent_window: int = 20,
         event_debug_query_compat_stale_after_seconds: int = 86400,
         semantic_vector_enabled: bool = True,
+        embedding_provider: str = "deterministic",
+        embedding_model: str = "deterministic-v1",
+        embedding_dimensions: int = 32,
         startup_schema_mode: str = "migrate",
         production_policy_enforcement: str = "warn",
         reflection_runtime_mode: str = "in_process",
@@ -195,6 +198,9 @@ class FakeSettings:
         self.event_debug_query_compat_recent_window = event_debug_query_compat_recent_window
         self.event_debug_query_compat_stale_after_seconds = event_debug_query_compat_stale_after_seconds
         self.semantic_vector_enabled = semantic_vector_enabled
+        self.embedding_provider = embedding_provider
+        self.embedding_model = embedding_model
+        self.embedding_dimensions = embedding_dimensions
         self.startup_schema_mode = startup_schema_mode
         self.production_policy_enforcement = production_policy_enforcement
         self.reflection_runtime_mode = reflection_runtime_mode
@@ -305,6 +311,9 @@ def _client(
     event_debug_query_compat_recent_window: int = 20,
     event_debug_query_compat_stale_after_seconds: int = 86400,
     semantic_vector_enabled: bool = True,
+    embedding_provider: str = "deterministic",
+    embedding_model: str = "deterministic-v1",
+    embedding_dimensions: int = 32,
     startup_schema_mode: str = "migrate",
     production_policy_enforcement: str = "warn",
     reflection_runtime_mode: str = "in_process",
@@ -339,6 +348,9 @@ def _client(
         event_debug_query_compat_recent_window=event_debug_query_compat_recent_window,
         event_debug_query_compat_stale_after_seconds=event_debug_query_compat_stale_after_seconds,
         semantic_vector_enabled=semantic_vector_enabled,
+        embedding_provider=embedding_provider,
+        embedding_model=embedding_model,
+        embedding_dimensions=embedding_dimensions,
         startup_schema_mode=startup_schema_mode,
         production_policy_enforcement=production_policy_enforcement,
         reflection_runtime_mode=reflection_runtime_mode,
@@ -423,6 +435,12 @@ def test_health_endpoint_returns_ok() -> None:
         "memory_retrieval": {
             "semantic_vector_enabled": True,
             "semantic_retrieval_mode": "hybrid_vector_lexical",
+            "semantic_embedding_provider_requested": "deterministic",
+            "semantic_embedding_provider_effective": "deterministic",
+            "semantic_embedding_provider_hint": "deterministic_baseline",
+            "semantic_embedding_model_requested": "deterministic-v1",
+            "semantic_embedding_model_effective": "deterministic-v1",
+            "semantic_embedding_dimensions": 32,
         },
         "scheduler": {
             "healthy": True,
@@ -500,6 +518,35 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
     assert body["memory_retrieval"] == {
         "semantic_vector_enabled": False,
         "semantic_retrieval_mode": "lexical_only",
+        "semantic_embedding_provider_requested": "deterministic",
+        "semantic_embedding_provider_effective": "deterministic",
+        "semantic_embedding_provider_hint": "deterministic_baseline",
+        "semantic_embedding_model_requested": "deterministic-v1",
+        "semantic_embedding_model_effective": "deterministic-v1",
+        "semantic_embedding_dimensions": 32,
+    }
+
+
+def test_health_endpoint_exposes_embedding_provider_fallback_posture_when_non_deterministic_provider_is_requested() -> None:
+    client, _, _ = _client(
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=1536,
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["memory_retrieval"] == {
+        "semantic_vector_enabled": True,
+        "semantic_retrieval_mode": "hybrid_vector_lexical",
+        "semantic_embedding_provider_requested": "openai",
+        "semantic_embedding_provider_effective": "deterministic",
+        "semantic_embedding_provider_hint": "provider_not_implemented_fallback_deterministic",
+        "semantic_embedding_model_requested": "text-embedding-3-small",
+        "semantic_embedding_model_effective": "deterministic-v1",
+        "semantic_embedding_dimensions": 1536,
     }
 
 

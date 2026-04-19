@@ -301,6 +301,9 @@ async def test_persist_episode_upserts_semantic_embedding_when_vector_retrieval_
     update = memory_repository.semantic_embedding_updates[0]
     assert update["embedding_model"] == "deterministic-v1"
     assert update["embedding_dimensions"] == 32
+    assert update["metadata"]["embedding_provider_requested"] == "deterministic"
+    assert update["metadata"]["embedding_provider_effective"] == "deterministic"
+    assert update["metadata"]["embedding_provider_hint"] == "deterministic_baseline"
 
 
 async def test_persist_episode_skips_semantic_embedding_when_vector_retrieval_is_disabled() -> None:
@@ -323,6 +326,41 @@ async def test_persist_episode_skips_semantic_embedding_when_vector_retrieval_is
     )
 
     assert memory_repository.semantic_embedding_updates == []
+
+
+async def test_persist_episode_falls_back_to_deterministic_embedding_when_non_deterministic_provider_is_requested() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=FakeTelegramClient(),
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=16,
+    )
+
+    await executor.persist_episode(
+        event=_event("deploy the fix"),
+        perception=_perception(["general", "deploy"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role(),
+        plan=_plan(),
+        action_result=await executor.execute(_plan(), _delivery()),
+        expression=_expression(),
+    )
+
+    assert len(memory_repository.semantic_embedding_updates) == 1
+    update = memory_repository.semantic_embedding_updates[0]
+    assert update["embedding_model"] == "deterministic-v1"
+    assert update["embedding_dimensions"] == 16
+    assert update["metadata"]["embedding_provider_requested"] == "openai"
+    assert update["metadata"]["embedding_provider_effective"] == "deterministic"
+    assert (
+        update["metadata"]["embedding_provider_hint"]
+        == "provider_not_implemented_fallback_deterministic"
+    )
+    assert update["metadata"]["embedding_model_requested"] == "text-embedding-3-small"
+    assert update["metadata"]["embedding_model_effective"] == "deterministic-v1"
 
 
 async def test_persist_episode_skips_profile_update_for_derived_language_signal() -> None:

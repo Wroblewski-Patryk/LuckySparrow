@@ -3,6 +3,35 @@ from __future__ import annotations
 import hashlib
 import math
 
+DEFAULT_EMBEDDING_PROVIDER = "deterministic"
+DEFAULT_EMBEDDING_MODEL = "deterministic-v1"
+
+
+def resolve_embedding_posture(
+    *,
+    provider: str | None,
+    model: str | None,
+) -> dict[str, str]:
+    requested_provider = str(provider or DEFAULT_EMBEDDING_PROVIDER).strip().lower() or DEFAULT_EMBEDDING_PROVIDER
+    requested_model = str(model or DEFAULT_EMBEDDING_MODEL).strip() or DEFAULT_EMBEDDING_MODEL
+
+    if requested_provider == DEFAULT_EMBEDDING_PROVIDER:
+        return {
+            "provider_requested": requested_provider,
+            "provider_effective": DEFAULT_EMBEDDING_PROVIDER,
+            "model_requested": requested_model,
+            "model_effective": requested_model,
+            "provider_hint": "deterministic_baseline",
+        }
+
+    return {
+        "provider_requested": requested_provider,
+        "provider_effective": DEFAULT_EMBEDDING_PROVIDER,
+        "model_requested": requested_model,
+        "model_effective": DEFAULT_EMBEDDING_MODEL,
+        "provider_hint": "provider_not_implemented_fallback_deterministic",
+    }
+
 
 def deterministic_embedding(text: str, *, dimensions: int = 32) -> list[float]:
     """Returns a deterministic normalized embedding vector for fallback retrieval paths."""

@@ -16,7 +16,7 @@ from app.core.logging import RuntimeLogContext, RuntimeStageLogger, get_logger
 from app.core.runtime_graph import ForegroundLangGraphRunner
 from app.expression.generator import ExpressionAgent
 from app.identity.service import IdentityService
-from app.memory.embeddings import deterministic_embedding
+from app.memory.embeddings import deterministic_embedding, resolve_embedding_posture
 from app.memory.repository import MemoryRepository
 from app.motivation.engine import MotivationEngine
 from app.reflection.worker import ReflectionWorker
@@ -41,6 +41,9 @@ class RuntimeOrchestrator:
         identity_service: IdentityService | None = None,
         affective_assessor: AffectiveAssessor | None = None,
         semantic_vector_enabled: bool = True,
+        embedding_provider: str = "deterministic",
+        embedding_model: str = "deterministic-v1",
+        embedding_dimensions: int = 32,
     ):
         self.perception_agent = perception_agent
         self.context_agent = context_agent
@@ -54,6 +57,11 @@ class RuntimeOrchestrator:
         self.identity_service = identity_service or IdentityService()
         self.affective_assessor = affective_assessor or AffectiveAssessor()
         self.semantic_vector_enabled = semantic_vector_enabled
+        self.embedding_dimensions = max(1, int(embedding_dimensions))
+        self.embedding_posture = resolve_embedding_posture(
+            provider=embedding_provider,
+            model=embedding_model,
+        )
         self.graph_stage_adapters = GraphStageAdapters(
             perception_agent=self.perception_agent,
             context_agent=self.context_agent,
@@ -286,7 +294,7 @@ class RuntimeOrchestrator:
             query_text = str(event.payload.get("text", "")).strip()
             if hasattr(self.memory_repository, "get_hybrid_memory_bundle"):
                 query_embedding = (
-                    deterministic_embedding(query_text, dimensions=32)
+                    deterministic_embedding(query_text, dimensions=self.embedding_dimensions)
                     if self.semantic_vector_enabled and query_text
                     else []
                 )

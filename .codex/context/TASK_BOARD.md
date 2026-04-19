@@ -15,7 +15,7 @@ Last updated: 2026-04-19
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The planning queue is complete through `PRJ-231`.
+- The planning queue is complete through `PRJ-232`.
 - No `READY` PRJ slice is currently registered; derive the next smallest slice
   from `docs/planning/open-decisions.md` and sync it with the board before
   implementation.
@@ -48,6 +48,25 @@ Last updated: 2026-04-19
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-232 Add embedding strategy config posture and deterministic fallback visibility
+  - Status: DONE
+  - Group: Embedding Strategy Posture
+  - Owner: Backend Builder + QA/Test + Product Docs
+  - Depends on: PRJ-231
+  - Priority: P2
+  - Result:
+    - runtime settings now expose explicit embedding strategy controls
+      (`EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIMENSIONS`) with
+      bounded validation
+    - action/runtime now consume configured embedding dimensions and deterministic
+      fallback posture when non-implemented providers are requested
+    - `GET /health.memory_retrieval` now exposes requested vs effective
+      embedding provider/model posture plus fallback hint and dimensions
+    - task board, project state, and planning/docs artifacts are synchronized
+      through `PRJ-232`
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 
 - [x] PRJ-231 Add semantic vector retrieval feature gate and health posture visibility
   - Status: DONE

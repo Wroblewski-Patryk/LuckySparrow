@@ -68,6 +68,12 @@ retrieval posture:
 
 - `semantic_vector_enabled`
 - `semantic_retrieval_mode` (`hybrid_vector_lexical|lexical_only`)
+- `semantic_embedding_provider_requested`
+- `semantic_embedding_provider_effective`
+- `semantic_embedding_provider_hint`
+- `semantic_embedding_model_requested`
+- `semantic_embedding_model_effective`
+- `semantic_embedding_dimensions`
 
 On startup, production now emits an explicit warning when
 `EVENT_DEBUG_ENABLED=true`. Treat this warning as a release-hardening signal:
@@ -128,6 +134,12 @@ Recommended when Telegram webhooks are enabled:
 - `SEMANTIC_VECTOR_ENABLED` (optional, default `true`) to toggle semantic
   vector retrieval/persistence posture (`true` for hybrid vector+lexical,
   `false` for lexical-only)
+- `EMBEDDING_PROVIDER` (optional, default `deterministic`) to declare requested
+  embedding provider posture (`openai` currently falls back to deterministic)
+- `EMBEDDING_MODEL` (optional, default `deterministic-v1`) to configure
+  requested embedding model posture
+- `EMBEDDING_DIMENSIONS` (optional, default `32`) to control embedding/query
+  vector dimensions
 - `PRODUCTION_DEBUG_TOKEN_REQUIRED` (`true|false`, default `true`) to require
   a configured debug token for production debug payload access when debug
   exposure is enabled

@@ -134,6 +134,10 @@ Last updated: 2026-04-19
   `GET /health` exposes `memory_retrieval.semantic_vector_enabled` plus
   `memory_retrieval.semantic_retrieval_mode`
   (`hybrid_vector_lexical|lexical_only`).
+- 2026-04-19: embedding strategy posture is now explicit through
+  `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, and `EMBEDDING_DIMENSIONS` with
+  deterministic-fallback visibility in `GET /health.memory_retrieval`
+  (requested vs effective provider/model plus fallback hint).
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,
@@ -272,7 +276,7 @@ Last updated: 2026-04-19
   explicit without regressing current runtime behavior, then deepen the runtime
   toward affective understanding, scoped memory, and stronger action intent
   ownership
-- Active `PRJ` execution queue is complete through `PRJ-231`; the next slice
+- Active `PRJ` execution queue is complete through `PRJ-232`; the next slice
   should be derived from `docs/planning/open-decisions.md` and registered as
   `READY` before implementation.
 - Top blockers:
@@ -287,6 +291,14 @@ Last updated: 2026-04-19
 
 ## Recent Progress
 
+- 2026-04-19: `PRJ-232` is complete: embedding strategy config posture is now
+  explicit (`EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_DIMENSIONS`),
+  runtime/action keep deterministic fallback semantics for non-implemented
+  providers, and `/health.memory_retrieval` now surfaces requested vs
+  effective embedding posture with fallback hint.
+- 2026-04-19: `PRJ-232` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+  passed with `142 passed`.
 - 2026-04-19: `PRJ-231` is complete: semantic retrieval now has an explicit
   runtime feature gate (`SEMANTIC_VECTOR_ENABLED`) and operator-visible
   `/health.memory_retrieval` posture, while action/runtime preserve default

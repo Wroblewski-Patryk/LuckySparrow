@@ -145,6 +145,30 @@ Default: `true`.
 When `false`, runtime retrieval remains lexical-only while keeping the same
 hybrid retrieval API surface.
 
+`EMBEDDING_PROVIDER`
+
+Controls which embedding provider is requested by runtime configuration.
+
+Allowed values:
+
+- `deterministic` (current effective baseline)
+- `openai` (currently falls back to deterministic until provider-backed
+  embedding execution is implemented)
+
+Default: `deterministic`.
+
+`EMBEDDING_MODEL`
+
+Requested embedding model identifier for embedding strategy posture.
+
+Default: `deterministic-v1`.
+
+`EMBEDDING_DIMENSIONS`
+
+Embedding vector dimensions used by deterministic baseline and query vectors.
+
+Default: `32` (must be at least `1`).
+
 `PRODUCTION_DEBUG_TOKEN_REQUIRED`
 
 Controls whether production debug payload access requires a configured debug
@@ -220,6 +244,12 @@ Allowed values:
 - `semantic_vector_enabled`
 - `semantic_retrieval_mode`
   (`hybrid_vector_lexical|lexical_only`)
+- `semantic_embedding_provider_requested`
+- `semantic_embedding_provider_effective`
+- `semantic_embedding_provider_hint`
+- `semantic_embedding_model_requested`
+- `semantic_embedding_model_effective`
+- `semantic_embedding_dimensions`
 
 Compatibility route `POST /event?debug=true` also emits:
 

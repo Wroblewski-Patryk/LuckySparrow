@@ -692,6 +692,46 @@ async def test_runtime_pipeline_uses_lexical_only_hybrid_query_when_semantic_vec
     assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 0
 
 
+async def test_runtime_pipeline_uses_configured_embedding_dimensions_even_when_provider_falls_back_to_deterministic() -> None:
+    memory = FakeHybridMemoryRepository(recent_memory=[])
+    action = ActionExecutor(
+        memory_repository=memory,
+        telegram_client=FakeTelegramClient(),
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=24,
+    )
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+        semantic_vector_enabled=True,
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=24,
+    )
+
+    event = Event(
+        event_id="evt-hybrid-provider-fallback",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "help me sequence this deploy blocker"},
+        meta=EventMeta(user_id="u-1", trace_id="t-hybrid-provider-fallback"),
+    )
+
+    await runtime.run(event)
+
+    assert len(memory.hybrid_calls) == 1
+    assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 24
+
+
 async def test_runtime_pipeline_surfaces_relation_signals_in_context_and_planning() -> None:
     memory = FakeHybridMemoryRepository(recent_memory=[])
     memory.relations = [

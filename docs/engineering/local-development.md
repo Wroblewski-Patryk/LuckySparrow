@@ -35,6 +35,12 @@
   to tune when last compat-route attempt is marked as stale in `/health`
 - `SEMANTIC_VECTOR_ENABLED` (optional, default `true`) to switch semantic
   retrieval between `hybrid_vector_lexical` and `lexical_only` modes
+- `EMBEDDING_PROVIDER` (optional, default `deterministic`) to declare requested
+  embedding provider posture (`openai` currently falls back to deterministic)
+- `EMBEDDING_MODEL` (optional, default `deterministic-v1`) to set requested
+  embedding model posture for runtime visibility
+- `EMBEDDING_DIMENSIONS` (optional, default `32`) to tune embedding/query
+  vector dimensions
 - `PRODUCTION_DEBUG_TOKEN_REQUIRED` (optional, default `true`) to enforce
   debug-token configuration for production debug payload access
 - `ATTENTION_BURST_WINDOW_MS` (optional) to tune Telegram burst coalescing

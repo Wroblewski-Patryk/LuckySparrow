@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     event_debug_query_compat_recent_window: int = 20
     event_debug_query_compat_stale_after_seconds: int = 86400
     semantic_vector_enabled: bool = True
+    embedding_provider: Literal["deterministic", "openai"] = "deterministic"
+    embedding_model: str = "deterministic-v1"
+    embedding_dimensions: int = 32
     startup_schema_mode: Literal["migrate", "create_tables"] = "migrate"
     production_policy_enforcement: Literal["warn", "strict"] = "warn"
     reflection_runtime_mode: Literal["in_process", "deferred"] = "in_process"
@@ -74,6 +77,10 @@ class Settings(BaseSettings):
             raise ValueError("EVENT_DEBUG_QUERY_COMPAT_RECENT_WINDOW must be at least 1.")
         if self.event_debug_query_compat_stale_after_seconds < 1:
             raise ValueError("EVENT_DEBUG_QUERY_COMPAT_STALE_AFTER_SECONDS must be at least 1.")
+        if self.embedding_dimensions < 1:
+            raise ValueError("EMBEDDING_DIMENSIONS must be at least 1.")
+        if not str(self.embedding_model).strip():
+            raise ValueError("EMBEDDING_MODEL must be a non-empty string.")
 
     def is_event_debug_enabled(self) -> bool:
         if self.event_debug_enabled is not None:

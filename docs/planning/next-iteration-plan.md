@@ -176,6 +176,10 @@ Completed on 2026-04-18:
   visibility (`memory_retrieval.semantic_vector_enabled`,
   `memory_retrieval.semantic_retrieval_mode`), with regression coverage for
   config, action, runtime, and API health behavior.
+- `PRJ-232` is complete: embedding strategy posture is now explicit through
+  runtime config (`EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`,
+  `EMBEDDING_DIMENSIONS`) and `/health.memory_retrieval` requested/effective
+  provider-model visibility with deterministic-fallback hints.
 
 ## Highest-Risk Gaps
 
@@ -866,7 +870,7 @@ implicit or uncontrolled side effects.
 
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-231`.
+The planning queue is complete through `PRJ-232`.
 There is currently no execution-ready PRJ slice in the board.
 Before the next implementation slice:
 
