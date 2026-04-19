@@ -199,6 +199,12 @@ Completed on 2026-04-18:
   `/health.memory_retrieval` and startup warning logs share the same
   coverage-state semantics, reducing drift between operator diagnostics and
   startup guardrail signals.
+- `PRJ-238` is complete: embedding refresh-cadence posture is now explicit
+  through runtime config (`EMBEDDING_REFRESH_MODE`,
+  `EMBEDDING_REFRESH_INTERVAL_SECONDS`), `/health.memory_retrieval` visibility
+  (`semantic_embedding_refresh_mode`,
+  `semantic_embedding_refresh_interval_seconds`), and startup warning coverage
+  for manual refresh mode.
 
 ## Highest-Risk Gaps
 
@@ -889,7 +895,7 @@ implicit or uncontrolled side effects.
 
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-237`.
+The planning queue is complete through `PRJ-238`.
 There is currently no execution-ready PRJ slice in the board.
 Before the next implementation slice:
 

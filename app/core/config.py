@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     embedding_model: str = "deterministic-v1"
     embedding_dimensions: int = 32
     embedding_source_kinds: str = "episodic,semantic,affective"
+    embedding_refresh_mode: Literal["on_write", "manual"] = "on_write"
+    embedding_refresh_interval_seconds: int = 21600
     startup_schema_mode: Literal["migrate", "create_tables"] = "migrate"
     production_policy_enforcement: Literal["warn", "strict"] = "warn"
     reflection_runtime_mode: Literal["in_process", "deferred"] = "in_process"
@@ -85,6 +87,8 @@ class Settings(BaseSettings):
         if not str(self.embedding_model).strip():
             raise ValueError("EMBEDDING_MODEL must be a non-empty string.")
         normalize_embedding_source_kinds(self.embedding_source_kinds)
+        if self.embedding_refresh_interval_seconds < 60:
+            raise ValueError("EMBEDDING_REFRESH_INTERVAL_SECONDS must be at least 60.")
 
     def is_event_debug_enabled(self) -> bool:
         if self.event_debug_enabled is not None:

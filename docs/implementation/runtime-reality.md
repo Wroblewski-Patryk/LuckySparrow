@@ -186,6 +186,10 @@ Current limitation:
   (`semantic_embedding_source_coverage_state`,
   `semantic_embedding_source_coverage_hint`), and startup warning logs reuse
   this shared coverage-state semantics.
+- embedding refresh-cadence posture is now explicit through
+  `EMBEDDING_REFRESH_MODE` and `EMBEDDING_REFRESH_INTERVAL_SECONDS`, surfaced
+  in `/health.memory_retrieval` and startup warning logs
+  (`embedding_refresh_warning`) when vectors are enabled with manual mode.
 
 ### Event API behavior
 

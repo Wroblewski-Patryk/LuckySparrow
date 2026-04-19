@@ -20,6 +20,8 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.embedding_dimensions == 32
     assert settings.embedding_source_kinds == "episodic,semantic,affective"
     assert settings.get_embedding_source_kinds() == ("episodic", "semantic", "affective")
+    assert settings.embedding_refresh_mode == "on_write"
+    assert settings.embedding_refresh_interval_seconds == 21600
     assert settings.reflection_runtime_mode == "in_process"
     assert settings.scheduler_enabled is False
     assert settings.reflection_interval == 900
@@ -163,6 +165,17 @@ def test_settings_allow_explicit_embedding_source_kinds() -> None:
     )
 
     assert settings.get_embedding_source_kinds() == ("episodic", "relation")
+
+
+def test_settings_allow_explicit_embedding_refresh_mode_and_interval() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        embedding_refresh_mode="manual",
+        embedding_refresh_interval_seconds=7200,
+    )
+
+    assert settings.embedding_refresh_mode == "manual"
+    assert settings.embedding_refresh_interval_seconds == 7200
 
 
 def test_settings_allow_strict_production_policy_enforcement_mode() -> None:
@@ -366,3 +379,17 @@ def test_settings_reject_unknown_embedding_source_kind() -> None:
         assert "EMBEDDING_SOURCE_KINDS" in str(exc)
     else:  # pragma: no cover - defensive fallback
         raise AssertionError("Expected Settings validation to reject unknown embedding source kind.")
+
+
+def test_settings_reject_too_low_embedding_refresh_interval_seconds() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        embedding_refresh_interval_seconds=59,
+    )
+
+    try:
+        settings.validate_required()
+    except ValueError as exc:
+        assert "EMBEDDING_REFRESH_INTERVAL_SECONDS" in str(exc)
+    else:  # pragma: no cover - defensive fallback
+        raise AssertionError("Expected Settings validation to reject too-low embedding refresh interval.")

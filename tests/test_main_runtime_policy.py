@@ -407,3 +407,43 @@ def test_startup_skips_embedding_source_coverage_warning_when_semantic_and_affec
 
     messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
     assert not any("embedding_source_coverage_warning" in message for message in messages)
+
+
+def test_startup_logs_embedding_refresh_warning_when_manual_refresh_mode_is_enabled(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("WARNING", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="deterministic",
+        embedding_model="deterministic-v1",
+        embedding_source_kinds="episodic,semantic,affective",
+        embedding_refresh_mode="manual",
+        embedding_refresh_interval_seconds=7200,
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert any("embedding_refresh_warning" in message for message in messages)
+    assert any("refresh_mode=manual" in message for message in messages)
+    assert any("refresh_interval_seconds=7200" in message for message in messages)
+
+
+def test_startup_skips_embedding_refresh_warning_when_on_write_refresh_mode_is_enabled(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("WARNING", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="deterministic",
+        embedding_model="deterministic-v1",
+        embedding_source_kinds="episodic,semantic,affective",
+        embedding_refresh_mode="on_write",
+        embedding_refresh_interval_seconds=21600,
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert not any("embedding_refresh_warning" in message for message in messages)

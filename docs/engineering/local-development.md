@@ -44,6 +44,11 @@
 - `EMBEDDING_SOURCE_KINDS` (optional, default
   `episodic,semantic,affective`) to control which memory families persist
   embedding records (`episodic|semantic|affective|relation`)
+- `EMBEDDING_REFRESH_MODE` (optional, default `on_write`) to declare embedding
+  refresh ownership posture (`on_write|manual`)
+- `EMBEDDING_REFRESH_INTERVAL_SECONDS` (optional, default `21600`) to declare
+  expected embedding refresh cadence interval in seconds (must be at least
+  `60`)
 - `PRODUCTION_DEBUG_TOKEN_REQUIRED` (optional, default `true`) to enforce
   debug-token configuration for production debug payload access
 - `ATTENTION_BURST_WINDOW_MS` (optional) to tune Telegram burst coalescing

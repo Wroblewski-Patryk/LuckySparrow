@@ -183,6 +183,23 @@ Allowed kinds:
 
 Default: `episodic,semantic,affective`.
 
+`EMBEDDING_REFRESH_MODE`
+
+Controls embedding refresh cadence ownership posture.
+
+Allowed values:
+
+- `on_write`
+- `manual`
+
+Default: `on_write`.
+
+`EMBEDDING_REFRESH_INTERVAL_SECONDS`
+
+Expected embedding refresh cadence interval in seconds.
+
+Default: `21600` (must be at least `60`).
+
 `PRODUCTION_DEBUG_TOKEN_REQUIRED`
 
 Controls whether production debug payload access requires a configured debug
@@ -272,6 +289,8 @@ Allowed values:
 - `semantic_embedding_source_kinds`
 - `semantic_embedding_source_coverage_state`
 - `semantic_embedding_source_coverage_hint`
+- `semantic_embedding_refresh_mode`
+- `semantic_embedding_refresh_interval_seconds`
 
 Compatibility route `POST /event?debug=true` also emits:
 

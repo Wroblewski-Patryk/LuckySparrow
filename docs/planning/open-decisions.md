@@ -259,8 +259,13 @@ The current repo already works as an MVP slice, but several architecture-level d
     through `semantic_embedding_source_coverage_state` and
     `semantic_embedding_source_coverage_hint`, with startup warnings using the
     same shared coverage-state semantics.
-  - provider ownership, refresh cadence, and embedding model governance are
-    still open.
+  - embedding refresh-cadence posture is now explicit through
+    `EMBEDDING_REFRESH_MODE` (`on_write|manual`) and
+    `EMBEDDING_REFRESH_INTERVAL_SECONDS`; `/health.memory_retrieval` now
+    surfaces `semantic_embedding_refresh_mode` and
+    `semantic_embedding_refresh_interval_seconds`, and startup emits
+    `embedding_refresh_warning` when vectors are enabled in manual mode.
+  - provider ownership and embedding model governance are still open.
 - Decision needed:
   - which embedding provider and refresh strategy should own semantic memory
     vectors?

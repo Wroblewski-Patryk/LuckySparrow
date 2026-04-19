@@ -183,6 +183,8 @@ class FakeSettings:
         embedding_model: str = "deterministic-v1",
         embedding_dimensions: int = 32,
         embedding_source_kinds: str = "episodic,semantic,affective",
+        embedding_refresh_mode: str = "on_write",
+        embedding_refresh_interval_seconds: int = 21600,
         startup_schema_mode: str = "migrate",
         production_policy_enforcement: str = "warn",
         reflection_runtime_mode: str = "in_process",
@@ -203,6 +205,8 @@ class FakeSettings:
         self.embedding_model = embedding_model
         self.embedding_dimensions = embedding_dimensions
         self.embedding_source_kinds = embedding_source_kinds
+        self.embedding_refresh_mode = embedding_refresh_mode
+        self.embedding_refresh_interval_seconds = embedding_refresh_interval_seconds
         self.startup_schema_mode = startup_schema_mode
         self.production_policy_enforcement = production_policy_enforcement
         self.reflection_runtime_mode = reflection_runtime_mode
@@ -317,6 +321,8 @@ def _client(
     embedding_model: str = "deterministic-v1",
     embedding_dimensions: int = 32,
     embedding_source_kinds: str = "episodic,semantic,affective",
+    embedding_refresh_mode: str = "on_write",
+    embedding_refresh_interval_seconds: int = 21600,
     startup_schema_mode: str = "migrate",
     production_policy_enforcement: str = "warn",
     reflection_runtime_mode: str = "in_process",
@@ -355,6 +361,8 @@ def _client(
         embedding_model=embedding_model,
         embedding_dimensions=embedding_dimensions,
         embedding_source_kinds=embedding_source_kinds,
+        embedding_refresh_mode=embedding_refresh_mode,
+        embedding_refresh_interval_seconds=embedding_refresh_interval_seconds,
         startup_schema_mode=startup_schema_mode,
         production_policy_enforcement=production_policy_enforcement,
         reflection_runtime_mode=reflection_runtime_mode,
@@ -452,6 +460,8 @@ def test_health_endpoint_returns_ok() -> None:
             "semantic_embedding_source_kinds": ["episodic", "semantic", "affective"],
             "semantic_embedding_source_coverage_state": "full_for_current_retrieval_path",
             "semantic_embedding_source_coverage_hint": "semantic_and_affective_sources_enabled",
+            "semantic_embedding_refresh_mode": "on_write",
+            "semantic_embedding_refresh_interval_seconds": 21600,
         },
         "scheduler": {
             "healthy": True,
@@ -542,6 +552,8 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
         "semantic_embedding_source_kinds": ["episodic", "semantic", "affective"],
         "semantic_embedding_source_coverage_state": "vectors_disabled",
         "semantic_embedding_source_coverage_hint": "not_applicable_vectors_disabled",
+        "semantic_embedding_refresh_mode": "on_write",
+        "semantic_embedding_refresh_interval_seconds": 21600,
     }
 
 
@@ -572,6 +584,8 @@ def test_health_endpoint_exposes_embedding_provider_fallback_posture_when_non_de
         "semantic_embedding_source_kinds": ["episodic", "semantic", "affective"],
         "semantic_embedding_source_coverage_state": "full_for_current_retrieval_path",
         "semantic_embedding_source_coverage_hint": "semantic_and_affective_sources_enabled",
+        "semantic_embedding_refresh_mode": "on_write",
+        "semantic_embedding_refresh_interval_seconds": 21600,
     }
 
 
@@ -588,6 +602,20 @@ def test_health_endpoint_exposes_configured_embedding_source_kinds() -> None:
         body["memory_retrieval"]["semantic_embedding_source_coverage_hint"]
         == "enable_semantic_or_affective_source_for_vector_hits"
     )
+
+
+def test_health_endpoint_exposes_embedding_refresh_posture() -> None:
+    client, _, _ = _client(
+        embedding_refresh_mode="manual",
+        embedding_refresh_interval_seconds=7200,
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["memory_retrieval"]["semantic_embedding_refresh_mode"] == "manual"
+    assert body["memory_retrieval"]["semantic_embedding_refresh_interval_seconds"] == 7200
 
 
 def test_health_endpoint_marks_scheduler_unhealthy_when_enabled_but_not_running() -> None:

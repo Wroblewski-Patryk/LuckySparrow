@@ -132,6 +132,15 @@ def _log_embedding_strategy_warnings(*, settings, logger) -> None:
             str(snapshot["semantic_embedding_source_coverage_state"]),
             str(snapshot["semantic_embedding_source_coverage_hint"]),
         )
+    refresh_mode = str(getattr(settings, "embedding_refresh_mode", "on_write")).strip().lower()
+    refresh_interval_seconds = max(60, int(getattr(settings, "embedding_refresh_interval_seconds", 21600)))
+    if bool(snapshot["semantic_vector_enabled"]) and refresh_mode == "manual":
+        logger.warning(
+            "embedding_refresh_warning semantic_vector_enabled=%s refresh_mode=%s refresh_interval_seconds=%s recommendation=ensure_manual_refresh_process_is_defined",
+            bool(snapshot["semantic_vector_enabled"]),
+            refresh_mode,
+            refresh_interval_seconds,
+        )
 
 
 @asynccontextmanager
@@ -243,7 +252,7 @@ async def lifespan(app: FastAPI):
     app.state.runtime = runtime
 
     logger.info(
-        "AION started env=%s port=%s openai_enabled=%s telegram_enabled=%s reflection_runtime_mode=%s scheduler_enabled=%s semantic_vector_enabled=%s embedding_provider=%s embedding_model=%s embedding_dimensions=%s",
+        "AION started env=%s port=%s openai_enabled=%s telegram_enabled=%s reflection_runtime_mode=%s scheduler_enabled=%s semantic_vector_enabled=%s embedding_provider=%s embedding_model=%s embedding_dimensions=%s embedding_refresh_mode=%s embedding_refresh_interval_seconds=%s",
         settings.app_env,
         settings.app_port,
         bool(settings.openai_api_key),
@@ -254,6 +263,8 @@ async def lifespan(app: FastAPI):
         str(getattr(settings, "embedding_provider", "deterministic")),
         str(getattr(settings, "embedding_model", "deterministic-v1")),
         int(getattr(settings, "embedding_dimensions", 32)),
+        str(getattr(settings, "embedding_refresh_mode", "on_write")),
+        int(getattr(settings, "embedding_refresh_interval_seconds", 21600)),
     )
     try:
         yield

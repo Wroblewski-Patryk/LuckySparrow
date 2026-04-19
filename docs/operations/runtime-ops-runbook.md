@@ -81,6 +81,8 @@ retrieval posture:
 - `semantic_embedding_source_kinds`
 - `semantic_embedding_source_coverage_state`
 - `semantic_embedding_source_coverage_hint`
+- `semantic_embedding_refresh_mode`
+- `semantic_embedding_refresh_interval_seconds`
 
 When semantic vectors are enabled and a non-implemented provider is requested
 (for example `EMBEDDING_PROVIDER=openai` today), startup emits
@@ -91,6 +93,10 @@ When semantic vectors are enabled but embedding source coverage excludes both
 `semantic` and `affective`, startup emits `embedding_source_coverage_warning`
 so operators can see that vector retrieval path is configured without
 high-signal vector source families.
+
+When semantic vectors are enabled and `EMBEDDING_REFRESH_MODE=manual`, startup
+also emits `embedding_refresh_warning` so operators can confirm that a separate
+manual refresh process exists for embedding updates.
 
 On startup, production now emits an explicit warning when
 `EVENT_DEBUG_ENABLED=true`. Treat this warning as a release-hardening signal:
@@ -160,6 +166,11 @@ Recommended when Telegram webhooks are enabled:
 - `EMBEDDING_SOURCE_KINDS` (optional, default
   `episodic,semantic,affective`) to control which memory families persist
   embedding records (`episodic|semantic|affective|relation`)
+- `EMBEDDING_REFRESH_MODE` (optional, default `on_write`) to define embedding
+  refresh ownership posture (`on_write|manual`)
+- `EMBEDDING_REFRESH_INTERVAL_SECONDS` (optional, default `21600`) to declare
+  expected embedding refresh cadence interval in seconds (must be at least
+  `60`)
 - `PRODUCTION_DEBUG_TOKEN_REQUIRED` (`true|false`, default `true`) to require
   a configured debug token for production debug payload access when debug
   exposure is enabled

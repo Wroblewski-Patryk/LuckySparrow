@@ -159,6 +159,11 @@ Last updated: 2026-04-19
 - 2026-04-19: embedding source-coverage posture for current retrieval path is
   now explicit across `/health.memory_retrieval` and startup warning logs via
   shared coverage-state semantics.
+- 2026-04-19: embedding refresh-cadence posture is now explicit through
+  `EMBEDDING_REFRESH_MODE` (`on_write|manual`) and
+  `EMBEDDING_REFRESH_INTERVAL_SECONDS`; `/health.memory_retrieval` exposes
+  refresh posture fields and startup emits `embedding_refresh_warning` when
+  vectors are enabled in manual mode.
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,
