@@ -116,6 +116,9 @@ Allowed values:
 - effective policy flags
 - policy source markers (for debug defaults)
 - `production_policy_mismatches` preview list for strict-mode rollout safety
+- `production_policy_mismatch_count` for quick triage summary
+- `strict_startup_blocked` to indicate current strict-mode startup block state
+- `strict_rollout_ready` to indicate no strict-mode mismatches are present
 
 `REFLECTION_INTERVAL`
 

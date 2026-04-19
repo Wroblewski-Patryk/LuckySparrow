@@ -21,9 +21,11 @@ This runbook covers the currently implemented AION MVP service, not the full lon
 
 `GET /health` now includes a `runtime_policy` object with non-secret active
 runtime flags (for example `startup_schema_mode`, `event_debug_enabled`, and
-`event_debug_source`) plus `production_policy_mismatches`, so operators can
-verify active policy posture and detect strict-mode startup risks during
-incident triage and release smoke.
+`event_debug_source`) plus strict-rollout readiness signals
+(`production_policy_mismatches`, `production_policy_mismatch_count`,
+`strict_startup_blocked`, and `strict_rollout_ready`), so operators can verify
+active policy posture and detect strict-mode startup risks during incident
+triage and release smoke.
 
 On startup, production now emits an explicit warning when
 `EVENT_DEBUG_ENABLED=true`. Treat this warning as a release-hardening signal:

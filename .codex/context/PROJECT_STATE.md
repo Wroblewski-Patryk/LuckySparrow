@@ -57,6 +57,9 @@ Last updated: 2026-04-19
 - 2026-04-19: runtime policy mismatch detection now has a shared owner reused by
   startup and `/health`, and health now exposes a mismatch preview list for
   operator triage.
+- 2026-04-19: runtime policy now exposes strict-rollout readiness signals
+  (`production_policy_mismatch_count`, `strict_startup_blocked`,
+  `strict_rollout_ready`) through shared helpers reused by startup and `/health`.
 - 2026-04-19: documentation now explicitly separates canonical architecture in
   `docs/architecture/` from transitional implementation reality in
   `docs/implementation/runtime-reality.md`, so human-oriented design intent can
@@ -115,9 +118,9 @@ Last updated: 2026-04-19
 
 - Main active objective: make stage boundaries and architecture traceability
   explicit without regressing current runtime behavior
-- Active execution queue through `PRJ-029` is complete.
+- Active execution queue through `PRJ-039` is complete.
 - Top blockers:
-  - no next post-`PRJ-029` slice is registered yet; next task should be derived
+  - no next post-`PRJ-039` slice is registered yet; next task should be derived
     from open decisions
 - Success criteria for this phase:
   - shared goal and milestone signals keep one clear implementation owner
@@ -190,6 +193,11 @@ Last updated: 2026-04-19
   helper used by startup and `/health`, and `/health` now exposes
   `production_policy_mismatches` with regression coverage for startup/API
   consumers.
+- 2026-04-19: `PRJ-030..PRJ-039` are complete: runtime policy now includes
+  strict rollout readiness helpers and `/health` contract fields
+  (`production_policy_mismatch_count`, `strict_startup_blocked`,
+  `strict_rollout_ready`), startup and health now share the same strict-block
+  semantics, and regression coverage/docs/context were synchronized.
 - 2026-04-19: architecture docs were realigned so `docs/architecture/` again
   describes the canonical cognitive flow, while runtime-delivery shortcuts,
   live storage names, and policy details were moved into

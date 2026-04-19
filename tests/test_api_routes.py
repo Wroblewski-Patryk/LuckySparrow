@@ -268,6 +268,9 @@ def test_health_endpoint_returns_ok() -> None:
             "event_debug_source": "explicit",
             "production_policy_enforcement": "warn",
             "production_policy_mismatches": [],
+            "production_policy_mismatch_count": 0,
+            "strict_startup_blocked": False,
+            "strict_rollout_ready": True,
         },
         "reflection": {
             "healthy": True,
@@ -314,6 +317,9 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
         "event_debug_source": "explicit",
         "production_policy_enforcement": "strict",
         "production_policy_mismatches": ["startup_schema_mode=create_tables"],
+        "production_policy_mismatch_count": 1,
+        "strict_startup_blocked": True,
+        "strict_rollout_ready": False,
     }
 
 
@@ -328,6 +334,9 @@ def test_health_endpoint_marks_event_debug_source_as_environment_default_when_un
     assert body["runtime_policy"]["event_debug_source"] == "environment_default"
     assert body["runtime_policy"]["production_policy_enforcement"] == "warn"
     assert body["runtime_policy"]["production_policy_mismatches"] == []
+    assert body["runtime_policy"]["production_policy_mismatch_count"] == 0
+    assert body["runtime_policy"]["strict_startup_blocked"] is False
+    assert body["runtime_policy"]["strict_rollout_ready"] is True
 
 
 def test_health_endpoint_exposes_all_production_policy_mismatches_when_present() -> None:
@@ -346,6 +355,9 @@ def test_health_endpoint_exposes_all_production_policy_mismatches_when_present()
         "event_debug_enabled=true",
         "startup_schema_mode=create_tables",
     ]
+    assert body["runtime_policy"]["production_policy_mismatch_count"] == 2
+    assert body["runtime_policy"]["strict_startup_blocked"] is True
+    assert body["runtime_policy"]["strict_rollout_ready"] is False
 
 
 def test_health_endpoint_marks_reflection_unhealthy_when_worker_not_running() -> None:

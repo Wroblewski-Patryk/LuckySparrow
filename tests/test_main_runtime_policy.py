@@ -162,3 +162,23 @@ def test_startup_blocks_when_strict_enforcement_and_multiple_mismatches_in_produ
 
     messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
     assert any("violations=event_debug_enabled=true,startup_schema_mode=create_tables" in message for message in messages)
+
+
+def test_startup_warn_mode_does_not_block_when_multiple_mismatches_exist(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("WARNING", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        app_env="production",
+        event_debug_enabled=True,
+        startup_schema_mode="create_tables",
+        production_policy_enforcement="warn",
+    )
+
+    _log_runtime_policy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert any("runtime_policy_warning" in message for message in messages)
+    assert any("disable_debug_payload_in_production" in message for message in messages)
+    assert any("use_migration_first_startup_in_production" in message for message in messages)
+    assert not any("runtime_policy_block" in message for message in messages)

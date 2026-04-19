@@ -11,7 +11,7 @@ from app.core.action import ActionExecutor
 from app.core.config import get_settings
 from app.core.database import Database
 from app.core.logging import get_logger, setup_logging
-from app.core.runtime_policy import production_policy_mismatches, runtime_policy_snapshot
+from app.core.runtime_policy import production_policy_mismatches, runtime_policy_snapshot, strict_startup_blocked
 from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.integrations.openai.client import OpenAIClient
@@ -37,7 +37,7 @@ def _log_runtime_policy_warnings(*, settings, logger) -> None:
             settings.app_env,
             policy["startup_schema_mode"],
         )
-    if policy["production_policy_enforcement"] == "strict" and violations:
+    if strict_startup_blocked(settings):
         violation_summary = ",".join(violations)
         logger.error(
             "runtime_policy_block env=%s enforcement=%s violations=%s",

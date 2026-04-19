@@ -22,11 +22,12 @@ The current repo already works as an MVP slice, but several architecture-level d
   - the repo now has an Alembic baseline rooted in the current SQLAlchemy metadata, with an initial revision under `migrations/versions/`.
   - startup now defaults to migration-first behavior and skips `create_tables()` unless `STARTUP_SCHEMA_MODE=create_tables` is explicitly enabled.
   - `GET /health` now exposes active non-secret runtime policy flags, including `startup_schema_mode` and `production_policy_enforcement`, so operators can verify migration policy posture on the live runtime.
-  - `GET /health` now also exposes `production_policy_mismatches` as a startup-policy mismatch preview surface for operator triage.
+  - `GET /health` now also exposes startup-policy mismatch preview and readiness signals (`production_policy_mismatches`, `production_policy_mismatch_count`, `strict_startup_blocked`, `strict_rollout_ready`) for operator triage.
   - startup now emits a production warning when `STARTUP_SCHEMA_MODE=create_tables` to keep compatibility mode visible in runtime logs.
   - startup can now run in strict production-policy mode (`PRODUCTION_POLICY_ENFORCEMENT=strict`) and hard-fail on policy mismatch instead of warning-only behavior.
   - strict policy fail-fast behavior is pinned at lifespan entry by regression tests for both mismatch families (`EVENT_DEBUG_ENABLED=true` and `STARTUP_SCHEMA_MODE=create_tables`) to prevent startup-order drift.
   - runtime-policy mismatch detection now uses one shared helper owner so startup and `/health` stay aligned.
+  - startup and `/health` now share the same strict-block semantics through shared readiness helpers (`strict_startup_blocked`, `strict_rollout_ready`).
 - Decision needed:
   - when is it safe to remove the compatibility-only `create_tables()` path entirely and keep strict migration-only startup in every environment?
   - should production default to strict policy enforcement, or keep `warn` as the default while strict mode remains opt-in?
@@ -37,7 +38,7 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `POST /event` now returns a smaller public response by default: event identifiers, reply payload, and a compact runtime summary.
   - the full serialized runtime result is exposed through `POST /event?debug=true` and is guarded by explicit config (`EVENT_DEBUG_ENABLED`) with environment-aware defaults (enabled in non-production, disabled in production unless explicitly enabled).
   - `GET /health` now exposes `event_debug_enabled`, `event_debug_source`, and `production_policy_enforcement` so operators can verify effective policy, policy source, and enforcement mode.
-  - `/health` also exposes `production_policy_mismatches` so operators can detect production-hardening mismatches before a strict-mode rollout.
+  - `/health` also exposes strict-rollout readiness signals so operators can detect production-hardening mismatches before a strict-mode rollout.
   - startup now emits a production warning when `EVENT_DEBUG_ENABLED=true` so the policy remains visible even before handling requests.
   - startup can now hard-fail in production when debug payload exposure is enabled and strict enforcement mode is active.
   - strict-mode hard-fail behavior is test-covered at startup lifecycle level across both debug and schema mismatch paths, not only at helper-function level.

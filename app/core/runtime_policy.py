@@ -41,11 +41,29 @@ def production_policy_mismatches(settings: Any) -> list[str]:
     return violations
 
 
+def production_policy_mismatch_count(settings: Any) -> int:
+    return len(production_policy_mismatches(settings))
+
+
+def strict_startup_blocked(settings: Any) -> bool:
+    return production_policy_enforcement(settings) == "strict" and production_policy_mismatch_count(settings) > 0
+
+
+def strict_rollout_ready(settings: Any) -> bool:
+    return production_policy_mismatch_count(settings) == 0
+
+
 def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
+    mismatches = production_policy_mismatches(settings)
+    enforcement = production_policy_enforcement(settings)
+    mismatch_count = len(mismatches)
     return {
         "startup_schema_mode": startup_schema_mode(settings),
         "event_debug_enabled": event_debug_enabled(settings),
         "event_debug_source": event_debug_source(settings),
-        "production_policy_enforcement": production_policy_enforcement(settings),
-        "production_policy_mismatches": production_policy_mismatches(settings),
+        "production_policy_enforcement": enforcement,
+        "production_policy_mismatches": mismatches,
+        "production_policy_mismatch_count": mismatch_count,
+        "strict_startup_blocked": enforcement == "strict" and mismatch_count > 0,
+        "strict_rollout_ready": mismatch_count == 0,
     }

@@ -15,7 +15,7 @@ Last updated: 2026-04-19
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The current planned queue through `PRJ-029` is complete.
+- The current planned queue through `PRJ-039` is complete.
 - Next executable slices should be derived from:
   - `docs/planning/next-iteration-plan.md`
   - `docs/planning/open-decisions.md`
@@ -279,6 +279,106 @@ Last updated: 2026-04-19
     - regression coverage now pins shared policy snapshot semantics plus startup and API consumers
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_main_lifespan_policy.py tests/test_api_routes.py`
+- [x] PRJ-030 Add shared mismatch-count helper for runtime policy
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Backend Builder
+  - Depends on: PRJ-029
+  - Priority: P3
+  - Result:
+    - shared `production_policy_mismatch_count()` helper now exposes mismatch cardinality from one source of truth
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py`
+- [x] PRJ-031 Add shared strict-startup-block predicate helper
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Backend Builder
+  - Depends on: PRJ-030
+  - Priority: P3
+  - Result:
+    - shared `strict_startup_blocked()` helper now encodes strict enforcement block semantics in one place
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_main_runtime_policy.py`
+- [x] PRJ-032 Add shared strict-rollout-readiness helper
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Backend Builder
+  - Depends on: PRJ-031
+  - Priority: P3
+  - Result:
+    - shared `strict_rollout_ready()` helper now reports whether strict-mode rollout has zero policy mismatches
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py`
+- [x] PRJ-033 Extend runtime policy snapshot with readiness fields
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Backend Builder
+  - Depends on: PRJ-032
+  - Priority: P3
+  - Result:
+    - `runtime_policy_snapshot` now includes `production_policy_mismatch_count`, `strict_startup_blocked`, and `strict_rollout_ready`
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py`
+- [x] PRJ-034 Keep startup strict-block checks aligned with shared policy helper
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Backend Builder
+  - Depends on: PRJ-033
+  - Priority: P3
+  - Result:
+    - startup now consumes shared strict-block predicate so startup and `/health` policy semantics remain aligned
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_main_lifespan_policy.py`
+- [x] PRJ-035 Expose strict-rollout readiness fields through `/health`
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Ops/Release
+  - Depends on: PRJ-033
+  - Priority: P3
+  - Result:
+    - `/health.runtime_policy` now exposes mismatch count and strict readiness/block state for operator triage
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py`
+- [x] PRJ-036 Add runtime-policy unit regression coverage for readiness helpers
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: QA/Test
+  - Depends on: PRJ-032
+  - Priority: P3
+  - Result:
+    - runtime-policy unit tests now pin mismatch count and strict rollout/block helper behavior
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py`
+- [x] PRJ-037 Expand `/health` API contract tests for strict readiness fields
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: QA/Test
+  - Depends on: PRJ-035
+  - Priority: P3
+  - Result:
+    - API tests now pin mismatch count and strict readiness/block outputs for multiple policy combinations
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py`
+- [x] PRJ-038 Add startup regression for warn-mode multi-mismatch non-block behavior
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: QA/Test
+  - Depends on: PRJ-034
+  - Priority: P3
+  - Result:
+    - startup tests now explicitly pin that `warn` mode logs warnings without strict startup block even under multiple mismatches
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py`
+- [x] PRJ-039 Sync planning/context/docs for strict rollout readiness contract
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Product Docs
+  - Depends on: PRJ-035
+  - Priority: P3
+  - Result:
+    - planning, context, architecture, and ops docs now describe strict rollout readiness fields and current runtime truth
+  - Validation:
+    - doc-and-context sync plus regression evidence recorded in this slice
 - [x] PRJ-011 Extract shared goal/task selection helpers
   - Status: DONE
   - Group: Shared Signal Engine Extraction
