@@ -475,6 +475,18 @@ def test_health_endpoint_returns_ok() -> None:
             "semantic_embedding_model_governance_enforcement": "warn",
             "semantic_embedding_model_governance_enforcement_state": "not_applicable_aligned",
             "semantic_embedding_model_governance_enforcement_hint": "no_model_governance_violation",
+            "semantic_embedding_strict_rollout_violations": [],
+            "semantic_embedding_strict_rollout_violation_count": 0,
+            "semantic_embedding_strict_rollout_ready": True,
+            "semantic_embedding_strict_rollout_state": "ready",
+            "semantic_embedding_strict_rollout_hint": "can_enable_strict_provider_and_model_enforcement",
+            "semantic_embedding_strict_rollout_recommendation": "enable_strict_provider_and_model_enforcement",
+            "semantic_embedding_recommended_provider_ownership_enforcement": "strict",
+            "semantic_embedding_recommended_model_governance_enforcement": "strict",
+            "semantic_embedding_provider_ownership_enforcement_alignment": "below_recommendation",
+            "semantic_embedding_model_governance_enforcement_alignment": "below_recommendation",
+            "semantic_embedding_enforcement_alignment_state": "below_recommendation",
+            "semantic_embedding_enforcement_alignment_hint": "consider_enabling_strict_for_provider_and_model",
             "semantic_embedding_dimensions": 32,
             "semantic_embedding_warning_state": "no_warning",
             "semantic_embedding_warning_hint": "embedding_strategy_ready",
@@ -585,6 +597,18 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
         "semantic_embedding_model_governance_enforcement": "warn",
         "semantic_embedding_model_governance_enforcement_state": "not_applicable_vectors_disabled",
         "semantic_embedding_model_governance_enforcement_hint": "not_applicable_vectors_disabled",
+        "semantic_embedding_strict_rollout_violations": [],
+        "semantic_embedding_strict_rollout_violation_count": 0,
+        "semantic_embedding_strict_rollout_ready": False,
+        "semantic_embedding_strict_rollout_state": "not_applicable_vectors_disabled",
+        "semantic_embedding_strict_rollout_hint": "enable_vectors_before_strict_enforcement_rollout",
+        "semantic_embedding_strict_rollout_recommendation": "defer_strict_enforcement_until_vectors_enabled",
+        "semantic_embedding_recommended_provider_ownership_enforcement": "warn",
+        "semantic_embedding_recommended_model_governance_enforcement": "warn",
+        "semantic_embedding_provider_ownership_enforcement_alignment": "not_applicable_vectors_disabled",
+        "semantic_embedding_model_governance_enforcement_alignment": "not_applicable_vectors_disabled",
+        "semantic_embedding_enforcement_alignment_state": "not_applicable_vectors_disabled",
+        "semantic_embedding_enforcement_alignment_hint": "enable_vectors_before_enforcement_alignment",
         "semantic_embedding_dimensions": 32,
         "semantic_embedding_warning_state": "vectors_disabled",
         "semantic_embedding_warning_hint": "enable_semantic_vectors_to_activate_embedding_strategy",
@@ -635,6 +659,18 @@ def test_health_endpoint_exposes_embedding_provider_fallback_posture_when_non_de
         "semantic_embedding_model_governance_enforcement": "warn",
         "semantic_embedding_model_governance_enforcement_state": "not_applicable_aligned",
         "semantic_embedding_model_governance_enforcement_hint": "no_model_governance_violation",
+        "semantic_embedding_strict_rollout_violations": ["provider_ownership_fallback_active"],
+        "semantic_embedding_strict_rollout_violation_count": 1,
+        "semantic_embedding_strict_rollout_ready": False,
+        "semantic_embedding_strict_rollout_state": "not_ready_provider_ownership",
+        "semantic_embedding_strict_rollout_hint": "resolve_provider_ownership_before_strict",
+        "semantic_embedding_strict_rollout_recommendation": "keep_provider_ownership_warn_until_provider_owner_is_effective",
+        "semantic_embedding_recommended_provider_ownership_enforcement": "warn",
+        "semantic_embedding_recommended_model_governance_enforcement": "strict",
+        "semantic_embedding_provider_ownership_enforcement_alignment": "aligned",
+        "semantic_embedding_model_governance_enforcement_alignment": "below_recommendation",
+        "semantic_embedding_enforcement_alignment_state": "below_recommendation",
+        "semantic_embedding_enforcement_alignment_hint": "consider_enabling_model_governance_strict",
         "semantic_embedding_dimensions": 1536,
         "semantic_embedding_warning_state": "provider_fallback_active",
         "semantic_embedding_warning_hint": "provider_not_implemented_using_deterministic_fallback",
@@ -707,6 +743,11 @@ def test_health_endpoint_exposes_provider_ownership_enforcement_blocked_posture_
         body["memory_retrieval"]["semantic_embedding_provider_ownership_enforcement_hint"]
         == "switch_to_effective_provider_owner_before_startup"
     )
+    assert body["memory_retrieval"]["semantic_embedding_enforcement_alignment_state"] == "mixed_relative_to_recommendation"
+    assert (
+        body["memory_retrieval"]["semantic_embedding_enforcement_alignment_hint"]
+        == "normalize_enforcement_levels_to_recommendation"
+    )
 
 
 def test_health_endpoint_exposes_model_governance_enforcement_blocked_posture_in_strict_mode() -> None:
@@ -725,6 +766,11 @@ def test_health_endpoint_exposes_model_governance_enforcement_blocked_posture_in
     assert (
         body["memory_retrieval"]["semantic_embedding_model_governance_enforcement_hint"]
         == "use_deterministic_v1_or_switch_to_effective_provider_model"
+    )
+    assert body["memory_retrieval"]["semantic_embedding_enforcement_alignment_state"] == "mixed_relative_to_recommendation"
+    assert (
+        body["memory_retrieval"]["semantic_embedding_enforcement_alignment_hint"]
+        == "normalize_enforcement_levels_to_recommendation"
     )
 
 

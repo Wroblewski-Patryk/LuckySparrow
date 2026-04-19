@@ -208,6 +208,111 @@ def embedding_strategy_snapshot(
         model_governance_enforcement_state = "not_applicable_aligned"
         model_governance_enforcement_hint = "no_model_governance_violation"
 
+    strict_rollout_violations: list[str] = []
+    if semantic_vector_enabled and provider_ownership_state == "provider_fallback_active":
+        strict_rollout_violations.append("provider_ownership_fallback_active")
+    if semantic_vector_enabled and model_governance_state == "deterministic_custom_model_name":
+        strict_rollout_violations.append("model_governance_deterministic_custom_model_name")
+    strict_rollout_violation_count = len(strict_rollout_violations)
+    if not semantic_vector_enabled:
+        strict_rollout_ready = False
+        strict_rollout_state = "not_applicable_vectors_disabled"
+        strict_rollout_hint = "enable_vectors_before_strict_enforcement_rollout"
+        strict_rollout_recommendation = "defer_strict_enforcement_until_vectors_enabled"
+    elif strict_rollout_violation_count == 0:
+        strict_rollout_ready = True
+        strict_rollout_state = "ready"
+        strict_rollout_hint = "can_enable_strict_provider_and_model_enforcement"
+        strict_rollout_recommendation = "enable_strict_provider_and_model_enforcement"
+    elif strict_rollout_violation_count > 1:
+        strict_rollout_ready = False
+        strict_rollout_state = "not_ready_multi_violation"
+        strict_rollout_hint = "resolve_provider_ownership_and_model_governance_before_strict"
+        strict_rollout_recommendation = "keep_warn_until_provider_and_model_governance_are_aligned"
+    elif "provider_ownership_fallback_active" in strict_rollout_violations:
+        strict_rollout_ready = False
+        strict_rollout_state = "not_ready_provider_ownership"
+        strict_rollout_hint = "resolve_provider_ownership_before_strict"
+        strict_rollout_recommendation = "keep_provider_ownership_warn_until_provider_owner_is_effective"
+    else:
+        strict_rollout_ready = False
+        strict_rollout_state = "not_ready_model_governance"
+        strict_rollout_hint = "resolve_model_governance_before_strict"
+        strict_rollout_recommendation = "keep_model_governance_warn_until_model_contract_is_aligned"
+
+    recommended_provider_ownership_enforcement = (
+        "warn"
+        if (
+            not semantic_vector_enabled
+            or "provider_ownership_fallback_active" in strict_rollout_violations
+        )
+        else "strict"
+    )
+    recommended_model_governance_enforcement = (
+        "warn"
+        if (
+            not semantic_vector_enabled
+            or "model_governance_deterministic_custom_model_name" in strict_rollout_violations
+        )
+        else "strict"
+    )
+
+    def _enforcement_alignment_state(current: str, recommended: str) -> str:
+        if current == recommended:
+            return "aligned"
+        if current == "warn" and recommended == "strict":
+            return "below_recommendation"
+        return "above_recommendation"
+
+    if not semantic_vector_enabled:
+        provider_ownership_enforcement_alignment = "not_applicable_vectors_disabled"
+        model_governance_enforcement_alignment = "not_applicable_vectors_disabled"
+        enforcement_alignment_state = "not_applicable_vectors_disabled"
+        enforcement_alignment_hint = "enable_vectors_before_enforcement_alignment"
+    else:
+        provider_ownership_enforcement_alignment = _enforcement_alignment_state(
+            normalized_provider_ownership_enforcement,
+            recommended_provider_ownership_enforcement,
+        )
+        model_governance_enforcement_alignment = _enforcement_alignment_state(
+            normalized_model_governance_enforcement,
+            recommended_model_governance_enforcement,
+        )
+        alignments = {
+            provider_ownership_enforcement_alignment,
+            model_governance_enforcement_alignment,
+        }
+        if alignments == {"aligned"}:
+            enforcement_alignment_state = "aligned_with_recommendation"
+            enforcement_alignment_hint = "enforcement_matches_rollout_recommendation"
+        elif "below_recommendation" in alignments and "above_recommendation" in alignments:
+            enforcement_alignment_state = "mixed_relative_to_recommendation"
+            enforcement_alignment_hint = "normalize_enforcement_levels_to_recommendation"
+        elif "below_recommendation" in alignments:
+            enforcement_alignment_state = "below_recommendation"
+            if (
+                provider_ownership_enforcement_alignment == "below_recommendation"
+                and model_governance_enforcement_alignment == "below_recommendation"
+            ):
+                enforcement_alignment_hint = "consider_enabling_strict_for_provider_and_model"
+            elif provider_ownership_enforcement_alignment == "below_recommendation":
+                enforcement_alignment_hint = "consider_enabling_provider_ownership_strict"
+            else:
+                enforcement_alignment_hint = "consider_enabling_model_governance_strict"
+        else:
+            enforcement_alignment_state = "above_recommendation"
+            if (
+                provider_ownership_enforcement_alignment == "above_recommendation"
+                and model_governance_enforcement_alignment == "above_recommendation"
+            ):
+                enforcement_alignment_hint = (
+                    "strict_enforcement_enabled_ahead_of_recommendation_for_provider_and_model"
+                )
+            elif provider_ownership_enforcement_alignment == "above_recommendation":
+                enforcement_alignment_hint = "provider_ownership_strict_enabled_ahead_of_recommendation"
+            else:
+                enforcement_alignment_hint = "model_governance_strict_enabled_ahead_of_recommendation"
+
     return {
         "semantic_vector_enabled": semantic_vector_enabled,
         "semantic_retrieval_mode": "hybrid_vector_lexical" if semantic_vector_enabled else "lexical_only",
@@ -231,6 +336,18 @@ def embedding_strategy_snapshot(
         "semantic_embedding_model_governance_enforcement": normalized_model_governance_enforcement,
         "semantic_embedding_model_governance_enforcement_state": model_governance_enforcement_state,
         "semantic_embedding_model_governance_enforcement_hint": model_governance_enforcement_hint,
+        "semantic_embedding_strict_rollout_violations": list(strict_rollout_violations),
+        "semantic_embedding_strict_rollout_violation_count": strict_rollout_violation_count,
+        "semantic_embedding_strict_rollout_ready": strict_rollout_ready,
+        "semantic_embedding_strict_rollout_state": strict_rollout_state,
+        "semantic_embedding_strict_rollout_hint": strict_rollout_hint,
+        "semantic_embedding_strict_rollout_recommendation": strict_rollout_recommendation,
+        "semantic_embedding_recommended_provider_ownership_enforcement": recommended_provider_ownership_enforcement,
+        "semantic_embedding_recommended_model_governance_enforcement": recommended_model_governance_enforcement,
+        "semantic_embedding_provider_ownership_enforcement_alignment": provider_ownership_enforcement_alignment,
+        "semantic_embedding_model_governance_enforcement_alignment": model_governance_enforcement_alignment,
+        "semantic_embedding_enforcement_alignment_state": enforcement_alignment_state,
+        "semantic_embedding_enforcement_alignment_hint": enforcement_alignment_hint,
         "semantic_embedding_dimensions": max(1, int(dimensions)),
         "semantic_embedding_source_kinds": list(normalized_source_kinds),
         "semantic_embedding_source_coverage_state": source_coverage_state,

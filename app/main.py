@@ -205,6 +205,27 @@ def _log_embedding_strategy_warnings(*, settings, logger) -> None:
             str(snapshot["semantic_embedding_refresh_state"]),
             str(snapshot["semantic_embedding_refresh_hint"]),
         )
+    alignment_state = str(snapshot["semantic_embedding_enforcement_alignment_state"])
+    if alignment_state in {
+        "below_recommendation",
+        "mixed_relative_to_recommendation",
+        "above_recommendation",
+        "aligned_with_recommendation",
+    }:
+        logger.info(
+            "embedding_strategy_hint semantic_vector_enabled=%s enforcement_alignment_state=%s enforcement_alignment_hint=%s strict_rollout_ready=%s strict_rollout_state=%s strict_rollout_hint=%s strict_rollout_recommendation=%s strict_rollout_violation_count=%s strict_rollout_violations=%s recommended_provider_ownership_enforcement=%s recommended_model_governance_enforcement=%s",
+            bool(snapshot["semantic_vector_enabled"]),
+            alignment_state,
+            str(snapshot["semantic_embedding_enforcement_alignment_hint"]),
+            bool(snapshot["semantic_embedding_strict_rollout_ready"]),
+            str(snapshot["semantic_embedding_strict_rollout_state"]),
+            str(snapshot["semantic_embedding_strict_rollout_hint"]),
+            str(snapshot["semantic_embedding_strict_rollout_recommendation"]),
+            int(snapshot["semantic_embedding_strict_rollout_violation_count"]),
+            ",".join(str(item) for item in snapshot["semantic_embedding_strict_rollout_violations"]),
+            str(snapshot["semantic_embedding_recommended_provider_ownership_enforcement"]),
+            str(snapshot["semantic_embedding_recommended_model_governance_enforcement"]),
+        )
 
 
 @asynccontextmanager

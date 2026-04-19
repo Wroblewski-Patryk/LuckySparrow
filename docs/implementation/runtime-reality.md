@@ -224,6 +224,23 @@ Current limitation:
   `semantic_embedding_source_rollout_hint`,
   `semantic_embedding_source_rollout_recommendation`) for semantic+affective
   baseline, single-source rollout phases, and foundational-only source sets.
+- strict-rollout preflight posture is now explicit through helper-owned
+  diagnostics (`semantic_embedding_strict_rollout_violations`,
+  `semantic_embedding_strict_rollout_violation_count`,
+  `semantic_embedding_strict_rollout_ready`,
+  `semantic_embedding_strict_rollout_state`,
+  `semantic_embedding_strict_rollout_hint`,
+  `semantic_embedding_strict_rollout_recommendation`) and enforcement guidance
+  fields (`semantic_embedding_recommended_provider_ownership_enforcement`,
+  `semantic_embedding_recommended_model_governance_enforcement`,
+  `semantic_embedding_provider_ownership_enforcement_alignment`,
+  `semantic_embedding_model_governance_enforcement_alignment`,
+  `semantic_embedding_enforcement_alignment_state`,
+  `semantic_embedding_enforcement_alignment_hint`) so startup and health expose
+  one strict-rollout recommendation/alignment owner.
+- startup now emits `embedding_strategy_hint` with strict-rollout readiness,
+  recommendation, violation summary, and enforcement-alignment diagnostics when
+  vectors are enabled.
 
 ### Event API behavior
 

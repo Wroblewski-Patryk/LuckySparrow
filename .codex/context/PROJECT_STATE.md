@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-Last updated: 2026-04-19
+Last updated: 2026-04-20
 
 ## Product Snapshot
 
@@ -197,6 +197,26 @@ Last updated: 2026-04-19
   `semantic_embedding_source_rollout_hint`,
   `semantic_embedding_source_rollout_recommendation`) reused by
   `/health.memory_retrieval` and startup source-coverage warning flow.
+- 2026-04-20: embedding strict-rollout preflight posture is now explicit
+  through shared diagnostics
+  (`semantic_embedding_strict_rollout_violations`,
+  `semantic_embedding_strict_rollout_violation_count`,
+  `semantic_embedding_strict_rollout_ready`,
+  `semantic_embedding_strict_rollout_state`,
+  `semantic_embedding_strict_rollout_hint`) reused by `/health` and startup.
+- 2026-04-20: embedding strict-rollout recommendation and enforcement-alignment
+  posture are now explicit through shared diagnostics
+  (`semantic_embedding_strict_rollout_recommendation`,
+  `semantic_embedding_recommended_provider_ownership_enforcement`,
+  `semantic_embedding_recommended_model_governance_enforcement`,
+  `semantic_embedding_provider_ownership_enforcement_alignment`,
+  `semantic_embedding_model_governance_enforcement_alignment`,
+  `semantic_embedding_enforcement_alignment_state`,
+  `semantic_embedding_enforcement_alignment_hint`) in
+  `/health.memory_retrieval`.
+- 2026-04-20: startup now emits `embedding_strategy_hint` with strict-rollout
+  readiness, violation summary, recommendation, and enforcement-alignment
+  diagnostics from one shared embedding strategy snapshot owner.
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,

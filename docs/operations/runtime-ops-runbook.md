@@ -88,6 +88,18 @@ retrieval posture:
 - `semantic_embedding_model_governance_enforcement`
 - `semantic_embedding_model_governance_enforcement_state`
 - `semantic_embedding_model_governance_enforcement_hint`
+- `semantic_embedding_strict_rollout_violations`
+- `semantic_embedding_strict_rollout_violation_count`
+- `semantic_embedding_strict_rollout_ready`
+- `semantic_embedding_strict_rollout_state`
+- `semantic_embedding_strict_rollout_hint`
+- `semantic_embedding_strict_rollout_recommendation`
+- `semantic_embedding_recommended_provider_ownership_enforcement`
+- `semantic_embedding_recommended_model_governance_enforcement`
+- `semantic_embedding_provider_ownership_enforcement_alignment`
+- `semantic_embedding_model_governance_enforcement_alignment`
+- `semantic_embedding_enforcement_alignment_state`
+- `semantic_embedding_enforcement_alignment_hint`
 - `semantic_embedding_dimensions`
 - `semantic_embedding_warning_state`
 - `semantic_embedding_warning_hint`
@@ -132,6 +144,11 @@ for next-step guidance.
 When semantic vectors are enabled and `EMBEDDING_REFRESH_MODE=manual`, startup
 also emits `embedding_refresh_warning` so operators can confirm that a separate
 manual refresh process exists for embedding updates.
+
+Startup now also emits `embedding_strategy_hint` with strict-rollout readiness,
+recommendations, and enforcement-alignment posture so operators can decide
+whether to keep `warn`, switch to `strict`, or normalize mixed enforcement
+settings before rollout.
 
 On startup, production now emits an explicit warning when
 `EVENT_DEBUG_ENABLED=true`. Treat this warning as a release-hardening signal:

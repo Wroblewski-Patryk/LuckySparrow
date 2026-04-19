@@ -1,6 +1,6 @@
 # TASK_BOARD
 
-Last updated: 2026-04-19
+Last updated: 2026-04-20
 
 ## Agent Workflow Refresh (2026-04-18)
 
@@ -15,7 +15,7 @@ Last updated: 2026-04-19
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The planning queue is complete through `PRJ-245`.
+- The planning queue is complete through `PRJ-250`.
 - No `READY` PRJ slice is currently registered; derive the next smallest slice
   from `docs/planning/open-decisions.md` and sync it with the board before
   implementation.
@@ -48,6 +48,96 @@ Last updated: 2026-04-19
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-250 Sync embedding strict-rollout guidance slice across docs, planning, and context
+  - Status: DONE
+  - Group: Embedding Strategy Strict Rollout Guidance
+  - Owner: Product Docs + Backend Builder
+  - Depends on: PRJ-249
+  - Priority: P2
+  - Result:
+    - task board, project state, iteration plan, and open-decisions docs are
+      synchronized through `PRJ-250`
+    - canonical env/config and runtime ops docs now include strict-rollout
+      preflight/recommendation/alignment fields and startup
+      `embedding_strategy_hint` posture
+    - implementation reality docs now record shared strict-rollout ownership
+      across `/health` and startup diagnostics
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
+    - `.\.venv\Scripts\python -m pytest -q`
+
+- [x] PRJ-249 Add startup embedding strategy rollout hints from shared strict-rollout diagnostics
+  - Status: DONE
+  - Group: Embedding Strategy Strict Rollout Guidance
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-248
+  - Priority: P2
+  - Result:
+    - startup now emits `embedding_strategy_hint` when vectors are enabled and
+      enforcement alignment is visible (`below|aligned|mixed|above`)
+    - hint logs now include strict-rollout readiness, violation summary,
+      recommendation, and recommended enforcement posture from one shared
+      snapshot owner
+    - runtime policy log regressions now pin hint behavior for
+      below-recommendation and aligned strict posture cases
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_embedding_strategy.py`
+
+- [x] PRJ-248 Add embedding enforcement-alignment diagnostics in shared strategy snapshot
+  - Status: DONE
+  - Group: Embedding Strategy Strict Rollout Guidance
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-247
+  - Priority: P2
+  - Result:
+    - shared embedding strategy snapshot now exposes per-control alignment
+      fields (`semantic_embedding_provider_ownership_enforcement_alignment`,
+      `semantic_embedding_model_governance_enforcement_alignment`) plus
+      combined alignment posture
+      (`semantic_embedding_enforcement_alignment_state`,
+      `semantic_embedding_enforcement_alignment_hint`)
+    - `/health.memory_retrieval` now surfaces alignment posture in baseline,
+      vectors-disabled, fallback, and strict scenarios
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py`
+
+- [x] PRJ-247 Add embedding strict-rollout recommendation diagnostics in shared strategy snapshot
+  - Status: DONE
+  - Group: Embedding Strategy Strict Rollout Guidance
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-246
+  - Priority: P2
+  - Result:
+    - shared embedding strategy snapshot now exposes strict-rollout
+      recommendation fields
+      (`semantic_embedding_strict_rollout_recommendation`,
+      `semantic_embedding_recommended_provider_ownership_enforcement`,
+      `semantic_embedding_recommended_model_governance_enforcement`)
+    - recommendation posture is now visible in `/health.memory_retrieval` for
+      deterministic baseline, provider fallback, deterministic custom-model, and
+      vectors-disabled states
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py`
+
+- [x] PRJ-246 Add embedding strict-rollout preflight diagnostics in shared strategy snapshot
+  - Status: DONE
+  - Group: Embedding Strategy Strict Rollout Guidance
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-245
+  - Priority: P2
+  - Result:
+    - shared embedding strategy snapshot now exposes strict-rollout preflight
+      diagnostics
+      (`semantic_embedding_strict_rollout_violations`,
+      `semantic_embedding_strict_rollout_violation_count`,
+      `semantic_embedding_strict_rollout_ready`,
+      `semantic_embedding_strict_rollout_state`,
+      `semantic_embedding_strict_rollout_hint`)
+    - strict rollout now has one machine-readable readiness owner across
+      `/health.memory_retrieval` and startup logging pathways
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py`
 
 - [x] PRJ-245 Add embedding source-rollout recommendation posture in shared diagnostics
   - Status: DONE

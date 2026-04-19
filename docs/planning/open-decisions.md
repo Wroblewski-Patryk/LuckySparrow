@@ -302,6 +302,21 @@ The current repo already works as an MVP slice, but several architecture-level d
     `semantic_embedding_source_rollout_hint`,
     `semantic_embedding_source_rollout_recommendation`) so next memory-family
     rollout step is machine-visible in health and startup diagnostics.
+  - strict-rollout preflight posture is now explicit through shared diagnostics
+    (`semantic_embedding_strict_rollout_violations`,
+    `semantic_embedding_strict_rollout_violation_count`,
+    `semantic_embedding_strict_rollout_ready`,
+    `semantic_embedding_strict_rollout_state`,
+    `semantic_embedding_strict_rollout_hint`,
+    `semantic_embedding_strict_rollout_recommendation`) and enforcement
+    recommendation/alignment fields
+    (`semantic_embedding_recommended_provider_ownership_enforcement`,
+    `semantic_embedding_recommended_model_governance_enforcement`,
+    `semantic_embedding_provider_ownership_enforcement_alignment`,
+    `semantic_embedding_model_governance_enforcement_alignment`,
+    `semantic_embedding_enforcement_alignment_state`,
+    `semantic_embedding_enforcement_alignment_hint`); startup now emits
+    `embedding_strategy_hint` for rollout guidance.
 - Decision needed:
   - which embedding provider and refresh strategy should own semantic memory
     vectors?

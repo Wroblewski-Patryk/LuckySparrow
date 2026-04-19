@@ -49,6 +49,27 @@ def test_embedding_strategy_snapshot_marks_no_warning_when_deterministic_provide
         snapshot["semantic_embedding_model_governance_enforcement_hint"]
         == "no_model_governance_violation"
     )
+    assert snapshot["semantic_embedding_strict_rollout_violations"] == []
+    assert snapshot["semantic_embedding_strict_rollout_violation_count"] == 0
+    assert snapshot["semantic_embedding_strict_rollout_ready"] is True
+    assert snapshot["semantic_embedding_strict_rollout_state"] == "ready"
+    assert (
+        snapshot["semantic_embedding_strict_rollout_hint"]
+        == "can_enable_strict_provider_and_model_enforcement"
+    )
+    assert (
+        snapshot["semantic_embedding_strict_rollout_recommendation"]
+        == "enable_strict_provider_and_model_enforcement"
+    )
+    assert snapshot["semantic_embedding_recommended_provider_ownership_enforcement"] == "strict"
+    assert snapshot["semantic_embedding_recommended_model_governance_enforcement"] == "strict"
+    assert snapshot["semantic_embedding_provider_ownership_enforcement_alignment"] == "below_recommendation"
+    assert snapshot["semantic_embedding_model_governance_enforcement_alignment"] == "below_recommendation"
+    assert snapshot["semantic_embedding_enforcement_alignment_state"] == "below_recommendation"
+    assert (
+        snapshot["semantic_embedding_enforcement_alignment_hint"]
+        == "consider_enabling_strict_for_provider_and_model"
+    )
     assert snapshot["semantic_embedding_refresh_mode"] == "on_write"
     assert snapshot["semantic_embedding_refresh_interval_seconds"] == 21600
     assert snapshot["semantic_embedding_refresh_state"] == "on_write_refresh_active"
@@ -105,6 +126,36 @@ def test_embedding_strategy_snapshot_marks_vectors_disabled_warning_state() -> N
         snapshot["semantic_embedding_model_governance_enforcement_hint"]
         == "not_applicable_vectors_disabled"
     )
+    assert snapshot["semantic_embedding_strict_rollout_violations"] == []
+    assert snapshot["semantic_embedding_strict_rollout_violation_count"] == 0
+    assert snapshot["semantic_embedding_strict_rollout_ready"] is False
+    assert snapshot["semantic_embedding_strict_rollout_state"] == "not_applicable_vectors_disabled"
+    assert (
+        snapshot["semantic_embedding_strict_rollout_hint"]
+        == "enable_vectors_before_strict_enforcement_rollout"
+    )
+    assert (
+        snapshot["semantic_embedding_strict_rollout_recommendation"]
+        == "defer_strict_enforcement_until_vectors_enabled"
+    )
+    assert snapshot["semantic_embedding_recommended_provider_ownership_enforcement"] == "warn"
+    assert snapshot["semantic_embedding_recommended_model_governance_enforcement"] == "warn"
+    assert (
+        snapshot["semantic_embedding_provider_ownership_enforcement_alignment"]
+        == "not_applicable_vectors_disabled"
+    )
+    assert (
+        snapshot["semantic_embedding_model_governance_enforcement_alignment"]
+        == "not_applicable_vectors_disabled"
+    )
+    assert (
+        snapshot["semantic_embedding_enforcement_alignment_state"]
+        == "not_applicable_vectors_disabled"
+    )
+    assert (
+        snapshot["semantic_embedding_enforcement_alignment_hint"]
+        == "enable_vectors_before_enforcement_alignment"
+    )
     assert snapshot["semantic_embedding_refresh_state"] == "vectors_disabled"
     assert snapshot["semantic_embedding_refresh_hint"] == "not_applicable_vectors_disabled"
 
@@ -153,6 +204,26 @@ def test_embedding_strategy_snapshot_marks_provider_fallback_warning_state() -> 
     assert (
         snapshot["semantic_embedding_model_governance_enforcement_hint"]
         == "no_model_governance_violation"
+    )
+    assert snapshot["semantic_embedding_strict_rollout_violations"] == [
+        "provider_ownership_fallback_active"
+    ]
+    assert snapshot["semantic_embedding_strict_rollout_violation_count"] == 1
+    assert snapshot["semantic_embedding_strict_rollout_ready"] is False
+    assert snapshot["semantic_embedding_strict_rollout_state"] == "not_ready_provider_ownership"
+    assert snapshot["semantic_embedding_strict_rollout_hint"] == "resolve_provider_ownership_before_strict"
+    assert (
+        snapshot["semantic_embedding_strict_rollout_recommendation"]
+        == "keep_provider_ownership_warn_until_provider_owner_is_effective"
+    )
+    assert snapshot["semantic_embedding_recommended_provider_ownership_enforcement"] == "warn"
+    assert snapshot["semantic_embedding_recommended_model_governance_enforcement"] == "strict"
+    assert snapshot["semantic_embedding_provider_ownership_enforcement_alignment"] == "aligned"
+    assert snapshot["semantic_embedding_model_governance_enforcement_alignment"] == "below_recommendation"
+    assert snapshot["semantic_embedding_enforcement_alignment_state"] == "below_recommendation"
+    assert (
+        snapshot["semantic_embedding_enforcement_alignment_hint"]
+        == "consider_enabling_model_governance_strict"
     )
 
 
@@ -245,6 +316,22 @@ def test_embedding_strategy_snapshot_marks_deterministic_custom_model_governance
         == "custom_model_name_allowed_in_warn_mode"
     )
     assert snapshot["semantic_embedding_owner_strategy_state"] == "deterministic_on_write_owner"
+    assert snapshot["semantic_embedding_strict_rollout_violations"] == [
+        "model_governance_deterministic_custom_model_name"
+    ]
+    assert snapshot["semantic_embedding_strict_rollout_state"] == "not_ready_model_governance"
+    assert (
+        snapshot["semantic_embedding_recommended_provider_ownership_enforcement"]
+        == "strict"
+    )
+    assert snapshot["semantic_embedding_recommended_model_governance_enforcement"] == "warn"
+    assert snapshot["semantic_embedding_provider_ownership_enforcement_alignment"] == "below_recommendation"
+    assert snapshot["semantic_embedding_model_governance_enforcement_alignment"] == "aligned"
+    assert snapshot["semantic_embedding_enforcement_alignment_state"] == "below_recommendation"
+    assert (
+        snapshot["semantic_embedding_enforcement_alignment_hint"]
+        == "consider_enabling_provider_ownership_strict"
+    )
 
 
 def test_embedding_strategy_snapshot_marks_provider_ownership_enforcement_blocked_in_strict_mode() -> None:
@@ -297,6 +384,25 @@ def test_embedding_strategy_snapshot_marks_deterministic_manual_owner_strategy_w
     assert (
         snapshot["semantic_embedding_owner_strategy_recommendation"]
         == "document_and_operate_manual_refresh_process"
+    )
+
+
+def test_embedding_strategy_snapshot_marks_mixed_alignment_when_provider_strict_is_enabled_before_recommendation() -> None:
+    snapshot = embedding_strategy_snapshot(
+        semantic_vector_enabled=True,
+        provider="openai",
+        model="text-embedding-3-small",
+        dimensions=1536,
+        provider_ownership_enforcement="strict",
+        model_governance_enforcement="warn",
+    )
+
+    assert snapshot["semantic_embedding_provider_ownership_enforcement_alignment"] == "above_recommendation"
+    assert snapshot["semantic_embedding_model_governance_enforcement_alignment"] == "below_recommendation"
+    assert snapshot["semantic_embedding_enforcement_alignment_state"] == "mixed_relative_to_recommendation"
+    assert (
+        snapshot["semantic_embedding_enforcement_alignment_hint"]
+        == "normalize_enforcement_levels_to_recommendation"
     )
 
 

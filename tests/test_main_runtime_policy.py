@@ -552,3 +552,54 @@ def test_startup_skips_embedding_refresh_warning_when_on_write_refresh_mode_is_e
 
     messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
     assert not any("embedding_refresh_warning" in message for message in messages)
+
+
+def test_startup_logs_embedding_strategy_hint_when_strict_rollout_is_ready_but_enforcement_is_warn(
+    caplog,
+) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("INFO", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="deterministic",
+        embedding_model="deterministic-v1",
+        embedding_source_kinds="episodic,semantic,affective",
+        embedding_provider_ownership_enforcement="warn",
+        embedding_model_governance_enforcement="warn",
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert any("embedding_strategy_hint" in message for message in messages)
+    assert any("enforcement_alignment_state=below_recommendation" in message for message in messages)
+    assert any("strict_rollout_ready=True" in message for message in messages)
+    assert any("recommended_provider_ownership_enforcement=strict" in message for message in messages)
+    assert any("recommended_model_governance_enforcement=strict" in message for message in messages)
+
+
+def test_startup_logs_embedding_strategy_hint_when_enforcement_alignment_is_aligned(caplog) -> None:
+    logger_name = "aion.app"
+    caplog.set_level("INFO", logger=logger_name)
+    logger = logging.getLogger(logger_name)
+    settings = SimpleNamespace(
+        semantic_vector_enabled=True,
+        embedding_provider="deterministic",
+        embedding_model="deterministic-v1",
+        embedding_source_kinds="episodic,semantic,affective",
+        embedding_provider_ownership_enforcement="strict",
+        embedding_model_governance_enforcement="strict",
+    )
+
+    _log_embedding_strategy_warnings(settings=settings, logger=logger)
+
+    messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
+    assert any("embedding_strategy_hint" in message for message in messages)
+    assert any("enforcement_alignment_state=aligned_with_recommendation" in message for message in messages)
+    assert any("strict_rollout_state=ready" in message for message in messages)
+    assert any(
+        "strict_rollout_recommendation=enable_strict_provider_and_model_enforcement"
+        in message
+        for message in messages
+    )

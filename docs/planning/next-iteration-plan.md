@@ -247,6 +247,29 @@ Completed on 2026-04-18:
   `semantic_embedding_source_rollout_hint`,
   `semantic_embedding_source_rollout_recommendation`) and startup
   source-coverage warning enrichment.
+- `PRJ-246` is complete: embedding strict-rollout preflight posture is now
+  explicit through shared diagnostics
+  (`semantic_embedding_strict_rollout_violations`,
+  `semantic_embedding_strict_rollout_violation_count`,
+  `semantic_embedding_strict_rollout_ready`,
+  `semantic_embedding_strict_rollout_state`,
+  `semantic_embedding_strict_rollout_hint`).
+- `PRJ-247` is complete: embedding strict-rollout recommendations are now
+  explicit through shared diagnostics
+  (`semantic_embedding_strict_rollout_recommendation`,
+  `semantic_embedding_recommended_provider_ownership_enforcement`,
+  `semantic_embedding_recommended_model_governance_enforcement`).
+- `PRJ-248` is complete: embedding enforcement-alignment posture is now
+  explicit through shared diagnostics
+  (`semantic_embedding_provider_ownership_enforcement_alignment`,
+  `semantic_embedding_model_governance_enforcement_alignment`,
+  `semantic_embedding_enforcement_alignment_state`,
+  `semantic_embedding_enforcement_alignment_hint`).
+- `PRJ-249` is complete: startup now emits `embedding_strategy_hint` with
+  strict-rollout readiness, recommendations, and enforcement-alignment
+  diagnostics from the same shared helper used by `/health`.
+- `PRJ-250` is complete: planning/docs/context are synchronized through
+  `PRJ-250` with targeted regression coverage for embedding strategy posture.
 
 ## Highest-Risk Gaps
 
@@ -937,7 +960,7 @@ implicit or uncontrolled side effects.
 
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-245`.
+The planning queue is complete through `PRJ-250`.
 There is currently no execution-ready PRJ slice in the board.
 Before the next implementation slice:
 
