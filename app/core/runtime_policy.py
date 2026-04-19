@@ -12,6 +12,11 @@ def event_debug_enabled(settings: Any) -> bool:
     return bool(getattr(settings, "event_debug_enabled", True))
 
 
+def event_debug_token_required(settings: Any) -> bool:
+    token = str(getattr(settings, "event_debug_token", "") or "").strip()
+    return bool(token)
+
+
 def event_debug_source(settings: Any) -> Literal["explicit", "environment_default"]:
     if getattr(settings, "event_debug_enabled", None) is not None:
         return "explicit"
@@ -80,6 +85,7 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
     return {
         "startup_schema_mode": startup_schema_mode(settings),
         "event_debug_enabled": event_debug_enabled(settings),
+        "event_debug_token_required": event_debug_token_required(settings),
         "event_debug_source": event_debug_source(settings),
         "production_policy_enforcement": enforcement,
         "recommended_production_policy_enforcement": recommended_enforcement,

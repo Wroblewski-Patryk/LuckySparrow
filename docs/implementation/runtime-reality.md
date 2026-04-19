@@ -64,6 +64,8 @@ The live runtime currently uses:
 
 - a compact public response by default
 - an optional debug payload when `debug=true` and debug exposure is enabled by policy
+- when API payload metadata omits `meta.user_id`, runtime can use
+  `X-AION-User-Id` as a fallback identity key before defaulting to `anonymous`
 
 ### Health behavior
 

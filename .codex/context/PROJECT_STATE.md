@@ -63,6 +63,11 @@ Last updated: 2026-04-19
 - 2026-04-19: runtime policy now also exposes strict-rollout recommendation
   signals (`recommended_production_policy_enforcement`, `strict_rollout_hint`),
   and startup emits an informational hint when production warn mode is strict-ready.
+- 2026-04-19: debug payload access now supports optional token gating via
+  `EVENT_DEBUG_TOKEN`, with policy visibility and startup warnings aligned.
+- 2026-04-19: API event normalization now supports `X-AION-User-Id` fallback
+  (when `meta.user_id` is missing), making user-scoped language/profile memory
+  handling safer for multi-user API traffic.
 - 2026-04-19: documentation now explicitly separates canonical architecture in
   `docs/architecture/` from transitional implementation reality in
   `docs/implementation/runtime-reality.md`, so human-oriented design intent can
@@ -121,9 +126,9 @@ Last updated: 2026-04-19
 
 - Main active objective: make stage boundaries and architecture traceability
   explicit without regressing current runtime behavior
-- Active execution queue through `PRJ-045` is complete.
+- Active execution queue through `PRJ-052` is complete.
 - Top blockers:
-  - no next post-`PRJ-045` slice is registered yet; next task should be derived
+  - no next post-`PRJ-052` slice is registered yet; next task should be derived
     from open decisions
 - Success criteria for this phase:
   - shared goal and milestone signals keep one clear implementation owner
@@ -206,6 +211,15 @@ Last updated: 2026-04-19
   (`recommended_production_policy_enforcement`, `strict_rollout_hint`),
   startup now logs strict-ready rollout hints in production warn mode, and
   regression coverage/docs/context were synchronized.
+- 2026-04-19: `PRJ-046..PRJ-051` are complete: debug payload access now
+  supports optional token gating (`EVENT_DEBUG_TOKEN` and
+  `X-AION-Debug-Token`), health policy now exposes token-required state,
+  startup warns when production debug exposure is enabled without token, and
+  regression coverage/docs/context were synchronized.
+- 2026-04-19: `PRJ-052` is complete: `POST /event` now accepts
+  `X-AION-User-Id` as fallback identity when `meta.user_id` is omitted,
+  normalization/API tests now pin user-id precedence, and docs/context were
+  synchronized for multi-user API safety.
 - 2026-04-19: architecture docs were realigned so `docs/architecture/` again
   describes the canonical cognitive flow, while runtime-delivery shortcuts,
   live storage names, and policy details were moved into

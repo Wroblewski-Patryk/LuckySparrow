@@ -36,6 +36,12 @@ def _log_runtime_policy_warnings(*, settings, logger) -> None:
             policy["event_debug_enabled"],
             policy["event_debug_source"],
         )
+        if not policy["event_debug_token_required"]:
+            logger.warning(
+                "runtime_policy_warning env=%s event_debug_token_required=%s recommendation=configure_event_debug_token_when_debug_enabled",
+                settings.app_env,
+                policy["event_debug_token_required"],
+            )
     if "startup_schema_mode=create_tables" in violations:
         logger.warning(
             "runtime_policy_warning env=%s startup_schema_mode=%s recommendation=use_migration_first_startup_in_production",

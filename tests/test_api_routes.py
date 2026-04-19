@@ -164,12 +164,14 @@ class FakeSettings:
         *,
         app_env: str = "development",
         event_debug_enabled: bool | None = True,
+        event_debug_token: str | None = None,
         startup_schema_mode: str = "migrate",
         production_policy_enforcement: str = "warn",
     ):
         self.telegram_webhook_secret = telegram_webhook_secret
         self.app_env = app_env
         self.event_debug_enabled = event_debug_enabled
+        self.event_debug_token = event_debug_token
         self.startup_schema_mode = startup_schema_mode
         self.production_policy_enforcement = production_policy_enforcement
 
@@ -231,6 +233,7 @@ def _client(
     reflection_stats: dict[str, int] | None = None,
     reflection_running: bool = True,
     event_debug_enabled: bool | None = True,
+    event_debug_token: str | None = None,
     startup_schema_mode: str = "migrate",
     production_policy_enforcement: str = "warn",
 ) -> tuple[TestClient, FakeRuntime, FakeTelegramClient]:
@@ -246,6 +249,7 @@ def _client(
         telegram_webhook_secret=secret,
         app_env=app_env,
         event_debug_enabled=event_debug_enabled,
+        event_debug_token=event_debug_token,
         startup_schema_mode=startup_schema_mode,
         production_policy_enforcement=production_policy_enforcement,
     )
@@ -265,6 +269,7 @@ def test_health_endpoint_returns_ok() -> None:
         "runtime_policy": {
             "startup_schema_mode": "migrate",
             "event_debug_enabled": True,
+            "event_debug_token_required": False,
             "event_debug_source": "explicit",
             "production_policy_enforcement": "warn",
             "recommended_production_policy_enforcement": "warn",
@@ -316,6 +321,7 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
     assert body["runtime_policy"] == {
         "startup_schema_mode": "create_tables",
         "event_debug_enabled": False,
+        "event_debug_token_required": False,
         "event_debug_source": "explicit",
         "production_policy_enforcement": "strict",
         "recommended_production_policy_enforcement": "warn",
@@ -335,6 +341,7 @@ def test_health_endpoint_marks_event_debug_source_as_environment_default_when_un
     assert response.status_code == 200
     body = response.json()
     assert body["runtime_policy"]["event_debug_enabled"] is True
+    assert body["runtime_policy"]["event_debug_token_required"] is False
     assert body["runtime_policy"]["event_debug_source"] == "environment_default"
     assert body["runtime_policy"]["production_policy_enforcement"] == "warn"
     assert body["runtime_policy"]["recommended_production_policy_enforcement"] == "warn"
@@ -381,6 +388,7 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     assert response.status_code == 200
     body = response.json()
     assert body["runtime_policy"]["production_policy_mismatches"] == []
+    assert body["runtime_policy"]["event_debug_token_required"] is False
     assert body["runtime_policy"]["strict_rollout_ready"] is True
     assert body["runtime_policy"]["recommended_production_policy_enforcement"] == "strict"
     assert body["runtime_policy"]["strict_rollout_hint"] == "can_enable_strict"
@@ -478,6 +486,34 @@ def test_event_endpoint_enforces_api_boundary_for_source_and_payload_shape() -> 
     assert runtime.last_event.meta.trace_id
 
 
+def test_event_endpoint_uses_x_aion_user_id_header_when_meta_user_id_is_missing() -> None:
+    client, runtime, _ = _client()
+
+    response = client.post(
+        "/event",
+        json={"text": "hello from api"},
+        headers={"X-AION-User-Id": "header-user"},
+    )
+
+    assert response.status_code == 200
+    assert runtime.last_event is not None
+    assert runtime.last_event.meta.user_id == "header-user"
+
+
+def test_event_endpoint_prefers_meta_user_id_over_x_aion_user_id_header() -> None:
+    client, runtime, _ = _client()
+
+    response = client.post(
+        "/event",
+        json={"text": "hello from api", "meta": {"user_id": "meta-user"}},
+        headers={"X-AION-User-Id": "header-user"},
+    )
+
+    assert response.status_code == 200
+    assert runtime.last_event is not None
+    assert runtime.last_event.meta.user_id == "meta-user"
+
+
 def test_event_endpoint_can_return_full_runtime_debug_payload_when_requested() -> None:
     client, runtime, _ = _client(reflection_triggered=True)
 
@@ -498,6 +534,32 @@ def test_event_endpoint_can_return_full_runtime_debug_payload_when_requested() -
     assert body["debug"]["event"]["source"] == "api"
     assert runtime.last_event is not None
     assert runtime.last_event.payload["text"] == "show debug runtime"
+
+
+def test_event_endpoint_rejects_debug_payload_when_debug_token_is_missing() -> None:
+    client, runtime, _ = _client(event_debug_enabled=True, event_debug_token="debug-secret")
+
+    response = client.post("/event?debug=true", json={"text": "show debug runtime"})
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Invalid debug token."
+    assert runtime.last_event is None
+
+
+def test_event_endpoint_allows_debug_payload_when_debug_token_matches() -> None:
+    client, runtime, _ = _client(event_debug_enabled=True, event_debug_token="debug-secret")
+
+    response = client.post(
+        "/event?debug=true",
+        json={"text": "show debug runtime"},
+        headers={"X-AION-Debug-Token": "debug-secret"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "debug" in body
+    assert body["debug"]["expression"]["message"] == "Test reply"
+    assert runtime.last_event is not None
 
 
 def test_event_endpoint_rejects_debug_payload_when_debug_mode_is_disabled() -> None:

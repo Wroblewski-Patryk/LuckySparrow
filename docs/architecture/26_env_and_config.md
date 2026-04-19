@@ -102,6 +102,11 @@ Allowed values:
 
 Controls whether debug runtime payloads may be exposed through the event API.
 
+`EVENT_DEBUG_TOKEN`
+
+Optional debug-access token for `POST /event?debug=true`.
+When set, debug payload responses require `X-AION-Debug-Token` to match.
+
 `PRODUCTION_POLICY_ENFORCEMENT`
 
 Controls how production policy mismatches are handled.
@@ -114,6 +119,7 @@ Allowed values:
 `GET /health` runtime policy visibility now includes:
 
 - effective policy flags
+- `event_debug_token_required` to indicate whether debug token header is required
 - policy source markers (for debug defaults)
 - `production_policy_mismatches` preview list for strict-mode rollout safety
 - `production_policy_mismatch_count` for quick triage summary

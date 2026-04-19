@@ -9,6 +9,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.startup_schema_mode == "migrate"
     assert settings.production_policy_enforcement == "warn"
     assert settings.event_debug_enabled is None
+    assert settings.event_debug_token is None
     assert settings.is_event_debug_enabled() is True
 
 
@@ -62,6 +63,15 @@ def test_settings_allow_explicit_debug_payload_enablement_in_production() -> Non
 
     assert settings.event_debug_enabled is True
     assert settings.is_event_debug_enabled() is True
+
+
+def test_settings_allow_optional_event_debug_token() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        event_debug_token="debug-secret",
+    )
+
+    assert settings.event_debug_token == "debug-secret"
 
 
 def test_settings_allow_strict_production_policy_enforcement_mode() -> None:

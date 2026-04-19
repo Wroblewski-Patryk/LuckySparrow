@@ -34,6 +34,10 @@ On startup, production now emits an explicit warning when
 disable debug payload exposure in production unless there is a short-lived,
 intentional incident-debug window.
 
+When production debug payload exposure is enabled without `EVENT_DEBUG_TOKEN`,
+startup also emits a warning recommending token configuration for debug access
+hardening.
+
 On startup, production also emits an explicit warning when
 `STARTUP_SCHEMA_MODE=create_tables`. Treat this as a temporary compatibility
 path warning: production should normally run migration-first startup mode.
@@ -60,6 +64,8 @@ Recommended when Telegram webhooks are enabled:
 - `EVENT_DEBUG_ENABLED` to control whether `POST /event?debug=true` can expose
   full internal runtime payloads (production default is disabled unless
   explicitly enabled)
+- `EVENT_DEBUG_TOKEN` (optional) to require `X-AION-Debug-Token` for
+  `POST /event?debug=true` access
 - `PRODUCTION_POLICY_ENFORCEMENT` (`warn|strict`) to decide whether production
   policy mismatches remain warning-only or block startup
 
@@ -99,6 +105,15 @@ Optional debug payload:
 .\scripts\run_release_smoke.ps1 -BaseUrl "http://localhost:8000" -IncludeDebug
 ```
 
+Optional debug payload with token:
+
+```powershell
+curl -X POST "http://localhost:8000/event?debug=true" `
+  -H "Content-Type: application/json" `
+  -H "X-AION-Debug-Token: <token>" `
+  -d "{\"text\":\"debug check\"}"
+```
+
 ### Run Health Check
 
 ```powershell
@@ -112,6 +127,10 @@ curl -X POST http://localhost:8000/event `
   -H "Content-Type: application/json" `
   -d "{\"text\":\"hello AION\"}"
 ```
+
+For multi-user API traffic, prefer sending `X-AION-User-Id` (or explicit
+`meta.user_id` in payload) so profile and memory signals stay user-scoped
+instead of defaulting to shared `anonymous` state.
 
 Use the smoke helper when you want a repeatable operator check instead of crafting requests manually.
 

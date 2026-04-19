@@ -38,13 +38,16 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Current repo fact:
   - `POST /event` now returns a smaller public response by default: event identifiers, reply payload, and a compact runtime summary.
   - the full serialized runtime result is exposed through `POST /event?debug=true` and is guarded by explicit config (`EVENT_DEBUG_ENABLED`) with environment-aware defaults (enabled in non-production, disabled in production unless explicitly enabled).
-  - `GET /health` now exposes `event_debug_enabled`, `event_debug_source`, and `production_policy_enforcement` so operators can verify effective policy, policy source, and enforcement mode.
+  - when `EVENT_DEBUG_TOKEN` is configured, `POST /event?debug=true` also requires `X-AION-Debug-Token`.
+  - `GET /health` now exposes `event_debug_enabled`, `event_debug_token_required`, `event_debug_source`, and `production_policy_enforcement` so operators can verify effective policy, token-gate posture, policy source, and enforcement mode.
   - `/health` also exposes strict-rollout readiness and recommendation signals so operators can detect production-hardening mismatches before a strict-mode rollout and decide when to switch enforcement.
   - startup now emits a production warning when `EVENT_DEBUG_ENABLED=true` so the policy remains visible even before handling requests.
+  - startup also warns when production debug payload exposure is enabled without `EVENT_DEBUG_TOKEN`.
   - startup can now hard-fail in production when debug payload exposure is enabled and strict enforcement mode is active.
   - strict-mode hard-fail behavior is test-covered at startup lifecycle level across both debug and schema mismatch paths, not only at helper-function level.
 - Decision needed:
   - should the full debug payload remain available on the same endpoint through `debug=true`, or should it move to a more clearly internal-only path before wider production use?
+  - should production require `EVENT_DEBUG_TOKEN` whenever debug exposure is enabled, or keep token gating optional?
   - should the config default stay open for local-first debugging, or switch to
     disabled-by-default for production-hardening?
   - should production default to strict policy enforcement for this mismatch, or
@@ -108,6 +111,7 @@ The current repo already works as an MVP slice, but several architecture-level d
 
 - Current repo fact:
   - runtime now makes an explicit per-event language decision, propagates it through perception and expression, stores response-language hints in episodic memory for short follow-up turns, and keeps a lightweight `aion_profile` preferred language for ambiguous turns when recent memory is not enough.
+  - API callers can now provide `X-AION-User-Id` as a fallback identity key when `meta.user_id` is omitted, reducing accidental language/profile bleed caused by shared `anonymous` API traffic.
 - Decision needed:
   - should language handling stay heuristic-plus-profile for the MVP, or should it move to a richer user preference model and broader multilingual support once more channels are added?
 

@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 
 from app.api.schemas import EventResponse, EventReplyResponse, EventRuntimeResponse, SetWebhookRequest
 from app.core.events import looks_like_telegram_update, normalize_event
-from app.core.runtime_policy import event_debug_enabled, runtime_policy_snapshot
+from app.core.runtime_policy import event_debug_enabled, event_debug_token_required, runtime_policy_snapshot
 from app.core.runtime import RuntimeOrchestrator
 from app.integrations.telegram.client import TelegramClient
 from app.memory.repository import MemoryRepository
@@ -75,8 +75,16 @@ async def event_endpoint(
             raise HTTPException(status_code=403, detail="Invalid Telegram webhook secret token.")
     if debug and not event_debug_enabled(settings):
         raise HTTPException(status_code=403, detail="Debug payload is disabled for this environment.")
+    if debug and event_debug_token_required(settings):
+        received_debug_token = request.headers.get("X-AION-Debug-Token")
+        expected_debug_token = str(getattr(settings, "event_debug_token", "") or "")
+        if received_debug_token != expected_debug_token:
+            raise HTTPException(status_code=403, detail="Invalid debug token.")
 
-    event = normalize_event(payload)
+    event = normalize_event(
+        payload,
+        default_user_id=request.headers.get("X-AION-User-Id"),
+    )
     runtime = _runtime_from_request(request)
     result = await runtime.run(event)
     response = EventResponse(

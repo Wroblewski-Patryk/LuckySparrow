@@ -15,7 +15,7 @@ Last updated: 2026-04-19
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The current planned queue through `PRJ-045` is complete.
+- The current planned queue through `PRJ-052` is complete.
 - Next executable slices should be derived from:
   - `docs/planning/next-iteration-plan.md`
   - `docs/planning/open-decisions.md`
@@ -439,6 +439,83 @@ Last updated: 2026-04-19
     - planning, context, architecture, and ops docs now describe strict-rollout recommendation and hint fields
   - Validation:
     - doc-and-context sync plus regression evidence recorded in this slice
+- [x] PRJ-046 Add optional debug-token runtime setting for event debug access
+  - Status: DONE
+  - Group: Public API Shape
+  - Owner: Backend Builder
+  - Depends on: PRJ-045
+  - Priority: P3
+  - Result:
+    - settings now support optional `EVENT_DEBUG_TOKEN` for debug payload access control
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_runtime_policy.py`
+- [x] PRJ-047 Add runtime-policy token-required signal for debug payload access
+  - Status: DONE
+  - Group: Public API Shape
+  - Owner: Backend Builder
+  - Depends on: PRJ-046
+  - Priority: P3
+  - Result:
+    - runtime policy snapshot now exposes `event_debug_token_required`
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py`
+- [x] PRJ-048 Enforce debug-token header for `POST /event?debug=true` when configured
+  - Status: DONE
+  - Group: Public API Shape
+  - Owner: Backend Builder
+  - Depends on: PRJ-047
+  - Priority: P3
+  - Result:
+    - debug runtime payload endpoint now requires `X-AION-Debug-Token` when `EVENT_DEBUG_TOKEN` is configured
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py`
+- [x] PRJ-049 Add production warning for debug exposure without debug token
+  - Status: DONE
+  - Group: Runtime Ops Visibility
+  - Owner: Backend Builder
+  - Depends on: PRJ-048
+  - Priority: P3
+  - Result:
+    - startup now warns when production debug exposure is enabled and no debug token is configured
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py`
+- [x] PRJ-050 Expand config/runtime/API/startup regression coverage for debug token gate
+  - Status: DONE
+  - Group: Public API Shape
+  - Owner: QA/Test
+  - Depends on: PRJ-049
+  - Priority: P3
+  - Result:
+    - tests now pin token-required health policy field, debug endpoint token rejection/acceptance, and startup token-warning behavior
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_main_runtime_policy.py tests/test_config.py tests/test_main_lifespan_policy.py`
+- [x] PRJ-051 Sync docs/context for debug-token-gated debug payload contract
+  - Status: DONE
+  - Group: Public API Shape
+  - Owner: Product Docs
+  - Depends on: PRJ-050
+  - Priority: P3
+  - Result:
+    - architecture, operations, local-dev, planning docs and context now describe optional debug-token-gated debug payload access
+  - Validation:
+    - doc-and-context sync plus regression evidence recorded in this slice
+- [x] PRJ-052 Add API user-id header fallback to reduce shared anonymous language/profile drift
+  - Status: DONE
+  - Group: Language Handling Strategy
+  - Owner: Backend Builder
+  - Depends on: PRJ-051
+  - Priority: P2
+  - Result:
+    - API event normalization now accepts a route-provided fallback user id
+      and `POST /event` now passes `X-AION-User-Id` as fallback identity input
+      when `meta.user_id` is not provided
+    - API user identity precedence is now explicit and test-covered
+      (`meta.user_id` first, then `X-AION-User-Id`, then `anonymous`)
+    - runtime reality, local-dev, ops, planning, and context docs now describe
+      the multi-user API identity guardrail
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_event_normalization.py tests/test_api_routes.py`
+    - `.\.venv\Scripts\python -m pytest -q`
 - [x] PRJ-011 Extract shared goal/task selection helpers
   - Status: DONE
   - Group: Shared Signal Engine Extraction

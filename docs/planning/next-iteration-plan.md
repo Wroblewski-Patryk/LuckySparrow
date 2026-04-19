@@ -11,7 +11,7 @@ The goal is to make the current AION runtime more correct, more inspectable, and
 
 Confirmed on 2026-04-19:
 
-- `.\.venv\Scripts\python -m pytest -q` passes with `305 passed`
+- `.\.venv\Scripts\python -m pytest -q` passes with `314 passed`
 - the live runtime already covers:
   - event normalization
   - state load
@@ -60,6 +60,8 @@ Completed on 2026-04-18:
 - `PRJ-029` unified runtime-policy mismatch detection under a shared helper and exposed mismatch preview (`production_policy_mismatches`) in `/health`.
 - `PRJ-030..PRJ-039` added strict-rollout readiness helpers and health contract fields (`production_policy_mismatch_count`, `strict_startup_blocked`, `strict_rollout_ready`), plus aligned startup/API tests and context/docs sync.
 - `PRJ-040..PRJ-045` added strict-rollout recommendation helpers and health contract fields (`recommended_production_policy_enforcement`, `strict_rollout_hint`), plus startup rollout hints and aligned startup/API/policy tests.
+- `PRJ-046..PRJ-051` added optional debug-token-gated debug payload access (`EVENT_DEBUG_TOKEN`, `X-AION-Debug-Token`), policy visibility (`event_debug_token_required`), startup warning alignment, and regression/docs/context sync.
+- `PRJ-052` added API user-id header fallback (`X-AION-User-Id`) with explicit precedence over `meta.user_id`, reducing shared-anonymous language/profile drift for multi-user API traffic.
 
 ## Highest-Risk Gaps
 
@@ -283,7 +285,7 @@ drift silently.
 
 ## Next Derived Slice
 
-All currently registered planned slices through `PRJ-045` are complete.
+All currently registered planned slices through `PRJ-052` are complete.
 The next smallest task should be derived from `docs/planning/open-decisions.md`
 when execution continues.
 
@@ -307,7 +309,7 @@ After those finished:
 
 ## Recommended Execution Order
 
-1. derive the next smallest useful slice from open decisions (`PRJ-046`)
+1. derive the next smallest useful slice from open decisions (`PRJ-053`)
 
 The queue should still be treated as intentionally open after those items.
 Additional small architecture-alignment slices may still be discovered while

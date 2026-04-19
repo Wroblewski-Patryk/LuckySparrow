@@ -23,6 +23,8 @@
 - `EVENT_DEBUG_ENABLED` (optional) to override debug payload exposure:
   - default in local/non-production is enabled
   - production default is disabled unless explicitly enabled
+- `EVENT_DEBUG_TOKEN` (optional) to require `X-AION-Debug-Token` for
+  `POST /event?debug=true`
 
 3. Run tests:
 
@@ -98,6 +100,25 @@ curl http://localhost:8000/health
 curl -X POST http://localhost:8000/event `
   -H "Content-Type: application/json" `
   -d "{\"text\":\"hello AION\"}"
+```
+
+- Sample event with explicit API user identity (recommended for multi-user API
+  usage):
+
+```powershell
+curl -X POST http://localhost:8000/event `
+  -H "Content-Type: application/json" `
+  -H "X-AION-User-Id: demo-user-42" `
+  -d "{\"text\":\"hello AION\"}"
+```
+
+- Sample debug event with token (when `EVENT_DEBUG_TOKEN` is configured):
+
+```powershell
+curl -X POST "http://localhost:8000/event?debug=true" `
+  -H "Content-Type: application/json" `
+  -H "X-AION-Debug-Token: your-debug-token" `
+  -d "{\"text\":\"debug hello\"}"
 ```
 
 ## Troubleshooting

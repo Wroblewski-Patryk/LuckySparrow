@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     app_port: int = 8000
     log_level: str = "INFO"
     event_debug_enabled: bool | None = None
+    event_debug_token: str | None = None
     startup_schema_mode: Literal["migrate", "create_tables"] = "migrate"
     production_policy_enforcement: Literal["warn", "strict"] = "warn"
 

@@ -16,7 +16,12 @@ def looks_like_telegram_update(raw: dict[str, Any]) -> bool:
     return any(key in message for key in {"chat", "from", "text"}) or "update_id" in raw
 
 
-def normalize_event(raw: dict[str, Any]) -> Event:
+def normalize_event(
+    raw: dict[str, Any],
+    *,
+    default_user_id: str | None = None,
+    default_trace_id: str | None = None,
+) -> Event:
     if looks_like_telegram_update(raw):
         message = raw["message"]
         chat = message.get("chat", {})
@@ -57,8 +62,8 @@ def normalize_event(raw: dict[str, Any]) -> Event:
         timestamp=datetime.now(timezone.utc),
         payload=payload,
         meta=EventMeta(
-            user_id=_normalize_user_id(meta.get("user_id")),
-            trace_id=_normalize_trace_id(meta.get("trace_id")),
+                user_id=_normalize_user_id(meta.get("user_id") or default_user_id),
+                trace_id=_normalize_trace_id(meta.get("trace_id") or default_trace_id),
         ),
     )
 

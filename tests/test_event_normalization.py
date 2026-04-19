@@ -59,6 +59,27 @@ def test_normalize_api_event_normalizes_meta_field_lengths() -> None:
     assert len(event.meta.trace_id) == 64
 
 
+def test_normalize_api_event_uses_default_user_id_when_meta_user_id_is_missing() -> None:
+    event = normalize_event(
+        {"text": "hello"},
+        default_user_id="api-user-7",
+    )
+
+    assert event.meta.user_id == "api-user-7"
+
+
+def test_normalize_api_event_prefers_meta_user_id_over_default_user_id() -> None:
+    event = normalize_event(
+        {
+            "text": "hello",
+            "meta": {"user_id": "meta-user"},
+        },
+        default_user_id="header-user",
+    )
+
+    assert event.meta.user_id == "meta-user"
+
+
 def test_normalize_telegram_event() -> None:
     raw = {
         "update_id": 1,

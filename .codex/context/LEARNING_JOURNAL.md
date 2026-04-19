@@ -25,6 +25,29 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-19 - API events need explicit user scoping to avoid shared-language drift
+- Context: language/profile memory is keyed by `user_id`, while API requests
+  can arrive without explicit `meta.user_id`.
+- Symptom: different API callers can unintentionally share `anonymous` memory
+  and influence each other's language preference on ambiguous turns.
+- Root cause: missing per-request identity signals on API traffic.
+- Guardrail: for API clients, send either `meta.user_id` or
+  `X-AION-User-Id`; keep precedence explicit (`meta.user_id` >
+  `X-AION-User-Id` > `anonymous`).
+- Preferred pattern:
+  - preserve strict event normalization boundaries
+  - allow route-level identity fallback for clients that cannot send structured
+    `meta`
+  - keep precedence pinned by tests
+- Avoid:
+  - relying on shared `anonymous` identity for multi-user API workloads
+  - introducing language/profile behavior changes without user-scoping checks
+- Evidence:
+  - `app/core/events.py`
+  - `app/api/routes.py`
+  - `tests/test_event_normalization.py`
+  - `tests/test_api_routes.py`
+
 ### 2026-04-19 - Canonical architecture docs must stay separate from runtime shortcuts
 - Context: architecture documentation drifted when live runtime implementation
   details and transport-oriented shortcuts were mixed directly into canonical

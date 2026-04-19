@@ -14,6 +14,7 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
     settings = SimpleNamespace(
         app_env="development",
         event_debug_enabled=True,
+        event_debug_token=None,
         startup_schema_mode="migrate",
         production_policy_enforcement="warn",
     )
@@ -23,6 +24,7 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
     assert snapshot == {
         "startup_schema_mode": "migrate",
         "event_debug_enabled": True,
+        "event_debug_token_required": False,
         "event_debug_source": "explicit",
         "production_policy_enforcement": "warn",
         "recommended_production_policy_enforcement": "warn",
@@ -38,6 +40,7 @@ def test_runtime_policy_snapshot_includes_all_production_mismatches() -> None:
     settings = SimpleNamespace(
         app_env="production",
         event_debug_enabled=True,
+        event_debug_token="debug-secret",
         startup_schema_mode="create_tables",
         production_policy_enforcement="strict",
     )
@@ -51,6 +54,7 @@ def test_runtime_policy_snapshot_includes_all_production_mismatches() -> None:
     assert snapshot["production_policy_mismatch_count"] == 2
     assert snapshot["strict_startup_blocked"] is True
     assert snapshot["strict_rollout_ready"] is False
+    assert snapshot["event_debug_token_required"] is True
     assert snapshot["recommended_production_policy_enforcement"] == "warn"
     assert snapshot["strict_rollout_hint"] == "resolve_mismatches_before_strict"
     assert snapshot["production_policy_enforcement"] == "strict"
@@ -60,6 +64,7 @@ def test_runtime_policy_snapshot_marks_event_debug_source_as_environment_default
     class _Settings:
         app_env = "production"
         event_debug_enabled = None
+        event_debug_token = None
         startup_schema_mode = "migrate"
         production_policy_enforcement = "warn"
 
@@ -77,12 +82,14 @@ def test_runtime_policy_snapshot_marks_event_debug_source_as_environment_default
     assert snapshot["strict_rollout_ready"] is True
     assert snapshot["recommended_production_policy_enforcement"] == "strict"
     assert snapshot["strict_rollout_hint"] == "can_enable_strict"
+    assert snapshot["event_debug_token_required"] is False
 
 
 def test_strict_startup_blocked_is_false_when_warn_mode_has_mismatches() -> None:
     settings = SimpleNamespace(
         app_env="production",
         event_debug_enabled=True,
+        event_debug_token=None,
         startup_schema_mode="create_tables",
         production_policy_enforcement="warn",
     )
@@ -98,6 +105,7 @@ def test_recommended_enforcement_is_strict_for_production_when_no_mismatches() -
     settings = SimpleNamespace(
         app_env="production",
         event_debug_enabled=False,
+        event_debug_token="debug-secret",
         startup_schema_mode="migrate",
         production_policy_enforcement="warn",
     )
@@ -105,3 +113,17 @@ def test_recommended_enforcement_is_strict_for_production_when_no_mismatches() -
     assert strict_rollout_ready(settings) is True
     assert strict_rollout_hint(settings) == "can_enable_strict"
     assert recommended_production_policy_enforcement(settings) == "strict"
+
+
+def test_runtime_policy_snapshot_marks_debug_token_required_when_token_is_set() -> None:
+    settings = SimpleNamespace(
+        app_env="development",
+        event_debug_enabled=True,
+        event_debug_token="debug-secret",
+        startup_schema_mode="migrate",
+        production_policy_enforcement="warn",
+    )
+
+    snapshot = runtime_policy_snapshot(settings)
+
+    assert snapshot["event_debug_token_required"] is True
