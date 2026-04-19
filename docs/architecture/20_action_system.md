@@ -309,11 +309,6 @@ Examples:
 - store metric  
 - save reflection result  
 
-Current MVP status:
-
-- Action layer now owns lightweight goal creation, task creation, and explicit task status updates derived from user messages
-- runtime refreshes goal/task state after those writes so API results reflect the post-action state rather than only the pre-action snapshot
-
 Rules:
 
 - use repository/service layer  

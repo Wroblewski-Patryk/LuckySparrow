@@ -577,37 +577,10 @@ But the foundation must stay simple first.
 
 ## Final Principle
 
-Goals give AION direction.
+Goals give AION direction.  
 Tasks give AION operational traction.
 
-Without goals, the system has no direction.
+Without goals, the system has no direction.  
 Without tasks, the system has no execution path.
-
-Current MVP status:
-
-- runtime can now load active goals and active tasks before deeper planning
-- context can surface relevant active goals and tasks for the current event
-- motivation can now care more when an event touches a higher-priority goal or a blocked active task
-- planning can now align with an active goal and suggest unblocking or advancing an active task
-- explicit user phrases such as `My goal is to ...` and `I need to ...` can now seed lightweight goals and tasks through the Action layer
-- explicit user progress phrases such as `I fixed ...` can now update matching task status
-- runtime now refreshes active goal/task state after Action-layer writes, so the returned result reflects the latest operational state
-- background reflection can now derive a lightweight `goal_execution_state` such as `blocked`, `recovering`, `advancing`, or `progressing` from active goals, active tasks, and recent task status updates
-- background reflection can now also detect an early `stagnating` pattern when the system keeps planning around an active goal without seeing recent operational traction
-- background reflection can now also estimate a lightweight `goal_progress_score` from the active task mix, so runtime can distinguish an early-stage goal from one that is close to completion
-- background reflection can now also compare the latest reflected score against the previous one and infer a lightweight `goal_progress_trend` such as `improving`, `steady`, or `slipping`
-- background reflection now also writes lightweight `aion_goal_progress` snapshots for the primary active goal, so runtime can use short progress history during context-building and planning
-- background reflection can now also compress those short histories into a semantic `goal_progress_arc`, so runtime can distinguish patterns like recovery gaining traction, unstable progress, breakthrough momentum, or falling behind
-- background reflection can now also maintain a lightweight `goal_milestone_state`, so later turns can still know whether the goal is in early setup, active execution, recovery, or the completion window even after the crossing turn is gone
-- background reflection can now also emit a lightweight `goal_milestone_transition` when reflected progress crosses meaningful thresholds such as active execution or the completion window
-- background reflection now also syncs lightweight `aion_goal_milestone` rows from that state, so runtime can surface an active milestone focus like `Drive goal to closure` or `Stabilize goal recovery`
-- that active milestone focus is now also enriched at runtime with lightweight operational signals such as milestone risk and current completion criteria, so planning can react not only to phase but also to whether the milestone is at risk, stabilizing, ready to close, or waiting on a specific closure condition
-- background reflection now also writes lightweight `aion_goal_milestone_history` snapshots, so runtime can react not only to the current milestone state but also to short milestone-level momentum, stabilization, regression, or closure movement
-- background reflection can now also compress those milestone histories into a semantic `goal_milestone_arc`, and runtime can use that arc to tell apart closure momentum, re-entry into the completion window, recovery backslide, milestone whiplash, or steadier closure posture
-- background reflection can now also derive lightweight `goal_milestone_pressure`, so runtime can tell when a milestone is lingering too long in completion, dragging in recovery, or staying stale in execution or setup
-- background reflection can now also derive lightweight `goal_milestone_dependency_state`, so runtime can tell whether the active milestone is blocked by a dependency, still waiting on several remaining work items, down to a single remaining dependency, or operationally clear to close
-- background reflection can now also derive lightweight `goal_milestone_due_state`, so runtime can tell what is due next for the active milestone rather than only whether it is pressured, risky, or dependency-heavy
-- background reflection can now also derive lightweight `goal_milestone_due_window`, so runtime can distinguish a freshly opened due window from one that is simply active, overdue, or reopened after recovery
-- that reflected goal state can now shape context, motivation, and planning even when the current turn does not restate the full blocker details
 
 Together, they turn cognition into progress.
