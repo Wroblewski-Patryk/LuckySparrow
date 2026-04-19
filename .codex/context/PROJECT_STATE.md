@@ -74,6 +74,9 @@ Last updated: 2026-04-19
 - 2026-04-19: runtime now includes an AI-assisted affective assessor stage with
   deterministic fallback, so affective source can be traced as
   `ai_classifier` or `fallback` in stage-level runtime logs.
+- 2026-04-19: motivation, role, and expression now consume
+  `perception.affective` as the primary support/emotion signal, making
+  supportive behavior traceable to one affective owner across runtime stages.
 - 2026-04-19: documentation now explicitly separates canonical architecture in
   `docs/architecture/` from transitional implementation reality in
   `docs/implementation/runtime-reality.md`, so human-oriented design intent can
@@ -136,8 +139,8 @@ Last updated: 2026-04-19
   ownership
 - Active execution queue now extends through `PRJ-068`.
 - Top blockers:
-  - affective slot now exists, but motivation/role/expression do not yet
-    consume it and affective memory is still missing
+  - affective memory is still missing, and empathy-quality regression fixtures
+    for ambiguous/mixed-intent turns are not complete yet
   - reflection still stores several operational conclusions globally per user,
     which can leak one goal's state into another
   - action still reparses user text for some durable writes instead of relying
@@ -239,6 +242,10 @@ Last updated: 2026-04-19
 - 2026-04-19: `PRJ-054` is complete: runtime now runs a dedicated affective
   assessor stage that can normalize LLM classification and safely fall back
   when unavailable or invalid, with regression tests and docs/context aligned.
+- 2026-04-19: `PRJ-055` is complete: motivation, role, and expression now use
+  the shared affective contract (`perception.affective`) as their support
+  signal owner, replacing local emotional keyword ladders and adding
+  affective-driven regression coverage.
 - 2026-04-19: architecture docs were realigned so `docs/architecture/` again
   describes the canonical cognitive flow, while runtime-delivery shortcuts,
   live storage names, and policy details were moved into

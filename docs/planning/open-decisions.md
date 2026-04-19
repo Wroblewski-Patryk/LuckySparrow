@@ -78,8 +78,8 @@ The current repo already works as an MVP slice, but several architecture-level d
   - when available, the assessor can consume LLM classification and normalize
     it to the shared contract; when unavailable or invalid, it falls back
     deterministically.
-  - motivation, role, and expression still detect emotion/support behavior
-    through their own local heuristics and do not yet consume the shared slot.
+  - motivation, role, and expression now consume `perception.affective` as the
+    shared support/emotion signal owner.
 - Decision needed:
   - should AI-assisted affective classification be enabled by default in all
     non-production environments, or behind an explicit feature gate?

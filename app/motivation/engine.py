@@ -27,6 +27,10 @@ class MotivationEngine:
     ) -> MotivationOutput:
         text = str(event.payload.get("text", "")).strip()
         lowered = normalize_for_matching(text)
+        affective = perception.affective
+        affective_label = str(affective.affect_label).strip().lower()
+        affective_intensity = max(0.0, min(1.0, float(affective.intensity or 0.0)))
+        affective_needs_support = bool(affective.needs_support)
 
         if not text:
             return MotivationOutput(
@@ -37,27 +41,6 @@ class MotivationEngine:
                 mode="clarify",
             )
 
-        emotional_keywords = {
-            "sad",
-            "stressed",
-            "overwhelmed",
-            "anxious",
-            "tired",
-            "lonely",
-            "upset",
-            "scared",
-            "smutny",
-            "smutna",
-            "zestresowany",
-            "zestresowana",
-            "przytloczony",
-            "przytloczona",
-            "zmeczony",
-            "samotny",
-            "samotna",
-            "zdenerwowany",
-            "zdenerwowana",
-        }
         urgent_keywords = {
             "urgent",
             "asap",
@@ -110,14 +93,13 @@ class MotivationEngine:
             "ustaw",
             "zrob",
         }
-        positive_keywords = {"thanks", "thank you", "happy", "great", "awesome", "dzieki", "super"}
 
         has_question = text.endswith("?")
-        has_urgent_signal = any(keyword in lowered for keyword in urgent_keywords) or "!" in text
-        has_emotional_signal = any(keyword in lowered for keyword in emotional_keywords)
+        has_urgent_signal = any(keyword in lowered for keyword in urgent_keywords) or "!" in text or affective_label == "urgent_pressure"
+        has_emotional_signal = affective_needs_support or affective_label == "support_distress"
         has_analysis_signal = has_question or any(keyword in lowered for keyword in analysis_keywords)
         has_execution_signal = any(lowered.startswith(keyword) for keyword in execution_keywords)
-        has_positive_signal = any(keyword in lowered for keyword in positive_keywords)
+        has_positive_signal = affective_label == "positive_engagement"
         is_brief_turn = len(lowered.split()) <= 4
         collaboration_preference = str((user_preferences or {}).get("collaboration_preference", "")).strip().lower()
         goal_execution_state = str((user_preferences or {}).get("goal_execution_state", "")).strip().lower()
@@ -411,9 +393,9 @@ class MotivationEngine:
         urgency += 0.04 if goal_history_signal == "regression" else 0.01 if goal_history_signal == "lift" else 0.0
 
         if has_emotional_signal:
-            valence = -0.45
+            valence = max(-1.0, -0.25 - (0.45 * affective_intensity))
         elif has_positive_signal:
-            valence = 0.35
+            valence = min(1.0, 0.15 + (0.45 * affective_intensity))
         elif has_urgent_signal:
             valence = -0.1
         else:
@@ -421,7 +403,7 @@ class MotivationEngine:
 
         arousal = 0.3
         arousal += 0.35 if has_urgent_signal else 0.0
-        arousal += 0.2 if has_emotional_signal else 0.0
+        arousal += (0.1 + (0.2 * affective_intensity)) if has_emotional_signal else 0.0
         arousal += 0.1 if has_question else 0.0
 
         theta_mode = None

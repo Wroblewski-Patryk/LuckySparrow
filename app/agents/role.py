@@ -15,30 +15,12 @@ class RoleAgent:
     ) -> RoleOutput:
         text = str(event.payload.get("text", "")).strip()
         lowered = normalize_for_matching(text)
+        affective_label = str(perception.affective.affect_label).strip().lower()
+        affective_needs_support = bool(perception.affective.needs_support)
         preferred_role = str((user_preferences or {}).get("preferred_role", "")).strip().lower()
         preferred_role_confidence = float((user_preferences or {}).get("preferred_role_confidence", 0.0) or 0.0)
         collaboration_preference = str((user_preferences or {}).get("collaboration_preference", "")).strip().lower()
 
-        emotional_keywords = {
-            "sad",
-            "stressed",
-            "overwhelmed",
-            "tired",
-            "lonely",
-            "happy",
-            "anxious",
-            "smutny",
-            "smutna",
-            "zestresowany",
-            "zestresowana",
-            "przytloczony",
-            "przytloczona",
-            "zmeczony",
-            "samotny",
-            "samotna",
-            "szczesliwy",
-            "niespokojny",
-        }
         analysis_keywords = {
             "analyze",
             "analysis",
@@ -73,7 +55,7 @@ class RoleAgent:
             "zrob",
         }
 
-        if any(keyword in lowered for keyword in emotional_keywords):
+        if affective_needs_support or affective_label == "support_distress":
             return RoleOutput(selected="friend", confidence=0.74)
 
         if perception.topic == "planning" or any(keyword in lowered for keyword in analysis_keywords):

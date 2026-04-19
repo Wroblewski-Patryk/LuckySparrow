@@ -25,6 +25,27 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-19 - Prefer Select-String fallback when `rg` is unavailable in this shell
+- Context: execution slices that require fast test/file pattern scans in the
+  Windows PowerShell runtime.
+- Symptom: `rg` invocation can fail with access-denied runtime errors even
+  though repository files are readable.
+- Root cause: local shell environment can block `rg.exe` execution in this
+  workspace context.
+- Guardrail: when `rg` fails, immediately switch to
+  `Select-String`/`Get-ChildItem` for pattern discovery and continue without
+  blocking the slice.
+- Preferred pattern:
+  - attempt `rg` first for speed
+  - on failure, use `Select-String -Path ... -Pattern ...` with line numbers
+  - keep validation and context sync work moving in the same cycle
+- Avoid:
+  - repeatedly retrying blocked `rg` commands
+  - treating tool unavailability as a reason to skip validation or docs sync
+- Evidence:
+  - `PRJ-055` execution logs in this workspace showed `rg.exe` access denied
+    while `Select-String` worked normally
+
 ### 2026-04-19 - API events need explicit user scoping to avoid shared-language drift
 - Context: language/profile memory is keyed by `user_id`, while API requests
   can arrive without explicit `meta.user_id`.

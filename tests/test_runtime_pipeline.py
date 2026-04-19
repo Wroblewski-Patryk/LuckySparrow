@@ -613,6 +613,8 @@ async def test_runtime_pipeline_routes_emotional_turn_through_documented_contrac
 
     result = await runtime.run(event)
 
+    assert result.affective.affect_label == "support_distress"
+    assert result.affective.needs_support is True
     assert result.motivation.mode == "respond"
     assert result.motivation.valence <= -0.45
     assert result.role.selected == "friend"

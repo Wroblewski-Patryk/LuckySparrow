@@ -16,30 +16,29 @@ Last updated: 2026-04-19
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue now extends through `PRJ-068`.
-- The next executable slice is `PRJ-055`.
+- The next executable slice is `PRJ-056`.
 - Additional architecture-alignment work should be appended after that queue so
   the backlog stays explicitly open for later discovery instead of pretending
   the plan is complete.
 
 ## READY
 
-- [ ] PRJ-055 Wire affective assessment through motivation, role, and expression
+- [ ] PRJ-056 Add empathy-oriented evaluation fixtures and regression tests
   - Status: READY
   - Group: Affective Understanding And Empathy
-  - Owner: Backend Builder
-  - Depends on: PRJ-054
+  - Owner: QA/Test
+  - Depends on: PRJ-055
   - Priority: P1
   - Result:
-    - motivation, role, and expression consume the explicit affective contract
-      instead of re-deriving emotional state independently
-    - supportive behavior becomes traceable to one affective owner across
-      runtime stages
+    - emotionally heavy, ambiguous, and mixed-intent turns gain explicit
+      empathy-focused fixtures
+    - regression coverage pins support quality through affective contract-driven
+      runtime behavior
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_role_agent.py tests/test_expression_agent.py tests/test_runtime_pipeline.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_expression_agent.py tests/test_motivation_engine.py`
 
 ## BACKLOG
 
-- [ ] PRJ-056 Add empathy-oriented evaluation fixtures and regression tests
 - [ ] PRJ-057 Introduce scoped conclusions for global, goal, and task context
 - [ ] PRJ-058 Refactor runtime consumers to use scoped reflection state
 - [ ] PRJ-059 Add an affective memory layer and reflection outputs
@@ -570,6 +569,23 @@ Last updated: 2026-04-19
       `fallback`) for operator traceability
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_language_runtime.py tests/test_runtime_pipeline.py tests/test_expression_agent.py`
+    - `.\.venv\Scripts\python -m pytest -q`
+- [x] PRJ-055 Wire affective assessment through motivation, role, and expression
+  - Status: DONE
+  - Group: Affective Understanding And Empathy
+  - Owner: Backend Builder
+  - Depends on: PRJ-054
+  - Priority: P1
+  - Result:
+    - motivation, role, and expression now consume `perception.affective` as
+      the primary support/emotion signal instead of local emotional keyword
+      ladders
+    - supportive behavior remains traceable to one affective owner across
+      runtime stages (`affective_assessment` -> `motivation`/`role`/`expression`)
+    - targeted tests now encode affective-driven behavior in stage-level unit
+      paths and runtime pipeline integration
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_role_agent.py tests/test_expression_agent.py tests/test_runtime_pipeline.py`
     - `.\.venv\Scripts\python -m pytest -q`
 - [x] PRJ-011 Extract shared goal/task selection helpers
   - Status: DONE

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from app.agents.role import RoleAgent
-from app.core.contracts import ContextOutput, Event, EventMeta, PerceptionOutput
+from app.core.contracts import AffectiveAssessmentOutput, ContextOutput, Event, EventMeta, PerceptionOutput
 
 
 def _event(text: str) -> Event:
@@ -15,7 +15,13 @@ def _event(text: str) -> Event:
     )
 
 
-def _perception(event_type: str, topic: str, intent: str, language: str = "en") -> PerceptionOutput:
+def _perception(
+    event_type: str,
+    topic: str,
+    intent: str,
+    language: str = "en",
+    affective: AffectiveAssessmentOutput | None = None,
+) -> PerceptionOutput:
     return PerceptionOutput(
         event_type=event_type,
         topic=topic,
@@ -26,6 +32,7 @@ def _perception(event_type: str, topic: str, intent: str, language: str = "en") 
         language_confidence=0.8,
         ambiguity=0.1,
         initial_salience=0.5,
+        affective=affective or AffectiveAssessmentOutput(),
     )
 
 
@@ -33,10 +40,22 @@ def _context(risk_level: float = 0.1) -> ContextOutput:
     return ContextOutput(summary="ctx", related_goals=[], related_tags=["general"], risk_level=risk_level)
 
 
-def test_role_agent_uses_friend_for_emotional_language() -> None:
+def test_role_agent_uses_friend_for_affective_support_signal() -> None:
     result = RoleAgent().run(
-        event=_event("I feel stressed and tired today"),
-        perception=_perception("statement", "general", "share_information"),
+        event=_event("Status update for today"),
+        perception=_perception(
+            "statement",
+            "general",
+            "share_information",
+            affective=AffectiveAssessmentOutput(
+                affect_label="support_distress",
+                intensity=0.72,
+                needs_support=True,
+                confidence=0.75,
+                source="ai_classifier",
+                evidence=["stressed", "tired"],
+            ),
+        ),
         context=_context(),
     )
 
@@ -118,8 +137,20 @@ def test_role_agent_uses_theta_bias_when_no_preferred_role_exists() -> None:
 
 def test_role_agent_keeps_explicit_emotional_signal_over_theta_bias() -> None:
     result = RoleAgent().run(
-        event=_event("I feel stressed and need help"),
-        perception=_perception("statement", "general", "share_information"),
+        event=_event("Can you help me with this?"),
+        perception=_perception(
+            "question",
+            "general",
+            "request_help",
+            affective=AffectiveAssessmentOutput(
+                affect_label="support_distress",
+                intensity=0.64,
+                needs_support=True,
+                confidence=0.7,
+                source="ai_classifier",
+                evidence=["overwhelmed"],
+            ),
+        ),
         context=_context(),
         theta={"support_bias": 0.1, "analysis_bias": 0.75, "execution_bias": 0.15},
     )

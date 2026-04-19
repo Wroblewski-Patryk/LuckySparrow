@@ -1,4 +1,5 @@
 from app.core.contracts import (
+    AffectiveAssessmentOutput,
     ContextOutput,
     Event,
     ExpressionOutput,
@@ -37,6 +38,7 @@ class ExpressionAgent:
         response_style = preferred_response_style(user_preferences)
         collaboration_preference = preferred_collaboration_preference(user_preferences)
         tone = self._select_tone(
+            affective=perception.affective,
             motivation=motivation,
             role=role,
             theta=theta,
@@ -50,6 +52,7 @@ class ExpressionAgent:
                 plan=plan,
                 role=role,
                 motivation=motivation,
+                affective=perception.affective,
                 response_style=response_style,
                 theta=theta,
                 collaboration_preference=collaboration_preference,
@@ -73,6 +76,7 @@ class ExpressionAgent:
                 plan=plan,
                 role=role,
                 motivation=motivation,
+                affective=perception.affective,
                 response_style=response_style,
                 theta=theta,
                 collaboration_preference=collaboration_preference,
@@ -93,6 +97,7 @@ class ExpressionAgent:
         plan: PlanOutput,
         role: RoleOutput,
         motivation: MotivationOutput,
+        affective: AffectiveAssessmentOutput,
         response_style: str | None = None,
         theta: dict | None = None,
         collaboration_preference: str | None = None,
@@ -103,7 +108,7 @@ class ExpressionAgent:
                 response_style,
             )
 
-        if role.selected == "friend" or motivation.valence <= -0.3:
+        if role.selected == "friend" or motivation.valence <= -0.3 or self._needs_support(affective):
             return apply_response_style(
                 fallback_message(perception.language, "support", plan.goal),
                 response_style,
@@ -154,12 +159,13 @@ class ExpressionAgent:
 
     def _select_tone(
         self,
+        affective: AffectiveAssessmentOutput,
         motivation: MotivationOutput,
         role: RoleOutput,
         theta: dict | None = None,
         collaboration_preference: str | None = None,
     ) -> str:
-        if role.selected == "friend" or motivation.valence <= -0.3:
+        if role.selected == "friend" or motivation.valence <= -0.3 or self._needs_support(affective):
             return "supportive"
         if motivation.mode == "execute" or role.selected == "executor":
             return "action-oriented"
@@ -220,3 +226,7 @@ class ExpressionAgent:
                 return "guiding"
             return "guiding"
         return None
+
+    def _needs_support(self, affective: AffectiveAssessmentOutput) -> bool:
+        label = str(affective.affect_label).strip().lower()
+        return bool(affective.needs_support) or label == "support_distress"

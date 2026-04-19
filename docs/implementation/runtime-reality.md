@@ -76,8 +76,8 @@ Current implementation posture:
   classification and normalize it to the shared contract
 - when LLM classification is unavailable or invalid, the stage falls back to
   deterministic baseline signals and marks source as `fallback`
-- motivation, role, and expression still rely on existing heuristics for
-  behavior decisions until the follow-up slices wire this slot through
+- motivation, role, and expression now consume `perception.affective` as the
+  primary support/emotion signal owner for turn behavior
 
 ### Event API behavior
 

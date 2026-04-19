@@ -64,6 +64,7 @@ Completed on 2026-04-18:
 - `PRJ-052` added API user-id header fallback (`X-AION-User-Id`) with explicit precedence over `meta.user_id`, reducing shared-anonymous language/profile drift for multi-user API traffic.
 - `PRJ-053` added a first-class affective assessment contract and runtime placeholder slot (`affect_label`, `intensity`, `needs_support`, `confidence`, `source`, `evidence`) emitted by perception for follow-up empathy slices.
 - `PRJ-054` added an AI-assisted affective assessor stage with deterministic fallback, including normalized LLM output handling and runtime log traceability of affective source (`ai_classifier|fallback`).
+- `PRJ-055` wired motivation, role, and expression to consume `perception.affective` as the shared support signal owner, replacing local emotional keyword ladders and adding affective-driven regression coverage.
 
 ## Highest-Risk Gaps
 
@@ -314,7 +315,7 @@ keeping deterministic fallback behavior.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_perception_agent.py tests/test_runtime_pipeline.py tests/test_expression_agent.py`
 
-- `PRJ-055` Wire affective assessment through motivation, role, and expression.
+- `PRJ-055` is complete.
   - Result:
     - motivation, role, and expression consume the explicit affective contract
       instead of re-deriving emotion separately
@@ -458,7 +459,7 @@ signals such as theta, role preference, and collaboration preference.
 ## Next Derived Slice
 
 The planning queue is now extended through `PRJ-068`.
-The next execution-ready slice is `PRJ-055`, with later groups staying ordered
+The next execution-ready slice is `PRJ-056`, with later groups staying ordered
 behind it.
 
 ## Parallel-Ready Lanes

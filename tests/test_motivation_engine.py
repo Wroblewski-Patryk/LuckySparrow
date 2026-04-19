@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from app.core.contracts import ContextOutput, Event, EventMeta, PerceptionOutput
+from app.core.contracts import AffectiveAssessmentOutput, ContextOutput, Event, EventMeta, PerceptionOutput
 from app.motivation.engine import MotivationEngine
 
 
@@ -23,6 +23,7 @@ def _perception(
     event_type: str = "statement",
     topic: str = "general",
     intent: str = "share_information",
+    affective: AffectiveAssessmentOutput | None = None,
 ) -> PerceptionOutput:
     return PerceptionOutput(
         event_type=event_type,
@@ -34,6 +35,7 @@ def _perception(
         language_confidence=0.35,
         ambiguity=0.1,
         initial_salience=0.5,
+        affective=affective or AffectiveAssessmentOutput(),
     )
 
 
@@ -44,22 +46,40 @@ def test_motivation_engine_requests_clarification_without_text() -> None:
     assert result.importance == 0.3
 
 
-def test_motivation_engine_keeps_emotional_text_on_documented_respond_mode() -> None:
+def test_motivation_engine_uses_affective_contract_for_documented_respond_mode() -> None:
     result = MotivationEngine().run(
-        event=_event("I feel stressed and overwhelmed"),
+        event=_event("Status update for today"),
         context=_context(),
-        perception=_perception(),
+        perception=_perception(
+            affective=AffectiveAssessmentOutput(
+                affect_label="support_distress",
+                intensity=0.72,
+                needs_support=True,
+                confidence=0.76,
+                source="ai_classifier",
+                evidence=["stressed", "overwhelmed"],
+            )
+        ),
     )
 
     assert result.mode == "respond"
     assert result.valence < 0
 
 
-def test_motivation_engine_describes_emotional_turn_without_undocumented_support_mode() -> None:
+def test_motivation_engine_describes_affective_distress_without_undocumented_support_mode() -> None:
     result = MotivationEngine().run(
-        event=_event("I feel anxious and lonely right now"),
+        event=_event("Quick check-in"),
         context=_context(),
-        perception=_perception(),
+        perception=_perception(
+            affective=AffectiveAssessmentOutput(
+                affect_label="support_distress",
+                intensity=0.8,
+                needs_support=True,
+                confidence=0.75,
+                source="ai_classifier",
+                evidence=["anxious", "lonely"],
+            )
+        ),
     )
 
     assert result.mode == "respond"

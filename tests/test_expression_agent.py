@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from app.core.contracts import (
+    AffectiveAssessmentOutput,
     ContextOutput,
     Event,
     EventMeta,
@@ -79,7 +80,7 @@ def _context() -> ContextOutput:
     return ContextOutput(summary="ctx", related_goals=[], related_tags=["general"], risk_level=0.1)
 
 
-def _perception(language: str = "en") -> PerceptionOutput:
+def _perception(language: str = "en", affective: AffectiveAssessmentOutput | None = None) -> PerceptionOutput:
     return PerceptionOutput(
         event_type="statement",
         topic="general",
@@ -90,6 +91,7 @@ def _perception(language: str = "en") -> PerceptionOutput:
         language_confidence=0.8,
         ambiguity=0.1,
         initial_salience=0.5,
+        affective=affective or AffectiveAssessmentOutput(),
     )
 
 
@@ -156,14 +158,24 @@ async def test_expression_applies_concise_preference_to_fallback() -> None:
     assert result.message == "That sounds heavy."
 
 
-async def test_expression_uses_supportive_fallback_for_emotional_messages() -> None:
+async def test_expression_uses_supportive_fallback_for_affective_support_signal() -> None:
     agent = ExpressionAgent(openai_client=NoReplyOpenAI())
     result = await agent.run(
-        _event("I feel stressed and overwhelmed"),
-        _perception(language="en"),
+        _event("Status update for today"),
+        _perception(
+            language="en",
+            affective=AffectiveAssessmentOutput(
+                affect_label="support_distress",
+                intensity=0.7,
+                needs_support=True,
+                confidence=0.72,
+                source="ai_classifier",
+                evidence=["stressed", "overwhelmed"],
+            ),
+        ),
         _context(),
         _plan(),
-        _role(selected="friend"),
+        _role(selected="advisor"),
         _motivation(mode="respond"),
     )
 
