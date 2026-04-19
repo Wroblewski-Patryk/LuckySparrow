@@ -443,6 +443,8 @@ def test_health_endpoint_returns_ok() -> None:
             "semantic_embedding_model_requested": "deterministic-v1",
             "semantic_embedding_model_effective": "deterministic-v1",
             "semantic_embedding_dimensions": 32,
+            "semantic_embedding_warning_state": "no_warning",
+            "semantic_embedding_warning_hint": "embedding_strategy_ready",
         },
         "scheduler": {
             "healthy": True,
@@ -528,6 +530,8 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
         "semantic_embedding_model_requested": "deterministic-v1",
         "semantic_embedding_model_effective": "deterministic-v1",
         "semantic_embedding_dimensions": 32,
+        "semantic_embedding_warning_state": "vectors_disabled",
+        "semantic_embedding_warning_hint": "enable_semantic_vectors_to_activate_embedding_strategy",
     }
 
 
@@ -553,6 +557,8 @@ def test_health_endpoint_exposes_embedding_provider_fallback_posture_when_non_de
         "semantic_embedding_model_requested": "text-embedding-3-small",
         "semantic_embedding_model_effective": "deterministic-v1",
         "semantic_embedding_dimensions": 1536,
+        "semantic_embedding_warning_state": "provider_fallback_active",
+        "semantic_embedding_warning_hint": "provider_not_implemented_using_deterministic_fallback",
     }
 
 

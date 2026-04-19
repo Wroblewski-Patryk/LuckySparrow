@@ -148,6 +148,10 @@ Last updated: 2026-04-19
   configured effective embedding posture (model/dimensions) and explicit
   requested-vs-effective provider metadata instead of hardcoded
   `pending/0` placeholders.
+- 2026-04-19: embedding strategy warning posture semantics are now shared
+  across startup logging and `/health.memory_retrieval` through one helper,
+  with explicit warning fields
+  (`semantic_embedding_warning_state`, `semantic_embedding_warning_hint`).
 - 2026-04-19: relation memory is now a first-class subsystem (`aion_relation`)
   with scoped repository APIs; reflection derives relation updates and runtime
   stages now consume high-confidence relation cues across context, role,
@@ -286,7 +290,7 @@ Last updated: 2026-04-19
   explicit without regressing current runtime behavior, then deepen the runtime
   toward affective understanding, scoped memory, and stronger action intent
   ownership
-- Active `PRJ` execution queue is complete through `PRJ-234`; the next slice
+- Active `PRJ` execution queue is complete through `PRJ-235`; the next slice
   should be derived from `docs/planning/open-decisions.md` and registered as
   `READY` before implementation.
 - Top blockers:
@@ -301,6 +305,12 @@ Last updated: 2026-04-19
 
 ## Recent Progress
 
+- 2026-04-19: `PRJ-235` is complete: embedding strategy warning-state semantics
+  are now shared between startup logging and `/health.memory_retrieval`, and
+  health exposes explicit warning-state/hint fields for operators.
+- 2026-04-19: `PRJ-235` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
+  passed with `63 passed`.
 - 2026-04-19: `PRJ-234` is complete: conclusion-driven semantic/affective
   embedding shells now use configured effective embedding model/dimensions and
   store requested-vs-effective provider metadata with explicit

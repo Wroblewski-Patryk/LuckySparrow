@@ -188,6 +188,10 @@ Completed on 2026-04-18:
   embedding strategy posture (`provider/model/dimensions`) and persist
   requested-vs-effective provider metadata with explicit
   `pending_vector_materialization` status.
+- `PRJ-235` is complete: embedding warning-state semantics are now shared
+  between startup logging and `/health.memory_retrieval`, with explicit
+  warning posture fields (`semantic_embedding_warning_state`,
+  `semantic_embedding_warning_hint`) for operator diagnostics.
 
 ## Highest-Risk Gaps
 
@@ -878,7 +882,7 @@ implicit or uncontrolled side effects.
 
 ## Next Derived Slice
 
-The planning queue is complete through `PRJ-234`.
+The planning queue is complete through `PRJ-235`.
 There is currently no execution-ready PRJ slice in the board.
 Before the next implementation slice:
 

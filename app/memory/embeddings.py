@@ -33,6 +33,41 @@ def resolve_embedding_posture(
     }
 
 
+def embedding_strategy_snapshot(
+    *,
+    semantic_vector_enabled: bool,
+    provider: str | None,
+    model: str | None,
+    dimensions: int,
+) -> dict[str, str | bool | int]:
+    posture = resolve_embedding_posture(provider=provider, model=model)
+    provider_ready = posture["provider_requested"] == posture["provider_effective"]
+    if not semantic_vector_enabled:
+        warning_state = "vectors_disabled"
+        warning_hint = "enable_semantic_vectors_to_activate_embedding_strategy"
+    elif provider_ready:
+        warning_state = "no_warning"
+        warning_hint = "embedding_strategy_ready"
+    else:
+        warning_state = "provider_fallback_active"
+        warning_hint = "provider_not_implemented_using_deterministic_fallback"
+
+    return {
+        "semantic_vector_enabled": semantic_vector_enabled,
+        "semantic_retrieval_mode": "hybrid_vector_lexical" if semantic_vector_enabled else "lexical_only",
+        "semantic_embedding_provider_ready": provider_ready,
+        "semantic_embedding_posture": "ready" if provider_ready else "fallback_deterministic",
+        "semantic_embedding_provider_requested": posture["provider_requested"],
+        "semantic_embedding_provider_effective": posture["provider_effective"],
+        "semantic_embedding_provider_hint": posture["provider_hint"],
+        "semantic_embedding_model_requested": posture["model_requested"],
+        "semantic_embedding_model_effective": posture["model_effective"],
+        "semantic_embedding_dimensions": max(1, int(dimensions)),
+        "semantic_embedding_warning_state": warning_state,
+        "semantic_embedding_warning_hint": warning_hint,
+    }
+
+
 def deterministic_embedding(text: str, *, dimensions: int = 32) -> list[float]:
     """Returns a deterministic normalized embedding vector for fallback retrieval paths."""
     normalized = " ".join(str(text or "").strip().lower().split())

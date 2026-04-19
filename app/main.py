@@ -25,7 +25,7 @@ from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.integrations.openai.client import OpenAIClient
 from app.integrations.telegram.client import TelegramClient
-from app.memory.embeddings import resolve_embedding_posture
+from app.memory.embeddings import embedding_strategy_snapshot
 from app.memory.repository import MemoryRepository
 from app.motivation.engine import MotivationEngine
 from app.reflection.worker import ReflectionWorker
@@ -97,20 +97,21 @@ def _log_runtime_policy_warnings(*, settings, logger) -> None:
 
 
 def _log_embedding_strategy_warnings(*, settings, logger) -> None:
-    semantic_vector_enabled = bool(getattr(settings, "semantic_vector_enabled", True))
-    posture = resolve_embedding_posture(
+    snapshot = embedding_strategy_snapshot(
+        semantic_vector_enabled=bool(getattr(settings, "semantic_vector_enabled", True)),
         provider=str(getattr(settings, "embedding_provider", "deterministic")),
         model=str(getattr(settings, "embedding_model", "deterministic-v1")),
+        dimensions=max(1, int(getattr(settings, "embedding_dimensions", 32))),
     )
-    if semantic_vector_enabled and posture["provider_requested"] != posture["provider_effective"]:
+    if str(snapshot["semantic_embedding_warning_state"]) == "provider_fallback_active":
         logger.warning(
             "embedding_strategy_warning semantic_vector_enabled=%s requested_provider=%s effective_provider=%s requested_model=%s effective_model=%s hint=%s recommendation=keep_deterministic_or_implement_provider_execution",
-            semantic_vector_enabled,
-            posture["provider_requested"],
-            posture["provider_effective"],
-            posture["model_requested"],
-            posture["model_effective"],
-            posture["provider_hint"],
+            bool(snapshot["semantic_vector_enabled"]),
+            str(snapshot["semantic_embedding_provider_requested"]),
+            str(snapshot["semantic_embedding_provider_effective"]),
+            str(snapshot["semantic_embedding_model_requested"]),
+            str(snapshot["semantic_embedding_model_effective"]),
+            str(snapshot["semantic_embedding_provider_hint"]),
         )
 
 

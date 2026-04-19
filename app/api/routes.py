@@ -22,7 +22,7 @@ from app.core.runtime_policy import (
 )
 from app.core.runtime import RuntimeOrchestrator
 from app.integrations.telegram.client import TelegramClient
-from app.memory.embeddings import resolve_embedding_posture
+from app.memory.embeddings import embedding_strategy_snapshot
 from app.memory.repository import MemoryRepository
 from app.reflection.worker import ReflectionWorker
 from app.workers.scheduler import SchedulerWorker
@@ -80,25 +80,12 @@ def _attention_snapshot_from_request(request: Request) -> dict[str, Any]:
 
 
 def _memory_retrieval_snapshot_from_settings(settings) -> dict[str, Any]:
-    semantic_vector_enabled = bool(getattr(settings, "semantic_vector_enabled", True))
-    embedding_dimensions = max(1, int(getattr(settings, "embedding_dimensions", 32)))
-    posture = resolve_embedding_posture(
+    return embedding_strategy_snapshot(
+        semantic_vector_enabled=bool(getattr(settings, "semantic_vector_enabled", True)),
         provider=str(getattr(settings, "embedding_provider", "deterministic")),
         model=str(getattr(settings, "embedding_model", "deterministic-v1")),
+        dimensions=max(1, int(getattr(settings, "embedding_dimensions", 32))),
     )
-    provider_ready = posture["provider_requested"] == posture["provider_effective"]
-    return {
-        "semantic_vector_enabled": semantic_vector_enabled,
-        "semantic_retrieval_mode": "hybrid_vector_lexical" if semantic_vector_enabled else "lexical_only",
-        "semantic_embedding_provider_ready": provider_ready,
-        "semantic_embedding_posture": "ready" if provider_ready else "fallback_deterministic",
-        "semantic_embedding_provider_requested": posture["provider_requested"],
-        "semantic_embedding_provider_effective": posture["provider_effective"],
-        "semantic_embedding_provider_hint": posture["provider_hint"],
-        "semantic_embedding_model_requested": posture["model_requested"],
-        "semantic_embedding_model_effective": posture["model_effective"],
-        "semantic_embedding_dimensions": embedding_dimensions,
-    }
 
 
 def _debug_query_compat_telemetry_from_request(request: Request) -> DebugQueryCompatTelemetry:

@@ -15,7 +15,7 @@ Last updated: 2026-04-19
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The planning queue is complete through `PRJ-234`.
+- The planning queue is complete through `PRJ-235`.
 - No `READY` PRJ slice is currently registered; derive the next smallest slice
   from `docs/planning/open-decisions.md` and sync it with the board before
   implementation.
@@ -48,6 +48,25 @@ Last updated: 2026-04-19
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-235 Unify embedding warning posture semantics across health and startup logging
+  - Status: DONE
+  - Group: Embedding Strategy Posture
+  - Owner: Backend Builder + QA/Test + Product Docs
+  - Depends on: PRJ-234
+  - Priority: P2
+  - Result:
+    - one shared helper now owns embedding strategy posture and warning state
+      semantics used by both `/health.memory_retrieval` and startup warning
+      logging
+    - `memory_retrieval` now exposes explicit warning posture fields
+      (`semantic_embedding_warning_state`, `semantic_embedding_warning_hint`)
+      in addition to provider/model readiness posture
+    - startup warning behavior is now tied to the same shared warning state
+      (`provider_fallback_active`) used by health diagnostics
+    - docs/context/planning are synchronized through `PRJ-235`
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
 
 - [x] PRJ-234 Align conclusion embedding shell metadata with configured embedding strategy posture
   - Status: DONE

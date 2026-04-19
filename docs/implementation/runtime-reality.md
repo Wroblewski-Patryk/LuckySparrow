@@ -176,6 +176,9 @@ Current limitation:
 - deterministic fallback embeddings are live; requested non-implemented
   providers still fall back to deterministic execution, and provider-owned
   embedding lifecycle/tuning are planned follow-up work.
+- `/health.memory_retrieval` now exposes explicit warning posture fields
+  (`semantic_embedding_warning_state`, `semantic_embedding_warning_hint`) and
+  startup warning logs reuse the same warning-state semantics.
 
 ### Event API behavior
 

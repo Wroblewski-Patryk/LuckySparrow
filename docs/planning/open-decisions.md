@@ -248,6 +248,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - conclusion-driven semantic/affective embedding shells now persist with
     configured effective model/dimensions plus requested/effective provider
     metadata and explicit `pending_vector_materialization` status.
+  - startup warnings and health diagnostics now share one embedding warning
+    posture owner; `/health.memory_retrieval` exposes
+    `semantic_embedding_warning_state` and
+    `semantic_embedding_warning_hint` for machine-readable fallback posture.
   - provider ownership, refresh cadence, and embedding model governance are
     still open.
 - Decision needed:

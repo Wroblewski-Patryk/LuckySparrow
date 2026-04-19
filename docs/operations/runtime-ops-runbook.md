@@ -76,6 +76,8 @@ retrieval posture:
 - `semantic_embedding_model_requested`
 - `semantic_embedding_model_effective`
 - `semantic_embedding_dimensions`
+- `semantic_embedding_warning_state`
+- `semantic_embedding_warning_hint`
 
 When semantic vectors are enabled and a non-implemented provider is requested
 (for example `EMBEDDING_PROVIDER=openai` today), startup emits
