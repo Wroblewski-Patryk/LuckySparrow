@@ -242,6 +242,7 @@ class FakeSettings:
         event_debug_token: str | None = None,
         production_debug_token_required: bool = True,
         event_debug_query_compat_enabled: bool | None = None,
+        event_debug_shared_ingress_mode: str = "compatibility",
         event_debug_query_compat_recent_window: int = 20,
         event_debug_query_compat_stale_after_seconds: int = 86400,
         semantic_vector_enabled: bool = True,
@@ -267,6 +268,7 @@ class FakeSettings:
         self.event_debug_token = event_debug_token
         self.production_debug_token_required = production_debug_token_required
         self.event_debug_query_compat_enabled = event_debug_query_compat_enabled
+        self.event_debug_shared_ingress_mode = event_debug_shared_ingress_mode
         self.event_debug_query_compat_recent_window = event_debug_query_compat_recent_window
         self.event_debug_query_compat_stale_after_seconds = event_debug_query_compat_stale_after_seconds
         self.semantic_vector_enabled = semantic_vector_enabled
@@ -386,6 +388,7 @@ def _client(
     event_debug_token: str | None = None,
     production_debug_token_required: bool = True,
     event_debug_query_compat_enabled: bool | None = None,
+    event_debug_shared_ingress_mode: str = "compatibility",
     event_debug_query_compat_recent_window: int = 20,
     event_debug_query_compat_stale_after_seconds: int = 86400,
     semantic_vector_enabled: bool = True,
@@ -429,6 +432,7 @@ def _client(
         event_debug_token=event_debug_token,
         production_debug_token_required=production_debug_token_required,
         event_debug_query_compat_enabled=event_debug_query_compat_enabled,
+        event_debug_shared_ingress_mode=event_debug_shared_ingress_mode,
         event_debug_query_compat_recent_window=event_debug_query_compat_recent_window,
         event_debug_query_compat_stale_after_seconds=event_debug_query_compat_stale_after_seconds,
         semantic_vector_enabled=semantic_vector_enabled,
@@ -489,6 +493,8 @@ def test_health_endpoint_returns_ok() -> None:
             "event_debug_internal_ingress_path": "/internal/event/debug",
             "event_debug_shared_ingress_path": "/event/debug",
             "event_debug_shared_ingress_mode": "compatibility",
+            "event_debug_shared_ingress_break_glass_required": False,
+            "event_debug_shared_ingress_posture": "transitional_compatibility",
             "debug_access_posture": "open_no_token",
             "debug_token_policy_hint": "debug_access_open_without_token",
             "event_debug_source": "explicit",
@@ -1195,6 +1201,8 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
         "event_debug_shared_ingress_mode": "compatibility",
+        "event_debug_shared_ingress_break_glass_required": False,
+        "event_debug_shared_ingress_posture": "transitional_compatibility",
         "debug_access_posture": "disabled",
         "debug_token_policy_hint": "not_applicable_debug_disabled",
         "event_debug_source": "explicit",
@@ -1648,6 +1656,9 @@ def test_event_debug_endpoint_returns_full_runtime_debug_payload_when_enabled() 
     )
     assert response.headers["link"] == "</internal/event/debug>; rel=\"alternate\""
     assert response.headers["x-aion-debug-shared-compat-deprecated"] == "true"
+    assert response.headers["x-aion-debug-shared-mode"] == "compatibility"
+    assert response.headers["x-aion-debug-shared-posture"] == "transitional_compatibility"
+    assert "x-aion-debug-shared-break-glass-used" not in response.headers
     assert runtime.last_event is not None
     assert runtime.last_event.payload["text"] == "show explicit debug runtime"
 
@@ -1666,6 +1677,56 @@ def test_internal_event_debug_endpoint_returns_primary_debug_payload_without_sha
     assert "x-aion-debug-shared-compat" not in response.headers
     assert runtime.last_event is not None
     assert runtime.last_event.payload["text"] == "show internal debug runtime"
+
+
+def test_event_debug_endpoint_rejects_shared_ingress_when_break_glass_override_is_required() -> None:
+    client, runtime, _ = _client(
+        event_debug_enabled=True,
+        event_debug_shared_ingress_mode="break_glass_only",
+    )
+
+    response = client.post("/event/debug", json={"text": "shared debug without override"})
+
+    assert response.status_code == 403
+    assert (
+        response.json()["detail"]
+        == "Shared debug ingress is in break-glass-only mode. "
+        "Set X-AION-Debug-Break-Glass: true or use POST /internal/event/debug."
+    )
+    assert runtime.last_event is None
+
+
+def test_event_debug_endpoint_allows_shared_ingress_with_break_glass_override_header() -> None:
+    client, runtime, _ = _client(
+        event_debug_enabled=True,
+        event_debug_shared_ingress_mode="break_glass_only",
+    )
+
+    response = client.post(
+        "/event/debug",
+        json={"text": "shared debug with break glass"},
+        headers={"X-AION-Debug-Break-Glass": "true"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["x-aion-debug-shared-mode"] == "break_glass_only"
+    assert response.headers["x-aion-debug-shared-posture"] == "transitional_break_glass_only"
+    assert response.headers["x-aion-debug-shared-break-glass-used"] == "true"
+    assert runtime.last_event is not None
+    assert runtime.last_event.payload["text"] == "shared debug with break glass"
+
+
+def test_internal_event_debug_endpoint_ignores_shared_break_glass_posture() -> None:
+    client, runtime, _ = _client(
+        event_debug_enabled=True,
+        event_debug_shared_ingress_mode="break_glass_only",
+    )
+
+    response = client.post("/internal/event/debug", json={"text": "internal debug no override"})
+
+    assert response.status_code == 200
+    assert runtime.last_event is not None
+    assert runtime.last_event.payload["text"] == "internal debug no override"
 
 
 def test_event_endpoint_rejects_debug_payload_when_debug_token_is_missing() -> None:
@@ -1944,6 +2005,9 @@ def test_event_debug_endpoint_allows_debug_payload_when_debug_token_matches() ->
         == "shared_debug_route_is_compatibility_use_internal_event_debug"
     )
     assert response.headers["x-aion-debug-shared-compat-deprecated"] == "true"
+    assert response.headers["x-aion-debug-shared-mode"] == "compatibility"
+    assert response.headers["x-aion-debug-shared-posture"] == "transitional_compatibility"
+    assert "x-aion-debug-shared-break-glass-used" not in response.headers
     assert runtime.last_event is not None
 
 

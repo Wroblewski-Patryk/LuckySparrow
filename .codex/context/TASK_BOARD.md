@@ -36,24 +36,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-319 Add break-glass override and shared-endpoint sunset posture for debug access
-  - Status: READY
-  - Group: Internal Debug Ingress Migration
-  - Owner: Backend Builder
-  - Depends on: PRJ-318
-  - Priority: P1
-  - Result:
-    - public debug access can be explicitly downgraded to break-glass-only
-      posture while preserving controlled emergency access
-    - release posture makes it clear when shared-endpoint debug is transitional
-      instead of baseline
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_config.py`
-
-## BACKLOG
-
 - [ ] PRJ-320 Add debug-ingress migration regressions and smoke coverage
-  - Status: BACKLOG
+  - Status: READY
   - Group: Internal Debug Ingress Migration
   - Owner: QA/Test + Ops/Release
   - Depends on: PRJ-319
@@ -65,6 +49,8 @@ Last updated: 2026-04-20
   - Validation:
     - `.\scripts\run_release_smoke.ps1`
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py`
+
+## BACKLOG
 
 - [ ] PRJ-321 Sync docs/context/runbook for internal debug ingress migration
   - Status: BACKLOG
@@ -314,6 +300,25 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-319 Add break-glass override and shared-endpoint sunset posture for debug access
+  - Status: DONE
+  - Group: Internal Debug Ingress Migration
+  - Owner: Backend Builder
+  - Depends on: PRJ-318
+  - Priority: P1
+  - Result:
+    - shared endpoint `POST /event/debug` now supports explicit posture modes
+      (`compatibility|break_glass_only`) and enforces break-glass override
+      header in break-glass-only mode
+    - runtime policy now exposes shared-ingress break-glass posture fields
+      (`event_debug_shared_ingress_mode`,
+      `event_debug_shared_ingress_break_glass_required`,
+      `event_debug_shared_ingress_posture`) for release visibility
+    - API/config/runtime-policy regression coverage now pins shared-ingress
+      break-glass behavior and runtime posture signals
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_config.py`
 
 - [x] PRJ-318 Implement a dedicated internal debug ingress boundary and shared guard path
   - Status: DONE

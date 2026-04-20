@@ -291,6 +291,11 @@ Last updated: 2026-04-20
   `POST /event/debug` is now explicit shared-route compatibility ingress, and
   `POST /event?debug=true` compatibility headers now point to the internal
   route.
+- 2026-04-20: shared debug ingress posture is now explicitly configurable
+  (`EVENT_DEBUG_SHARED_INGRESS_MODE=compatibility|break_glass_only`); in
+  `break_glass_only` mode `POST /event/debug` requires explicit
+  `X-AION-Debug-Break-Glass: true` override while internal ingress
+  `POST /internal/event/debug` remains the primary diagnostics path.
 - 2026-04-19: `/health` now exposes explicit attention turn-assembly posture
   (`burst_window_ms`, turn TTLs, `pending|claimed|answered` counters), making
   burst-coalescing diagnostics operator-visible without changing runtime turn
@@ -1082,8 +1087,15 @@ Last updated: 2026-04-20
 - 2026-04-20: `PRJ-318` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py`
   passed with `108 passed`.
-- 2026-04-20: `PRJ-319` is the next `READY` slice, focused on break-glass
-  override posture and shared-endpoint sunset control for debug access.
+- 2026-04-20: `PRJ-319` is complete: shared debug ingress now supports
+  explicit `compatibility|break_glass_only` modes, break-glass override is
+  enforced for shared endpoint access in `break_glass_only` mode, and runtime
+  policy now surfaces shared-ingress break-glass posture fields.
+- 2026-04-20: `PRJ-319` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_config.py`
+  passed with `153 passed`.
+- 2026-04-20: `PRJ-320` is the next `READY` slice, focused on debug-ingress
+  migration regressions and smoke coverage.
 
 ## Working Agreements
 

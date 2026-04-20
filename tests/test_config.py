@@ -12,6 +12,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.event_debug_token is None
     assert settings.production_debug_token_required is True
     assert settings.event_debug_query_compat_enabled is None
+    assert settings.event_debug_shared_ingress_mode == "compatibility"
     assert settings.event_debug_query_compat_recent_window == 20
     assert settings.event_debug_query_compat_stale_after_seconds == 86400
     assert settings.semantic_vector_enabled is True
@@ -131,6 +132,15 @@ def test_settings_allow_explicit_debug_query_compat_enablement() -> None:
 
     assert settings.event_debug_query_compat_enabled is True
     assert settings.is_event_debug_query_compat_enabled() is True
+
+
+def test_settings_allow_break_glass_only_shared_debug_ingress_mode() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        event_debug_shared_ingress_mode="break_glass_only",
+    )
+
+    assert settings.event_debug_shared_ingress_mode == "break_glass_only"
 
 
 def test_settings_allow_disabling_production_debug_token_requirement() -> None:
@@ -269,6 +279,18 @@ def test_settings_reject_unknown_reflection_runtime_mode() -> None:
         assert "reflection_runtime_mode" in str(exc)
     else:  # pragma: no cover - defensive fallback
         raise AssertionError("Expected Settings validation to reject unknown reflection runtime mode.")
+
+
+def test_settings_reject_unknown_event_debug_shared_ingress_mode() -> None:
+    try:
+        Settings(
+            database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+            event_debug_shared_ingress_mode="legacy",  # type: ignore[arg-type]
+        )
+    except ValidationError as exc:
+        assert "event_debug_shared_ingress_mode" in str(exc)
+    else:  # pragma: no cover - defensive fallback
+        raise AssertionError("Expected Settings validation to reject unknown shared debug ingress mode.")
 
 
 def test_settings_reject_unknown_embedding_provider_ownership_enforcement_mode() -> None:

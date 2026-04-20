@@ -38,6 +38,21 @@ def event_debug_query_compat_source(settings: Any) -> Literal["explicit", "envir
     return "environment_default"
 
 
+def event_debug_shared_ingress_mode(settings: Any) -> Literal["compatibility", "break_glass_only"]:
+    mode = str(getattr(settings, "event_debug_shared_ingress_mode", "compatibility") or "compatibility").strip().lower()
+    if mode == "break_glass_only":
+        return "break_glass_only"
+    return "compatibility"
+
+
+def event_debug_shared_ingress_posture(
+    settings: Any,
+) -> Literal["transitional_compatibility", "transitional_break_glass_only"]:
+    if event_debug_shared_ingress_mode(settings) == "break_glass_only":
+        return "transitional_break_glass_only"
+    return "transitional_compatibility"
+
+
 def event_debug_token_missing_in_production(settings: Any) -> bool:
     return (
         app_environment(settings) == "production"
@@ -196,6 +211,7 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
     mismatch_count = len(mismatches)
     recommended_enforcement = recommended_production_policy_enforcement(settings)
     rollout_hint = strict_rollout_hint(settings)
+    shared_ingress_mode = event_debug_shared_ingress_mode(settings)
     return {
         "startup_schema_mode": startup_schema_mode(settings),
         "event_debug_enabled": event_debug_enabled(settings),
@@ -206,7 +222,9 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
         "event_debug_ingress_owner": "internal_route_primary_shared_route_compat",
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
-        "event_debug_shared_ingress_mode": "compatibility",
+        "event_debug_shared_ingress_mode": shared_ingress_mode,
+        "event_debug_shared_ingress_break_glass_required": shared_ingress_mode == "break_glass_only",
+        "event_debug_shared_ingress_posture": event_debug_shared_ingress_posture(settings),
         "debug_access_posture": debug_access_posture(settings),
         "debug_token_policy_hint": debug_token_policy_hint(settings),
         "event_debug_source": event_debug_source(settings),

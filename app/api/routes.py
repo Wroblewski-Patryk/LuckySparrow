@@ -16,6 +16,8 @@ from app.core.runtime_policy import (
     app_environment,
     event_debug_enabled,
     event_debug_query_compat_enabled,
+    event_debug_shared_ingress_mode,
+    event_debug_shared_ingress_posture,
     event_debug_token_required,
     production_debug_token_required,
     release_readiness_snapshot,
@@ -43,6 +45,10 @@ DEBUG_SHARED_COMPAT_HINT_HEADER = "X-AION-Debug-Shared-Compat"
 DEBUG_SHARED_COMPAT_HINT_VALUE = "shared_debug_route_is_compatibility_use_internal_event_debug"
 DEBUG_SHARED_COMPAT_DEPRECATED_HEADER = "X-AION-Debug-Shared-Compat-Deprecated"
 DEBUG_SHARED_COMPAT_DEPRECATED_VALUE = "true"
+DEBUG_SHARED_MODE_HEADER = "X-AION-Debug-Shared-Mode"
+DEBUG_SHARED_POSTURE_HEADER = "X-AION-Debug-Shared-Posture"
+DEBUG_SHARED_BREAK_GLASS_HEADER = "X-AION-Debug-Break-Glass"
+DEBUG_SHARED_BREAK_GLASS_USED_HEADER = "X-AION-Debug-Shared-Break-Glass-Used"
 
 
 def _runtime_from_request(request: Request) -> RuntimeOrchestrator:
@@ -219,10 +225,34 @@ def _mark_query_debug_compat_headers(response: Response) -> None:
     response.headers[DEBUG_COMPAT_DEPRECATED_HEADER] = DEBUG_COMPAT_DEPRECATED_VALUE
 
 
-def _mark_shared_debug_compat_headers(response: Response) -> None:
+def _is_break_glass_override_request(request: Request) -> bool:
+    value = str(request.headers.get(DEBUG_SHARED_BREAK_GLASS_HEADER, "") or "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def _enforce_shared_debug_ingress_policy(*, request: Request, settings) -> bool:
+    shared_mode = event_debug_shared_ingress_mode(settings)
+    if shared_mode != "break_glass_only":
+        return False
+    if _is_break_glass_override_request(request):
+        return True
+    raise HTTPException(
+        status_code=403,
+        detail=(
+            "Shared debug ingress is in break-glass-only mode. "
+            f"Set {DEBUG_SHARED_BREAK_GLASS_HEADER}: true or use POST {DEBUG_INTERNAL_INGRESS_PATH}."
+        ),
+    )
+
+
+def _mark_shared_debug_compat_headers(*, response: Response, settings, break_glass_used: bool) -> None:
     response.headers[DEBUG_SHARED_COMPAT_HINT_HEADER] = DEBUG_SHARED_COMPAT_HINT_VALUE
     response.headers["Link"] = DEBUG_COMPAT_LINK_VALUE
     response.headers[DEBUG_SHARED_COMPAT_DEPRECATED_HEADER] = DEBUG_SHARED_COMPAT_DEPRECATED_VALUE
+    response.headers[DEBUG_SHARED_MODE_HEADER] = event_debug_shared_ingress_mode(settings)
+    response.headers[DEBUG_SHARED_POSTURE_HEADER] = event_debug_shared_ingress_posture(settings)
+    if break_glass_used:
+        response.headers[DEBUG_SHARED_BREAK_GLASS_USED_HEADER] = "true"
 
 
 @router.get("/health")
@@ -364,11 +394,17 @@ async def event_debug_endpoint(
     request: Request,
     response: Response,
 ) -> dict[str, Any]:
+    settings = _settings_from_request(request)
+    break_glass_used = _enforce_shared_debug_ingress_policy(request=request, settings=settings)
     body = await _handle_internal_debug_ingress(
         payload=payload,
         request=request,
     )
-    _mark_shared_debug_compat_headers(response)
+    _mark_shared_debug_compat_headers(
+        response=response,
+        settings=settings,
+        break_glass_used=break_glass_used,
+    )
     return body
 
 
