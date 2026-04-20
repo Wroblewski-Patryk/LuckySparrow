@@ -3,7 +3,10 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query, Request, Response
 
 from app.api.schemas import EventQueueResponse, EventResponse, EventReplyResponse, EventRuntimeResponse, SetWebhookRequest
-from app.core.attention import AttentionTurnCoordinator
+from app.core.attention import (
+    AttentionTurnCoordinator,
+    attention_coordination_readiness_snapshot,
+)
 from app.core.debug_compat import (
     DebugQueryCompatTelemetry,
     debug_query_compat_activity_snapshot,
@@ -81,7 +84,13 @@ def _attention_coordinator_from_request(request: Request) -> AttentionTurnCoordi
     coordinator = getattr(request.app.state, "attention_turn_coordinator", None)
     if isinstance(coordinator, AttentionTurnCoordinator):
         return coordinator
-    coordinator = AttentionTurnCoordinator()
+    settings = _settings_from_request(request)
+    coordinator = AttentionTurnCoordinator(
+        burst_window_ms=int(getattr(settings, "attention_burst_window_ms", 120)),
+        answered_ttl_seconds=float(getattr(settings, "attention_answered_ttl_seconds", 5.0)),
+        stale_turn_seconds=float(getattr(settings, "attention_stale_turn_seconds", 30.0)),
+        coordination_mode=str(getattr(settings, "attention_coordination_mode", "in_process")),
+    )
     request.app.state.attention_turn_coordinator = coordinator
     return coordinator
 
@@ -89,7 +98,17 @@ def _attention_coordinator_from_request(request: Request) -> AttentionTurnCoordi
 def _attention_snapshot_from_request(request: Request) -> dict[str, Any]:
     coordinator = _attention_coordinator_from_request(request)
     snapshot = coordinator.snapshot()
+    readiness = attention_coordination_readiness_snapshot(
+        coordination_mode=coordinator.coordination_mode,
+        pending=int(snapshot.get("pending", 0)),
+        claimed=int(snapshot.get("claimed", 0)),
+    )
     return {
+        "healthy": bool(readiness["ready"]),
+        "coordination_mode": str(readiness["selected_coordination_mode"]),
+        "turn_state_owner": str(readiness["turn_state_owner"]),
+        "durable_inbox_expected": bool(readiness["durable_inbox_expected"]),
+        "deployment_readiness": readiness,
         "burst_window_ms": int(round(coordinator.burst_window_seconds * 1000)),
         "answered_ttl_seconds": coordinator.answered_ttl_seconds,
         "stale_turn_seconds": coordinator.stale_turn_seconds,

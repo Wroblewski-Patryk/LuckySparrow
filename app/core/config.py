@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     maintenance_interval: int = 3600
     proactive_enabled: bool = False
     proactive_interval: int = 1800
+    attention_coordination_mode: Literal["in_process", "durable_inbox"] = "in_process"
     attention_burst_window_ms: int = 120
     attention_answered_ttl_seconds: float = 5.0
     attention_stale_turn_seconds: float = 30.0

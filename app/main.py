@@ -431,6 +431,7 @@ async def lifespan(app: FastAPI):
         burst_window_ms=settings.attention_burst_window_ms,
         answered_ttl_seconds=settings.attention_answered_ttl_seconds,
         stale_turn_seconds=settings.attention_stale_turn_seconds,
+        coordination_mode=settings.attention_coordination_mode,
     )
 
     app.state.settings = settings
@@ -447,7 +448,7 @@ async def lifespan(app: FastAPI):
     app.state.runtime = runtime
 
     logger.info(
-        "AION started env=%s port=%s openai_enabled=%s telegram_enabled=%s reflection_runtime_mode=%s scheduler_enabled=%s scheduler_execution_mode=%s proactive_enabled=%s semantic_vector_enabled=%s embedding_provider=%s embedding_model=%s embedding_dimensions=%s embedding_refresh_mode=%s embedding_refresh_interval_seconds=%s embedding_provider_ownership_enforcement=%s embedding_model_governance_enforcement=%s embedding_source_rollout_enforcement=%s",
+        "AION started env=%s port=%s openai_enabled=%s telegram_enabled=%s reflection_runtime_mode=%s scheduler_enabled=%s scheduler_execution_mode=%s proactive_enabled=%s attention_coordination_mode=%s semantic_vector_enabled=%s embedding_provider=%s embedding_model=%s embedding_dimensions=%s embedding_refresh_mode=%s embedding_refresh_interval_seconds=%s embedding_provider_ownership_enforcement=%s embedding_model_governance_enforcement=%s embedding_source_rollout_enforcement=%s",
         settings.app_env,
         settings.app_port,
         bool(settings.openai_api_key),
@@ -456,6 +457,7 @@ async def lifespan(app: FastAPI):
         settings.scheduler_enabled,
         settings.scheduler_execution_mode,
         settings.proactive_enabled,
+        settings.attention_coordination_mode,
         bool(getattr(settings, "semantic_vector_enabled", True)),
         str(getattr(settings, "embedding_provider", "deterministic")),
         str(getattr(settings, "embedding_model", "deterministic-v1")),

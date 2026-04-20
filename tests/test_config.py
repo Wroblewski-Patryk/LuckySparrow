@@ -33,6 +33,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.maintenance_interval == 3600
     assert settings.proactive_enabled is False
     assert settings.proactive_interval == 1800
+    assert settings.attention_coordination_mode == "in_process"
     assert settings.attention_burst_window_ms == 120
     assert settings.attention_answered_ttl_seconds == 5.0
     assert settings.attention_stale_turn_seconds == 30.0
@@ -267,6 +268,15 @@ def test_settings_allow_externalized_scheduler_execution_mode() -> None:
     assert settings.scheduler_execution_mode == "externalized"
 
 
+def test_settings_allow_durable_inbox_attention_coordination_mode() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        attention_coordination_mode="durable_inbox",
+    )
+
+    assert settings.attention_coordination_mode == "durable_inbox"
+
+
 def test_settings_reject_unknown_production_policy_enforcement_mode() -> None:
     try:
         Settings(
@@ -301,6 +311,18 @@ def test_settings_reject_unknown_scheduler_execution_mode() -> None:
         assert "scheduler_execution_mode" in str(exc)
     else:  # pragma: no cover - defensive fallback
         raise AssertionError("Expected Settings validation to reject unknown scheduler execution mode.")
+
+
+def test_settings_reject_unknown_attention_coordination_mode() -> None:
+    try:
+        Settings(
+            database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+            attention_coordination_mode="legacy",  # type: ignore[arg-type]
+        )
+    except ValidationError as exc:
+        assert "attention_coordination_mode" in str(exc)
+    else:  # pragma: no cover - defensive fallback
+        raise AssertionError("Expected Settings validation to reject unknown attention coordination mode.")
 
 
 def test_settings_reject_unknown_event_debug_shared_ingress_mode() -> None:

@@ -36,28 +36,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-324 Add attention-inbox ownership posture for future durable coordination rollout
-  - Status: READY
-  - Group: Scheduler Externalization And Attention Ownership
-  - Owner: Backend Builder
-  - Depends on: PRJ-323
-  - Priority: P1
-  - Result:
-    - attention coordination now exposes one explicit owner posture for
-      in-process versus durable inbox evolution
-    - future durable attention work gets a clean implementation seam instead of
-      ad-hoc migration
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_scheduler_contracts.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-325 Sync docs/context/runbook for scheduler externalization and attention ownership
-  - Status: FUTURE
+  - Status: READY
   - Group: Scheduler Externalization And Attention Ownership
   - Owner: Product Docs + Ops/Release
   - Depends on: PRJ-324
@@ -70,6 +50,12 @@ Last updated: 2026-04-20
   - Validation:
     - doc-and-context sync plus targeted scheduler/attention cross-doc review
       recorded in this slice
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-326 Refactor identity loading around explicit profile-versus-conclusion ownership
   - Status: FUTURE
@@ -245,6 +231,25 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-324 Add attention-inbox ownership posture for future durable coordination rollout
+  - Status: DONE
+  - Group: Scheduler Externalization And Attention Ownership
+  - Owner: Backend Builder
+  - Depends on: PRJ-323
+  - Priority: P1
+  - Result:
+    - attention coordination now exposes explicit owner posture
+      (`in_process|durable_inbox`) with machine-visible ownership fields in
+      `/health.attention`
+    - attention boundary now has explicit deployment-readiness semantics and
+      durable-owner blockers, creating a clean seam for future durable inbox
+      rollout
+    - in durable-owner posture, in-process turn assembly is explicitly bypassed
+      so future durable coordination can replace local coalescing without
+      hidden coupling
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_scheduler_contracts.py tests/test_config.py`
 
 - [x] PRJ-323 Route maintenance and proactive cadence through the shared owner-aware dispatch boundary
   - Status: DONE

@@ -263,6 +263,7 @@ class FakeSettings:
         reflection_interval: int = 900,
         maintenance_interval: int = 3600,
         proactive_enabled: bool = False,
+        attention_coordination_mode: str = "in_process",
     ):
         self.telegram_webhook_secret = telegram_webhook_secret
         self.app_env = app_env
@@ -291,6 +292,7 @@ class FakeSettings:
         self.reflection_interval = reflection_interval
         self.maintenance_interval = maintenance_interval
         self.proactive_enabled = proactive_enabled
+        self.attention_coordination_mode = attention_coordination_mode
 
     def is_event_debug_enabled(self) -> bool:
         if self.event_debug_enabled is not None:
@@ -467,6 +469,7 @@ def _client(
     maintenance_interval: int = 3600,
     proactive_enabled: bool = False,
     attention_burst_window_ms: int = 120,
+    attention_coordination_mode: str = "in_process",
 ) -> tuple[TestClient, FakeRuntime, FakeTelegramClient]:
     app = FastAPI()
     app.include_router(router)
@@ -514,6 +517,7 @@ def _client(
         reflection_interval=reflection_interval,
         maintenance_interval=maintenance_interval,
         proactive_enabled=proactive_enabled,
+        attention_coordination_mode=attention_coordination_mode,
     )
     app.state.memory_repository = memory_repository
     app.state.reflection_worker = reflection_worker
@@ -522,6 +526,7 @@ def _client(
         burst_window_ms=attention_burst_window_ms,
         answered_ttl_seconds=0.5,
         stale_turn_seconds=3.0,
+        coordination_mode=attention_coordination_mode,
     )
     return TestClient(app), runtime, telegram_client
 
@@ -704,6 +709,18 @@ def test_health_endpoint_returns_ok() -> None:
             "last_maintenance_summary": {},
         },
         "attention": {
+            "healthy": True,
+            "coordination_mode": "in_process",
+            "turn_state_owner": "in_process_coordinator",
+            "durable_inbox_expected": False,
+            "deployment_readiness": {
+                "baseline_coordination_mode": "in_process",
+                "selected_coordination_mode": "in_process",
+                "ready": True,
+                "blocking_signals": [],
+                "turn_state_owner": "in_process_coordinator",
+                "durable_inbox_expected": False,
+            },
             "burst_window_ms": 120,
             "answered_ttl_seconds": 0.5,
             "stale_turn_seconds": 3.0,
@@ -1282,6 +1299,18 @@ def test_health_endpoint_exposes_attention_snapshot() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["attention"] == {
+        "healthy": True,
+        "coordination_mode": "in_process",
+        "turn_state_owner": "in_process_coordinator",
+        "durable_inbox_expected": False,
+        "deployment_readiness": {
+            "baseline_coordination_mode": "in_process",
+            "selected_coordination_mode": "in_process",
+            "ready": True,
+            "blocking_signals": [],
+            "turn_state_owner": "in_process_coordinator",
+            "durable_inbox_expected": False,
+        },
         "burst_window_ms": 240,
         "answered_ttl_seconds": 0.5,
         "stale_turn_seconds": 3.0,
@@ -1289,6 +1318,24 @@ def test_health_endpoint_exposes_attention_snapshot() -> None:
         "claimed": 0,
         "answered": 0,
     }
+
+
+def test_health_endpoint_exposes_durable_attention_owner_mode_posture() -> None:
+    client, _, _ = _client(
+        attention_coordination_mode="durable_inbox",
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["attention"]["coordination_mode"] == "durable_inbox"
+    assert body["attention"]["turn_state_owner"] == "durable_attention_inbox"
+    assert body["attention"]["durable_inbox_expected"] is True
+    assert body["attention"]["healthy"] is False
+    assert body["attention"]["deployment_readiness"]["selected_coordination_mode"] == "durable_inbox"
+    assert body["attention"]["deployment_readiness"]["ready"] is False
+    assert "durable_inbox_owner_mode_not_implemented" in body["attention"]["deployment_readiness"]["blocking_signals"]
 
 
 def test_health_endpoint_exposes_runtime_policy_flags() -> None:

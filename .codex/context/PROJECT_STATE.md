@@ -1132,8 +1132,15 @@ Last updated: 2026-04-20
 - 2026-04-20: `PRJ-323` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_action_executor.py tests/test_api_routes.py`
   passed with `157 passed`.
-- 2026-04-20: `PRJ-324` is the next `READY` slice, focused on attention-inbox
-  ownership posture for future durable coordination rollout.
+- 2026-04-20: `PRJ-324` is complete: attention coordination now exposes
+  explicit owner posture (`in_process|durable_inbox`) with deployment-readiness
+  diagnostics and durable-owner blocker semantics in `/health.attention`.
+- 2026-04-20: `PRJ-324` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_scheduler_contracts.py tests/test_config.py`
+  passed with `188 passed`.
+- 2026-04-20: `PRJ-325` is the next `READY` slice, focused on syncing docs,
+  planning context, and runtime ops runbook with scheduler/attention ownership
+  posture changes.
 
 ## Working Agreements
 
