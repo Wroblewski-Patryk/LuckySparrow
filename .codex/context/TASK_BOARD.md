@@ -36,28 +36,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-323 Route maintenance and proactive cadence through the shared owner-aware dispatch boundary
-  - Status: READY
-  - Group: Scheduler Externalization And Attention Ownership
-  - Owner: Backend Builder
-  - Depends on: PRJ-322
-  - Priority: P1
-  - Result:
-    - cadence ownership becomes explicit in scheduler/runtime dispatch instead
-      of hidden behind in-process assumptions
-    - externalization groundwork no longer depends on reflection-only
-      ownership paths
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_action_executor.py tests/test_api_routes.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-324 Add attention-inbox ownership posture for future durable coordination rollout
-  - Status: FUTURE
+  - Status: READY
   - Group: Scheduler Externalization And Attention Ownership
   - Owner: Backend Builder
   - Depends on: PRJ-323
@@ -69,6 +49,12 @@ Last updated: 2026-04-20
       ad-hoc migration
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_scheduler_contracts.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-325 Sync docs/context/runbook for scheduler externalization and attention ownership
   - Status: FUTURE
@@ -259,6 +245,23 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-323 Route maintenance and proactive cadence through the shared owner-aware dispatch boundary
+  - Status: DONE
+  - Group: Scheduler Externalization And Attention Ownership
+  - Owner: Backend Builder
+  - Depends on: PRJ-322
+  - Priority: P1
+  - Result:
+    - maintenance/proactive cadence now use shared owner-aware dispatch
+      decisions (`in_process_owner_mode|externalized_owner_mode`) instead of
+      reflection-only ownership assumptions
+    - scheduler maintenance execution now honors cadence ownership mode and
+      explicitly no-ops under externalized ownership posture
+    - scheduler health/snapshot posture now exposes cadence dispatch reasons for
+      maintenance and proactive paths
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_action_executor.py tests/test_api_routes.py`
 
 - [x] PRJ-322 Implement owner-aware scheduler execution mode and health snapshot
   - Status: DONE

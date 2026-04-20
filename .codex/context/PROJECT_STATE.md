@@ -1125,9 +1125,15 @@ Last updated: 2026-04-20
 - 2026-04-20: `PRJ-322` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_contracts.py tests/test_scheduler_worker.py tests/test_api_routes.py tests/test_config.py`
   passed with `129 passed`.
-- 2026-04-20: `PRJ-323` is the next `READY` slice, focused on routing
-  maintenance/proactive cadence through the shared owner-aware dispatch
-  boundary.
+- 2026-04-20: `PRJ-323` is complete: maintenance/proactive cadence now use
+  shared owner-aware dispatch decisions, and scheduler maintenance execution
+  explicitly respects `in_process|externalized` ownership mode with
+  machine-visible dispatch reasons.
+- 2026-04-20: `PRJ-323` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_action_executor.py tests/test_api_routes.py`
+  passed with `157 passed`.
+- 2026-04-20: `PRJ-324` is the next `READY` slice, focused on attention-inbox
+  ownership posture for future durable coordination rollout.
 
 ## Working Agreements
 

@@ -8,6 +8,7 @@ from app.core.scheduler_contracts import (
     reflection_enqueue_dispatch_decision,
     reflection_topology_handoff_posture,
     reflection_scheduler_dispatch_decision,
+    scheduler_cadence_dispatch_decision,
     scheduler_cadence_execution_snapshot,
     scheduler_cadence_rules,
 )
@@ -117,6 +118,10 @@ def test_scheduler_contracts_expose_scheduler_cadence_execution_snapshot_for_in_
         "blocking_signals": [],
         "maintenance_cadence_owner": "in_process_scheduler",
         "proactive_cadence_owner": "in_process_scheduler",
+        "maintenance_tick_dispatch": True,
+        "maintenance_tick_reason": "in_process_owner_mode",
+        "proactive_tick_dispatch": False,
+        "proactive_tick_reason": "proactive_disabled",
         "scheduler_enabled": True,
         "scheduler_running": True,
         "proactive_enabled": False,
@@ -135,7 +140,37 @@ def test_scheduler_contracts_scheduler_cadence_execution_snapshot_marks_external
     assert snapshot["ready"] is False
     assert snapshot["maintenance_cadence_owner"] == "external_scheduler"
     assert snapshot["proactive_cadence_owner"] == "external_scheduler"
+    assert snapshot["maintenance_tick_dispatch"] is False
+    assert snapshot["maintenance_tick_reason"] == "externalized_owner_mode"
+    assert snapshot["proactive_tick_dispatch"] is False
+    assert snapshot["proactive_tick_reason"] == "externalized_owner_mode"
     assert "externalized_scheduler_worker_running" in snapshot["blocking_signals"]
+
+
+def test_scheduler_contracts_scheduler_cadence_dispatch_decision_respects_owner_mode_and_proactive_gate() -> None:
+    dispatch, reason = scheduler_cadence_dispatch_decision(
+        execution_mode="in_process",
+        cadence_kind="maintenance_tick",
+        proactive_enabled=False,
+    )
+    assert dispatch is True
+    assert reason == "in_process_owner_mode"
+
+    dispatch, reason = scheduler_cadence_dispatch_decision(
+        execution_mode="in_process",
+        cadence_kind="proactive_tick",
+        proactive_enabled=False,
+    )
+    assert dispatch is False
+    assert reason == "proactive_disabled"
+
+    dispatch, reason = scheduler_cadence_dispatch_decision(
+        execution_mode="externalized",
+        cadence_kind="maintenance_tick",
+        proactive_enabled=True,
+    )
+    assert dispatch is False
+    assert reason == "externalized_owner_mode"
 
 
 def test_scheduler_contracts_expose_shared_reflection_dispatch_boundary_rules() -> None:

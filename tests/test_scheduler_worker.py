@@ -158,6 +158,7 @@ async def test_scheduler_worker_maintenance_tick_uses_reflection_worker_guardrai
     ]
     assert summary == {
         "executed": True,
+        "reason": "in_process_owner_mode",
         "trigger": "test_maintenance",
         "pending": 2,
         "processing": 0,
@@ -216,6 +217,35 @@ async def test_scheduler_worker_externalized_execution_mode_disables_in_process_
     assert snapshot["cadence_execution"]["selected_execution_mode"] == "externalized"
 
 
+async def test_scheduler_worker_maintenance_tick_skips_when_execution_mode_is_externalized() -> None:
+    reflection_worker = FakeReflectionWorker(running=False)
+    repository = FakeMemoryRepository()
+    scheduler = SchedulerWorker(
+        memory_repository=repository,  # type: ignore[arg-type]
+        reflection_worker=reflection_worker,  # type: ignore[arg-type]
+        enabled=True,
+        reflection_runtime_mode="in_process",
+        reflection_interval_seconds=900,
+        maintenance_interval_seconds=3600,
+        execution_mode="externalized",
+        proactive_enabled=True,
+    )
+
+    summary = await scheduler.run_maintenance_tick_once(reason="test_maintenance")
+
+    assert summary == {
+        "executed": False,
+        "reason": "externalized_owner_mode",
+        "trigger": "test_maintenance",
+        "pending": 0,
+        "processing": 0,
+        "retryable_failed": 0,
+        "exhausted_failed": 0,
+        "stuck_processing": 0,
+    }
+    assert repository.stats_calls == []
+
+
 async def test_scheduler_worker_snapshot_exposes_owner_aware_execution_posture() -> None:
     reflection_worker = FakeReflectionWorker(running=True)
     repository = FakeMemoryRepository()
@@ -238,6 +268,10 @@ async def test_scheduler_worker_snapshot_exposes_owner_aware_execution_posture()
     assert snapshot["proactive_cadence_owner"] == "in_process_scheduler"
     assert snapshot["cadence_execution"]["ready"] is False
     assert "in_process_scheduler_not_running" in snapshot["cadence_execution"]["blocking_signals"]
+    assert snapshot["cadence_execution"]["maintenance_tick_dispatch"] is True
+    assert snapshot["cadence_execution"]["maintenance_tick_reason"] == "in_process_owner_mode"
+    assert snapshot["cadence_execution"]["proactive_tick_dispatch"] is False
+    assert snapshot["cadence_execution"]["proactive_tick_reason"] == "proactive_disabled"
 
 
 async def test_scheduler_worker_reflection_tick_logs_worker_mode_handoff_posture(caplog) -> None:

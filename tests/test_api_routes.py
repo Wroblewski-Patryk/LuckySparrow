@@ -392,6 +392,20 @@ class FakeSchedulerWorker:
             "proactive_cadence_owner": (
                 "external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler"
             ),
+            "maintenance_tick_dispatch": self.execution_mode == "in_process",
+            "maintenance_tick_reason": (
+                "in_process_owner_mode" if self.execution_mode == "in_process" else "externalized_owner_mode"
+            ),
+            "proactive_tick_dispatch": self.execution_mode == "in_process" and self.proactive_enabled,
+            "proactive_tick_reason": (
+                "in_process_owner_mode"
+                if self.execution_mode == "in_process" and self.proactive_enabled
+                else (
+                    "proactive_disabled"
+                    if self.execution_mode == "in_process"
+                    else "externalized_owner_mode"
+                )
+            ),
             "scheduler_enabled": self.enabled,
             "scheduler_running": self.running,
             "proactive_enabled": self.proactive_enabled,
@@ -670,6 +684,10 @@ def test_health_endpoint_returns_ok() -> None:
                 "blocking_signals": [],
                 "maintenance_cadence_owner": "in_process_scheduler",
                 "proactive_cadence_owner": "in_process_scheduler",
+                "maintenance_tick_dispatch": True,
+                "maintenance_tick_reason": "in_process_owner_mode",
+                "proactive_tick_dispatch": False,
+                "proactive_tick_reason": "proactive_disabled",
                 "scheduler_enabled": False,
                 "scheduler_running": False,
                 "proactive_enabled": False,
@@ -1249,6 +1267,10 @@ def test_health_endpoint_exposes_externalized_scheduler_execution_mode_posture()
     assert body["scheduler"]["cadence_execution"]["selected_execution_mode"] == "externalized"
     assert body["scheduler"]["cadence_execution"]["maintenance_cadence_owner"] == "external_scheduler"
     assert body["scheduler"]["cadence_execution"]["proactive_cadence_owner"] == "external_scheduler"
+    assert body["scheduler"]["cadence_execution"]["maintenance_tick_dispatch"] is False
+    assert body["scheduler"]["cadence_execution"]["maintenance_tick_reason"] == "externalized_owner_mode"
+    assert body["scheduler"]["cadence_execution"]["proactive_tick_dispatch"] is False
+    assert body["scheduler"]["cadence_execution"]["proactive_tick_reason"] == "externalized_owner_mode"
     assert body["scheduler"]["healthy"] is True
 
 

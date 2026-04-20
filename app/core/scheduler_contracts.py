@@ -7,6 +7,7 @@ from typing import Any, Literal
 SchedulerSubsource = Literal["reflection_tick", "maintenance_tick", "proactive_tick"]
 ReflectionRuntimeMode = Literal["in_process", "deferred"]
 SchedulerExecutionMode = Literal["in_process", "externalized"]
+SchedulerCadenceDispatchKind = Literal["maintenance_tick", "proactive_tick"]
 SCHEDULER_SOURCE = "scheduler"
 DEFAULT_SCHEDULER_SUBSOURCE: SchedulerSubsource = "reflection_tick"
 DEFAULT_REFLECTION_RUNTIME_MODE: ReflectionRuntimeMode = "in_process"
@@ -80,6 +81,16 @@ def scheduler_cadence_execution_snapshot(
 ) -> dict[str, Any]:
     selected_mode = normalize_scheduler_execution_mode(execution_mode)
     cadence_owner = "external_scheduler" if selected_mode == "externalized" else "in_process_scheduler"
+    maintenance_dispatch, maintenance_reason = scheduler_cadence_dispatch_decision(
+        execution_mode=selected_mode,
+        cadence_kind=SCHEDULER_MAINTENANCE_TICK,
+        proactive_enabled=proactive_enabled,
+    )
+    proactive_dispatch, proactive_reason = scheduler_cadence_dispatch_decision(
+        execution_mode=selected_mode,
+        cadence_kind=SCHEDULER_PROACTIVE_TICK,
+        proactive_enabled=proactive_enabled,
+    )
     blocking_signals: list[str] = []
 
     if selected_mode == "in_process":
@@ -95,6 +106,10 @@ def scheduler_cadence_execution_snapshot(
         "blocking_signals": blocking_signals,
         "maintenance_cadence_owner": cadence_owner,
         "proactive_cadence_owner": cadence_owner,
+        "maintenance_tick_dispatch": maintenance_dispatch,
+        "maintenance_tick_reason": maintenance_reason,
+        "proactive_tick_dispatch": proactive_dispatch,
+        "proactive_tick_reason": proactive_reason,
         "scheduler_enabled": scheduler_enabled,
         "scheduler_running": scheduler_running,
         "proactive_enabled": proactive_enabled,
@@ -199,6 +214,23 @@ def reflection_deployment_readiness_snapshot(
 
 def scheduler_cadence_rules() -> dict[str, dict[str, int | bool]]:
     return {key: dict(value) for key, value in SCHEDULER_CADENCE_RULES.items()}
+
+
+def scheduler_cadence_dispatch_decision(
+    *,
+    execution_mode: str | None,
+    cadence_kind: str | None,
+    proactive_enabled: bool,
+) -> tuple[bool, str]:
+    selected_mode = normalize_scheduler_execution_mode(execution_mode)
+    normalized_kind = normalize_scheduler_subsource(cadence_kind)
+    if normalized_kind not in {SCHEDULER_MAINTENANCE_TICK, SCHEDULER_PROACTIVE_TICK}:
+        return False, "unsupported_cadence_kind"
+    if selected_mode == "externalized":
+        return False, "externalized_owner_mode"
+    if normalized_kind == SCHEDULER_PROACTIVE_TICK and not proactive_enabled:
+        return False, "proactive_disabled"
+    return True, "in_process_owner_mode"
 
 
 def normalize_proactive_trigger(value: str | None) -> str:

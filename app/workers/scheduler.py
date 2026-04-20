@@ -13,6 +13,7 @@ from app.core.scheduler_contracts import (
     normalize_scheduler_execution_mode,
     reflection_topology_handoff_posture,
     reflection_scheduler_dispatch_decision,
+    scheduler_cadence_dispatch_decision,
     scheduler_cadence_execution_snapshot,
 )
 from app.memory.repository import MemoryRepository
@@ -131,6 +132,35 @@ class SchedulerWorker:
 
     async def run_maintenance_tick_once(self, *, reason: str = "cadence") -> dict[str, Any]:
         now = self._utcnow()
+        should_dispatch, dispatch_reason = scheduler_cadence_dispatch_decision(
+            execution_mode=self.execution_mode,
+            cadence_kind=SCHEDULER_MAINTENANCE_TICK,
+            proactive_enabled=self.proactive_enabled,
+        )
+        if not should_dispatch:
+            summary = {
+                "executed": False,
+                "reason": dispatch_reason,
+                "trigger": reason,
+                "pending": 0,
+                "processing": 0,
+                "retryable_failed": 0,
+                "exhausted_failed": 0,
+                "stuck_processing": 0,
+            }
+            self._last_maintenance_tick_at = now
+            self._last_maintenance_summary = summary
+            self.logger.info(
+                "scheduler_maintenance_tick executed=%s reason=%s trigger=%s execution_mode=%s maintenance_owner=%s proactive_owner=%s",
+                summary["executed"],
+                summary["reason"],
+                summary["trigger"],
+                self.execution_mode,
+                "external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler",
+                "external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler",
+            )
+            return summary
+
         reflection_snapshot = self.reflection_worker.snapshot()
         reflection_stats = await self.memory_repository.get_reflection_task_stats(
             max_attempts=int(reflection_snapshot["max_attempts"]),
@@ -139,6 +169,7 @@ class SchedulerWorker:
         )
         summary = {
             "executed": True,
+            "reason": dispatch_reason,
             "trigger": reason,
             "pending": int(reflection_stats["pending"]),
             "processing": int(reflection_stats["processing"]),
@@ -150,13 +181,17 @@ class SchedulerWorker:
         self._last_maintenance_summary = summary
         log_level = self.logger.warning if summary["stuck_processing"] > 0 or summary["exhausted_failed"] > 0 else self.logger.info
         log_level(
-            "scheduler_maintenance_tick trigger=%s pending=%s processing=%s retryable_failed=%s exhausted_failed=%s stuck_processing=%s",
+            "scheduler_maintenance_tick executed=%s reason=%s trigger=%s pending=%s processing=%s retryable_failed=%s exhausted_failed=%s stuck_processing=%s maintenance_owner=%s proactive_owner=%s",
+            summary["executed"],
+            summary["reason"],
             summary["trigger"],
             summary["pending"],
             summary["processing"],
             summary["retryable_failed"],
             summary["exhausted_failed"],
             summary["stuck_processing"],
+            "external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler",
+            "external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler",
         )
         return summary
 
