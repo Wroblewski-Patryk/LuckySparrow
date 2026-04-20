@@ -333,6 +333,14 @@ Current limitation:
   policy, and compatibility query route is enabled
 - explicit internal debug route `POST /event/debug` remains available when
   debug exposure is enabled (current transitional shared-endpoint posture)
+- debug responses now include an explicit `system_debug` surface with canonical
+  behavior-validation fields:
+  - normalized event metadata and identifiers
+  - perception output
+  - retrieved memory bundle (`episodic|semantic|affective|relations`) plus
+    retrieval diagnostics
+  - context, motivation, role, plan summary with explicit domain intents
+  - expression and action result
 - when API payload metadata omits `meta.user_id`, runtime can use
   `X-AION-User-Id` as a fallback identity key before defaulting to `anonymous`
 - for Telegram burst traffic, non-owner duplicate events can return a compact

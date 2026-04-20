@@ -333,6 +333,12 @@ Release smoke ownership:
   readiness blockers on older runtimes).
 - release is not considered complete until smoke passes (`GET /health` plus
   `POST /event` roundtrip).
+- release-readiness now also requires behavior-validation evidence for the
+  living-system baseline:
+  - Windows: `.\scripts\run_behavior_validation.ps1`
+  - Debian/bash: `./scripts/run_behavior_validation.sh`
+  - required focus: internal `system_debug` surface plus scenario checks for
+    memory influence, multi-session continuity, and failure-mode stability.
 
 Rollback posture:
 

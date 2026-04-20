@@ -846,8 +846,8 @@ Last updated: 2026-04-20
 - 2026-04-20: foreground convergence group is now complete through `PRJ-279`;
   background topology convergence is complete through `PRJ-283`; production
   retrieval implementation is complete through `PRJ-287`; adaptive governance
-  policy baseline is complete through `PRJ-288`; `PRJ-310` is now the next
-  `READY` implementation slice.
+  policy baseline is complete through `PRJ-288`; runtime behavior-validation
+  lane is now complete through `PRJ-317`.
 - 2026-04-20: `PRJ-288` is complete: architecture contracts now define explicit
   adaptive influence evidence gates, precedence, and tie-break guardrails for
   affective, relation, preference, and theta signals.
@@ -1050,6 +1050,20 @@ Last updated: 2026-04-20
 - 2026-04-20: execution planning now extends through `PRJ-317`, adding a
   runtime-behavior validation lane for internal debug surfaces, memory
   influence checks, continuity scenarios, and failure-mode behavior gating.
+- 2026-04-20: `PRJ-310..PRJ-313` are complete: runtime now exposes a canonical
+  `system_debug` validation surface and behavior-harness helpers with
+  structured scenario output (`test_id`, `status`, `reason`, `trace_id`,
+  `notes`), and docs/context are synchronized to that contract.
+- 2026-04-20: `PRJ-314..PRJ-316` are complete: scenario coverage now validates
+  memory `write -> retrieve -> influence -> delayed recall`, multi-session
+  continuity/personality stability, and contradiction/missing-data/noisy-input
+  resilience.
+- 2026-04-20: `PRJ-317` is complete: release-readiness now includes explicit
+  behavior-validation evidence via `scripts/run_behavior_validation.{ps1,sh}`
+  in addition to full regression checks.
+- 2026-04-20: runtime behavior-validation checks are green:
+  - `.\scripts\run_behavior_validation.ps1` passed with `6 passed`.
+  - `.\.venv\Scripts\python -m pytest -q` passed with `612 passed`.
 
 ## Working Agreements
 

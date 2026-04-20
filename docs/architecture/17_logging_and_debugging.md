@@ -256,6 +256,25 @@ System should support debug mode:
 - detailed outputs  
 - no silent failures  
 
+Runtime behavior-validation baseline requires two explicit modes:
+
+- `system_debug`: internal payload surface with normalized event metadata,
+  perception, retrieved memory bundle, context, motivation, role, plan intents,
+  expression, and action result
+- `user_simulation`: natural conversation checks without debug payload exposure
+
+Behavior-driven scenario outcomes should be recorded in the canonical format:
+
+```json
+{
+  "test_id": "T2.4",
+  "status": "pass|fail|skip",
+  "reason": "...",
+  "trace_id": "...",
+  "notes": "..."
+}
+```
+
 ---
 
 ## Final Principle

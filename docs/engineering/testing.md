@@ -22,6 +22,12 @@ Primary command:
 .\.venv\Scripts\python -m pytest -q
 ```
 
+Behavior-validation command (system-debug + scenario harness baseline):
+
+```powershell
+.\scripts\run_behavior_validation.ps1
+```
+
 ## Testing Layers For This Repo
 
 - Unit tests:
@@ -40,7 +46,7 @@ Primary command:
   - Telegram webhook flow in a non-production environment
 - Behavior-driven system checks:
   - internal debug-mode validation of perception/context/motivation/role/plan
-    and retrieved memory
+    and retrieved memory (`system_debug` contract surface)
   - user-simulation scenarios without debug payloads
   - persistence, continuity, and failure-mode scenarios across time
 
@@ -78,6 +84,9 @@ For meaningful repo changes, leave behind:
 - a scenario-level behavior note when the touched subsystem is memory,
   reflection, planning, language continuity, relation influence, or proactive
   behavior
+- for release-readiness-sensitive slices, behavior validation evidence from:
+  - `.\scripts\run_behavior_validation.ps1`
+  - `./scripts/run_behavior_validation.sh`
 
 Useful migration verification command:
 

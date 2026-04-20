@@ -32,13 +32,12 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `PRJ-306..PRJ-309`: post-reflection hardening decisions (`2` follow-up,
     `3` follow-up, `12` follow-up)
   - `PRJ-310..PRJ-313`: runtime behavior testing architecture and internal
-    validation surface (`3`, `5`, `12`)
+    validation surface (`3`, `5`, `12`) - complete
   - `PRJ-314..PRJ-317`: memory/continuity/failure validation scenarios and
-    release gating (`5`, `8`, `9`, `12`)
+    release gating (`5`, `8`, `9`, `12`) - complete
 - reflection deployment lane is complete through `PRJ-304`, and
   post-reflection hardening decisions are now complete through `PRJ-309`.
-- next queue execution now continues through runtime behavior-validation slices
-  `PRJ-310..PRJ-317`.
+- runtime behavior-validation lane is now complete through `PRJ-317`.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
@@ -777,16 +776,26 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Current repo fact:
   - the repository has broad unit and integration coverage plus runtime-policy,
     health, scheduler, and memory contract tests.
-  - debug surfaces already expose substantial internal state, but canonical
-    architecture does not yet define a required behavior-validation contract
-    for proving cognition across time.
+  - canonical behavior-validation contract now exists in
+    `docs/architecture/29_runtime_behavior_testing.md`.
+  - internal debug responses now expose an explicit `system_debug` payload with
+    event normalization metadata, memory bundle visibility, context,
+    motivation, role, plan intents, expression, and action result traces.
+  - behavior-harness helpers now emit structured scenario outputs
+    (`test_id`, `status`, `reason`, `trace_id`, `notes`) for repeatable
+    execution and evidence capture.
   - practical testing has shown that a subsystem can look well implemented
     through contracts and still fail to influence later behavior in a useful
     way (for example memory that persists but does not shape future turns).
-- Decision needed:
-  - which internal debug fields are mandatory for behavior validation of the
-    cognitive loop?
-  - when do behavior-driven scenarios become release-gating instead of
-    best-effort diagnostics?
-  - which scenario families must always exist for memory, continuity, and
-    failure handling before the system can be considered architecture-aligned?
+- Decision (resolved in `PRJ-310..PRJ-317`, 2026-04-20):
+  - mandatory internal debug fields are now defined and implemented through the
+    shared `system_debug` validation surface.
+  - behavior-driven scenario checks are now part of release-readiness evidence
+    through `scripts/run_behavior_validation.{ps1,sh}`.
+  - required scenario families now include:
+    - memory `write -> retrieve -> influence -> delayed recall`
+    - multi-session continuity and personality stability
+    - contradiction, missing-data, and noisy-input resilience
+- Remaining follow-up decision:
+  - should behavior-validation outcomes become machine-ingested CI release
+    gates, or remain command-and-evidence release checks for now?

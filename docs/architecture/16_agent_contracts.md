@@ -84,6 +84,30 @@ without changing stage responsibilities.
 
 ---
 
+## Behavior Validation Debug Surface Contract
+
+Internal behavior validation requires a dedicated `system_debug` surface that
+remains policy-gated and separate from default public UX payloads.
+
+Minimum `system_debug` fields:
+
+1. normalized event metadata plus `event_id` / `trace_id`
+2. perception output
+3. retrieved memory bundle (`episodic`, `semantic`, `affective`, `relations`)
+   plus retrieval diagnostics
+4. context summary
+5. motivation state
+6. selected role
+7. plan summary with explicit `domain_intents`
+8. expression summary
+9. action result
+
+Behavior tests should pair that internal mode with user-simulation mode
+(no debug payloads) so correctness is validated both structurally and
+user-facing.
+
+---
+
 ## Foreground Ownership Contract (Target-State Convergence)
 
 Foreground execution keeps one explicit ownership split while orchestration

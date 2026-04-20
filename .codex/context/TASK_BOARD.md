@@ -18,36 +18,21 @@ Last updated: 2026-04-20
 - The convergence queue is complete through `PRJ-299`; reflection lane is now
   complete through `PRJ-304`, and post-reflection hardening plus runtime
   behavior-validation queue is seeded through `PRJ-317`.
-- `PRJ-309` is complete; `PRJ-310` is currently `READY` to define canonical
-  runtime behavior testing contract and required internal debug validation
-  surface.
+- Runtime behavior-validation lane is now complete through `PRJ-317`
+  (`PRJ-310..PRJ-317`).
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
   hardening.
-- Runtime behavior-validation lane is now active after `PRJ-309`, so
-  memory, continuity, and failure handling are tested as living-system
-  behavior rather than only contract correctness.
+- Memory, continuity, and failure handling are now validated as
+  living-system behavior rather than only contract correctness.
 - Additional architecture-alignment work should be appended after that queue so
   the backlog stays explicitly open for later discovery instead of pretending
   the plan is complete.
 
 ## READY
 
-- [ ] PRJ-310 Define the canonical runtime behavior testing contract and required system-debug surface
-  - Status: READY
-  - Group: Runtime Behavior Testing Architecture
-  - Owner: Planner + QA/Test
-  - Depends on: PRJ-309
-  - Priority: P1
-  - Result:
-    - architecture explicitly defines required behavior-testing modes
-      (`system_debug`, `user_simulation`) plus minimum internal debug fields
-    - future cognitive work can be validated against one shared behavior
-      contract instead of ad-hoc debug expectations
-  - Validation:
-    - doc-and-context sync plus targeted behavior-testing architecture review
-      recorded in this slice
+- [ ] (none)
 
 ## BACKLOG
 
@@ -55,104 +40,7 @@ Last updated: 2026-04-20
 
 ## FUTURE
 
-- [ ] PRJ-311 Implement the internal system-debug validation surface for behavior checks
-  - Status: FUTURE
-  - Group: Runtime Behavior Testing Architecture
-  - Owner: Backend Builder + QA/Test
-  - Depends on: PRJ-310
-  - Priority: P1
-  - Result:
-    - internal debug responses expose the minimum cognitive-state fields needed
-      to validate perception, memory retrieval, context, motivation, role,
-      planning, and action traces
-    - behavior debugging no longer depends on scattered endpoint-specific
-      payloads or log-only interpretation
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_logging.py`
-
-- [ ] PRJ-312 Add structured behavior-harness output and scenario execution helpers
-  - Status: FUTURE
-  - Group: Runtime Behavior Testing Architecture
-  - Owner: QA/Test
-  - Depends on: PRJ-311
-  - Priority: P1
-  - Result:
-    - behavior scenarios emit structured `test_id/status/reason/trace_id/notes`
-      outputs
-    - scenario execution becomes repeatable for Codex agents, operators, and
-      release workflows
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_scheduler_contracts.py`
-
-- [ ] PRJ-313 Sync docs/context for runtime behavior testing architecture and internal validation contract
-  - Status: FUTURE
-  - Group: Runtime Behavior Testing Architecture
-  - Owner: Product Docs + QA/Test
-  - Depends on: PRJ-312
-  - Priority: P1
-  - Result:
-    - canonical docs, engineering guidance, and project context all describe
-      the same behavior-validation baseline
-    - future slices can rely on one documented contract for behavior testing
-  - Validation:
-    - doc-and-context sync plus targeted cross-doc consistency review recorded
-      in this slice
-
-- [ ] PRJ-314 Add memory behavior scenarios for write, retrieval, influence, and delayed recall
-  - Status: FUTURE
-  - Group: Memory, Continuity, And Failure Validation
-  - Owner: QA/Test + Backend Builder
-  - Depends on: PRJ-313
-  - Priority: P1
-  - Result:
-    - scenario suite now proves `write -> retrieve -> influence -> delayed
-      recall` instead of only memory persistence mechanics
-    - memory can no longer be treated as complete when it fails to shape later
-      turns
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_memory_repository.py tests/test_api_routes.py`
-
-- [ ] PRJ-315 Add multi-session continuity and personality-stability simulation scenarios
-  - Status: FUTURE
-  - Group: Memory, Continuity, And Failure Validation
-  - Owner: QA/Test
-  - Depends on: PRJ-314
-  - Priority: P1
-  - Result:
-    - scenario coverage validates identity continuity, tone stability, and
-      goal/context reuse across session gaps
-    - continuity regressions become visible before they reach user-facing
-      runtime behavior
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_expression_agent.py tests/test_planning_agent.py tests/test_language_runtime.py`
-
-- [ ] PRJ-316 Add contradiction, missing-data, and noisy-input behavior scenarios
-  - Status: FUTURE
-  - Group: Memory, Continuity, And Failure Validation
-  - Owner: QA/Test + Backend Builder
-  - Depends on: PRJ-315
-  - Priority: P1
-  - Result:
-    - failure-mode scenarios verify that the runtime stays explainable and
-      stable under contradiction, incomplete context, and chaotic input
-    - fallback quality becomes part of architecture validation instead of an
-      untested assumption
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_motivation_engine.py tests/test_expression_agent.py`
-
-- [ ] PRJ-317 Make runtime behavior validation part of release-readiness and sync docs/context/runbook
-  - Status: FUTURE
-  - Group: Memory, Continuity, And Failure Validation
-  - Owner: Product Docs + Ops/Release + QA/Test
-  - Depends on: PRJ-316
-  - Priority: P1
-  - Result:
-    - release readiness considers behavior-driven validation for memory,
-      continuity, and failure handling, not only subsystem health
-    - runbook, planning, and project state remain aligned on the living-system
-      validation baseline
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q`
+- [ ] (none)
 
 ## IN_PROGRESS
 
@@ -167,6 +55,120 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-317 Make runtime behavior validation part of release-readiness and sync docs/context/runbook
+  - Status: DONE
+  - Group: Memory, Continuity, And Failure Validation
+  - Owner: Product Docs + Ops/Release + QA/Test
+  - Depends on: PRJ-316
+  - Priority: P1
+  - Result:
+    - release readiness now includes behavior-validation evidence through
+      `scripts/run_behavior_validation.{ps1,sh}` plus full regression checks
+    - runbook, planning, and project state are synchronized with the
+      living-system validation baseline
+  - Validation:
+    - `.\scripts\run_behavior_validation.ps1`
+    - `.\.venv\Scripts\python -m pytest -q`
+
+- [x] PRJ-316 Add contradiction, missing-data, and noisy-input behavior scenarios
+  - Status: DONE
+  - Group: Memory, Continuity, And Failure Validation
+  - Owner: QA/Test + Backend Builder
+  - Depends on: PRJ-315
+  - Priority: P1
+  - Result:
+    - failure-mode scenarios now validate contradiction, missing-data, and
+      noisy-input handling through structured behavior-harness outputs
+    - fallback quality is now explicitly regression-covered
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_motivation_engine.py tests/test_expression_agent.py`
+
+- [x] PRJ-315 Add multi-session continuity and personality-stability simulation scenarios
+  - Status: DONE
+  - Group: Memory, Continuity, And Failure Validation
+  - Owner: QA/Test
+  - Depends on: PRJ-314
+  - Priority: P1
+  - Result:
+    - continuity scenarios now pin identity/tone/language stability across
+      session restart boundaries
+    - context reuse across turns is now behavior-tested through scenario output
+      contract
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_expression_agent.py tests/test_planning_agent.py tests/test_language_runtime.py`
+
+- [x] PRJ-314 Add memory behavior scenarios for write, retrieval, influence, and delayed recall
+  - Status: DONE
+  - Group: Memory, Continuity, And Failure Validation
+  - Owner: QA/Test + Backend Builder
+  - Depends on: PRJ-313
+  - Priority: P1
+  - Result:
+    - memory scenarios now pin `write -> retrieve -> influence -> delayed
+      recall` through repeatable harness execution
+    - memory cannot be considered complete when retrieval does not influence
+      later context behavior
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_memory_repository.py tests/test_api_routes.py`
+
+- [x] PRJ-313 Sync docs/context for runtime behavior testing architecture and internal validation contract
+  - Status: DONE
+  - Group: Runtime Behavior Testing Architecture
+  - Owner: Product Docs + QA/Test
+  - Depends on: PRJ-312
+  - Priority: P1
+  - Result:
+    - canonical docs, engineering guidance, and context now align around one
+      behavior-validation baseline
+    - open decisions now record runtime behavior-validation posture as resolved
+      baseline
+  - Validation:
+    - doc-and-context sync plus targeted cross-doc consistency review recorded
+      in this slice
+
+- [x] PRJ-312 Add structured behavior-harness output and scenario execution helpers
+  - Status: DONE
+  - Group: Runtime Behavior Testing Architecture
+  - Owner: QA/Test
+  - Depends on: PRJ-311
+  - Priority: P1
+  - Result:
+    - behavior-harness helpers now provide structured scenario result contract
+      (`test_id/status/reason/trace_id/notes`)
+    - dedicated behavior-validation scripts now make scenario execution
+      repeatable across local/release workflows
+  - Validation:
+    - `.\scripts\run_behavior_validation.ps1`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_scheduler_contracts.py`
+
+- [x] PRJ-311 Implement the internal system-debug validation surface for behavior checks
+  - Status: DONE
+  - Group: Runtime Behavior Testing Architecture
+  - Owner: Backend Builder + QA/Test
+  - Depends on: PRJ-310
+  - Priority: P1
+  - Result:
+    - internal debug responses now expose canonical `system_debug` fields for
+      event normalization, memory bundle, context, motivation, role, plan
+      intents, expression, and action traces
+    - behavior debugging no longer depends on scattered endpoint payloads
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_logging.py`
+
+- [x] PRJ-310 Define the canonical runtime behavior testing contract and required system-debug surface
+  - Status: DONE
+  - Group: Runtime Behavior Testing Architecture
+  - Owner: Planner + QA/Test
+  - Depends on: PRJ-309
+  - Priority: P1
+  - Result:
+    - architecture now explicitly defines required behavior-validation modes
+      (`system_debug`, `user_simulation`) and minimum internal debug fields
+    - future cognitive slices can use one shared behavior contract baseline
+  - Validation:
+    - doc-and-context sync plus targeted behavior-testing architecture review
+      recorded in this slice
 
 - [x] PRJ-309 Sync docs/context/runbook for post-reflection hardening queue decisions
   - Status: DONE
