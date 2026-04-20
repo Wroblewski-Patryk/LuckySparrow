@@ -375,6 +375,10 @@ Completed on 2026-04-18:
   ownership, refresh ownership, default vector posture, and family rollout
   order (`episodic+semantic -> affective -> relation`) across planning,
   architecture, runtime-reality, and operations docs.
+- `PRJ-285` is complete: semantic conclusions now materialize embeddings on
+  write (with deterministic fallback posture when provider execution is not yet
+  implemented), and episodic embedding writes now honor explicit refresh
+  ownership (`materialized_on_write` vs `pending_manual_refresh`).
 
 ## Highest-Risk Gaps
 
@@ -1164,7 +1168,7 @@ semantics, and family-by-family rollout.
     - doc-and-context sync plus targeted retrieval-baseline review recorded in
       this slice
 
-- `PRJ-285` Implement the provider-owned semantic and episodic vector materialization path.
+- `PRJ-285` is complete.
   - Result:
     - semantic and episodic records can materialize provider-backed vectors with
       explicit fallback and refresh ownership
@@ -1317,10 +1321,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-285` is currently the execution-ready slice in the board.
+`PRJ-286` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-285` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-286` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

@@ -145,7 +145,7 @@ async def test_memory_repository_upserts_and_queries_semantic_embeddings(tmp_pat
     await engine.dispose()
 
 
-async def test_memory_repository_upsert_conclusion_creates_embedding_shell_for_semantic_layers(tmp_path) -> None:
+async def test_memory_repository_upsert_conclusion_creates_embedding_shell_for_affective_layers(tmp_path) -> None:
     database_path = tmp_path / "memory-conclusion-embedding-shell.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
     session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
@@ -175,6 +175,45 @@ async def test_memory_repository_upsert_conclusion_creates_embedding_shell_for_s
     assert rows[0].embedding_model == "deterministic-v1"
     assert rows[0].embedding_dimensions == 32
     assert rows[0].metadata_json["embedding_status"] == "pending_vector_materialization"
+    assert rows[0].metadata_json["embedding_refresh_mode"] == "on_write"
+    assert rows[0].metadata_json["embedding_provider_requested"] == "deterministic"
+    assert rows[0].metadata_json["embedding_provider_effective"] == "deterministic"
+    assert rows[0].metadata_json["embedding_provider_hint"] == "deterministic_baseline"
+
+    await engine.dispose()
+
+
+async def test_memory_repository_upsert_conclusion_materializes_semantic_embedding_on_write(tmp_path) -> None:
+    database_path = tmp_path / "memory-conclusion-embedding-on-write.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="custom_semantic_fact",
+        content="deployment blockers require explicit rollback paths",
+        confidence=0.77,
+        source="background_reflection",
+        supporting_event_id="evt-semantic-on-write",
+    )
+
+    async with session_factory() as session:
+        rows = (
+            await session.execute(
+                select(AionSemanticEmbedding).order_by(AionSemanticEmbedding.id.asc())
+            )
+        ).scalars().all()
+
+    assert len(rows) == 1
+    assert rows[0].source_kind == "semantic"
+    assert isinstance(rows[0].embedding, list)
+    assert len(rows[0].embedding) == 32
+    assert rows[0].embedding_model == "deterministic-v1"
+    assert rows[0].embedding_dimensions == 32
+    assert rows[0].metadata_json["embedding_status"] == "materialized_on_write"
+    assert rows[0].metadata_json["embedding_refresh_mode"] == "on_write"
     assert rows[0].metadata_json["embedding_provider_requested"] == "deterministic"
     assert rows[0].metadata_json["embedding_provider_effective"] == "deterministic"
     assert rows[0].metadata_json["embedding_provider_hint"] == "deterministic_baseline"
@@ -214,7 +253,8 @@ async def test_memory_repository_upsert_conclusion_uses_effective_embedding_post
 
     assert len(rows) == 1
     assert rows[0].source_kind == "semantic"
-    assert rows[0].embedding is None
+    assert isinstance(rows[0].embedding, list)
+    assert len(rows[0].embedding) == 24
     assert rows[0].embedding_model == "deterministic-v1"
     assert rows[0].embedding_dimensions == 24
     assert rows[0].metadata_json["embedding_provider_requested"] == "openai"
@@ -225,7 +265,47 @@ async def test_memory_repository_upsert_conclusion_uses_effective_embedding_post
     )
     assert rows[0].metadata_json["embedding_model_requested"] == "text-embedding-3-small"
     assert rows[0].metadata_json["embedding_model_effective"] == "deterministic-v1"
-    assert rows[0].metadata_json["embedding_status"] == "pending_vector_materialization"
+    assert rows[0].metadata_json["embedding_status"] == "materialized_on_write"
+    assert rows[0].metadata_json["embedding_refresh_mode"] == "on_write"
+
+    await engine.dispose()
+
+
+async def test_memory_repository_upsert_conclusion_keeps_semantic_embedding_pending_in_manual_refresh_mode(
+    tmp_path,
+) -> None:
+    database_path = tmp_path / "memory-conclusion-embedding-manual-refresh.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(
+        session_factory=session_factory,
+        embedding_refresh_mode="manual",
+    )
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="custom_semantic_fact",
+        content="deployment blockers require explicit rollback paths",
+        confidence=0.77,
+        source="background_reflection",
+        supporting_event_id="evt-semantic-manual",
+    )
+
+    async with session_factory() as session:
+        rows = (
+            await session.execute(
+                select(AionSemanticEmbedding).order_by(AionSemanticEmbedding.id.asc())
+            )
+        ).scalars().all()
+
+    assert len(rows) == 1
+    assert rows[0].source_kind == "semantic"
+    assert rows[0].embedding is None
+    assert rows[0].embedding_model == "deterministic-v1"
+    assert rows[0].embedding_dimensions == 32
+    assert rows[0].metadata_json["embedding_status"] == "pending_manual_refresh"
+    assert rows[0].metadata_json["embedding_refresh_mode"] == "manual"
 
     await engine.dispose()
 

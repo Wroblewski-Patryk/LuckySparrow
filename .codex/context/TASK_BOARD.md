@@ -16,9 +16,8 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-284` is complete; `PRJ-285` is currently `READY` and starts
-  implementation for provider-owned semantic and episodic vector
-  materialization.
+- `PRJ-285` is complete; `PRJ-286` is currently `READY` and extends rollout
+  from semantic+episodic materialization to affective and relation families.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -29,23 +28,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-285 Implement the provider-owned semantic and episodic vector materialization path
-  - Status: READY
-  - Group: Production Memory Retrieval Rollout
-  - Owner: Backend Builder
-  - Depends on: PRJ-284
-  - Priority: P1
-  - Result:
-    - semantic and episodic records can materialize provider-backed vectors
-      with explicit fallback and refresh ownership
-    - retrieval stops treating semantic vectors as mostly diagnostic shells
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
-
-## BACKLOG
-
 - [ ] PRJ-286 Extend vector rollout to affective and relation families with explicit gating
-  - Status: BACKLOG
+  - Status: READY
   - Group: Production Memory Retrieval Rollout
   - Owner: Backend Builder
   - Depends on: PRJ-285
@@ -57,6 +41,8 @@ Last updated: 2026-04-20
       target-state memory coverage
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+## BACKLOG
 
 - [ ] PRJ-287 Add production retrieval rollout regressions and sync docs/context
   - Status: BACKLOG
@@ -253,6 +239,25 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-285 Implement the provider-owned semantic and episodic vector materialization path
+  - Status: DONE
+  - Group: Production Memory Retrieval Rollout
+  - Owner: Backend Builder
+  - Depends on: PRJ-284
+  - Priority: P1
+  - Result:
+    - semantic conclusion embeddings now materialize vectors on write when
+      refresh ownership is `on_write`, including deterministic fallback when
+      non-implemented providers are requested
+    - episodic embedding writes now explicitly honor refresh ownership
+      (`materialized_on_write` vs `pending_manual_refresh`) with provider/model
+      fallback metadata for retrieval diagnostics
+    - retrieval no longer treats semantic embeddings as primarily diagnostic
+      shells during the baseline rollout
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_memory_repository.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-284 Define the production retrieval baseline for provider, refresh ownership, and family rollout order
   - Status: DONE

@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from app.core.contracts import MemoryLayerKind
 from app.memory.embeddings import (
     cosine_similarity,
+    deterministic_embedding,
+    normalize_embedding_refresh_mode,
     normalize_embedding_source_kinds,
     resolve_embedding_posture,
 )
@@ -69,9 +71,11 @@ class MemoryRepository:
         embedding_model: str = "deterministic-v1",
         embedding_dimensions: int = 32,
         embedding_source_kinds: tuple[str, ...] | None = None,
+        embedding_refresh_mode: str = "on_write",
     ):
         self.session_factory = session_factory
         self.embedding_dimensions = max(1, int(embedding_dimensions))
+        self.embedding_refresh_mode = normalize_embedding_refresh_mode(embedding_refresh_mode)
         if embedding_source_kinds is None:
             self.embedding_source_kinds = set(normalize_embedding_source_kinds(None))
         else:
@@ -1323,22 +1327,28 @@ class MemoryRepository:
                     "scope_key": row.scope_key,
                     "updated_at": row.updated_at,
                 }
+            if source_kind == "semantic":
+                embedding, embedding_status = self._materialize_embedding(content=row.content)
+            else:
+                embedding = None
+                embedding_status = "pending_vector_materialization"
             await self.upsert_semantic_embedding(
                 user_id=user_id,
                 source_kind=source_kind,
                 source_id=f"conclusion:{row.id}",
-                source_event_id=supporting_event_id,
+                source_event_id=row.supporting_event_id,
                 scope_type=normalized_scope_type,
                 scope_key=normalized_scope_key,
-                content=content,
-                embedding=None,
+                content=row.content,
+                embedding=embedding,
                 embedding_model=self.embedding_posture["model_effective"],
                 embedding_dimensions=self.embedding_dimensions,
                 metadata={
-                    "kind": kind,
-                    "confidence": confidence,
-                    "source": source,
-                    "embedding_status": "pending_vector_materialization",
+                    "kind": row.kind,
+                    "confidence": row.confidence,
+                    "source": row.source,
+                    "embedding_status": embedding_status,
+                    "embedding_refresh_mode": self.embedding_refresh_mode,
                     "embedding_provider_requested": self.embedding_posture["provider_requested"],
                     "embedding_provider_effective": self.embedding_posture["provider_effective"],
                     "embedding_provider_hint": self.embedding_posture["provider_hint"],
@@ -1705,6 +1715,14 @@ class MemoryRepository:
         if current_content == next_content:
             return min(0.99, max(current_confidence, next_confidence))
         return next_confidence
+
+    def _materialize_embedding(self, *, content: str) -> tuple[list[float] | None, str]:
+        if self.embedding_refresh_mode == "manual":
+            return None, "pending_manual_refresh"
+        return (
+            deterministic_embedding(content, dimensions=self.embedding_dimensions),
+            "materialized_on_write",
+        )
 
     def _serialize_reflection_task(self, row: AionReflectionTask) -> dict:
         return {

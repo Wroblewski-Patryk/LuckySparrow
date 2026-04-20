@@ -196,9 +196,14 @@ Hybrid retrieval surfaces are now also explicit:
   candidates with lexical overlap plus vector similarity scoring
 - runtime logs and memory diagnostics now expose hybrid retrieval signals
   (lexical/vector hit counts) for observability
-- conclusion-driven semantic/affective embedding shells now persist with
-  configured effective embedding model/dimensions plus requested/effective
-  provider metadata and explicit `pending_vector_materialization` status
+- episodic and conclusion-driven semantic embeddings now materialize on write
+  when refresh ownership is `on_write`, and include explicit materialization
+  status metadata (`materialized_on_write`)
+- manual refresh ownership keeps semantic/episodic embedding rows explicit with
+  `pending_manual_refresh` status instead of immediate vector materialization
+- affective conclusion embeddings still persist as rollout shells
+  (`pending_vector_materialization`) until affective/relation rollout slices
+  are implemented
 
 Production retrieval baseline (`PRJ-284`, planning contract):
 

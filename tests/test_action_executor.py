@@ -299,8 +299,12 @@ async def test_persist_episode_upserts_semantic_embedding_when_vector_retrieval_
 
     assert len(memory_repository.semantic_embedding_updates) == 1
     update = memory_repository.semantic_embedding_updates[0]
+    assert isinstance(update["embedding"], list)
+    assert len(update["embedding"]) == 32
     assert update["embedding_model"] == "deterministic-v1"
     assert update["embedding_dimensions"] == 32
+    assert update["metadata"]["embedding_status"] == "materialized_on_write"
+    assert update["metadata"]["embedding_refresh_mode"] == "on_write"
     assert update["metadata"]["embedding_provider_requested"] == "deterministic"
     assert update["metadata"]["embedding_provider_effective"] == "deterministic"
     assert update["metadata"]["embedding_provider_hint"] == "deterministic_baseline"
@@ -351,8 +355,12 @@ async def test_persist_episode_falls_back_to_deterministic_embedding_when_non_de
 
     assert len(memory_repository.semantic_embedding_updates) == 1
     update = memory_repository.semantic_embedding_updates[0]
+    assert isinstance(update["embedding"], list)
+    assert len(update["embedding"]) == 16
     assert update["embedding_model"] == "deterministic-v1"
     assert update["embedding_dimensions"] == 16
+    assert update["metadata"]["embedding_status"] == "materialized_on_write"
+    assert update["metadata"]["embedding_refresh_mode"] == "on_write"
     assert update["metadata"]["embedding_provider_requested"] == "openai"
     assert update["metadata"]["embedding_provider_effective"] == "deterministic"
     assert (
@@ -361,6 +369,32 @@ async def test_persist_episode_falls_back_to_deterministic_embedding_when_non_de
     )
     assert update["metadata"]["embedding_model_requested"] == "text-embedding-3-small"
     assert update["metadata"]["embedding_model_effective"] == "deterministic-v1"
+
+
+async def test_persist_episode_marks_episodic_embedding_pending_when_manual_refresh_mode_is_enabled() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=FakeTelegramClient(),
+        embedding_refresh_mode="manual",
+    )
+
+    await executor.persist_episode(
+        event=_event("deploy the fix"),
+        perception=_perception(["general", "deploy"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role(),
+        plan=_plan(),
+        action_result=await executor.execute(_plan(), _delivery()),
+        expression=_expression(),
+    )
+
+    assert len(memory_repository.semantic_embedding_updates) == 1
+    update = memory_repository.semantic_embedding_updates[0]
+    assert update["embedding"] is None
+    assert update["metadata"]["embedding_status"] == "pending_manual_refresh"
+    assert update["metadata"]["embedding_refresh_mode"] == "manual"
 
 
 async def test_persist_episode_skips_episodic_embedding_when_source_kind_is_not_enabled() -> None:

@@ -24,6 +24,7 @@ from app.integrations.delivery_router import DeliveryRouter
 from app.integrations.telegram.client import TelegramClient
 from app.memory.embeddings import (
     deterministic_embedding,
+    normalize_embedding_refresh_mode,
     normalize_embedding_source_kinds,
     resolve_embedding_posture,
 )
@@ -45,11 +46,13 @@ class ActionExecutor:
         embedding_model: str = "deterministic-v1",
         embedding_dimensions: int = 32,
         embedding_source_kinds: tuple[str, ...] | None = None,
+        embedding_refresh_mode: str = "on_write",
     ):
         self.memory_repository = memory_repository
         self.delivery_router = DeliveryRouter(telegram_client=telegram_client)
         self.semantic_vector_enabled = semantic_vector_enabled
         self.embedding_dimensions = max(1, int(embedding_dimensions))
+        self.embedding_refresh_mode = normalize_embedding_refresh_mode(embedding_refresh_mode)
         if embedding_source_kinds is None:
             self.embedding_source_kinds = set(normalize_embedding_source_kinds(None))
         else:
@@ -142,10 +145,15 @@ class ActionExecutor:
             and "episodic" in self.embedding_source_kinds
             and hasattr(self.memory_repository, "upsert_semantic_embedding")
         ):
-            episode_embedding = deterministic_embedding(
-                f"{payload['event']} {payload['context']} {payload['expression']}",
-                dimensions=self.embedding_dimensions,
-            )
+            if self.embedding_refresh_mode == "manual":
+                episode_embedding = None
+                embedding_status = "pending_manual_refresh"
+            else:
+                episode_embedding = deterministic_embedding(
+                    f"{payload['event']} {payload['context']} {payload['expression']}",
+                    dimensions=self.embedding_dimensions,
+                )
+                embedding_status = "materialized_on_write"
             await self.memory_repository.upsert_semantic_embedding(
                 user_id=event.meta.user_id,
                 source_kind="episodic",
@@ -168,6 +176,8 @@ class ActionExecutor:
                     "embedding_provider_hint": self.embedding_posture["provider_hint"],
                     "embedding_model_requested": self.embedding_posture["model_requested"],
                     "embedding_model_effective": self.embedding_posture["model_effective"],
+                    "embedding_refresh_mode": self.embedding_refresh_mode,
+                    "embedding_status": embedding_status,
                 },
             )
 
@@ -177,7 +187,7 @@ class ActionExecutor:
                 language_code=expression.language,
                 confidence=perception.language_confidence,
                 source=perception.language_source,
-        )
+            )
 
         return MemoryRecord(
             id=stored["id"],
