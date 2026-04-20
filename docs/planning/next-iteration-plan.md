@@ -362,6 +362,9 @@ Completed on 2026-04-18:
 - `PRJ-280` is complete: reflection topology and worker-mode ownership contract
   is now explicit across canonical architecture, runtime reality, and runtime
   operations docs.
+- `PRJ-281` is complete: runtime and scheduler now consume one shared
+  enqueue/dispatch boundary contract for reflection ownership, keeping durable
+  enqueue semantics while making dispatch intent explicitly mode-aware.
 
 ## Highest-Risk Gaps
 
@@ -1304,10 +1307,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-281` is currently the execution-ready slice in the board.
+`PRJ-282` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-281` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-282` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

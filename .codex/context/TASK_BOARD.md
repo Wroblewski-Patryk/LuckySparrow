@@ -16,8 +16,9 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-281` is currently `READY` and starts implementation work for the
-  background-topology queue after the `PRJ-280` topology contract slice.
+- `PRJ-282` is currently `READY` and continues implementation work for the
+  background-topology queue after `PRJ-281` extracted shared enqueue/dispatch
+  ownership boundaries.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -28,23 +29,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-281 Extract the reflection enqueue/dispatch boundary from app-local scheduler ownership
-  - Status: READY
-  - Group: Background Reflection Topology
-  - Owner: Backend Builder
-  - Depends on: PRJ-280
-  - Priority: P1
-  - Result:
-    - reflection enqueue and dispatch stop assuming one in-process owner
-    - scheduler and runtime share one explicit dispatch boundary instead of
-      duplicating reflection ownership rules
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_main_lifespan_policy.py`
-
-## BACKLOG
-
 - [ ] PRJ-282 Add worker-mode health, queue-drain, and retry handoff contract
-  - Status: BACKLOG
+  - Status: READY
   - Group: Background Reflection Topology
   - Owner: Backend Builder + Ops/Release
   - Depends on: PRJ-281
@@ -56,6 +42,8 @@ Last updated: 2026-04-20
       without changing reflection semantics
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_api_routes.py tests/test_scheduler_worker.py tests/test_logging.py`
+
+## BACKLOG
 
 - [ ] PRJ-283 Add background-topology regressions and sync docs/context
   - Status: BACKLOG
@@ -308,6 +296,24 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-281 Extract the reflection enqueue/dispatch boundary from app-local scheduler ownership
+  - Status: DONE
+  - Group: Background Reflection Topology
+  - Owner: Backend Builder
+  - Depends on: PRJ-280
+  - Priority: P1
+  - Result:
+    - runtime and scheduler now consume one shared reflection dispatch-boundary
+      contract (`reflection_enqueue_dispatch_decision` and
+      `reflection_scheduler_dispatch_decision`) instead of duplicating
+      mode/worker ownership rules
+    - runtime enqueue behavior now keeps durable enqueue ownership while
+      dispatch intent is explicitly mode-aware (`in_process|deferred`) even when
+      a reflection worker instance is attached
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_main_lifespan_policy.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_contracts.py`
 
 - [x] PRJ-280 Define target-state reflection topology and worker-mode contract
   - Status: DONE

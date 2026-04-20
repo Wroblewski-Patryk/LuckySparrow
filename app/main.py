@@ -412,6 +412,7 @@ async def lifespan(app: FastAPI):
         embedding_provider=str(getattr(settings, "embedding_provider", "deterministic")),
         embedding_model=str(getattr(settings, "embedding_model", "deterministic-v1")),
         embedding_dimensions=int(getattr(settings, "embedding_dimensions", 32)),
+        reflection_runtime_mode=settings.reflection_runtime_mode,
     )
     attention_turn_coordinator = AttentionTurnCoordinator(
         burst_window_ms=settings.attention_burst_window_ms,

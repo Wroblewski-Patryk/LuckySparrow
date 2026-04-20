@@ -4,8 +4,10 @@ from typing import Any, Literal
 
 
 SchedulerSubsource = Literal["reflection_tick", "maintenance_tick", "proactive_tick"]
+ReflectionRuntimeMode = Literal["in_process", "deferred"]
 SCHEDULER_SOURCE = "scheduler"
 DEFAULT_SCHEDULER_SUBSOURCE: SchedulerSubsource = "reflection_tick"
+DEFAULT_REFLECTION_RUNTIME_MODE: ReflectionRuntimeMode = "in_process"
 SCHEDULER_REFLECTION_TICK: SchedulerSubsource = "reflection_tick"
 SCHEDULER_MAINTENANCE_TICK: SchedulerSubsource = "maintenance_tick"
 SCHEDULER_PROACTIVE_TICK: SchedulerSubsource = "proactive_tick"
@@ -48,6 +50,31 @@ def normalize_scheduler_subsource(value: str | None) -> SchedulerSubsource:
     if normalized in SCHEDULER_CADENCE_RULES:
         return normalized  # type: ignore[return-value]
     return DEFAULT_SCHEDULER_SUBSOURCE
+
+
+def normalize_reflection_runtime_mode(value: str | None) -> ReflectionRuntimeMode:
+    normalized = str(value or "").strip().lower()
+    if normalized == "deferred":
+        return "deferred"
+    return DEFAULT_REFLECTION_RUNTIME_MODE
+
+
+def reflection_enqueue_dispatch_decision(*, runtime_mode: str | None, worker_running: bool) -> tuple[bool, str]:
+    normalized_mode = normalize_reflection_runtime_mode(runtime_mode)
+    if normalized_mode == "deferred":
+        return False, "deferred_runtime"
+    if worker_running:
+        return True, "in_process_worker_running"
+    return False, "in_process_worker_not_running"
+
+
+def reflection_scheduler_dispatch_decision(*, runtime_mode: str | None, worker_running: bool) -> tuple[bool, str]:
+    normalized_mode = normalize_reflection_runtime_mode(runtime_mode)
+    if normalized_mode == "deferred":
+        return True, "deferred_runtime"
+    if worker_running:
+        return False, "in_process_worker_running"
+    return True, "in_process_worker_not_running"
 
 
 def scheduler_cadence_rules() -> dict[str, dict[str, int | bool]]:

@@ -9,6 +9,8 @@ from app.core.scheduler_contracts import (
     SCHEDULER_MAINTENANCE_TICK,
     SCHEDULER_REFLECTION_TICK,
     clamp_scheduler_interval_seconds,
+    normalize_reflection_runtime_mode,
+    reflection_scheduler_dispatch_decision,
 )
 from app.memory.repository import MemoryRepository
 from app.reflection.worker import ReflectionWorker
@@ -34,7 +36,7 @@ class SchedulerWorker:
         self.memory_repository = memory_repository
         self.reflection_worker = reflection_worker
         self.enabled = bool(enabled)
-        self.reflection_runtime_mode = str(reflection_runtime_mode or "in_process").strip().lower()
+        self.reflection_runtime_mode = normalize_reflection_runtime_mode(reflection_runtime_mode)
         self.reflection_interval_seconds = clamp_scheduler_interval_seconds(
             subsource=SCHEDULER_REFLECTION_TICK,
             interval_seconds=int(reflection_interval_seconds),
@@ -180,14 +182,10 @@ class SchedulerWorker:
                 continue
 
     def _should_dispatch_reflection(self) -> tuple[bool, str]:
-        running = self.reflection_worker.is_running()
-        if self.reflection_runtime_mode == "in_process" and running:
-            return False, "in_process_worker_running"
-        if self.reflection_runtime_mode == "deferred":
-            return True, "deferred_runtime"
-        if not running:
-            return True, "in_process_worker_not_running"
-        return True, "fallback_dispatch"
+        return reflection_scheduler_dispatch_decision(
+            runtime_mode=self.reflection_runtime_mode,
+            worker_running=self.reflection_worker.is_running(),
+        )
 
     def _sleep_duration_seconds(self, now: datetime) -> float:
         due_times = [value for value in [self._next_reflection_due_at, self._next_maintenance_due_at] if value is not None]

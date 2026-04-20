@@ -556,6 +556,44 @@ async def test_runtime_pipeline_persists_reflection_task_without_in_process_work
     ]
 
 
+async def test_runtime_pipeline_respects_deferred_enqueue_dispatch_boundary_when_worker_is_attached() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    reflection = FakeReflectionWorker(running=True)
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+        reflection_runtime_mode="deferred",
+    )
+
+    event = Event(
+        event_id="evt-reflection-deferred-boundary",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "respect deferred boundary"},
+        meta=EventMeta(user_id="u-1", trace_id="t-reflection-deferred-boundary"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.reflection_triggered is True
+    assert reflection.calls == [
+        {
+            "user_id": "u-1",
+            "event_id": "evt-reflection-deferred-boundary",
+            "dispatch": "no",
+        }
+    ]
+
+
 async def test_runtime_pipeline_invokes_langgraph_foreground_graph() -> None:
     memory = FakeMemoryRepository(recent_memory=[])
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())

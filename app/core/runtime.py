@@ -14,6 +14,10 @@ from app.core.graph_adapters import GraphStageAdapters
 from app.core.graph_state import GraphMemoryState, build_graph_state_seed, expression_to_action_delivery
 from app.core.logging import RuntimeLogContext, RuntimeStageLogger, get_logger
 from app.core.runtime_graph import ForegroundLangGraphRunner
+from app.core.scheduler_contracts import (
+    normalize_reflection_runtime_mode,
+    reflection_enqueue_dispatch_decision,
+)
 from app.expression.generator import ExpressionAgent
 from app.identity.service import IdentityService
 from app.memory.embeddings import deterministic_embedding, resolve_embedding_posture
@@ -44,6 +48,7 @@ class RuntimeOrchestrator:
         embedding_provider: str = "deterministic",
         embedding_model: str = "deterministic-v1",
         embedding_dimensions: int = 32,
+        reflection_runtime_mode: str = "in_process",
     ):
         self.perception_agent = perception_agent
         self.context_agent = context_agent
@@ -58,6 +63,7 @@ class RuntimeOrchestrator:
         self.affective_assessor = affective_assessor or AffectiveAssessor()
         self.semantic_vector_enabled = semantic_vector_enabled
         self.embedding_dimensions = max(1, int(embedding_dimensions))
+        self.reflection_runtime_mode = normalize_reflection_runtime_mode(reflection_runtime_mode)
         self.embedding_posture = resolve_embedding_posture(
             provider=embedding_provider,
             model=embedding_model,
@@ -367,12 +373,22 @@ class RuntimeOrchestrator:
                 output_summary=lambda result: f"memory_id={result.id or 'none'} importance={result.importance}",
             )
 
+            reflection_enqueue_dispatch = False
+            reflection_enqueue_reason = "boundary_not_evaluated"
+
             async def enqueue_reflection_task() -> bool:
+                nonlocal reflection_enqueue_dispatch
+                nonlocal reflection_enqueue_reason
+                worker_running = bool(self.reflection_worker is not None and self.reflection_worker.is_running())
+                reflection_enqueue_dispatch, reflection_enqueue_reason = reflection_enqueue_dispatch_decision(
+                    runtime_mode=self.reflection_runtime_mode,
+                    worker_running=worker_running,
+                )
                 if self.reflection_worker is not None:
                     return await self.reflection_worker.enqueue(
                         user_id=event.meta.user_id,
                         event_id=event.event_id,
-                        dispatch=self.reflection_worker.is_running(),
+                        dispatch=reflection_enqueue_dispatch,
                     )
                 await self.memory_repository.enqueue_reflection_task(
                     user_id=event.meta.user_id,
@@ -385,12 +401,15 @@ class RuntimeOrchestrator:
                 stage_timings_ms=stage_timings_ms,
                 stage="reflection_enqueue",
                 input_summary=(
+                    f"mode={self.reflection_runtime_mode} "
                     f"worker={self._present_label(self.reflection_worker)}"
-                    if self.reflection_worker is not None
-                    else "worker=no"
                 ),
                 operation=enqueue_reflection_task,
-                output_summary=lambda result: f"triggered={result}",
+                output_summary=lambda result: (
+                    f"triggered={result} "
+                    f"dispatch={self._present_label(reflection_enqueue_dispatch)} "
+                    f"reason={reflection_enqueue_reason}"
+                ),
             )
 
             async def refresh_runtime_state():

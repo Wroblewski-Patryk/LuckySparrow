@@ -1,7 +1,10 @@
 from app.core.scheduler_contracts import (
     clamp_scheduler_interval_seconds,
     normalize_scheduler_payload,
+    normalize_reflection_runtime_mode,
     normalize_scheduler_subsource,
+    reflection_enqueue_dispatch_decision,
+    reflection_scheduler_dispatch_decision,
     scheduler_cadence_rules,
 )
 
@@ -81,3 +84,39 @@ def test_scheduler_contracts_preserve_chat_id_for_delivery_targeting() -> None:
     )
 
     assert payload["chat_id"] == 123456
+
+
+def test_scheduler_contracts_normalize_reflection_runtime_mode_with_safe_default() -> None:
+    assert normalize_reflection_runtime_mode("deferred") == "deferred"
+    assert normalize_reflection_runtime_mode("IN_PROCESS") == "in_process"
+    assert normalize_reflection_runtime_mode("legacy_mode") == "in_process"
+
+
+def test_scheduler_contracts_expose_shared_reflection_dispatch_boundary_rules() -> None:
+    enqueue_dispatch, enqueue_reason = reflection_enqueue_dispatch_decision(
+        runtime_mode="deferred",
+        worker_running=True,
+    )
+    assert enqueue_dispatch is False
+    assert enqueue_reason == "deferred_runtime"
+
+    scheduler_dispatch, scheduler_reason = reflection_scheduler_dispatch_decision(
+        runtime_mode="deferred",
+        worker_running=False,
+    )
+    assert scheduler_dispatch is True
+    assert scheduler_reason == "deferred_runtime"
+
+    enqueue_dispatch, enqueue_reason = reflection_enqueue_dispatch_decision(
+        runtime_mode="in_process",
+        worker_running=True,
+    )
+    assert enqueue_dispatch is True
+    assert enqueue_reason == "in_process_worker_running"
+
+    scheduler_dispatch, scheduler_reason = reflection_scheduler_dispatch_decision(
+        runtime_mode="in_process",
+        worker_running=True,
+    )
+    assert scheduler_dispatch is False
+    assert scheduler_reason == "in_process_worker_running"
