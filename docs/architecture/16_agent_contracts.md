@@ -228,6 +228,27 @@ Rules:
 5. connector-expansion proposals must stay suggestion-only until conscious
    planning emits explicit permission-gated connector intents
 
+Canonical ownership baseline:
+
+1. attention boundary owns `attention_inbox` and `pending_turn` state mutation
+2. planning owns `proposal_handoffs` decisions and `accepted_proposals` turn
+   outputs
+3. action consumes planning decisions and remains the only side-effect owner
+4. subconscious/background paths may create `subconscious_proposals` but cannot
+   claim `pending_turn` or execute actions
+
+Proposal lifecycle baseline:
+
+1. proposal creation starts at `status=pending`
+2. conscious planning decides one of `accept|merge|defer|discard`
+3. decision maps to durable proposal status
+  - `accept -> accepted`
+  - `merge -> merged`
+  - `defer -> deferred`
+  - `discard -> discarded`
+4. any transition outside this mapping requires an explicit contract update
+5. `pending_turn.owner=conscious` is required whenever `pending_turn.status=claimed`
+
 ---
 
 ## Connector Capability And Permission Gate Contract

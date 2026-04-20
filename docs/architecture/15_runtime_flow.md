@@ -86,6 +86,20 @@ This creates:
 
 Only normalized events enter the cognitive pipeline.
 
+### Step 2a. Attention Intake And Turn Assembly
+
+Before the foreground stage graph runs, the attention boundary prepares the
+candidate turn.
+
+This boundary owns:
+
+- attention inbox intake (`pending|claimed|answered|deferred`)
+- conversation-key grouping for burst traffic
+- pending-turn assembly (`item_ids`, `assembled_text`, ownership state)
+
+This boundary does not own side effects.
+It only prepares the conscious turn input contract.
+
 ### Step 3. Runtime State Initialization
 
 The runtime prepares the initial state for the turn.
@@ -207,6 +221,13 @@ Planning should answer:
 
 Planning proposes. It does not execute.
 
+Proposal-lifecycle ownership in this stage:
+
+- planning is the canonical owner of conscious proposal handoff decisions
+  (`accept|merge|defer|discard`)
+- planning may mark accepted proposals for downstream intent shaping
+- planning must not execute proposal side effects directly
+
 ### Step 11. Expression
 
 Expression forms the outward communicative result of the turn.
@@ -273,6 +294,18 @@ Foreground convergence follows one explicit ownership split:
 The detailed ownership and migration invariants are defined in
 `docs/architecture/16_agent_contracts.md` under the foreground boundary
 contract.
+
+## Dual-Loop Ownership Boundary (Target State)
+
+Dual-loop execution keeps one explicit ownership split:
+
+- attention boundary owns inbox state and pending-turn assembly
+- planning owns conscious proposal handoff decisions
+- action owns user-visible execution after planning decisions and gates
+- subconscious/background paths may propose, but never directly execute
+
+This split keeps turn assembly and proposal lifecycle durable without blurring
+the action boundary.
 
 ---
 
@@ -357,7 +390,7 @@ Background runtime ends here.
 
 Foreground:
 
-`event -> normalize -> load baseline -> perceive -> retrieve memory -> build context -> evaluate motivation -> select role -> plan -> express -> act -> write memory -> trigger reflection`
+`event -> normalize -> attention intake/turn assembly -> load baseline -> perceive -> retrieve memory -> build context -> evaluate motivation -> select role -> plan -> express -> act -> write memory -> trigger reflection`
 
 Background:
 

@@ -566,6 +566,9 @@ What is already live:
 
 - runtime graph-state contracts now explicitly model `attention_inbox`,
   `pending_turn`, `subconscious_proposals`, and `proposal_handoffs`
+- canonical architecture now also records explicit ownership for this boundary:
+  attention owns turn assembly state, planning owns proposal handoff decisions,
+  and action remains the only side-effect owner
 - `POST /event` applies Telegram burst coalescing through one in-memory
   attention-turn coordinator; rapid pending messages can assemble into one turn
   and duplicate/non-owner burst events return queued metadata instead of

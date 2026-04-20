@@ -583,11 +583,15 @@ The current repo already works as an MVP slice, but several architecture-level d
   - attention timing now has explicit runtime config controls:
     `ATTENTION_BURST_WINDOW_MS`, `ATTENTION_ANSWERED_TTL_SECONDS`,
     `ATTENTION_STALE_TURN_SECONDS`.
-- Decision needed:
-  - what should be the canonical ownership of turn assembly, pending-turn
-    state, and burst-message coalescing?
-  - how long should the runtime wait before treating a rapid message burst as
-    one conscious turn instead of many independent replies?
+- Decision (PRJ-292 baseline):
+  - attention boundary is the canonical owner of turn assembly, pending-turn
+    state, and burst-message coalescing status transitions.
+  - timing windows remain config-owned by the attention boundary through
+    `ATTENTION_BURST_WINDOW_MS`, `ATTENTION_ANSWERED_TTL_SECONDS`, and
+    `ATTENTION_STALE_TURN_SECONDS`.
+- Remaining follow-up decision:
+  - what production-default timing values should be promoted as the release
+    baseline once dual-loop rollout stabilizes?
 
 ### 12b. Conscious vs Subconscious Coordination Boundary
 
@@ -601,13 +605,18 @@ The current repo already works as an MVP slice, but several architecture-level d
   - planning now includes explicit proposal persistence, conscious promotion
     rules, read-only subconscious tool policy, and separate wakeup/cadence
     slices (`PRJ-088..PRJ-091`).
-- Decision needed:
-  - which subconscious outputs should become durable proposals rather than
-    immediate behavior?
-  - which proposal types should conscious runtime be allowed to merge, defer,
-    discard, or escalate into user-visible action?
-  - should subconscious research stay read-only forever, or ever gain more
-    than retrieval-only authority?
+- Decision (PRJ-292 baseline):
+  - subconscious outputs become durable proposals in the explicit proposal
+    contract surface (`ask_user`, `research_topic`, `suggest_goal`,
+    `nudge_user`, `suggest_connector_expansion`), not immediate actions.
+  - conscious planning is the canonical owner of proposal handoff decisions
+    (`accept|merge|defer|discard`) and corresponding durable status mapping
+    (`accepted|merged|deferred|discarded`).
+  - subconscious research remains read-only by default (`research_policy=read_only`);
+    any broader authority requires a future architecture-contract change.
+- Remaining follow-up decision:
+  - should future proposal classes add new conscious decisions beyond
+    `accept|merge|defer|discard`, or keep this decision set fixed?
 
 ### 12c. Internal Planning State And External Connector Boundary
 

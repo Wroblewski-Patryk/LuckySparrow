@@ -1258,7 +1258,7 @@ This group finishes the dual-loop execution boundary so subconscious proposals,
 turn assembly, proactive delivery, and external permission gates all pass
 through one explicit conscious ownership path.
 
-- `PRJ-292` Define a durable proposal lifecycle and canonical turn-assembly ownership contract.
+- `PRJ-292` is complete.
   - Result:
     - proposal persistence, handoff decisions, and pending-turn ownership have
       one explicit contract owner
@@ -1340,10 +1340,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-292` is currently the execution-ready slice in the board.
+`PRJ-293` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-292` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-293` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

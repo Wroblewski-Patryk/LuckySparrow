@@ -846,7 +846,7 @@ Last updated: 2026-04-20
 - 2026-04-20: foreground convergence group is now complete through `PRJ-279`;
   background topology convergence is complete through `PRJ-283`; production
   retrieval implementation is complete through `PRJ-287`; adaptive governance
-  policy baseline is complete through `PRJ-288`; `PRJ-292` is now the next
+  policy baseline is complete through `PRJ-288`; `PRJ-293` is now the next
   `READY` implementation slice.
 - 2026-04-20: `PRJ-288` is complete: architecture contracts now define explicit
   adaptive influence evidence gates, precedence, and tie-break guardrails for
@@ -875,6 +875,18 @@ Last updated: 2026-04-20
 - 2026-04-20: `PRJ-291` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_role_agent.py tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_runtime_pipeline.py`
   passed with `206 passed`.
+- 2026-04-20: `PRJ-292` is complete: canonical dual-loop ownership is now
+  explicit for attention turn assembly (`attention_inbox`, `pending_turn`),
+  conscious proposal handoff decisions (`proposal_handoffs`), and action-side
+  execution boundaries after planning decisions.
+- 2026-04-20: `PRJ-292` validation is recorded as doc-and-context sync plus
+  targeted dual-loop contract review across
+  `docs/architecture/15_runtime_flow.md`,
+  `docs/architecture/16_agent_contracts.md`,
+  `docs/planning/open-decisions.md`,
+  `docs/implementation/runtime-reality.md`,
+  `.codex/context/TASK_BOARD.md`, and
+  `docs/planning/next-iteration-plan.md`.
 
 ## Working Agreements
 

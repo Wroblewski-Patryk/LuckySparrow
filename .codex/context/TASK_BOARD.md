@@ -16,8 +16,8 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-291` is complete; `PRJ-292` is currently `READY` and starts the
-  attention/proposal execution-boundary contract lane.
+- `PRJ-292` is complete; `PRJ-293` is currently `READY` and starts dual-loop
+  proposal persistence implementation.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -28,29 +28,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-292 Define a durable proposal lifecycle and canonical turn-assembly ownership contract
-  - Status: READY
-  - Group: Attention And Proposal Execution Boundary
-  - Owner: Planner
-  - Depends on: PRJ-291
-  - Priority: P1
-  - Result:
-    - proposal persistence, handoff decisions, and pending-turn ownership have
-      one explicit contract owner
-    - future dual-loop changes no longer need to infer whether attention or
-      planning owns a boundary
-  - Validation:
-    - doc-and-context sync plus targeted dual-loop contract review recorded in
-      this slice
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-293 Implement end-to-end proposal persistence and conscious handoff decisions
-  - Status: FUTURE
+  - Status: READY
   - Group: Attention And Proposal Execution Boundary
   - Owner: Backend Builder
   - Depends on: PRJ-292
@@ -62,6 +41,12 @@ Last updated: 2026-04-20
       merges a proposal
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py tests/test_planning_agent.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-294 Route proactive outreach and connector permission gates through the shared attention/proposal boundary
   - Status: FUTURE
@@ -160,6 +145,21 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-292 Define a durable proposal lifecycle and canonical turn-assembly ownership contract
+  - Status: DONE
+  - Group: Attention And Proposal Execution Boundary
+  - Owner: Planner
+  - Depends on: PRJ-291
+  - Priority: P1
+  - Result:
+    - proposal persistence, handoff decisions, and pending-turn ownership have
+      one explicit contract owner
+    - future dual-loop changes no longer need to infer whether attention or
+      planning owns a boundary
+  - Validation:
+    - doc-and-context sync plus targeted dual-loop contract review recorded in
+      this slice
 
 - [x] PRJ-291 Add adaptive-governance regressions and sync docs/context
   - Status: DONE
