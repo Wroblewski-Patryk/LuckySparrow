@@ -1,5 +1,6 @@
 from app.core.scheduler_contracts import (
     clamp_scheduler_interval_seconds,
+    normalize_scheduler_execution_mode,
     normalize_scheduler_payload,
     normalize_reflection_runtime_mode,
     normalize_scheduler_subsource,
@@ -7,6 +8,7 @@ from app.core.scheduler_contracts import (
     reflection_enqueue_dispatch_decision,
     reflection_topology_handoff_posture,
     reflection_scheduler_dispatch_decision,
+    scheduler_cadence_execution_snapshot,
     scheduler_cadence_rules,
 )
 
@@ -92,6 +94,48 @@ def test_scheduler_contracts_normalize_reflection_runtime_mode_with_safe_default
     assert normalize_reflection_runtime_mode("deferred") == "deferred"
     assert normalize_reflection_runtime_mode("IN_PROCESS") == "in_process"
     assert normalize_reflection_runtime_mode("legacy_mode") == "in_process"
+
+
+def test_scheduler_contracts_normalize_scheduler_execution_mode_with_safe_default() -> None:
+    assert normalize_scheduler_execution_mode("externalized") == "externalized"
+    assert normalize_scheduler_execution_mode("IN_PROCESS") == "in_process"
+    assert normalize_scheduler_execution_mode("legacy_mode") == "in_process"
+
+
+def test_scheduler_contracts_expose_scheduler_cadence_execution_snapshot_for_in_process_mode() -> None:
+    snapshot = scheduler_cadence_execution_snapshot(
+        execution_mode="in_process",
+        scheduler_enabled=True,
+        scheduler_running=True,
+        proactive_enabled=False,
+    )
+
+    assert snapshot == {
+        "baseline_execution_mode": "in_process",
+        "selected_execution_mode": "in_process",
+        "ready": True,
+        "blocking_signals": [],
+        "maintenance_cadence_owner": "in_process_scheduler",
+        "proactive_cadence_owner": "in_process_scheduler",
+        "scheduler_enabled": True,
+        "scheduler_running": True,
+        "proactive_enabled": False,
+    }
+
+
+def test_scheduler_contracts_scheduler_cadence_execution_snapshot_marks_externalized_running_mismatch() -> None:
+    snapshot = scheduler_cadence_execution_snapshot(
+        execution_mode="externalized",
+        scheduler_enabled=False,
+        scheduler_running=True,
+        proactive_enabled=True,
+    )
+
+    assert snapshot["selected_execution_mode"] == "externalized"
+    assert snapshot["ready"] is False
+    assert snapshot["maintenance_cadence_owner"] == "external_scheduler"
+    assert snapshot["proactive_cadence_owner"] == "external_scheduler"
+    assert "externalized_scheduler_worker_running" in snapshot["blocking_signals"]
 
 
 def test_scheduler_contracts_expose_shared_reflection_dispatch_boundary_rules() -> None:

@@ -27,6 +27,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.embedding_model_governance_enforcement == "warn"
     assert settings.embedding_source_rollout_enforcement == "warn"
     assert settings.reflection_runtime_mode == "in_process"
+    assert settings.scheduler_execution_mode == "in_process"
     assert settings.scheduler_enabled is False
     assert settings.reflection_interval == 900
     assert settings.maintenance_interval == 3600
@@ -257,6 +258,15 @@ def test_settings_allow_deferred_reflection_runtime_mode() -> None:
     assert settings.reflection_runtime_mode == "deferred"
 
 
+def test_settings_allow_externalized_scheduler_execution_mode() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        scheduler_execution_mode="externalized",
+    )
+
+    assert settings.scheduler_execution_mode == "externalized"
+
+
 def test_settings_reject_unknown_production_policy_enforcement_mode() -> None:
     try:
         Settings(
@@ -279,6 +289,18 @@ def test_settings_reject_unknown_reflection_runtime_mode() -> None:
         assert "reflection_runtime_mode" in str(exc)
     else:  # pragma: no cover - defensive fallback
         raise AssertionError("Expected Settings validation to reject unknown reflection runtime mode.")
+
+
+def test_settings_reject_unknown_scheduler_execution_mode() -> None:
+    try:
+        Settings(
+            database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+            scheduler_execution_mode="legacy",  # type: ignore[arg-type]
+        )
+    except ValidationError as exc:
+        assert "scheduler_execution_mode" in str(exc)
+    else:  # pragma: no cover - defensive fallback
+        raise AssertionError("Expected Settings validation to reject unknown scheduler execution mode.")
 
 
 def test_settings_reject_unknown_event_debug_shared_ingress_mode() -> None:

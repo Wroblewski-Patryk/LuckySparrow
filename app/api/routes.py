@@ -25,8 +25,10 @@ from app.core.runtime_policy import (
 )
 from app.core.runtime import RuntimeOrchestrator
 from app.core.scheduler_contracts import (
+    normalize_scheduler_execution_mode,
     reflection_deployment_readiness_snapshot,
     reflection_topology_handoff_posture,
+    scheduler_cadence_execution_snapshot,
 )
 from app.integrations.telegram.client import TelegramClient
 from app.memory.embeddings import embedding_strategy_snapshot, normalize_embedding_source_kinds
@@ -321,10 +323,31 @@ async def health(request: Request) -> dict[str, Any]:
             reflection_stats["stuck_processing"] == 0
             and reflection_stats["exhausted_failed"] == 0
         )
-    scheduler_snapshot = scheduler_worker.snapshot() if scheduler_worker is not None else {"enabled": False, "running": False}
-    scheduler_healthy = bool(
-        not scheduler_snapshot.get("enabled") or scheduler_snapshot.get("running")
+    scheduler_execution_mode = normalize_scheduler_execution_mode(
+        str(getattr(settings, "scheduler_execution_mode", "in_process") or "in_process")
     )
+    proactive_enabled = bool(getattr(settings, "proactive_enabled", False))
+    scheduler_snapshot = scheduler_worker.snapshot() if scheduler_worker is not None else {}
+    scheduler_running = bool(scheduler_snapshot.get("running", False))
+    scheduler_enabled = bool(scheduler_snapshot.get("enabled", False))
+    scheduler_execution = scheduler_cadence_execution_snapshot(
+        execution_mode=str(scheduler_snapshot.get("execution_mode", scheduler_execution_mode)),
+        scheduler_enabled=scheduler_enabled,
+        scheduler_running=scheduler_running,
+        proactive_enabled=bool(scheduler_snapshot.get("proactive_enabled", proactive_enabled)),
+    )
+    scheduler_snapshot = {
+        **scheduler_snapshot,
+        "execution_mode": scheduler_execution["selected_execution_mode"],
+        "configured_enabled": bool(scheduler_snapshot.get("configured_enabled", scheduler_enabled)),
+        "enabled": scheduler_enabled,
+        "running": scheduler_running,
+        "proactive_enabled": bool(scheduler_snapshot.get("proactive_enabled", proactive_enabled)),
+        "maintenance_cadence_owner": scheduler_execution["maintenance_cadence_owner"],
+        "proactive_cadence_owner": scheduler_execution["proactive_cadence_owner"],
+        "cadence_execution": scheduler_execution,
+    }
+    scheduler_healthy = bool(scheduler_execution["ready"])
     attention_snapshot = _attention_snapshot_from_request(request)
     memory_retrieval_snapshot = _memory_retrieval_snapshot_from_settings(settings)
     release_readiness = release_readiness_snapshot(runtime_policy)

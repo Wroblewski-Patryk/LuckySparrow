@@ -187,6 +187,59 @@ async def test_scheduler_worker_start_is_noop_when_scheduler_disabled() -> None:
     assert snapshot["running"] is False
 
 
+async def test_scheduler_worker_externalized_execution_mode_disables_in_process_start() -> None:
+    reflection_worker = FakeReflectionWorker(running=False)
+    repository = FakeMemoryRepository()
+    scheduler = SchedulerWorker(
+        memory_repository=repository,  # type: ignore[arg-type]
+        reflection_worker=reflection_worker,  # type: ignore[arg-type]
+        enabled=True,
+        reflection_runtime_mode="in_process",
+        reflection_interval_seconds=900,
+        maintenance_interval_seconds=3600,
+        execution_mode="externalized",
+        proactive_enabled=True,
+    )
+
+    await scheduler.start()
+    snapshot = scheduler.snapshot()
+    await scheduler.stop()
+
+    assert snapshot["execution_mode"] == "externalized"
+    assert snapshot["configured_enabled"] is True
+    assert snapshot["enabled"] is False
+    assert snapshot["running"] is False
+    assert snapshot["proactive_enabled"] is True
+    assert snapshot["maintenance_cadence_owner"] == "external_scheduler"
+    assert snapshot["proactive_cadence_owner"] == "external_scheduler"
+    assert snapshot["cadence_execution"]["ready"] is True
+    assert snapshot["cadence_execution"]["selected_execution_mode"] == "externalized"
+
+
+async def test_scheduler_worker_snapshot_exposes_owner_aware_execution_posture() -> None:
+    reflection_worker = FakeReflectionWorker(running=True)
+    repository = FakeMemoryRepository()
+    scheduler = SchedulerWorker(
+        memory_repository=repository,  # type: ignore[arg-type]
+        reflection_worker=reflection_worker,  # type: ignore[arg-type]
+        enabled=True,
+        reflection_runtime_mode="in_process",
+        reflection_interval_seconds=900,
+        maintenance_interval_seconds=3600,
+        execution_mode="in_process",
+        proactive_enabled=False,
+    )
+
+    snapshot = scheduler.snapshot()
+
+    assert snapshot["execution_mode"] == "in_process"
+    assert snapshot["configured_enabled"] is True
+    assert snapshot["maintenance_cadence_owner"] == "in_process_scheduler"
+    assert snapshot["proactive_cadence_owner"] == "in_process_scheduler"
+    assert snapshot["cadence_execution"]["ready"] is False
+    assert "in_process_scheduler_not_running" in snapshot["cadence_execution"]["blocking_signals"]
+
+
 async def test_scheduler_worker_reflection_tick_logs_worker_mode_handoff_posture(caplog) -> None:
     reflection_worker = FakeReflectionWorker(running=False)
     repository = FakeMemoryRepository()

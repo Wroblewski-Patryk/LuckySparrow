@@ -10,8 +10,10 @@ from app.core.scheduler_contracts import (
     SCHEDULER_REFLECTION_TICK,
     clamp_scheduler_interval_seconds,
     normalize_reflection_runtime_mode,
+    normalize_scheduler_execution_mode,
     reflection_topology_handoff_posture,
     reflection_scheduler_dispatch_decision,
+    scheduler_cadence_execution_snapshot,
 )
 from app.memory.repository import MemoryRepository
 from app.reflection.worker import ReflectionWorker
@@ -32,11 +34,15 @@ class SchedulerWorker:
         reflection_runtime_mode: str,
         reflection_interval_seconds: int,
         maintenance_interval_seconds: int,
+        execution_mode: str = "in_process",
+        proactive_enabled: bool = False,
         reflection_batch_limit: int = 10,
     ) -> None:
         self.memory_repository = memory_repository
         self.reflection_worker = reflection_worker
-        self.enabled = bool(enabled)
+        self.configured_enabled = bool(enabled)
+        self.execution_mode = normalize_scheduler_execution_mode(execution_mode)
+        self.enabled = self.configured_enabled and self.execution_mode == "in_process"
         self.reflection_runtime_mode = normalize_reflection_runtime_mode(reflection_runtime_mode)
         self.reflection_interval_seconds = clamp_scheduler_interval_seconds(
             subsource=SCHEDULER_REFLECTION_TICK,
@@ -46,6 +52,7 @@ class SchedulerWorker:
             subsource=SCHEDULER_MAINTENANCE_TICK,
             interval_seconds=int(maintenance_interval_seconds),
         )
+        self.proactive_enabled = bool(proactive_enabled)
         self.reflection_batch_limit = max(1, int(reflection_batch_limit))
 
         self._task: asyncio.Task | None = None
@@ -154,9 +161,22 @@ class SchedulerWorker:
         return summary
 
     def snapshot(self) -> dict[str, Any]:
+        running = self.is_running()
+        cadence_execution = scheduler_cadence_execution_snapshot(
+            execution_mode=self.execution_mode,
+            scheduler_enabled=self.enabled,
+            scheduler_running=running,
+            proactive_enabled=self.proactive_enabled,
+        )
         return {
+            "execution_mode": self.execution_mode,
+            "configured_enabled": self.configured_enabled,
             "enabled": self.enabled,
-            "running": self.is_running(),
+            "running": running,
+            "proactive_enabled": self.proactive_enabled,
+            "maintenance_cadence_owner": cadence_execution["maintenance_cadence_owner"],
+            "proactive_cadence_owner": cadence_execution["proactive_cadence_owner"],
+            "cadence_execution": cadence_execution,
             "reflection_runtime_mode": self.reflection_runtime_mode,
             "reflection_interval_seconds": self.reflection_interval_seconds,
             "maintenance_interval_seconds": self.maintenance_interval_seconds,

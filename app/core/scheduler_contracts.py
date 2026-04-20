@@ -6,10 +6,13 @@ from typing import Any, Literal
 
 SchedulerSubsource = Literal["reflection_tick", "maintenance_tick", "proactive_tick"]
 ReflectionRuntimeMode = Literal["in_process", "deferred"]
+SchedulerExecutionMode = Literal["in_process", "externalized"]
 SCHEDULER_SOURCE = "scheduler"
 DEFAULT_SCHEDULER_SUBSOURCE: SchedulerSubsource = "reflection_tick"
 DEFAULT_REFLECTION_RUNTIME_MODE: ReflectionRuntimeMode = "in_process"
+DEFAULT_SCHEDULER_EXECUTION_MODE: SchedulerExecutionMode = "in_process"
 REFLECTION_DEPLOYMENT_BASELINE_MODE: ReflectionRuntimeMode = "in_process"
+SCHEDULER_EXECUTION_BASELINE_MODE: SchedulerExecutionMode = "in_process"
 SCHEDULER_REFLECTION_TICK: SchedulerSubsource = "reflection_tick"
 SCHEDULER_MAINTENANCE_TICK: SchedulerSubsource = "maintenance_tick"
 SCHEDULER_PROACTIVE_TICK: SchedulerSubsource = "proactive_tick"
@@ -59,6 +62,43 @@ def normalize_reflection_runtime_mode(value: str | None) -> ReflectionRuntimeMod
     if normalized == "deferred":
         return "deferred"
     return DEFAULT_REFLECTION_RUNTIME_MODE
+
+
+def normalize_scheduler_execution_mode(value: str | None) -> SchedulerExecutionMode:
+    normalized = str(value or "").strip().lower()
+    if normalized == "externalized":
+        return "externalized"
+    return DEFAULT_SCHEDULER_EXECUTION_MODE
+
+
+def scheduler_cadence_execution_snapshot(
+    *,
+    execution_mode: str | None,
+    scheduler_enabled: bool,
+    scheduler_running: bool,
+    proactive_enabled: bool,
+) -> dict[str, Any]:
+    selected_mode = normalize_scheduler_execution_mode(execution_mode)
+    cadence_owner = "external_scheduler" if selected_mode == "externalized" else "in_process_scheduler"
+    blocking_signals: list[str] = []
+
+    if selected_mode == "in_process":
+        if scheduler_enabled and not scheduler_running:
+            blocking_signals.append("in_process_scheduler_not_running")
+    elif scheduler_running:
+        blocking_signals.append("externalized_scheduler_worker_running")
+
+    return {
+        "baseline_execution_mode": SCHEDULER_EXECUTION_BASELINE_MODE,
+        "selected_execution_mode": selected_mode,
+        "ready": len(blocking_signals) == 0,
+        "blocking_signals": blocking_signals,
+        "maintenance_cadence_owner": cadence_owner,
+        "proactive_cadence_owner": cadence_owner,
+        "scheduler_enabled": scheduler_enabled,
+        "scheduler_running": scheduler_running,
+        "proactive_enabled": proactive_enabled,
+    }
 
 
 def reflection_enqueue_dispatch_decision(*, runtime_mode: str | None, worker_running: bool) -> tuple[bool, str]:

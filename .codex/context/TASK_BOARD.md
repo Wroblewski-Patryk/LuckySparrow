@@ -36,28 +36,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-322 Implement owner-aware scheduler execution mode and health snapshot
-  - Status: READY
-  - Group: Scheduler Externalization And Attention Ownership
-  - Owner: Backend Builder + Ops/Release
-  - Depends on: PRJ-321
-  - Priority: P1
-  - Result:
-    - scheduler runtime exposes one explicit owner mode for cadence execution
-      (`in_process|externalized`)
-    - operators can see whether maintenance/proactive cadence is app-local or
-      externally owned without inferring from scattered signals
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_contracts.py tests/test_scheduler_worker.py tests/test_api_routes.py tests/test_config.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-323 Route maintenance and proactive cadence through the shared owner-aware dispatch boundary
-  - Status: FUTURE
+  - Status: READY
   - Group: Scheduler Externalization And Attention Ownership
   - Owner: Backend Builder
   - Depends on: PRJ-322
@@ -69,6 +49,12 @@ Last updated: 2026-04-20
       ownership paths
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_action_executor.py tests/test_api_routes.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-324 Add attention-inbox ownership posture for future durable coordination rollout
   - Status: FUTURE
@@ -273,6 +259,26 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-322 Implement owner-aware scheduler execution mode and health snapshot
+  - Status: DONE
+  - Group: Scheduler Externalization And Attention Ownership
+  - Owner: Backend Builder + Ops/Release
+  - Depends on: PRJ-321
+  - Priority: P1
+  - Result:
+    - scheduler/runtime now expose explicit cadence execution mode
+      (`in_process|externalized`) through shared scheduler contracts and health
+      snapshot posture
+    - `/health.scheduler` now exposes explicit maintenance/proactive cadence
+      owner signals (`in_process_scheduler|external_scheduler`) plus
+      readiness/blocker posture so operators no longer infer ownership from
+      scattered runtime flags
+    - scheduler worker snapshot now carries owner-aware cadence execution
+      posture (`execution_mode`, `configured_enabled`, proactive posture, and
+      readiness signals)
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_contracts.py tests/test_scheduler_worker.py tests/test_api_routes.py tests/test_config.py`
 
 - [x] PRJ-321 Sync docs/context/runbook for internal debug ingress migration
   - Status: DONE

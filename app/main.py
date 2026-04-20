@@ -378,6 +378,8 @@ async def lifespan(app: FastAPI):
         reflection_runtime_mode=settings.reflection_runtime_mode,
         reflection_interval_seconds=settings.reflection_interval,
         maintenance_interval_seconds=settings.maintenance_interval,
+        execution_mode=settings.scheduler_execution_mode,
+        proactive_enabled=settings.proactive_enabled,
     )
     runtime_reflection_worker = reflection_worker
     if settings.reflection_runtime_mode == "in_process":
@@ -388,16 +390,25 @@ async def lifespan(app: FastAPI):
             "reflection_runtime mode=%s action=defer_background_worker note=enqueue_only_for_out_of_process_execution",
             settings.reflection_runtime_mode,
         )
-    if settings.scheduler_enabled:
+    if scheduler_worker.enabled:
         await scheduler_worker.start()
         logger.info(
-            "scheduler_runtime enabled=%s reflection_interval=%s maintenance_interval=%s",
+            "scheduler_runtime enabled=%s configured_enabled=%s execution_mode=%s reflection_interval=%s maintenance_interval=%s proactive_enabled=%s",
+            scheduler_worker.enabled,
             settings.scheduler_enabled,
+            settings.scheduler_execution_mode,
             settings.reflection_interval,
             settings.maintenance_interval,
+            settings.proactive_enabled,
         )
     else:
-        logger.info("scheduler_runtime enabled=%s", settings.scheduler_enabled)
+        logger.info(
+            "scheduler_runtime enabled=%s configured_enabled=%s execution_mode=%s proactive_enabled=%s",
+            scheduler_worker.enabled,
+            settings.scheduler_enabled,
+            settings.scheduler_execution_mode,
+            settings.proactive_enabled,
+        )
 
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
@@ -436,13 +447,15 @@ async def lifespan(app: FastAPI):
     app.state.runtime = runtime
 
     logger.info(
-        "AION started env=%s port=%s openai_enabled=%s telegram_enabled=%s reflection_runtime_mode=%s scheduler_enabled=%s semantic_vector_enabled=%s embedding_provider=%s embedding_model=%s embedding_dimensions=%s embedding_refresh_mode=%s embedding_refresh_interval_seconds=%s embedding_provider_ownership_enforcement=%s embedding_model_governance_enforcement=%s embedding_source_rollout_enforcement=%s",
+        "AION started env=%s port=%s openai_enabled=%s telegram_enabled=%s reflection_runtime_mode=%s scheduler_enabled=%s scheduler_execution_mode=%s proactive_enabled=%s semantic_vector_enabled=%s embedding_provider=%s embedding_model=%s embedding_dimensions=%s embedding_refresh_mode=%s embedding_refresh_interval_seconds=%s embedding_provider_ownership_enforcement=%s embedding_model_governance_enforcement=%s embedding_source_rollout_enforcement=%s",
         settings.app_env,
         settings.app_port,
         bool(settings.openai_api_key),
         bool(settings.telegram_bot_token),
         settings.reflection_runtime_mode,
         settings.scheduler_enabled,
+        settings.scheduler_execution_mode,
+        settings.proactive_enabled,
         bool(getattr(settings, "semantic_vector_enabled", True)),
         str(getattr(settings, "embedding_provider", "deterministic")),
         str(getattr(settings, "embedding_model", "deterministic-v1")),

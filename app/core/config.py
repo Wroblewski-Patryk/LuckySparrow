@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     startup_schema_mode: Literal["migrate", "create_tables"] = "migrate"
     production_policy_enforcement: Literal["warn", "strict"] = "warn"
     reflection_runtime_mode: Literal["in_process", "deferred"] = "in_process"
+    scheduler_execution_mode: Literal["in_process", "externalized"] = "in_process"
     scheduler_enabled: bool = False
     reflection_interval: int = 900
     maintenance_interval: int = 3600

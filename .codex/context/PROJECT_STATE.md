@@ -1118,8 +1118,16 @@ Last updated: 2026-04-20
   `docs/planning/next-iteration-plan.md`,
   `.codex/context/TASK_BOARD.md`, and
   `.codex/context/PROJECT_STATE.md`.
-- 2026-04-20: `PRJ-322` is the next `READY` slice, focused on owner-aware
-  scheduler execution mode and health snapshot posture.
+- 2026-04-20: `PRJ-322` is complete: scheduler cadence ownership now has one
+  explicit execution-mode contract (`in_process|externalized`) with shared
+  scheduler-readiness posture, worker snapshot ownership fields, and
+  `/health.scheduler` owner visibility for maintenance/proactive cadence.
+- 2026-04-20: `PRJ-322` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_contracts.py tests/test_scheduler_worker.py tests/test_api_routes.py tests/test_config.py`
+  passed with `129 passed`.
+- 2026-04-20: `PRJ-323` is the next `READY` slice, focused on routing
+  maintenance/proactive cadence through the shared owner-aware dispatch
+  boundary.
 
 ## Working Agreements
 

@@ -258,9 +258,11 @@ class FakeSettings:
         startup_schema_mode: str = "migrate",
         production_policy_enforcement: str = "warn",
         reflection_runtime_mode: str = "in_process",
+        scheduler_execution_mode: str = "in_process",
         scheduler_enabled: bool = False,
         reflection_interval: int = 900,
         maintenance_interval: int = 3600,
+        proactive_enabled: bool = False,
     ):
         self.telegram_webhook_secret = telegram_webhook_secret
         self.app_env = app_env
@@ -284,9 +286,11 @@ class FakeSettings:
         self.startup_schema_mode = startup_schema_mode
         self.production_policy_enforcement = production_policy_enforcement
         self.reflection_runtime_mode = reflection_runtime_mode
+        self.scheduler_execution_mode = scheduler_execution_mode
         self.scheduler_enabled = scheduler_enabled
         self.reflection_interval = reflection_interval
         self.maintenance_interval = maintenance_interval
+        self.proactive_enabled = proactive_enabled
 
     def is_event_debug_enabled(self) -> bool:
         if self.event_debug_enabled is not None:
@@ -349,20 +353,58 @@ class FakeSchedulerWorker:
         *,
         enabled: bool = False,
         running: bool = False,
+        execution_mode: str = "in_process",
+        configured_enabled: bool | None = None,
+        proactive_enabled: bool = False,
         reflection_runtime_mode: str = "in_process",
         reflection_interval_seconds: int = 900,
         maintenance_interval_seconds: int = 3600,
     ):
         self.enabled = enabled
         self.running = running
+        self.execution_mode = execution_mode
+        self.configured_enabled = enabled if configured_enabled is None else configured_enabled
+        self.proactive_enabled = proactive_enabled
         self.reflection_runtime_mode = reflection_runtime_mode
         self.reflection_interval_seconds = reflection_interval_seconds
         self.maintenance_interval_seconds = maintenance_interval_seconds
 
     def snapshot(self) -> dict:
+        cadence_execution = {
+            "baseline_execution_mode": "in_process",
+            "selected_execution_mode": self.execution_mode,
+            "ready": not (
+                (self.execution_mode == "in_process" and self.enabled and not self.running)
+                or (self.execution_mode == "externalized" and self.running)
+            ),
+            "blocking_signals": (
+                ["in_process_scheduler_not_running"]
+                if self.execution_mode == "in_process" and self.enabled and not self.running
+                else (
+                    ["externalized_scheduler_worker_running"]
+                    if self.execution_mode == "externalized" and self.running
+                    else []
+                )
+            ),
+            "maintenance_cadence_owner": (
+                "external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler"
+            ),
+            "proactive_cadence_owner": (
+                "external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler"
+            ),
+            "scheduler_enabled": self.enabled,
+            "scheduler_running": self.running,
+            "proactive_enabled": self.proactive_enabled,
+        }
         return {
+            "execution_mode": self.execution_mode,
+            "configured_enabled": self.configured_enabled,
             "enabled": self.enabled,
             "running": self.running,
+            "proactive_enabled": self.proactive_enabled,
+            "maintenance_cadence_owner": cadence_execution["maintenance_cadence_owner"],
+            "proactive_cadence_owner": cadence_execution["proactive_cadence_owner"],
+            "cadence_execution": cadence_execution,
             "reflection_runtime_mode": self.reflection_runtime_mode,
             "reflection_interval_seconds": self.reflection_interval_seconds,
             "maintenance_interval_seconds": self.maintenance_interval_seconds,
@@ -404,10 +446,12 @@ def _client(
     startup_schema_mode: str = "migrate",
     production_policy_enforcement: str = "warn",
     reflection_runtime_mode: str = "in_process",
+    scheduler_execution_mode: str = "in_process",
     scheduler_enabled: bool = False,
     scheduler_running: bool = False,
     reflection_interval: int = 900,
     maintenance_interval: int = 3600,
+    proactive_enabled: bool = False,
     attention_burst_window_ms: int = 120,
 ) -> tuple[TestClient, FakeRuntime, FakeTelegramClient]:
     app = FastAPI()
@@ -419,6 +463,9 @@ def _client(
     scheduler_worker = FakeSchedulerWorker(
         enabled=scheduler_enabled,
         running=scheduler_running,
+        execution_mode=scheduler_execution_mode,
+        configured_enabled=scheduler_enabled,
+        proactive_enabled=proactive_enabled,
         reflection_runtime_mode=reflection_runtime_mode,
         reflection_interval_seconds=reflection_interval,
         maintenance_interval_seconds=maintenance_interval,
@@ -448,9 +495,11 @@ def _client(
         startup_schema_mode=startup_schema_mode,
         production_policy_enforcement=production_policy_enforcement,
         reflection_runtime_mode=reflection_runtime_mode,
+        scheduler_execution_mode=scheduler_execution_mode,
         scheduler_enabled=scheduler_enabled,
         reflection_interval=reflection_interval,
         maintenance_interval=maintenance_interval,
+        proactive_enabled=proactive_enabled,
     )
     app.state.memory_repository = memory_repository
     app.state.reflection_worker = reflection_worker
@@ -607,8 +656,24 @@ def test_health_endpoint_returns_ok() -> None:
         },
         "scheduler": {
             "healthy": True,
+            "execution_mode": "in_process",
+            "configured_enabled": False,
             "enabled": False,
             "running": False,
+            "proactive_enabled": False,
+            "maintenance_cadence_owner": "in_process_scheduler",
+            "proactive_cadence_owner": "in_process_scheduler",
+            "cadence_execution": {
+                "baseline_execution_mode": "in_process",
+                "selected_execution_mode": "in_process",
+                "ready": True,
+                "blocking_signals": [],
+                "maintenance_cadence_owner": "in_process_scheduler",
+                "proactive_cadence_owner": "in_process_scheduler",
+                "scheduler_enabled": False,
+                "scheduler_running": False,
+                "proactive_enabled": False,
+            },
             "reflection_runtime_mode": "in_process",
             "reflection_interval_seconds": 900,
             "maintenance_interval_seconds": 3600,
@@ -1158,6 +1223,33 @@ def test_health_endpoint_marks_scheduler_unhealthy_when_enabled_but_not_running(
     assert body["scheduler"]["enabled"] is True
     assert body["scheduler"]["running"] is False
     assert body["scheduler"]["healthy"] is False
+    assert body["scheduler"]["cadence_execution"]["ready"] is False
+    assert "in_process_scheduler_not_running" in body["scheduler"]["cadence_execution"]["blocking_signals"]
+
+
+def test_health_endpoint_exposes_externalized_scheduler_execution_mode_posture() -> None:
+    client, _, _ = _client(
+        scheduler_enabled=True,
+        scheduler_running=False,
+        scheduler_execution_mode="externalized",
+        proactive_enabled=True,
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["scheduler"]["execution_mode"] == "externalized"
+    assert body["scheduler"]["enabled"] is True
+    assert body["scheduler"]["running"] is False
+    assert body["scheduler"]["proactive_enabled"] is True
+    assert body["scheduler"]["maintenance_cadence_owner"] == "external_scheduler"
+    assert body["scheduler"]["proactive_cadence_owner"] == "external_scheduler"
+    assert body["scheduler"]["cadence_execution"]["selected_execution_mode"] == "externalized"
+    assert body["scheduler"]["cadence_execution"]["maintenance_cadence_owner"] == "external_scheduler"
+    assert body["scheduler"]["cadence_execution"]["proactive_cadence_owner"] == "external_scheduler"
+    assert body["scheduler"]["healthy"] is True
 
 
 def test_health_endpoint_exposes_attention_snapshot() -> None:
