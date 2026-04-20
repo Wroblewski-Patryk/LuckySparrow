@@ -286,6 +286,11 @@ Last updated: 2026-04-20
 - 2026-04-19: `POST /event?debug=true` now emits explicit compatibility headers
   (`X-AION-Debug-Compat`, `Link`) that point to `POST /event/debug`, keeping
   migration intent machine-visible while preserving backward compatibility.
+- 2026-04-20: internal debug ingress ownership now uses
+  `POST /internal/event/debug` as the primary `system_debug` boundary;
+  `POST /event/debug` is now explicit shared-route compatibility ingress, and
+  `POST /event?debug=true` compatibility headers now point to the internal
+  route.
 - 2026-04-19: `/health` now exposes explicit attention turn-assembly posture
   (`burst_window_ms`, turn TTLs, `pending|claimed|answered` counters), making
   burst-coalescing diagnostics operator-visible without changing runtime turn
@@ -1069,9 +1074,16 @@ Last updated: 2026-04-20
   externalization and attention ownership, identity/language boundary
   hardening, relation lifecycle rollout, and inferred goal/task growth through
   typed intents.
-- 2026-04-20: `PRJ-318` is the next `READY` slice and begins the
-  post-behavior architecture-to-code queue by implementing a dedicated
-  internal debug ingress boundary.
+- 2026-04-20: `PRJ-318` is complete: runtime now exposes
+  `POST /internal/event/debug` as the primary debug ingress, keeps
+  `POST /event/debug` as compatibility ingress with explicit shared-route
+  migration headers, and extends runtime policy snapshot with
+  debug-ingress ownership/path posture fields.
+- 2026-04-20: `PRJ-318` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py`
+  passed with `108 passed`.
+- 2026-04-20: `PRJ-319` is the next `READY` slice, focused on break-glass
+  override posture and shared-endpoint sunset control for debug access.
 
 ## Working Agreements
 

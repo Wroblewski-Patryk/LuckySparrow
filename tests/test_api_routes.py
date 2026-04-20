@@ -485,6 +485,10 @@ def test_health_endpoint_returns_ok() -> None:
             "production_debug_token_required": True,
             "event_debug_query_compat_enabled": True,
             "event_debug_query_compat_source": "environment_default",
+            "event_debug_ingress_owner": "internal_route_primary_shared_route_compat",
+            "event_debug_internal_ingress_path": "/internal/event/debug",
+            "event_debug_shared_ingress_path": "/event/debug",
+            "event_debug_shared_ingress_mode": "compatibility",
             "debug_access_posture": "open_no_token",
             "debug_token_policy_hint": "debug_access_open_without_token",
             "event_debug_source": "explicit",
@@ -1187,6 +1191,10 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
         "production_debug_token_required": True,
         "event_debug_query_compat_enabled": False,
         "event_debug_query_compat_source": "environment_default",
+        "event_debug_ingress_owner": "internal_route_primary_shared_route_compat",
+        "event_debug_internal_ingress_path": "/internal/event/debug",
+        "event_debug_shared_ingress_path": "/event/debug",
+        "event_debug_shared_ingress_mode": "compatibility",
         "debug_access_posture": "disabled",
         "debug_token_policy_hint": "not_applicable_debug_disabled",
         "event_debug_source": "explicit",
@@ -1615,8 +1623,8 @@ def test_event_endpoint_can_return_full_runtime_debug_payload_when_requested() -
     assert body["debug"]["stage_timings_ms"]["memory_load"] == 1
     assert body["debug"]["stage_timings_ms"]["total"] == 12
     assert body["debug"]["event"]["source"] == "api"
-    assert response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_post_event_debug"
-    assert response.headers["link"] == '</event/debug>; rel="alternate"'
+    assert response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_internal_event_debug"
+    assert response.headers["link"] == "</internal/event/debug>; rel=\"alternate\""
     assert response.headers["x-aion-debug-compat-deprecated"] == "true"
     assert runtime.last_event is not None
     assert runtime.last_event.payload["text"] == "show debug runtime"
@@ -1634,8 +1642,30 @@ def test_event_debug_endpoint_returns_full_runtime_debug_payload_when_enabled() 
     assert body["debug"]["expression"]["message"] == "Test reply"
     assert body["debug"]["event"]["source"] == "api"
     assert "x-aion-debug-compat" not in response.headers
+    assert (
+        response.headers["x-aion-debug-shared-compat"]
+        == "shared_debug_route_is_compatibility_use_internal_event_debug"
+    )
+    assert response.headers["link"] == "</internal/event/debug>; rel=\"alternate\""
+    assert response.headers["x-aion-debug-shared-compat-deprecated"] == "true"
     assert runtime.last_event is not None
     assert runtime.last_event.payload["text"] == "show explicit debug runtime"
+
+
+def test_internal_event_debug_endpoint_returns_primary_debug_payload_without_shared_compat_headers() -> None:
+    client, runtime, _ = _client(reflection_triggered=True)
+
+    response = client.post("/internal/event/debug", json={"text": "show internal debug runtime"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reply"]["message"] == "Test reply"
+    assert body["runtime"]["reflection_triggered"] is True
+    assert body["debug"]["event"]["source"] == "api"
+    assert "x-aion-debug-compat" not in response.headers
+    assert "x-aion-debug-shared-compat" not in response.headers
+    assert runtime.last_event is not None
+    assert runtime.last_event.payload["text"] == "show internal debug runtime"
 
 
 def test_event_endpoint_rejects_debug_payload_when_debug_token_is_missing() -> None:
@@ -1719,7 +1749,7 @@ def test_event_endpoint_rejects_debug_query_compat_route_in_production_when_disa
     assert response.status_code == 403
     assert (
         response.json()["detail"]
-        == "Debug query compatibility route is disabled for this environment. Use POST /event/debug."
+        == "Debug query compatibility route is disabled for this environment. Use POST /internal/event/debug."
     )
     assert runtime.last_event is None
 
@@ -1757,7 +1787,7 @@ def test_event_endpoint_allows_debug_payload_when_debug_token_matches() -> None:
     body = response.json()
     assert "debug" in body
     assert body["debug"]["expression"]["message"] == "Test reply"
-    assert response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_post_event_debug"
+    assert response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_internal_event_debug"
     assert response.headers["x-aion-debug-compat-deprecated"] == "true"
     assert runtime.last_event is not None
 
@@ -1780,7 +1810,7 @@ def test_event_endpoint_allows_debug_payload_in_production_when_query_compat_is_
     body = response.json()
     assert "debug" in body
     assert body["debug"]["expression"]["message"] == "Test reply"
-    assert response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_post_event_debug"
+    assert response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_internal_event_debug"
     assert response.headers["x-aion-debug-compat-deprecated"] == "true"
     assert runtime.last_event is not None
 
@@ -1909,6 +1939,11 @@ def test_event_debug_endpoint_allows_debug_payload_when_debug_token_matches() ->
     body = response.json()
     assert "debug" in body
     assert body["debug"]["expression"]["message"] == "Test reply"
+    assert (
+        response.headers["x-aion-debug-shared-compat"]
+        == "shared_debug_route_is_compatibility_use_internal_event_debug"
+    )
+    assert response.headers["x-aion-debug-shared-compat-deprecated"] == "true"
     assert runtime.last_event is not None
 
 
@@ -1952,13 +1987,13 @@ def test_event_endpoint_contract_smoke_pins_public_shape_and_debug_gate() -> Non
     assert "system_debug" in debug_body
     assert "event" in debug_body["debug"]
     assert "stage_timings_ms" in debug_body["debug"]
-    assert debug_response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_post_event_debug"
+    assert debug_response.headers["x-aion-debug-compat"] == "query_debug_route_is_compatibility_use_internal_event_debug"
 
 
 def test_event_debug_endpoint_exposes_system_debug_behavior_contract() -> None:
     client, _, _ = _client()
 
-    debug_response = client.post("/event/debug", json={"text": "system debug contract"})
+    debug_response = client.post("/internal/event/debug", json={"text": "system debug contract"})
 
     assert debug_response.status_code == 200
     body = debug_response.json()
@@ -1970,6 +2005,7 @@ def test_event_debug_endpoint_exposes_system_debug_behavior_contract() -> None:
     assert set(system_debug["memory_bundle"].keys()) == {"episodic", "semantic", "affective", "relations", "diagnostics"}
     assert set(system_debug["plan"].keys()) == {"goal", "steps", "needs_action", "needs_response", "domain_intents"}
     assert system_debug["action_result"]["status"] == "success"
+    assert "x-aion-debug-shared-compat" not in debug_response.headers
 
 
 def test_event_endpoint_debug_payload_pins_foreground_boundary_stage_order() -> None:

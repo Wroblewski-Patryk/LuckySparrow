@@ -33,11 +33,16 @@ from app.reflection.worker import ReflectionWorker
 from app.workers.scheduler import SchedulerWorker
 
 router = APIRouter()
+DEBUG_INTERNAL_INGRESS_PATH = "/internal/event/debug"
 DEBUG_COMPAT_HINT_HEADER = "X-AION-Debug-Compat"
-DEBUG_COMPAT_HINT_VALUE = "query_debug_route_is_compatibility_use_post_event_debug"
-DEBUG_COMPAT_LINK_VALUE = '</event/debug>; rel="alternate"'
+DEBUG_COMPAT_HINT_VALUE = "query_debug_route_is_compatibility_use_internal_event_debug"
+DEBUG_COMPAT_LINK_VALUE = f"<{DEBUG_INTERNAL_INGRESS_PATH}>; rel=\"alternate\""
 DEBUG_COMPAT_DEPRECATED_HEADER = "X-AION-Debug-Compat-Deprecated"
 DEBUG_COMPAT_DEPRECATED_VALUE = "true"
+DEBUG_SHARED_COMPAT_HINT_HEADER = "X-AION-Debug-Shared-Compat"
+DEBUG_SHARED_COMPAT_HINT_VALUE = "shared_debug_route_is_compatibility_use_internal_event_debug"
+DEBUG_SHARED_COMPAT_DEPRECATED_HEADER = "X-AION-Debug-Shared-Compat-Deprecated"
+DEBUG_SHARED_COMPAT_DEPRECATED_VALUE = "true"
 
 
 def _runtime_from_request(request: Request) -> RuntimeOrchestrator:
@@ -196,6 +201,30 @@ async def _handle_event_request(
     return response.model_dump(mode="json", exclude_none=True)
 
 
+async def _handle_internal_debug_ingress(
+    *,
+    payload: dict[str, Any],
+    request: Request,
+) -> dict[str, Any]:
+    return await _handle_event_request(
+        payload=payload,
+        request=request,
+        include_debug=True,
+    )
+
+
+def _mark_query_debug_compat_headers(response: Response) -> None:
+    response.headers[DEBUG_COMPAT_HINT_HEADER] = DEBUG_COMPAT_HINT_VALUE
+    response.headers["Link"] = DEBUG_COMPAT_LINK_VALUE
+    response.headers[DEBUG_COMPAT_DEPRECATED_HEADER] = DEBUG_COMPAT_DEPRECATED_VALUE
+
+
+def _mark_shared_debug_compat_headers(response: Response) -> None:
+    response.headers[DEBUG_SHARED_COMPAT_HINT_HEADER] = DEBUG_SHARED_COMPAT_HINT_VALUE
+    response.headers["Link"] = DEBUG_COMPAT_LINK_VALUE
+    response.headers[DEBUG_SHARED_COMPAT_DEPRECATED_HEADER] = DEBUG_SHARED_COMPAT_DEPRECATED_VALUE
+
+
 @router.get("/health")
 async def health(request: Request) -> dict[str, Any]:
     settings = _settings_from_request(request)
@@ -303,14 +332,16 @@ async def event_endpoint(
         compat_telemetry.record_blocked()
         raise HTTPException(
             status_code=403,
-            detail="Debug query compatibility route is disabled for this environment. Use POST /event/debug.",
+            detail=(
+                "Debug query compatibility route is disabled for this environment. "
+                f"Use POST {DEBUG_INTERNAL_INGRESS_PATH}."
+            ),
         )
     if debug:
         try:
-            body = await _handle_event_request(
+            body = await _handle_internal_debug_ingress(
                 payload=payload,
                 request=request,
-                include_debug=True,
             )
         except HTTPException:
             compat_telemetry.record_blocked()
@@ -323,9 +354,7 @@ async def event_endpoint(
             include_debug=False,
         )
     if debug:
-        response.headers[DEBUG_COMPAT_HINT_HEADER] = DEBUG_COMPAT_HINT_VALUE
-        response.headers["Link"] = DEBUG_COMPAT_LINK_VALUE
-        response.headers[DEBUG_COMPAT_DEPRECATED_HEADER] = DEBUG_COMPAT_DEPRECATED_VALUE
+        _mark_query_debug_compat_headers(response)
     return body
 
 
@@ -333,11 +362,24 @@ async def event_endpoint(
 async def event_debug_endpoint(
     payload: dict[str, Any],
     request: Request,
+    response: Response,
 ) -> dict[str, Any]:
-    return await _handle_event_request(
+    body = await _handle_internal_debug_ingress(
         payload=payload,
         request=request,
-        include_debug=True,
+    )
+    _mark_shared_debug_compat_headers(response)
+    return body
+
+
+@router.post(DEBUG_INTERNAL_INGRESS_PATH, response_model=EventResponse, response_model_exclude_none=True)
+async def internal_event_debug_endpoint(
+    payload: dict[str, Any],
+    request: Request,
+) -> dict[str, Any]:
+    return await _handle_internal_debug_ingress(
+        payload=payload,
+        request=request,
     )
 
 

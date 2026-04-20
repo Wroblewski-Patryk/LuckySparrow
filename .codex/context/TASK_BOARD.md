@@ -36,24 +36,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-318 Implement a dedicated internal debug ingress boundary and shared guard path
-  - Status: READY
-  - Group: Internal Debug Ingress Migration
-  - Owner: Backend Builder
-  - Depends on: PRJ-317
-  - Priority: P1
-  - Result:
-    - runtime exposes one explicit internal debug ingress boundary that owns
-      `system_debug` access semantics
-    - shared-endpoint debug access stops being the primary long-term owner of
-      internal cognitive inspection
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py`
-
-## BACKLOG
-
 - [ ] PRJ-319 Add break-glass override and shared-endpoint sunset posture for debug access
-  - Status: BACKLOG
+  - Status: READY
   - Group: Internal Debug Ingress Migration
   - Owner: Backend Builder
   - Depends on: PRJ-318
@@ -65,6 +49,8 @@ Last updated: 2026-04-20
       instead of baseline
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_config.py`
+
+## BACKLOG
 
 - [ ] PRJ-320 Add debug-ingress migration regressions and smoke coverage
   - Status: BACKLOG
@@ -328,6 +314,23 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-318 Implement a dedicated internal debug ingress boundary and shared guard path
+  - Status: DONE
+  - Group: Internal Debug Ingress Migration
+  - Owner: Backend Builder
+  - Depends on: PRJ-317
+  - Priority: P1
+  - Result:
+    - runtime now exposes `POST /internal/event/debug` as the explicit primary
+      internal debug ingress that owns `system_debug` access semantics
+    - shared `POST /event/debug` now acts as compatibility ingress with
+      migration headers, while `POST /event?debug=true` compatibility headers
+      point to the internal ingress path
+    - runtime policy snapshot now surfaces explicit debug-ingress ownership and
+      path posture fields for operator visibility
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py`
 
 - [x] PRJ-317 Make runtime behavior validation part of release-readiness and sync docs/context/runbook
   - Status: DONE

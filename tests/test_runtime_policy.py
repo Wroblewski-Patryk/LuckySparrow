@@ -32,6 +32,10 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
         "production_debug_token_required": True,
         "event_debug_query_compat_enabled": True,
         "event_debug_query_compat_source": "environment_default",
+        "event_debug_ingress_owner": "internal_route_primary_shared_route_compat",
+        "event_debug_internal_ingress_path": "/internal/event/debug",
+        "event_debug_shared_ingress_path": "/event/debug",
+        "event_debug_shared_ingress_mode": "compatibility",
         "debug_access_posture": "open_no_token",
         "debug_token_policy_hint": "debug_access_open_without_token",
         "event_debug_source": "explicit",
@@ -67,6 +71,10 @@ def test_runtime_policy_snapshot_includes_all_production_mismatches() -> None:
     assert snapshot["event_debug_token_required"] is True
     assert snapshot["event_debug_query_compat_enabled"] is False
     assert snapshot["event_debug_query_compat_source"] == "environment_default"
+    assert snapshot["event_debug_ingress_owner"] == "internal_route_primary_shared_route_compat"
+    assert snapshot["event_debug_internal_ingress_path"] == "/internal/event/debug"
+    assert snapshot["event_debug_shared_ingress_path"] == "/event/debug"
+    assert snapshot["event_debug_shared_ingress_mode"] == "compatibility"
     assert snapshot["debug_access_posture"] == "token_gated"
     assert snapshot["debug_token_policy_hint"] == "token_gated"
     assert snapshot["recommended_production_policy_enforcement"] == "warn"
@@ -125,6 +133,10 @@ def test_runtime_policy_snapshot_marks_event_debug_source_as_environment_default
     assert snapshot["production_debug_token_required"] is True
     assert snapshot["event_debug_query_compat_enabled"] is False
     assert snapshot["event_debug_query_compat_source"] == "environment_default"
+    assert snapshot["event_debug_ingress_owner"] == "internal_route_primary_shared_route_compat"
+    assert snapshot["event_debug_internal_ingress_path"] == "/internal/event/debug"
+    assert snapshot["event_debug_shared_ingress_path"] == "/event/debug"
+    assert snapshot["event_debug_shared_ingress_mode"] == "compatibility"
     assert snapshot["debug_access_posture"] == "disabled"
     assert snapshot["debug_token_policy_hint"] == "not_applicable_debug_disabled"
     assert snapshot["production_policy_mismatches"] == []
