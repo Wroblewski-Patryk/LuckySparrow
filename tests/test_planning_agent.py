@@ -350,6 +350,58 @@ def test_planning_agent_promotes_connector_expansion_proposal_into_discovery_int
     assert discovery_gate.reason == "proposal_only_no_external_access"
 
 
+def test_planning_agent_skips_non_retriable_subconscious_proposal_statuses() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Can you help me with this blocker?"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.72,
+            urgency=0.31,
+            valence=0.0,
+            arousal=0.34,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.8),
+        subconscious_proposals=[
+            {
+                "proposal_id": 501,
+                "proposal_type": "ask_user",
+                "summary": "Already accepted proposal should not be re-processed.",
+                "payload": {"question_focus": "already accepted"},
+                "confidence": 0.77,
+                "status": "accepted",
+                "research_policy": "read_only",
+                "allowed_tools": ["memory_retrieval"],
+            },
+            {
+                "proposal_id": 502,
+                "proposal_type": "nudge_user",
+                "summary": "Discarded proposal should not be re-processed.",
+                "payload": {"task_name": "legacy blocker"},
+                "confidence": 0.65,
+                "status": "discarded",
+            },
+            {
+                "proposal_id": 503,
+                "proposal_type": "ask_user",
+                "summary": "Deferred proposal can re-enter conscious turn.",
+                "payload": {"question_focus": "current blocker scope"},
+                "confidence": 0.71,
+                "status": "deferred",
+                "research_policy": "read_only",
+                "allowed_tools": ["memory_retrieval"],
+            },
+        ],
+    )
+
+    assert len(result.proposal_handoffs) == 1
+    assert result.proposal_handoffs[0].proposal_id == 503
+    assert result.proposal_handoffs[0].decision == "accept"
+    assert len(result.accepted_proposals) == 1
+    assert result.accepted_proposals[0].proposal_id == 503
+    assert "ask_subconscious_clarifier" in result.steps
+
+
 def test_planning_agent_adds_concise_step_from_semantic_preference() -> None:
     result = PlanningAgent().run(
         event=_event(text="Can you help me plan this?"),

@@ -644,6 +644,69 @@ async def test_memory_repository_persists_and_resolves_subconscious_proposals(tm
     await engine.dispose()
 
 
+async def test_memory_repository_reenters_deferred_subconscious_proposals_in_pending_query(tmp_path) -> None:
+    database_path = tmp_path / "memory-subconscious-proposals-deferred.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    created = await repository.upsert_subconscious_proposal(
+        user_id="u-1",
+        proposal_type="ask_user",
+        summary="Ask whether rollout blocker still reproduces.",
+        payload={"question_focus": "rollout blocker status"},
+        confidence=0.68,
+        source_event_id="evt-proposal-deferred-1",
+        research_policy="read_only",
+        allowed_tools=["memory_retrieval"],
+    )
+    deferred = await repository.resolve_subconscious_proposal(
+        proposal_id=int(created["proposal_id"]),
+        decision="defer",
+        reason="wait_for_next_conscious_turn",
+    )
+    retriable = await repository.get_pending_subconscious_proposals(user_id="u-1", limit=5)
+    replayed = await repository.upsert_subconscious_proposal(
+        user_id="u-1",
+        proposal_type="ask_user",
+        summary="Ask whether rollout blocker still reproduces.",
+        payload={"question_focus": "rollout blocker status", "scope": "next check-in"},
+        confidence=0.74,
+        source_event_id="evt-proposal-deferred-2",
+        research_policy="read_only",
+        allowed_tools=["memory_retrieval", "knowledge_search"],
+    )
+    accepted = await repository.resolve_subconscious_proposal(
+        proposal_id=int(replayed["proposal_id"]),
+        decision="accept",
+        reason="confirmed by conscious follow-up",
+    )
+    retriable_after_accept = await repository.get_pending_subconscious_proposals(user_id="u-1", limit=5)
+
+    assert deferred is not None
+    assert deferred["status"] == "deferred"
+    assert deferred["decision_reason"] == "wait_for_next_conscious_turn"
+    assert len(retriable) == 1
+    assert retriable[0]["proposal_id"] == created["proposal_id"]
+    assert retriable[0]["status"] == "deferred"
+    assert replayed["proposal_id"] == created["proposal_id"]
+    assert replayed["status"] == "deferred"
+    assert replayed["confidence"] == 0.74
+    assert replayed["allowed_tools"] == ["memory_retrieval", "knowledge_search"]
+    assert accepted is not None
+    assert accepted["status"] == "accepted"
+    assert retriable_after_accept == []
+
+    async with session_factory() as session:
+        rows = (await session.execute(select(AionSubconsciousProposal))).scalars().all()
+
+    assert len(rows) == 1
+    assert rows[0].status == "accepted"
+
+    await engine.dispose()
+
+
 async def test_memory_repository_can_read_conclusions_by_memory_layer(tmp_path) -> None:
     database_path = tmp_path / "memory-layer-read.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")

@@ -3469,6 +3469,55 @@ async def test_runtime_pipeline_promotes_and_resolves_pending_subconscious_propo
     assert "proposal_handoff" in result.stage_timings_ms
 
 
+async def test_runtime_pipeline_reenters_deferred_subconscious_proposal_for_conscious_handoff() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.pending_subconscious_proposals = [
+        {
+            "proposal_id": 55,
+            "proposal_type": "ask_user",
+            "summary": "Deferred clarifier can re-enter conscious turn.",
+            "payload": {"question_focus": "blocker scope refresh"},
+            "confidence": 0.72,
+            "status": "deferred",
+            "research_policy": "read_only",
+            "allowed_tools": ["memory_retrieval"],
+            "source_event_id": "evt-prop-55",
+        }
+    ]
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient()),
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+
+    event = Event(
+        event_id="evt-proposal-reentry",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Can you help me validate this blocker again?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-proposal-reentry"),
+    )
+
+    result = await runtime.run(event)
+
+    assert len(result.plan.proposal_handoffs) == 1
+    assert result.plan.proposal_handoffs[0].proposal_id == 55
+    assert result.plan.proposal_handoffs[0].decision == "accept"
+    assert len(result.plan.accepted_proposals) == 1
+    assert result.plan.accepted_proposals[0].proposal_id == 55
+    assert "ask_subconscious_clarifier" in result.plan.steps
+    assert len(memory.resolved_subconscious_proposals) == 1
+    assert memory.resolved_subconscious_proposals[0]["proposal_id"] == 55
+    assert memory.resolved_subconscious_proposals[0]["decision"] == "accept"
+
+
 async def test_runtime_pipeline_emits_connector_expansion_discovery_outputs_from_pending_proposal() -> None:
     memory = FakeMemoryRepository(recent_memory=[])
     memory.pending_subconscious_proposals = [

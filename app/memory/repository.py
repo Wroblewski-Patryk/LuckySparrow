@@ -1536,7 +1536,7 @@ class MemoryRepository:
                     AionSubconsciousProposal.user_id == user_id,
                     AionSubconsciousProposal.proposal_type == normalized_type,
                     AionSubconsciousProposal.summary == normalized_summary,
-                    AionSubconsciousProposal.status == "pending",
+                    AionSubconsciousProposal.status.in_(("pending", "deferred")),
                 )
                 .order_by(AionSubconsciousProposal.id.desc())
                 .limit(1)
@@ -1572,9 +1572,10 @@ class MemoryRepository:
                 select(AionSubconsciousProposal)
                 .where(
                     AionSubconsciousProposal.user_id == user_id,
-                    AionSubconsciousProposal.status == "pending",
+                    AionSubconsciousProposal.status.in_(("pending", "deferred")),
                 )
                 .order_by(
+                    (AionSubconsciousProposal.status == "pending").desc(),
                     AionSubconsciousProposal.confidence.desc(),
                     AionSubconsciousProposal.created_at.asc(),
                     AionSubconsciousProposal.id.asc(),

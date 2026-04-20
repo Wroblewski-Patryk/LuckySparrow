@@ -577,7 +577,9 @@ What is already live:
   `ATTENTION_BURST_WINDOW_MS`, `ATTENTION_ANSWERED_TTL_SECONDS`, and
   `ATTENTION_STALE_TURN_SECONDS`
 - reflection now derives and persists subconscious proposals with explicit
-  proposal lifecycle state (`pending|accepted|deferred|discarded`)
+  proposal lifecycle state (`pending|accepted|merged|deferred|discarded`)
+- conscious runtime now treats `pending|deferred` proposals as retriable input
+  for proposal re-entry and skips non-retriable statuses during planning
 - conscious planning/runtime now records proposal handoff decisions and resolves
   persisted proposals only after conscious acceptance/defer/discard decisions
 - subconscious research proposals now carry explicit read-only policy/tool

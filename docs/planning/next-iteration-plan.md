@@ -1268,7 +1268,7 @@ through one explicit conscious ownership path.
     - doc-and-context sync plus targeted dual-loop contract review recorded in
       this slice
 
-- `PRJ-293` Implement end-to-end proposal persistence and conscious handoff decisions.
+- `PRJ-293` is complete.
   - Result:
     - subconscious proposals can persist durably and re-enter conscious runtime
       through explicit handoff decisions
@@ -1340,10 +1340,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-293` is currently the execution-ready slice in the board.
+`PRJ-294` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-293` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-294` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

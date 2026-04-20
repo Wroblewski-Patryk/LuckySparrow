@@ -846,7 +846,7 @@ Last updated: 2026-04-20
 - 2026-04-20: foreground convergence group is now complete through `PRJ-279`;
   background topology convergence is complete through `PRJ-283`; production
   retrieval implementation is complete through `PRJ-287`; adaptive governance
-  policy baseline is complete through `PRJ-288`; `PRJ-293` is now the next
+  policy baseline is complete through `PRJ-288`; `PRJ-294` is now the next
   `READY` implementation slice.
 - 2026-04-20: `PRJ-288` is complete: architecture contracts now define explicit
   adaptive influence evidence gates, precedence, and tie-break guardrails for
@@ -887,6 +887,14 @@ Last updated: 2026-04-20
   `docs/implementation/runtime-reality.md`,
   `.codex/context/TASK_BOARD.md`, and
   `docs/planning/next-iteration-plan.md`.
+- 2026-04-20: `PRJ-293` is complete: subconscious proposal persistence now
+  supports conscious re-entry from retriable lifecycle states
+  (`pending|deferred`), planning skips non-retriable proposal states, and
+  conscious handoff decisions continue to gate resolution before proposal-driven
+  side-effect shaping.
+- 2026-04-20: `PRJ-293` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py tests/test_planning_agent.py`
+  passed with `193 passed`.
 
 ## Working Agreements
 

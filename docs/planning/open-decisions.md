@@ -600,8 +600,10 @@ The current repo already works as an MVP slice, but several architecture-level d
     communicate directly with the user, and runtime contracts now model a
     first-class proposal handoff surface between subconscious and conscious
     paths.
-  - proposal persistence/promotion behavior is still not implemented end to end
-    in live runtime execution.
+  - proposal persistence/promotion now runs end to end in live runtime:
+    reflection persists proposal records, runtime loads retriable proposal
+    states (`pending|deferred`), planning emits conscious handoff decisions, and
+    runtime resolves proposal lifecycle status from those decisions.
   - planning now includes explicit proposal persistence, conscious promotion
     rules, read-only subconscious tool policy, and separate wakeup/cadence
     slices (`PRJ-088..PRJ-091`).

@@ -727,6 +727,7 @@ class PlanningAgent:
         accepted: list[SubconsciousProposalRecord] = []
         extra_steps: list[str] = []
         normalized_text = str(event.payload.get("text", "")).strip().lower()
+        retriable_statuses = {"pending", "deferred"}
 
         for raw in subconscious_proposals[:4]:
             proposal_id_raw = raw.get("proposal_id")
@@ -734,13 +735,16 @@ class PlanningAgent:
                 proposal_id = int(proposal_id_raw)
             except (TypeError, ValueError):
                 continue
+            proposal_status = str(raw.get("status", "pending")).strip().lower()
+            if proposal_status not in retriable_statuses:
+                continue
             proposal = SubconsciousProposalRecord(
                 proposal_id=proposal_id,
                 proposal_type=str(raw.get("proposal_type", "nudge_user")),
                 summary=str(raw.get("summary", "")),
                 payload=raw.get("payload") if isinstance(raw.get("payload"), dict) else {},
                 confidence=float(raw.get("confidence", 0.0) or 0.0),
-                status=str(raw.get("status", "pending")),
+                status=proposal_status,
                 source_event_id=str(raw.get("source_event_id", "") or "") or None,
                 research_policy=str(raw.get("research_policy", "read_only")),
                 allowed_tools=[
