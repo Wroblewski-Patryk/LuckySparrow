@@ -1389,28 +1389,71 @@ not around temporary convenience defaults.
     - doc-and-context sync plus targeted ops-runbook review recorded in this
       slice
 
+- `PRJ-305` is complete.
+  - Result:
+    - next post-reflection execution queue is now seeded through `PRJ-309`
+      from remaining open decisions
+    - queue continuity is preserved after `PRJ-304` with explicit
+      decision-linked slices instead of ad-hoc backlog picks
+  - Validation:
+    - doc-and-context sync plus targeted planning coherence review recorded in
+      this slice
+
 ## Next Derived Slice
 
-The post-convergence reflection lane is complete through `PRJ-304`.
-`PRJ-305` is currently the execution-ready slice in the board.
+The post-reflection queue is now seeded through `PRJ-309`.
+`PRJ-306` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-305` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-306` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 
-Next post-reflection queue bootstrap:
+Post-reflection hardening queue:
 
-- `PRJ-305` Derive and record the next execution queue after reflection lane
-  closure.
+- `PRJ-306` Define criteria and migration guardrails for removing
+  `create_tables` compatibility startup path.
   - Result:
-    - first post-reflection queue is explicitly derived from remaining open
-      decisions and reflected in planning docs plus task board state
-    - execution continuity is preserved after `PRJ-304` without ad-hoc task
-      selection
+    - migration-strategy follow-up now has explicit removal criteria instead of
+      open-ended compatibility posture
+    - future runtime slices can remove bootstrap fallback without reopening
+      production baseline intent
   - Validation:
-    - doc-and-context sync plus targeted planning coherence review recorded in
-      slice
+    - doc-and-context sync plus targeted migration-strategy review recorded in
+      this slice
+
+- `PRJ-307` Define target internal debug ingress boundary and migration posture
+  away from shared public API service endpoint.
+  - Result:
+    - public-api follow-up decision now has explicit target-state ingress
+      contract and migration ownership boundaries
+    - debug-surface hardening can proceed without redefining runtime-policy
+      baselines each slice
+  - Validation:
+    - doc-and-context sync plus targeted public-api boundary review recorded in
+      this slice
+
+- `PRJ-308` Define long-term scheduler externalization boundary for
+  maintenance/proactive cadence ownership.
+  - Result:
+    - scheduler/proactive follow-up now has one explicit target posture for
+      app-local vs external cadence ownership after reflection rollout
+    - later implementation slices can converge on one cadence owner model
+      instead of reopening decision `12` every cycle
+  - Validation:
+    - doc-and-context sync plus targeted scheduler-boundary review recorded in
+      this slice
+
+- `PRJ-309` Sync docs/context/runbook for post-reflection hardening queue
+  decisions.
+  - Result:
+    - planning, project state, and ops runbook remain synchronized after
+      post-reflection decision closure slices
+    - release-readiness and runtime-governance docs stay aligned with the next
+      hardening lane
+  - Validation:
+    - doc-and-context sync plus targeted cross-doc consistency review recorded
+      in this slice
 
 ## Parallel-Ready Lanes
 

@@ -29,8 +29,10 @@ The current repo already works as an MVP slice, but several architecture-level d
     `6`, `7`)
   - `PRJ-301..PRJ-304`: reflection deployment baseline and readiness rollout
     (`1`, `12` follow-up)
+  - `PRJ-306..PRJ-309`: post-reflection hardening decisions (`2` follow-up,
+    `3` follow-up, `12` follow-up)
 - reflection deployment lane is now complete through `PRJ-304`; next queue
-  derivation continues from `PRJ-305`.
+  derivation now continues through `PRJ-309` from `PRJ-305`.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

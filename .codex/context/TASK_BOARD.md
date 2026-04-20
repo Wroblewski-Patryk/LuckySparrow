@@ -15,10 +15,11 @@ Last updated: 2026-04-20
   - run relevant tests and validations
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
-- The convergence queue is complete through `PRJ-299`; post-convergence seed
-  queue now extends through `PRJ-304`.
-- `PRJ-304` is complete; `PRJ-305` is currently `READY` to derive the next
-  execution queue after reflection-lane closure.
+- The convergence queue is complete through `PRJ-299`; reflection lane is now
+  complete through `PRJ-304`, and post-reflection hardening queue is seeded
+  through `PRJ-309`.
+- `PRJ-305` is complete; `PRJ-306` is currently `READY` to define
+  `create_tables` removal criteria and migration guardrails.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -29,19 +30,19 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-305 Derive and record the next execution queue after reflection lane closure
+- [ ] PRJ-306 Define criteria and migration guardrails for removing `create_tables` compatibility startup path
   - Status: READY
-  - Group: Post-Reflection Planning Baseline
-  - Owner: Planner + Product Docs
-  - Depends on: PRJ-304
+  - Group: Post-Reflection Hardening Queue
+  - Owner: Planner + Ops/Release
+  - Depends on: PRJ-305
   - Priority: P1
   - Result:
-    - first post-reflection queue is explicitly derived from remaining open
-      decisions and reflected in planning docs plus task board state
-    - execution continuity is preserved after `PRJ-304` without ad-hoc task
-      selection
+    - migration-strategy follow-up now has explicit removal criteria instead of
+      open-ended compatibility posture
+    - future runtime slices can remove bootstrap fallback without reopening
+      production baseline intent
   - Validation:
-    - doc-and-context sync plus targeted planning coherence review recorded in
+    - doc-and-context sync plus targeted migration-strategy review recorded in
       this slice
 
 ## BACKLOG
@@ -65,6 +66,21 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-305 Derive and record the next execution queue after reflection lane closure
+  - Status: DONE
+  - Group: Post-Reflection Planning Baseline
+  - Owner: Planner + Product Docs
+  - Depends on: PRJ-304
+  - Priority: P1
+  - Result:
+    - post-reflection hardening queue is now seeded through `PRJ-309` from
+      remaining open decisions
+    - execution continuity is preserved after `PRJ-304` without ad-hoc queue
+      selection
+  - Validation:
+    - doc-and-context sync plus targeted planning coherence review recorded in
+      this slice
 
 - [x] PRJ-304 Sync docs/context/runbook for reflection deployment baseline and readiness contract
   - Status: DONE
