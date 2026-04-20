@@ -16,8 +16,8 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-293` is complete; `PRJ-294` is currently `READY` and continues
-  dual-loop execution-boundary implementation.
+- `PRJ-294` is complete; `PRJ-295` is currently `READY` and closes this lane
+  with end-to-end regressions plus docs/context sync.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -28,28 +28,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-294 Route proactive outreach and connector permission gates through the shared attention/proposal boundary
-  - Status: READY
-  - Group: Attention And Proposal Execution Boundary
-  - Owner: Backend Builder
-  - Depends on: PRJ-293
-  - Priority: P1
-  - Result:
-    - proactive delivery and external-connector permission outcomes now share
-      one conscious execution boundary
-    - connector suggestions and outreach plans stop bypassing the same gating
-      model used for batched conversation handling
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_planning_agent.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-295 Add dual-loop execution-boundary regressions and sync docs/context
-  - Status: FUTURE
+  - Status: READY
   - Group: Attention And Proposal Execution Boundary
   - Owner: QA/Test + Product Docs
   - Depends on: PRJ-294
@@ -60,6 +40,12 @@ Last updated: 2026-04-20
     - docs and context now describe one coherent dual-loop execution model
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_reflection_worker.py tests/test_action_executor.py tests/test_planning_agent.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-296 Define the target production posture for migration-only startup, strict defaults, and the internal debug boundary
   - Status: FUTURE
@@ -131,6 +117,20 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-294 Route proactive outreach and connector permission gates through the shared attention/proposal boundary
+  - Status: DONE
+  - Group: Attention And Proposal Execution Boundary
+  - Owner: Backend Builder
+  - Depends on: PRJ-293
+  - Priority: P1
+  - Result:
+    - proactive delivery and external-connector permission outcomes now share
+      one conscious execution boundary
+    - connector suggestions and outreach plans stop bypassing the same gating
+      model used for batched conversation handling
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_planning_agent.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-293 Implement end-to-end proposal persistence and conscious handoff decisions
   - Status: DONE

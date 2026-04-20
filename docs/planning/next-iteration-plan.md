@@ -1277,7 +1277,7 @@ through one explicit conscious ownership path.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py tests/test_planning_agent.py`
 
-- `PRJ-294` Route proactive outreach and connector permission gates through the shared attention/proposal boundary.
+- `PRJ-294` is complete.
   - Result:
     - proactive delivery and external-connector permission outcomes now share
       one conscious execution boundary
@@ -1340,10 +1340,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-294` is currently the execution-ready slice in the board.
+`PRJ-295` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-294` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-295` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

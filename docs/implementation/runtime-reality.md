@@ -587,6 +587,8 @@ What is already live:
 - proactive scheduler events now pass through an explicit attention gate
   (quiet-hours, cooldown, unanswered-backlog with adaptive-only tightening
   limits) before delivery planning
+- proactive outreach outcomes and connector permission-gate outcomes now share
+  the same conscious plan/action execution boundary
 - planning/action contracts now include connector permission-gate outputs plus
   typed calendar/task/drive connector intents without direct provider side
   effects
