@@ -54,6 +54,9 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `/health.reflection` now exposes deployment-readiness posture
     (`ready`, `blocking_signals`, baseline/selected runtime mode) so reflection
     mode migration no longer depends on log-only interpretation.
+  - release smoke scripts now treat reflection deployment-readiness blockers as
+    release-failing signals (with explicit fallback checks for older runtimes
+    that do not yet expose the readiness snapshot).
 - Decision (PRJ-301 reflection deployment baseline, 2026-04-20):
   - production deployment baseline remains
     `REFLECTION_RUNTIME_MODE=in_process` for now, so reflection dispatch keeps

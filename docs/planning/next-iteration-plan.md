@@ -1367,29 +1367,29 @@ not around temporary convenience defaults.
     - reflection mode migration can now be verified through health contract
       signals instead of log-only interpretation
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_scheduler_worker.py tests/test_reflection_worker.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_scheduler_contracts.py tests/test_scheduler_worker.py tests/test_reflection_worker.py`
+
+- `PRJ-303` is complete.
+  - Result:
+    - reflection deployment-readiness regressions now pin runtime-mode,
+      handoff, and task-health blocker signals through shared contract helpers
+      and `/health` integration
+    - release smoke scripts now fail fast when reflection deployment-readiness
+      blockers are present (with fallback checks for older runtimes)
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_scheduler_contracts.py`
 
 ## Next Derived Slice
 
 The post-convergence seed queue now extends through `PRJ-304`.
-`PRJ-303` is currently the execution-ready slice in the board.
+`PRJ-304` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-303` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-304` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 
 Post-convergence seed queue:
-
-- `PRJ-303` Add reflection deployment-readiness regressions and smoke script
-  alignment.
-  - Result:
-    - regression coverage pins chosen reflection-mode readiness signals and
-      fallback behavior in release smoke tooling
-    - rollout no longer depends on undocumented manual interpretation of mixed
-      topology signals
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_reflection_worker.py tests/test_scheduler_worker.py`
 
 - `PRJ-304` Sync docs/context/runbook for reflection deployment baseline and
   readiness contract.

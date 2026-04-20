@@ -61,6 +61,65 @@ if not release_ready:
     details = ",".join(release_violations) if release_violations else "unspecified"
     raise SystemExit(f"Release readiness check failed: {details}")
 
+reflection = health.get("reflection")
+if not isinstance(reflection, dict):
+    raise SystemExit("Health check failed: response is missing reflection")
+
+deployment_readiness = reflection.get("deployment_readiness")
+if isinstance(deployment_readiness, dict) and "ready" in deployment_readiness:
+    reflection_deployment_ready = bool(deployment_readiness.get("ready"))
+    reflection_deployment_violations = [
+        str(item)
+        for item in deployment_readiness.get("blocking_signals", [])
+        if isinstance(item, str) and item.strip()
+    ]
+else:
+    runtime_mode = str(reflection.get("runtime_mode", "in_process")).strip().lower() or "in_process"
+    worker = reflection.get("worker")
+    worker_running = bool(worker.get("running")) if isinstance(worker, dict) else False
+    topology = reflection.get("topology") if isinstance(reflection.get("topology"), dict) else {}
+    tasks = reflection.get("tasks") if isinstance(reflection.get("tasks"), dict) else {}
+
+    fallback_signals: list[str] = []
+    if runtime_mode == "deferred":
+        if worker_running:
+            fallback_signals.append("deferred_in_process_worker_running")
+        if topology.get("queue_drain_owner") != "external_driver":
+            fallback_signals.append("deferred_queue_drain_owner_mismatch")
+        if not bool(topology.get("external_driver_expected")):
+            fallback_signals.append("deferred_external_driver_expectation_missing")
+        if not bool(topology.get("scheduler_tick_dispatch")):
+            fallback_signals.append("deferred_scheduler_dispatch_flag_mismatch")
+    else:
+        if not worker_running:
+            fallback_signals.append("in_process_worker_not_running")
+        if topology.get("queue_drain_owner") != "in_process_worker":
+            fallback_signals.append("in_process_queue_drain_owner_mismatch")
+        if bool(topology.get("external_driver_expected")):
+            fallback_signals.append("in_process_external_driver_flag_mismatch")
+        if bool(topology.get("scheduler_tick_dispatch")):
+            fallback_signals.append("in_process_scheduler_dispatch_flag_mismatch")
+
+    try:
+        stuck_processing = max(0, int(tasks.get("stuck_processing", 0)))
+    except (TypeError, ValueError):
+        stuck_processing = 0
+    try:
+        exhausted_failed = max(0, int(tasks.get("exhausted_failed", 0)))
+    except (TypeError, ValueError):
+        exhausted_failed = 0
+    if stuck_processing > 0:
+        fallback_signals.append("reflection_stuck_processing_detected")
+    if exhausted_failed > 0:
+        fallback_signals.append("reflection_exhausted_failures_detected")
+
+    reflection_deployment_violations = fallback_signals
+    reflection_deployment_ready = len(reflection_deployment_violations) == 0
+
+if not reflection_deployment_ready:
+    details = ",".join(reflection_deployment_violations) if reflection_deployment_violations else "unspecified"
+    raise SystemExit(f"Reflection deployment readiness check failed: {details}")
+
 payload = {
     "source": "api",
     "subsource": "manual_smoke",
@@ -108,6 +167,8 @@ summary = {
     "reflection_triggered": result.get("runtime", {}).get("reflection_triggered"),
     "release_ready": release_ready,
     "release_violations": release_violations,
+    "reflection_deployment_ready": reflection_deployment_ready,
+    "reflection_deployment_violations": reflection_deployment_violations,
     "debug_included": "debug" in result,
 }
 

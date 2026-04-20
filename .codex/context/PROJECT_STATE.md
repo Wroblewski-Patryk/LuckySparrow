@@ -846,7 +846,7 @@ Last updated: 2026-04-20
 - 2026-04-20: foreground convergence group is now complete through `PRJ-279`;
   background topology convergence is complete through `PRJ-283`; production
   retrieval implementation is complete through `PRJ-287`; adaptive governance
-  policy baseline is complete through `PRJ-288`; `PRJ-303` is now the next
+  policy baseline is complete through `PRJ-288`; `PRJ-304` is now the next
   `READY` implementation slice.
 - 2026-04-20: `PRJ-288` is complete: architecture contracts now define explicit
   adaptive influence evidence gates, precedence, and tie-break guardrails for
@@ -969,6 +969,13 @@ Last updated: 2026-04-20
 - 2026-04-20: `PRJ-302` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_scheduler_contracts.py tests/test_scheduler_worker.py tests/test_reflection_worker.py`
   passed with `119 passed`.
+- 2026-04-20: `PRJ-303` is complete: reflection deployment-readiness
+  regressions now pin blocker semantics in shared scheduler contracts and
+  `/health`, while release smoke scripts now fail fast on reflection readiness
+  blockers with explicit fallback checks for older runtimes.
+- 2026-04-20: `PRJ-303` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_scheduler_contracts.py`
+  passed with `120 passed`.
 
 ## Working Agreements
 

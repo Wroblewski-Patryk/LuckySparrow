@@ -553,6 +553,8 @@ Deployment baseline update (`PRJ-301`):
 - deferred mode is treated as rollout posture with explicit
   external-dispatch readiness criteria documented in
   `docs/operations/runtime-ops-runbook.md`
+- release smoke now fails fast when reflection deployment-readiness blockers
+  are present in `/health.reflection.deployment_readiness`
 
 This is more advanced than a purely conceptual background loop, but still
 lighter than the long-term architecture could become.

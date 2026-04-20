@@ -271,6 +271,10 @@ Release smoke ownership:
   - Debian/bash: `./scripts/run_release_smoke.sh "<deployment_url>"`
 - smoke now fails fast when `/health.release_readiness.ready=false`
   (or when fallback policy-gate checks detect drift on older runtimes).
+- smoke now also fails fast when
+  `/health.reflection.deployment_readiness.ready=false`
+  (or when fallback reflection handoff/task-health checks detect deployment
+  readiness blockers on older runtimes).
 - release is not considered complete until smoke passes (`GET /health` plus
   `POST /event` roundtrip).
 

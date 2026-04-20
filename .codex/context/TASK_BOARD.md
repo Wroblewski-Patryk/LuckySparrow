@@ -17,8 +17,8 @@ Last updated: 2026-04-20
   - sync task state, project state, and learning journal when needed
 - The convergence queue is complete through `PRJ-299`; post-convergence seed
   queue now extends through `PRJ-304`.
-- `PRJ-302` is complete; `PRJ-303` is currently `READY` to pin readiness
-  regressions and align release smoke with reflection deployment posture.
+- `PRJ-303` is complete; `PRJ-304` is currently `READY` to finalize
+  docs/context/runbook synchronization for the reflection deployment lane.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -29,19 +29,19 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-303 Add reflection deployment-readiness regressions and smoke script alignment
+- [ ] PRJ-304 Sync docs/context/runbook for reflection deployment baseline and readiness contract
   - Status: READY
   - Group: Reflection Deployment Baseline
-  - Owner: Backend Builder + Ops/Release
-  - Depends on: PRJ-302
+  - Owner: Product Docs + Ops/Release
+  - Depends on: PRJ-303
   - Priority: P1
   - Result:
-    - regression coverage pins chosen reflection-mode readiness signals and
-      fallback behavior in release smoke tooling
-    - rollout no longer depends on undocumented manual interpretation of mixed
-      topology signals
+    - planning, project state, and runbook truth stay synchronized after the
+      first post-convergence reflection lane
+    - release and rollback procedures include the reflection readiness gate
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_reflection_worker.py tests/test_scheduler_worker.py`
+    - doc-and-context sync plus targeted ops-runbook review recorded in this
+      slice
 
 ## BACKLOG
 
@@ -64,6 +64,20 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-303 Add reflection deployment-readiness regressions and smoke script alignment
+  - Status: DONE
+  - Group: Reflection Deployment Baseline
+  - Owner: Backend Builder + Ops/Release
+  - Depends on: PRJ-302
+  - Priority: P1
+  - Result:
+    - regression coverage now pins reflection deployment-readiness blocker
+      signals in shared scheduler contracts and `/health` integration paths
+    - release smoke scripts now fail fast on reflection deployment-readiness
+      blockers with explicit fallback checks for older runtimes
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_scheduler_contracts.py`
 
 - [x] PRJ-302 Add explicit `/health.reflection` deployment-readiness summary for chosen runtime-mode baseline
   - Status: DONE

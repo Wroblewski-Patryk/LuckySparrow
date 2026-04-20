@@ -25,6 +25,31 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-20 - Windows runtime may not provide bash for shell-script smoke checks
+- Context:
+  - validating release smoke script alignment on Windows-first execution
+    slices.
+- Symptom:
+  - running `./scripts/run_release_smoke.sh` fails immediately with
+    `/bin/bash` not found in this environment.
+- Root cause:
+  - this workspace runtime does not guarantee WSL/Git-Bash availability even
+    when `.sh` tooling is present in the repository.
+- Guardrail:
+  - treat `.ps1` as the executable validation path in this runtime and record
+    when `.sh` execution is blocked by missing bash.
+- Preferred pattern:
+  - validate behavior through `scripts/run_release_smoke.ps1`
+  - keep `.sh` changes symmetric with `.ps1` logic
+  - document inability to execute bash path in task evidence
+- Avoid:
+  - assuming `.sh` scripts are runnable on every Windows-hosted Codex session
+  - marking bash-path runtime verification as passed without executable shell
+    support
+- Evidence:
+  - `PRJ-303` smoke alignment checks in this workspace showed
+    `/bin/bash` missing while the PowerShell smoke script executed.
+
 ### 2026-04-19 - Keep compat sunset decision separate from activity posture
 - Context:
   - compat telemetry now exposes both strict sunset-ready outputs and

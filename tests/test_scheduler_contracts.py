@@ -183,3 +183,21 @@ def test_scheduler_contracts_reflection_deployment_readiness_marks_deferred_mode
     assert readiness["selected_runtime_mode"] == "deferred"
     assert readiness["ready"] is False
     assert "deferred_in_process_worker_running" in readiness["blocking_signals"]
+
+
+def test_scheduler_contracts_reflection_deployment_readiness_marks_task_health_blockers() -> None:
+    topology = reflection_topology_handoff_posture(
+        runtime_mode="in_process",
+        worker_running=True,
+    )
+
+    readiness = reflection_deployment_readiness_snapshot(
+        runtime_mode="in_process",
+        topology=topology,
+        worker_running=True,
+        task_stats={"stuck_processing": 2, "exhausted_failed": 1},
+    )
+
+    assert readiness["ready"] is False
+    assert "reflection_stuck_processing_detected" in readiness["blocking_signals"]
+    assert "reflection_exhausted_failures_detected" in readiness["blocking_signals"]
