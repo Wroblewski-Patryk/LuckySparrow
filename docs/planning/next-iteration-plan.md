@@ -359,6 +359,9 @@ Completed on 2026-04-18:
 - `PRJ-279` is complete: foreground architecture-parity regressions now pin
   API-stage ordering and logging-stage ownership surfaces, and planning/context
   docs are synchronized to the converged foreground boundary.
+- `PRJ-280` is complete: reflection topology and worker-mode ownership contract
+  is now explicit across canonical architecture, runtime reality, and runtime
+  operations docs.
 
 ## Highest-Risk Gaps
 
@@ -1301,10 +1304,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-280` is currently the execution-ready slice in the board.
+`PRJ-281` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-280` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-281` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

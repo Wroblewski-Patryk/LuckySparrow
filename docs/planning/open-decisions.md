@@ -39,8 +39,13 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `RuntimeResult.reflection_triggered` is returned as `True` when reflection was successfully persisted and queued after episode persistence.
   - failed reflection tasks now retry with bounded backoff inside the app process.
   - `GET /health` now exposes a lightweight reflection snapshot with worker state and queue/task counts.
+  - `PRJ-280` now defines explicit topology ownership across
+    `in_process|deferred` modes, durable enqueue ownership, queue/retry
+    semantics, and operator-visible health posture boundaries.
 - Decision needed:
-  - should this app-local durable worker stay as the MVP baseline, or should reflection move into a separate external worker or scheduler before more complex consolidation is added?
+  - should `in_process` remain the default runtime mode during convergence, or
+    should deployment posture move toward `deferred` + external dispatch once
+    enqueue/dispatch boundary extraction (`PRJ-281..PRJ-283`) lands?
 
 ### 2. Migration Strategy
 

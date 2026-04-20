@@ -369,6 +369,20 @@ This split keeps AION fast without becoming stateless.
 
 ---
 
+## Background Topology Ownership
+
+Background reflection topology keeps one explicit ownership split:
+
+- foreground runtime owns durable reflection enqueue after episode persistence
+- reflection worker/scheduler ownership is mode-dependent
+  (`in_process` immediate dispatch or `deferred` external dispatch)
+- queue and retry semantics stay durable and mode-independent
+
+This topology allows worker deployment shape to evolve without changing
+reflection semantics or foreground guarantees.
+
+---
+
 ## Failure Handling
 
 ### Foreground failure rules

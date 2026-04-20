@@ -614,6 +614,47 @@ Analyze patterns across memory and update slower-moving state.
 
 ---
 
+## Reflection Topology And Worker-Mode Contract
+
+Background reflection keeps one explicit enqueue/dispatch boundary independent
+of worker deployment shape.
+
+Minimum topology fields:
+
+```json
+{
+  "reflection_topology": {
+    "runtime_mode": "in_process|deferred",
+    "enqueue_owner": "runtime_followup",
+    "dispatch_owner": "in_process_worker|external_driver|none",
+    "queue_backend": "durable_postgres_queue"
+  },
+  "reflection_task": {
+    "task_id": 1,
+    "user_id": "...",
+    "event_id": "...",
+    "status": "pending|processing|completed|failed",
+    "attempts": 0,
+    "max_attempts": 3,
+    "retry_backoff_seconds": [5, 30, 120],
+    "last_error": null
+  }
+}
+```
+
+Rules:
+
+1. foreground runtime enqueues reflection durably after episodic persistence
+2. enqueue ownership does not depend on in-process worker availability
+3. `in_process` mode may dispatch immediately; `deferred` mode leaves tasks
+   pending for a scheduler/driver
+4. retry semantics are queue-owned and stable across worker modes
+5. reflection execution never blocks foreground response completion
+6. health posture must expose runtime mode plus queue/worker visibility
+   required for operator triage
+
+---
+
 ## Contract Rules
 
 1. every stage returns only its own output field

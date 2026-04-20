@@ -489,6 +489,7 @@ Current behavior:
 
 - reflection tasks are durably written to Postgres
 - the app hosts an in-process worker
+- runtime mode is explicit (`in_process|deferred`)
 - failed tasks can be retried with bounded backoff
 - queue visibility is exposed through health reporting
 - reflection updates conclusions, theta, and lightweight goal-progress signals
@@ -502,7 +503,18 @@ Current behavior:
 - milestone pressure heuristics now prefer phase consistency plus
   arc/transition evidence over pure time-window drift
 
-This is more advanced than a purely conceptual background loop, but still lighter than the long-term architecture could become.
+Current topology ownership split:
+
+- foreground runtime owns enqueue (`reflection_enqueue`) after
+  `memory_persist`
+- queue persistence/retry semantics are durable and mode-independent
+- worker dispatch owner depends on runtime mode:
+  - `in_process`: app-local worker can dispatch immediately
+  - `deferred`: pending queue is expected to be drained by external
+    scheduler/worker driver
+
+This is more advanced than a purely conceptual background loop, but still
+lighter than the long-term architecture could become.
 
 ---
 

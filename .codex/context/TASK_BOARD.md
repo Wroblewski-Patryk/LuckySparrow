@@ -16,8 +16,8 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-280` is currently `READY` and begins the background-topology convergence
-  queue after foreground runtime convergence completed through `PRJ-279`.
+- `PRJ-281` is currently `READY` and starts implementation work for the
+  background-topology queue after the `PRJ-280` topology contract slice.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -28,24 +28,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-280 Define target-state reflection topology and worker-mode contract
-  - Status: READY
-  - Group: Background Reflection Topology
-  - Owner: Planner + Ops/Release
-  - Depends on: PRJ-279
-  - Priority: P1
-  - Result:
-    - reflection ownership is explicit across in-process scheduler mode,
-      external worker mode, queue semantics, and operator health posture
-    - the repo records which background concerns are durable architecture and
-      which are temporary execution choices
-  - Validation:
-    - doc-and-context sync plus targeted topology review recorded in this slice
-
-## BACKLOG
-
 - [ ] PRJ-281 Extract the reflection enqueue/dispatch boundary from app-local scheduler ownership
-  - Status: BACKLOG
+  - Status: READY
   - Group: Background Reflection Topology
   - Owner: Backend Builder
   - Depends on: PRJ-280
@@ -56,6 +40,8 @@ Last updated: 2026-04-20
       duplicating reflection ownership rules
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_main_lifespan_policy.py`
+
+## BACKLOG
 
 - [ ] PRJ-282 Add worker-mode health, queue-drain, and retry handoff contract
   - Status: BACKLOG
@@ -322,6 +308,25 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-280 Define target-state reflection topology and worker-mode contract
+  - Status: DONE
+  - Group: Background Reflection Topology
+  - Owner: Planner + Ops/Release
+  - Depends on: PRJ-279
+  - Priority: P1
+  - Result:
+    - canonical contracts now define reflection topology ownership across
+      `in_process|deferred` runtime modes, durable queue semantics, and
+      mode-independent enqueue ownership
+    - runtime-reality and ops docs now describe operator-visible posture and
+      topology invariants without redefining architecture
+  - Validation:
+    - doc-and-context sync completed; targeted topology review recorded across
+      `docs/architecture/15_runtime_flow.md`,
+      `docs/architecture/16_agent_contracts.md`,
+      `docs/implementation/runtime-reality.md`, and
+      `docs/operations/runtime-ops-runbook.md`
 
 - [x] PRJ-279 Add foreground architecture-parity regressions and sync docs/context
   - Status: DONE

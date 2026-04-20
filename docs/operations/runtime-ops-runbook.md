@@ -287,6 +287,30 @@ Recommended when Telegram webhooks are enabled:
 
 ## Common Operator Flows
 
+## Reflection Topology Posture
+
+Current reflection runtime topology is explicit and mode-aware:
+
+- `REFLECTION_RUNTIME_MODE=in_process`:
+  app-local worker can dispatch queued reflection tasks immediately
+- `REFLECTION_RUNTIME_MODE=deferred`:
+  foreground still enqueues tasks durably, while dispatch is expected from an
+  external scheduler/worker driver
+
+Operator checks:
+
+- verify `/health.reflection` queue snapshot and worker-running posture
+- verify `/health.scheduler` mode/cadence posture when scheduler is enabled
+- treat growing pending queue in deferred mode as external-dispatch signal
+  rather than foreground failure
+
+Ownership invariants:
+
+- enqueue remains foreground-follow-up owned (`memory_persist` then
+  `reflection_enqueue`)
+- retry/backoff semantics remain queue-owned across runtime modes
+- reflection execution must not block foreground response completion
+
 ### Start Local Stack
 
 ```powershell

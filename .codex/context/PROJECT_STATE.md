@@ -401,8 +401,8 @@ Last updated: 2026-04-20
 - Active `PRJ` execution queue is complete through `PRJ-299`; execution is
   now moving from completed Group 17 foreground convergence into Group 18
   background reflection topology.
-- `PRJ-280` is the current `READY` implementation slice after foreground
-  convergence completed through `PRJ-279`.
+- `PRJ-281` is the current `READY` implementation slice after `PRJ-280`
+  established reflection topology ownership and worker-mode contract invariants.
 - Top blockers:
   - runtime currently emits connector intents and permission gates but does not
     yet execute provider-backed calendar/task/drive integrations
@@ -415,6 +415,9 @@ Last updated: 2026-04-20
 
 ## Recent Progress
 
+- 2026-04-20: `PRJ-280` is complete: reflection topology ownership is now
+  explicit across `in_process|deferred` worker modes, durable queue semantics,
+  and operator health posture boundaries in canonical docs and runtime reality.
 - 2026-04-20: `PRJ-279` is complete: foreground architecture-parity regressions
   now pin runtime/API/logging boundary order invariants, and planning/context
   docs are synchronized to the converged foreground boundary.
@@ -808,8 +811,8 @@ Last updated: 2026-04-20
   reflection topology, production retrieval rollout, adaptive governance,
   dual-loop execution boundaries, and operational hardening.
 - 2026-04-20: foreground convergence group is now complete through `PRJ-279`;
-  `PRJ-280` is the next `READY` slice for reflection topology ownership
-  convergence.
+  `PRJ-281` is now the next `READY` slice for reflection enqueue/dispatch
+  boundary extraction.
 
 ## Working Agreements
 
