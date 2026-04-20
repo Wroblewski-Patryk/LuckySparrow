@@ -1319,7 +1319,7 @@ not around temporary convenience defaults.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_api_routes.py tests/test_main_lifespan_policy.py`
 
-- `PRJ-298` Finalize deployment and release truth for Coolify/manual fallback and smoke ownership.
+- `PRJ-298` is complete.
   - Result:
     - deployment automation, manual fallback, and release smoke ownership are
       documented as one coherent operational path
@@ -1340,10 +1340,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-298` is currently the execution-ready slice in the board.
+`PRJ-299` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-298` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-299` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 

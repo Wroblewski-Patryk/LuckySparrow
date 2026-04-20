@@ -462,8 +462,15 @@ The current repo already works as an MVP slice, but several architecture-level d
 
 - Current repo fact:
   - docs and compose files already support local Docker and Coolify.
-- Decision needed:
-  - is Coolify the intended production baseline, or only a temporary path until a different hosting standard is chosen?
+- Decision (PRJ-298 operational baseline, 2026-04-20):
+  - Coolify is the active production deployment baseline for this repository.
+  - `docker-compose.coolify.yml` is the deployment source of truth for this
+    baseline, while `docker-compose.yml` remains local-development oriented.
+  - hosting-standard replacement is explicitly future work; runtime slices must
+    not assume another deployment platform until operations records that change.
+- Remaining follow-up decision:
+  - when should the project formally migrate from Coolify baseline to a
+    different hosting standard?
 
 ### 7. Deployment Trigger Reliability
 
@@ -471,9 +478,18 @@ The current repo already works as an MVP slice, but several architecture-level d
   - after pushing `main`, production required a manual redeploy from Coolify before the latest commit became live.
   - a manually sent, correctly signed GitHub-style webhook request to the configured Coolify endpoint successfully queued a deployment on 2026-04-15.
   - the repo now has a repeatable release smoke helper for `GET /health` plus `POST /event`, so manual verification no longer depends on hand-written curl snippets.
-- Decision needed:
-  - should deploys rely on GitHub webhooks, polling, or an explicit manual release step until automation is trustworthy?
-  - until GitHub-side webhook delivery is verified, should manual redeploy remain the explicit release fallback?
+- Decision (PRJ-298 operational baseline, 2026-04-20):
+  - deploy trigger posture is `automation_first_with_explicit_manual_fallback`:
+    GitHub/Coolify webhook automation is preferred when it fires correctly.
+  - manual fallback remains explicit and supported through
+    `scripts/trigger_coolify_deploy_webhook.{ps1,sh}` or direct Coolify UI
+    redeploy when automation is missing or delayed.
+  - release completion requires running
+    `scripts/run_release_smoke.{ps1,sh}` against the deployed URL and treating
+    smoke failure as a release-blocking signal.
+- Remaining follow-up decision:
+  - what objective webhook-delivery SLO should allow manual fallback to become
+    exception-only instead of routine fallback posture?
 
 ### 8. Language Handling Strategy
 

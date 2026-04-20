@@ -244,6 +244,37 @@ Operator release gate:
 - verify `/health.runtime_policy.strict_startup_blocked=false`
 - verify `/health.runtime_policy.event_debug_query_compat_enabled=false`
 
+## Deployment And Release Path (PRJ-298)
+
+Primary deployment path:
+
+1. push `main`
+2. allow configured Coolify source automation/webhook to trigger deployment
+3. verify target commit is running before declaring release complete
+
+Explicit fallback path (when automation is delayed or missing):
+
+1. trigger Coolify deploy webhook manually:
+   - Windows: `.\scripts\trigger_coolify_deploy_webhook.ps1`
+   - Debian/bash: `./scripts/trigger_coolify_deploy_webhook.sh`
+2. if webhook trigger is unavailable, run Coolify UI redeploy for the same app
+3. verify target commit is running before release smoke
+
+Release smoke ownership:
+
+- release operator (Ops/Release owner of the deploy) runs:
+  - Windows: `.\scripts\run_release_smoke.ps1 -BaseUrl "<deployment_url>"`
+  - Debian/bash: `./scripts/run_release_smoke.sh "<deployment_url>"`
+- release is not considered complete until smoke passes (`GET /health` plus
+  `POST /event` roundtrip).
+
+Rollback posture:
+
+1. if release smoke fails, stop rollout and keep previous known-good release as
+   active baseline
+2. redeploy previous known-good commit via Coolify (webhook or UI fallback)
+3. rerun release smoke against restored deployment URL
+
 ## Required Environment Variables
 
 - `DATABASE_URL`

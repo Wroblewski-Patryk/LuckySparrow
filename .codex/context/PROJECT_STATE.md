@@ -846,7 +846,7 @@ Last updated: 2026-04-20
 - 2026-04-20: foreground convergence group is now complete through `PRJ-279`;
   background topology convergence is complete through `PRJ-283`; production
   retrieval implementation is complete through `PRJ-287`; adaptive governance
-  policy baseline is complete through `PRJ-288`; `PRJ-298` is now the next
+  policy baseline is complete through `PRJ-288`; `PRJ-299` is now the next
   `READY` implementation slice.
 - 2026-04-20: `PRJ-288` is complete: architecture contracts now define explicit
   adaptive influence evidence gates, precedence, and tie-break guardrails for
@@ -928,6 +928,12 @@ Last updated: 2026-04-20
 - 2026-04-20: `PRJ-297` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_api_routes.py tests/test_main_lifespan_policy.py`
   passed with `142 passed`.
+- 2026-04-20: `PRJ-298` is complete: deployment trigger ownership now has one
+  explicit operations baseline (Coolify automation first, explicit webhook/UI
+  fallback), and release smoke ownership is codified as a release gate.
+- 2026-04-20: `PRJ-298` validation is green:
+  `.\.venv\Scripts\python -m pytest -q`
+  passed with `598 passed`.
 
 ## Working Agreements
 

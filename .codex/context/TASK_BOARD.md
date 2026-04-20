@@ -16,8 +16,8 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-297` is complete; `PRJ-298` is currently `READY` for deployment/release
-  truth alignment after production-policy gate hardening.
+- `PRJ-298` is complete; `PRJ-299` is currently `READY` for final
+  release-readiness regression and docs/context/runbook synchronization.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -28,28 +28,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-298 Finalize deployment and release truth for Coolify/manual fallback and smoke ownership
-  - Status: READY
-  - Group: Operational Hardening And Release Truth
-  - Owner: Ops/Release
-  - Depends on: PRJ-297
-  - Priority: P1
-  - Result:
-    - deployment automation, manual fallback, and release smoke ownership are
-      documented as one coherent operational path
-    - execution work stops assuming deploy behavior that operations cannot yet
-      prove
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-299 Add release-readiness regressions and sync docs/context/runbook
-  - Status: FUTURE
+  - Status: READY
   - Group: Operational Hardening And Release Truth
   - Owner: QA/Test + Product Docs + Ops/Release
   - Depends on: PRJ-298
@@ -61,6 +41,12 @@ Last updated: 2026-04-20
       of the convergence queue
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 ## IN_PROGRESS
 
@@ -75,6 +61,20 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-298 Finalize deployment and release truth for Coolify/manual fallback and smoke ownership
+  - Status: DONE
+  - Group: Operational Hardening And Release Truth
+  - Owner: Ops/Release
+  - Depends on: PRJ-297
+  - Priority: P1
+  - Result:
+    - deployment automation, manual fallback, and release smoke ownership are
+      documented as one coherent operational path
+    - execution work stops assuming deploy behavior that operations cannot yet
+      prove
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q`
 
 - [x] PRJ-297 Enforce migration-first and internal-debug posture through explicit runtime gates
   - Status: DONE
