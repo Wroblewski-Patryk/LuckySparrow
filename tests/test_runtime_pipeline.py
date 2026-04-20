@@ -695,6 +695,9 @@ async def test_runtime_pipeline_uses_hybrid_memory_bundle_when_supported() -> No
     assert len(memory.hybrid_calls) == 1
     assert memory.hybrid_calls[0]["query_text"] == "help me sequence this deploy blocker"
     assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 32
+    assert memory.hybrid_calls[0]["episodic_limit"] == RuntimeOrchestrator.MEMORY_LOAD_LIMIT
+    assert memory.hybrid_calls[0]["conclusion_limit"] == 8
+    assert memory.hybrid_calls[0]["include_global"] is False
     assert result.action_result.status == "success"
     assert "deployment blocker" in result.context.summary
 
@@ -728,6 +731,8 @@ async def test_runtime_pipeline_uses_lexical_only_hybrid_query_when_semantic_vec
 
     assert len(memory.hybrid_calls) == 1
     assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 0
+    assert memory.hybrid_calls[0]["episodic_limit"] == RuntimeOrchestrator.MEMORY_LOAD_LIMIT
+    assert memory.hybrid_calls[0]["conclusion_limit"] == 8
 
 
 async def test_runtime_pipeline_uses_configured_embedding_dimensions_even_when_provider_falls_back_to_deterministic() -> None:

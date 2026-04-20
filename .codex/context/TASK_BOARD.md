@@ -16,8 +16,8 @@ Last updated: 2026-04-20
   - capture architecture follow-up if discovered
   - sync task state, project state, and learning journal when needed
 - The planning queue is complete through `PRJ-299`.
-- `PRJ-286` is complete; `PRJ-287` is currently `READY` and focuses on
-  production retrieval rollout regressions plus docs/context synchronization.
+- `PRJ-287` is complete; `PRJ-288` is currently `READY` and starts adaptive
+  cognition governance from an explicit evidence/influence policy baseline.
 - Subsequent slices should follow the grouped execution order for foreground
   runtime convergence, background topology, production retrieval rollout,
   adaptive governance, dual-loop execution boundaries, and operational
@@ -28,28 +28,8 @@ Last updated: 2026-04-20
 
 ## READY
 
-- [ ] PRJ-287 Add production retrieval rollout regressions and sync docs/context
-  - Status: READY
-  - Group: Production Memory Retrieval Rollout
-  - Owner: QA/Test + Product Docs
-  - Depends on: PRJ-286
-  - Priority: P1
-  - Result:
-    - health diagnostics, runtime defaults, and retrieval behavior are pinned
-      against the agreed production rollout posture
-    - planning, context, and operations docs now describe the same retrieval
-      baseline
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-288 Define evidence thresholds and influence policy for adaptive signals
-  - Status: FUTURE
+  - Status: READY
   - Group: Adaptive Cognition Governance
   - Owner: Planner
   - Depends on: PRJ-287
@@ -61,6 +41,12 @@ Last updated: 2026-04-20
   - Validation:
     - doc-and-context sync plus targeted adaptive-policy review recorded in
       this slice
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-289 Refactor role, motivation, and planning to consume governed adaptive influence rules
   - Status: FUTURE
@@ -227,6 +213,22 @@ Last updated: 2026-04-20
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-287 Add production retrieval rollout regressions and sync docs/context
+  - Status: DONE
+  - Group: Production Memory Retrieval Rollout
+  - Owner: QA/Test + Product Docs
+  - Depends on: PRJ-286
+  - Priority: P1
+  - Result:
+    - production retrieval diagnostics are now regression-pinned for hybrid
+      query defaults in runtime integration tests and rollout posture in health
+      contract tests
+    - planning, project state, runtime-reality, and open-decisions docs are
+      synchronized to the rollout state after semantic+affective+relation
+      source-family enablement support
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_api_routes.py tests/test_context_agent.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-286 Extend vector rollout to affective and relation families with explicit gating
   - Status: DONE

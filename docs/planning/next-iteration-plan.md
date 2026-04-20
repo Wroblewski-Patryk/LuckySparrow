@@ -382,6 +382,9 @@ Completed on 2026-04-18:
 - `PRJ-286` is complete: affective and relation embedding families now
   participate in source-gated rollout with explicit refresh ownership metadata,
   and hybrid vector retrieval now includes relation source-family queries.
+- `PRJ-287` is complete: production retrieval rollout posture is now
+  regression-pinned across embedding strategy, health API contracts, context
+  summaries, and runtime hybrid-loading defaults.
 
 ## Highest-Risk Gaps
 
@@ -1188,7 +1191,7 @@ semantics, and family-by-family rollout.
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_memory_repository.py tests/test_context_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 
-- `PRJ-287` Add production retrieval rollout regressions and sync docs/context.
+- `PRJ-287` is complete.
   - Result:
     - health diagnostics, runtime defaults, and retrieval behavior are pinned
       against the agreed production rollout posture
@@ -1324,10 +1327,10 @@ not around temporary convenience defaults.
 ## Next Derived Slice
 
 The planning queue is complete through `PRJ-299`.
-`PRJ-287` is currently the execution-ready slice in the board.
+`PRJ-288` is currently the execution-ready slice in the board.
 Before the next implementation slice:
 
-- take `PRJ-287` directly from `.codex/context/TASK_BOARD.md`
+- take `PRJ-288` directly from `.codex/context/TASK_BOARD.md`
 - keep the implementation scope bounded to that one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 
