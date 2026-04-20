@@ -1237,8 +1237,16 @@ Last updated: 2026-04-21
   host startup dependency (`socket.gaierror [Errno 11001] getaddrinfo failed`);
   the recurring execution guardrail is captured in
   `.codex/context/LEARNING_JOURNAL.md`.
-- 2026-04-21: `PRJ-332` is now the next `READY` slice, focused on additional
-  relation lifecycle and trust-influence regression depth.
+- 2026-04-21: `PRJ-332` is complete: relation lifecycle and trust-influence
+  regressions now pin value-shift lifecycle reset posture in repository
+  relation upserts, medium-trust derivation in reflection, low-confidence
+  trust gating for proactive attention, and low-confidence support-intensity
+  relation gating for expression tone selection.
+- 2026-04-21: `PRJ-332` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py tests/test_expression_agent.py`
+  passed with `175 passed`.
+- 2026-04-21: `PRJ-333` is now the next `READY` slice, focused on doc/context
+  synchronization for relation lifecycle and trust-influence behavior.
 
 ## Working Agreements
 

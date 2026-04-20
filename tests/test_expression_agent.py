@@ -209,6 +209,27 @@ async def test_expression_uses_supportive_tone_when_relation_prefers_high_suppor
     assert result.tone == "supportive"
 
 
+async def test_expression_ignores_low_confidence_high_support_relation_signal() -> None:
+    agent = ExpressionAgent(openai_client=NoReplyOpenAI())
+    result = await agent.run(
+        _event("Execute deployment checklist"),
+        _perception(language="en"),
+        _context(),
+        _plan(),
+        _role(selected="executor"),
+        _motivation(mode="execute"),
+        relations=[
+            {
+                "relation_type": "support_intensity_preference",
+                "relation_value": "high_support",
+                "confidence": 0.67,
+            }
+        ],
+    )
+
+    assert result.tone == "action-oriented"
+
+
 @pytest.mark.parametrize("scenario", EMPATHY_SUPPORT_SCENARIOS, ids=lambda scenario: scenario.key)
 async def test_expression_uses_supportive_fallback_for_empathy_regression_scenarios(scenario) -> None:
     agent = ExpressionAgent(openai_client=NoReplyOpenAI())

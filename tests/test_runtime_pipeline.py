@@ -3657,6 +3657,69 @@ async def test_runtime_pipeline_tightens_attention_gate_for_low_delivery_trust()
     assert result.action_result.status == "noop"
 
 
+async def test_runtime_pipeline_ignores_low_confidence_delivery_trust_for_attention_gate() -> None:
+    memory = FakeHybridMemoryRepository(recent_memory=[])
+    memory.user_preferences = {"proactive_opt_in": True}
+    memory.relations = [
+        {
+            "relation_type": "delivery_reliability",
+            "relation_value": "low_trust",
+            "confidence": 0.67,
+        }
+    ]
+    memory.active_tasks = [
+        {
+            "id": 11,
+            "goal_id": 7,
+            "name": "check in with blocked deploy task",
+            "description": "Deploy remains blocked",
+            "priority": "high",
+            "status": "blocked",
+        }
+    ]
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient()),
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+
+    event = build_scheduler_event(
+        subsource="proactive_tick",
+        payload={
+            "text": "follow up on blocked deploy",
+            "chat_id": 123456,
+            "proactive_trigger": "task_blocked",
+            "importance": 0.9,
+            "urgency": 0.85,
+            "user_context": {
+                "quiet_hours": False,
+                "focus_mode": False,
+                "recent_user_activity": "active",
+                "recent_outbound_count": 1,
+                "unanswered_proactive_count": 0,
+            },
+        },
+    )
+
+    result = await runtime.run(event)
+
+    assert result.plan.proactive_decision is not None
+    assert result.plan.proactive_decision.should_interrupt is True
+    assert result.event.payload["attention_gate"]["allowed"] is True
+    assert result.event.payload["attention_gate"]["recent_outbound_limit"] == 3
+    assert result.event.payload["attention_gate"]["relation_delivery_reliability"] is None
+    assert result.plan.proactive_delivery_guard is not None
+    assert result.plan.proactive_delivery_guard.recent_outbound_limit == 2
+    assert "respect_attention_gate" not in result.plan.steps
+    assert result.action_result.status == "success"
+
+
 async def test_runtime_pipeline_keeps_proactive_tick_separate_from_proposal_handoff_and_connector_permission_gates() -> None:
     memory = FakeMemoryRepository(recent_memory=[])
     memory.user_preferences = {"proactive_opt_in": True}

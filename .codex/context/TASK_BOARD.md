@@ -36,27 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-332 Add relation lifecycle and trust-influence regressions
-  - Status: READY
-  - Group: Relation Lifecycle And Trust Influence
-  - Owner: QA/Test
-  - Depends on: PRJ-331
-  - Priority: P1
-  - Result:
-    - decay, refresh, and trust-driven behavior expectations are pinned end to
-      end
-    - relation drift becomes test-visible before it affects production behavior
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py tests/test_expression_agent.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-333 Sync docs/context for relation lifecycle and trust influence
-  - Status: FUTURE
+  - Status: READY
   - Group: Relation Lifecycle And Trust Influence
   - Owner: Product Docs
   - Depends on: PRJ-332
@@ -68,6 +49,12 @@ Last updated: 2026-04-21
   - Validation:
     - doc-and-context sync plus targeted relation-lifecycle cross-doc review
       recorded in this slice
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-334 Add inferred goal/task promotion rules to planning
   - Status: FUTURE
@@ -255,6 +242,22 @@ Last updated: 2026-04-21
       (`172 passed`)
     - `.\.venv\Scripts\python -m pytest -q tests/test_motivation_engine.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
       (`247 passed`)
+
+- [x] PRJ-332 Add relation lifecycle and trust-influence regressions
+  - Status: DONE
+  - Group: Relation Lifecycle And Trust Influence
+  - Owner: QA/Test
+  - Depends on: PRJ-331
+  - Priority: P1
+  - Result:
+    - relation lifecycle regressions now pin value-shift reset behavior so
+      evidence and decay posture restart when delivery trust changes state
+    - trust-influence regressions now cover medium-trust derivation,
+      low-confidence trust gating in proactive attention, and low-confidence
+      support-intensity relation gating in expression tone selection
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py tests/test_expression_agent.py`
+      (`175 passed`)
 
 - [x] PRJ-330 Implement relation decay and confidence revalidation policy
   - Status: DONE

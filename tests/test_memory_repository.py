@@ -624,6 +624,64 @@ async def test_memory_repository_refreshes_relation_with_repeated_quality_eviden
     await engine.dispose()
 
 
+async def test_memory_repository_resets_relation_lifecycle_when_relation_value_changes(tmp_path) -> None:
+    database_path = tmp_path / "memory-relations-value-shift.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    await repository.upsert_relation(
+        user_id="u-1",
+        relation_type="delivery_reliability",
+        relation_value="high_trust",
+        confidence=0.88,
+        source="background_reflection",
+        supporting_event_id="evt-rel-shift-1",
+        evidence_count=4,
+        decay_rate=0.02,
+    )
+
+    async with session_factory() as session:
+        row = (
+            await session.execute(
+                select(AionRelation).where(
+                    AionRelation.user_id == "u-1",
+                    AionRelation.relation_type == "delivery_reliability",
+                )
+            )
+        ).scalar_one()
+        row.last_observed_at = datetime.now(timezone.utc) - timedelta(days=5)
+        await session.commit()
+
+    shifted = await repository.upsert_relation(
+        user_id="u-1",
+        relation_type="delivery_reliability",
+        relation_value="low_trust",
+        confidence=0.63,
+        source="background_reflection",
+        supporting_event_id="evt-rel-shift-2",
+        evidence_count=2,
+        decay_rate=0.07,
+    )
+
+    assert shifted["relation_value"] == "low_trust"
+    assert shifted["confidence"] == 0.63
+    assert shifted["evidence_count"] == 2
+    assert shifted["decay_rate"] == 0.07
+    assert shifted["supporting_event_id"] == "evt-rel-shift-2"
+
+    visible = await repository.get_user_relations(user_id="u-1", min_confidence=0.0)
+    assert len(visible) == 1
+    assert visible[0]["relation_value"] == "low_trust"
+    assert visible[0]["confidence_raw"] == 0.63
+    assert visible[0]["evidence_count"] == 2
+    assert visible[0]["decay_rate"] == 0.07
+    assert visible[0]["revalidation_state"] == "refreshed"
+
+    await engine.dispose()
+
+
 async def test_memory_repository_revalidates_relation_confidence_and_expires_stale_rows(tmp_path) -> None:
     database_path = tmp_path / "memory-relations-revalidation.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
