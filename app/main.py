@@ -9,6 +9,7 @@ from app.agents.planning import PlanningAgent
 from app.agents.role import RoleAgent
 from app.api.routes import router
 from app.core.action import ActionExecutor
+from app.core.affective_policy import affective_assessment_policy_snapshot
 from app.core.attention import AttentionTurnCoordinator
 from app.core.config import get_settings
 from app.core.database import Database
@@ -345,6 +346,30 @@ def _log_embedding_strategy_warnings(*, settings, logger) -> None:
         )
 
 
+def _log_affective_assessment_policy(*, settings, logger) -> None:
+    snapshot = affective_assessment_policy_snapshot(settings)
+    if str(snapshot["affective_assessment_posture"]) == "fallback_only_classifier_unavailable":
+        logger.warning(
+            "affective_assessment_policy_warning env=%s enabled=%s source=%s classifier_available=%s posture=%s hint=%s",
+            settings.app_env,
+            bool(snapshot["affective_assessment_enabled"]),
+            str(snapshot["affective_assessment_source"]),
+            bool(snapshot["affective_classifier_available"]),
+            str(snapshot["affective_assessment_posture"]),
+            str(snapshot["affective_assessment_hint"]),
+        )
+    else:
+        logger.info(
+            "affective_assessment_policy env=%s enabled=%s source=%s classifier_available=%s posture=%s hint=%s",
+            settings.app_env,
+            bool(snapshot["affective_assessment_enabled"]),
+            str(snapshot["affective_assessment_source"]),
+            bool(snapshot["affective_classifier_available"]),
+            str(snapshot["affective_assessment_posture"]),
+            str(snapshot["affective_assessment_hint"]),
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
@@ -354,6 +379,7 @@ async def lifespan(app: FastAPI):
     logger = get_logger("aion.app")
     _log_runtime_policy_warnings(settings=settings, logger=logger)
     _log_embedding_strategy_warnings(settings=settings, logger=logger)
+    _log_affective_assessment_policy(settings=settings, logger=logger)
 
     database = Database(settings.database_url)  # type: ignore[arg-type]
     memory_repository = MemoryRepository(
@@ -441,7 +467,15 @@ async def lifespan(app: FastAPI):
         action_executor=action_executor,
         memory_repository=memory_repository,
         reflection_worker=runtime_reflection_worker,
-        affective_assessor=AffectiveAssessor(classifier_client=openai_client),
+        affective_assessor=AffectiveAssessor(
+            classifier_client=openai_client,
+            enabled=settings.is_affective_assessment_enabled(),
+            policy_source=(
+                "explicit"
+                if settings.affective_assessment_enabled is not None
+                else "environment_default"
+            ),
+        ),
         semantic_vector_enabled=bool(getattr(settings, "semantic_vector_enabled", True)),
         embedding_provider=str(getattr(settings, "embedding_provider", "deterministic")),
         embedding_model=str(getattr(settings, "embedding_model", "deterministic-v1")),

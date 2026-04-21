@@ -50,36 +50,36 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-399 Define rollout policy ownership for AI-assisted affective assessment
-  - Group: Affective Assessment Rollout Policy
+- [ ] PRJ-403 Define explicit scope policy for reflection outputs with multi-goal risk
+  - Group: Reflection Scope Governance
   - Owner: Planner
-  - Depends on: PRJ-398
+  - Depends on: PRJ-402
   - Priority: P1
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
 
 ## BACKLOG
 
-- [ ] PRJ-400 Expose affective-assessment rollout posture through runtime policy and debug surfaces
-  - Group: Affective Assessment Rollout Policy
+- [ ] PRJ-404 Apply scope policy to remaining reflection outputs and runtime readers
+  - Group: Reflection Scope Governance
   - Owner: Backend Builder
-  - Depends on: PRJ-399
+  - Depends on: PRJ-403
   - Priority: P1
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
 
-- [ ] PRJ-401 Add regressions for affective rollout defaults and deterministic fallback gating
-  - Group: Affective Assessment Rollout Policy
+- [ ] PRJ-405 Add regressions for no-cross-goal leakage in scoped reflection outputs
+  - Group: Reflection Scope Governance
   - Owner: QA/Test
-  - Depends on: PRJ-400
+  - Depends on: PRJ-404
   - Priority: P1
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
 
-- [ ] PRJ-402 Sync docs/context for affective-assessment rollout policy
-  - Group: Affective Assessment Rollout Policy
+- [ ] PRJ-406 Sync docs/context for reflection scope governance
+  - Group: Reflection Scope Governance
   - Owner: Product Docs
-  - Depends on: PRJ-401
+  - Depends on: PRJ-405
   - Priority: P1
   - Validation:
     - doc-and-context sync across `docs/architecture/`,
@@ -166,6 +166,72 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-402 Sync docs/context for affective-assessment rollout policy
+  - Status: DONE
+  - Group: Affective Assessment Rollout Policy
+  - Owner: Product Docs
+  - Depends on: PRJ-401
+  - Priority: P1
+  - Result:
+    - architecture, runtime-reality, planning docs, testing guidance, and
+      context truth now align on explicit affective-assessment rollout
+      ownership and fallback posture
+    - `PRJ-403` is now the next `READY` task for reflection scope governance
+  - Validation:
+    - doc-and-context sync across `docs/architecture/`,
+      `docs/implementation/`, `docs/planning/`, `docs/engineering/`, and
+      `.codex/context/`
+
+- [x] PRJ-401 Add regressions for affective rollout defaults and deterministic fallback gating
+  - Status: DONE
+  - Group: Affective Assessment Rollout Policy
+  - Owner: QA/Test
+  - Depends on: PRJ-400
+  - Priority: P1
+  - Result:
+    - regressions now pin non-production default enablement, production default
+      fallback posture, explicit AI-assisted posture, and disabled-policy
+      fallback gating
+    - health and system-debug surfaces remain contract-stable for affective
+      rollout diagnostics
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_config.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+      (`199 passed`)
+    - `.\.venv\Scripts\python -m pytest -q`
+      (`734 passed`)
+
+- [x] PRJ-400 Expose affective-assessment rollout posture through runtime policy and debug surfaces
+  - Status: DONE
+  - Group: Affective Assessment Rollout Policy
+  - Owner: Backend Builder
+  - Depends on: PRJ-399
+  - Priority: P1
+  - Result:
+    - `/health.runtime_policy` now exposes affective rollout posture, policy
+      source, classifier availability, and operator hints
+    - runtime `system_debug.adaptive_state` now carries the same affective
+      rollout snapshot from the live assessor
+  - Validation:
+    - Group 46 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`734 passed`)
+
+- [x] PRJ-399 Define rollout policy ownership for AI-assisted affective assessment
+  - Status: DONE
+  - Group: Affective Assessment Rollout Policy
+  - Owner: Planner
+  - Depends on: PRJ-398
+  - Priority: P1
+  - Result:
+    - affective assessment now has one explicit rollout policy owner with
+      environment-default and explicit override semantics
+    - the assessor can now distinguish policy-disabled fallback from
+      classifier-unavailable fallback without hiding that posture in logs only
+  - Validation:
+    - Group 46 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`734 passed`)
 
 - [x] PRJ-398 Sync docs/context for role-selection evidence baseline
   - Status: DONE

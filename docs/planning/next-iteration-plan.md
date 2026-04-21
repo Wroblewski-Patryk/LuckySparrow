@@ -93,6 +93,9 @@ Completed on 2026-04-21:
 - `PRJ-395..PRJ-398` are complete: role selection now has one shared policy
   owner with explicit selection reasons/evidence and bounded active-goal
   planning diagnostics through runtime debug surfaces.
+- `PRJ-399..PRJ-402` are complete: affective assessment now has explicit
+  rollout ownership, health/debug visibility, and deterministic fallback
+  gating for policy-disabled versus classifier-unavailable posture.
 
 Completed on 2026-04-17:
 
@@ -2388,31 +2391,40 @@ This group makes AI-assisted affective classification rollout posture explicit
 so runtime behavior can stay architecture-aligned whether the assessor is
 enabled broadly or kept behind stricter rollout controls.
 
-- `PRJ-399` Define rollout policy ownership for AI-assisted affective assessment.
+Status update (2026-04-21): `PRJ-399..PRJ-402` are complete.
+
+- `PRJ-399` Define rollout policy ownership for AI-assisted affective assessment. (complete)
   - Result:
     - affective-assessment enablement/default posture gains one explicit
       policy owner instead of living only in implementation assumptions
     - non-production and production rollout choices become machine-visible
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+    - Group 46 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`734 passed`)
 
-- `PRJ-400` Expose affective-assessment rollout posture through runtime policy and debug surfaces.
+- `PRJ-400` Expose affective-assessment rollout posture through runtime policy and debug surfaces. (complete)
   - Result:
     - `/health` and runtime debug surfaces expose whether AI-assisted affective
       classification is enabled, gated, or falling back deterministically
     - operator/debug visibility no longer depends on inference from logs
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+    - Group 46 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`734 passed`)
 
-- `PRJ-401` Add regressions for affective rollout defaults and deterministic fallback gating.
+- `PRJ-401` Add regressions for affective rollout defaults and deterministic fallback gating. (complete)
   - Result:
     - rollout defaults, fallback posture, and debug visibility become
       regression-pinned for both enabled and disabled classifier modes
     - affective rollout changes stay test-visible before broader deployment
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_config.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+      (`199 passed`)
+    - `.\.venv\Scripts\python -m pytest -q`
+      (`734 passed`)
 
-- `PRJ-402` Sync docs/context for affective-assessment rollout policy.
+- `PRJ-402` Sync docs/context for affective-assessment rollout policy. (complete)
   - Result:
     - architecture, runtime-reality, planning docs, and context truth align on
       affective rollout ownership and fallback posture

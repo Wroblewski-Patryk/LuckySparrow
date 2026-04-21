@@ -72,7 +72,7 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `PRJ-391..PRJ-394`: retrieval-depth and theta-governance baseline
     (`5`, `5d`, `10b`) - complete
   - `PRJ-395..PRJ-398`: role-selection evidence baseline (`4`, `10b`) - complete
-  - `PRJ-399..PRJ-402`: affective-assessment rollout policy (`4a`) - planned
+  - `PRJ-399..PRJ-402`: affective-assessment rollout policy (`4a`) - complete
   - `PRJ-403..PRJ-406`: reflection scope governance (`5c`) - planned
   - `PRJ-407..PRJ-410`: durable attention contract-store rollout (`12a`) - planned
 - reflection deployment lane is complete through `PRJ-304`, and
@@ -82,8 +82,8 @@ The current repo already works as an MVP slice, but several architecture-level d
 - post-Group-44 state now has no remaining `READY` task; the next convergence
   queue should again be derived from planning docs plus the still-open
   architecture decisions below.
-- post-Group-45 state now has `PRJ-399` as the first `READY` task, focused on
-  explicit rollout policy ownership for AI-assisted affective assessment.
+- post-Group-46 state now has `PRJ-403` as the first `READY` task, focused on
+  explicit scope governance for reflection outputs with multi-goal risk.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
@@ -412,10 +412,15 @@ The current repo already works as an MVP slice, but several architecture-level d
     non-production environments, or behind an explicit feature gate?
   - which affective outputs deserve first-class contract fields
     (`label|intensity|needs_support|confidence|source|evidence`)?
-- Planned implementation lane:
-  - `PRJ-399..PRJ-402` will make affective rollout ownership explicit before
-    broader empathy/affective expansion work builds on classifier availability
-    assumptions.
+- Follow-up implementation (resolved in `PRJ-399..PRJ-402`, 2026-04-21):
+  - affective assessment now has a shared rollout policy owner with
+    environment-default enablement, explicit override support, and
+    machine-visible health/debug posture
+  - policy-disabled fallback and classifier-unavailable fallback are now
+    separated in deterministic, test-visible runtime behavior
+- Remaining follow-up decision:
+  - should non-production default enablement remain the long-term posture, or
+    should future affective rollout tighten behind an explicit feature gate?
 
 ### 5. Memory Retrieval Depth
 

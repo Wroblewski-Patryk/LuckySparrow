@@ -1,6 +1,7 @@
 from collections.abc import Mapping
 from typing import Any, Literal
 
+from app.core.affective_policy import affective_assessment_policy_snapshot
 
 def app_environment(settings: Any) -> str:
     return str(getattr(settings, "app_env", "")).strip().lower()
@@ -271,7 +272,9 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
     shared_ingress_sunset_ready = event_debug_shared_ingress_sunset_ready(settings)
     shared_ingress_sunset_reason = event_debug_shared_ingress_sunset_reason(settings)
     sunset_blockers = compatibility_sunset_blockers(settings)
+    affective_policy = affective_assessment_policy_snapshot(settings)
     return {
+        **affective_policy,
         "startup_schema_mode": startup_schema_mode(settings),
         "startup_schema_compatibility_posture": schema_sunset_posture,
         "startup_schema_compatibility_sunset_ready": schema_sunset_ready,

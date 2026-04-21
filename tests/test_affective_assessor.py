@@ -132,3 +132,39 @@ async def test_affective_assessor_adds_reason_marker_for_invalid_affective_label
 
     assert result.source == "fallback"
     assert result.evidence[0] == "fallback_reason:unsupported_affect_label"
+
+
+async def test_affective_assessor_respects_disabled_policy_even_with_classifier_client() -> None:
+    classifier = FakeClassifierClient(
+        {
+            "affect_label": "support_distress",
+            "intensity": 0.83,
+            "needs_support": True,
+            "confidence": 0.79,
+            "evidence": ["overwhelmed"],
+        }
+    )
+    assessor = AffectiveAssessor(
+        classifier_client=classifier,
+        enabled=False,
+        policy_source="explicit",
+    )
+    fallback = AffectiveAssessmentOutput(
+        affect_label="neutral",
+        intensity=0.18,
+        needs_support=False,
+        confidence=0.45,
+        source="deterministic_placeholder",
+        evidence=[],
+    )
+
+    result = await assessor.assess(
+        user_text="hello",
+        response_language="en",
+        fallback=fallback,
+    )
+
+    assert classifier.calls == []
+    assert result.source == "fallback"
+    assert result.evidence[0] == "fallback_reason:policy_disabled"
+    assert assessor.snapshot()["affective_assessment_posture"] == "fallback_only_policy_disabled"

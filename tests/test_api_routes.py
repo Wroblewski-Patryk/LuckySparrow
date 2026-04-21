@@ -212,6 +212,16 @@ class FakeRuntime:
                     language="en",
                 ),
                 action_result=action_result,
+                adaptive_state={
+                    "affective_assessment_policy": {
+                        "affective_assessment_enabled": True,
+                        "affective_assessment_source": "environment_default",
+                        "affective_classifier_available": False,
+                        "affective_assessment_posture": "fallback_only_classifier_unavailable",
+                        "affective_assessment_hint": "configure_openai_api_key_or_disable_ai_affective_assessment",
+                        "affective_assessment_owner": "affective_assessment_rollout_policy",
+                    }
+                },
             ),
             stage_timings_ms={
                 "memory_load": 1,
@@ -252,6 +262,8 @@ class FakeSettings:
         telegram_webhook_secret: str | None = None,
         *,
         app_env: str = "development",
+        affective_assessment_enabled: bool | None = None,
+        openai_api_key: str | None = None,
         event_debug_enabled: bool | None = True,
         event_debug_token: str | None = None,
         production_debug_token_required: bool = True,
@@ -281,6 +293,8 @@ class FakeSettings:
     ):
         self.telegram_webhook_secret = telegram_webhook_secret
         self.app_env = app_env
+        self.affective_assessment_enabled = affective_assessment_enabled
+        self.openai_api_key = openai_api_key
         self.event_debug_enabled = event_debug_enabled
         self.event_debug_token = event_debug_token
         self.production_debug_token_required = production_debug_token_required
@@ -312,6 +326,11 @@ class FakeSettings:
         if self.event_debug_enabled is not None:
             return self.event_debug_enabled
         return True
+
+    def is_affective_assessment_enabled(self) -> bool:
+        if self.affective_assessment_enabled is not None:
+            return self.affective_assessment_enabled
+        return self.app_env != "production"
 
     def is_event_debug_query_compat_enabled(self) -> bool:
         if self.event_debug_query_compat_enabled is not None:
@@ -452,6 +471,8 @@ def _client(
     secret: str | None = None,
     *,
     app_env: str = "development",
+    affective_assessment_enabled: bool | None = None,
+    openai_api_key: str | None = None,
     reflection_triggered: bool = False,
     run_delay_seconds: float = 0.0,
     runtime_action_status: str = "success",
@@ -517,6 +538,8 @@ def _client(
     app.state.settings = FakeSettings(
         telegram_webhook_secret=secret,
         app_env=app_env,
+        affective_assessment_enabled=affective_assessment_enabled,
+        openai_api_key=openai_api_key,
         event_debug_enabled=event_debug_enabled,
         event_debug_token=event_debug_token,
         production_debug_token_required=production_debug_token_required,
@@ -577,6 +600,10 @@ def test_health_endpoint_returns_ok() -> None:
     assert body["status"] == "ok"
     assert body["release_readiness"] == {"ready": True, "violations": []}
     assert body["runtime_policy"]["startup_schema_mode"] == "migrate"
+    assert body["runtime_policy"]["affective_assessment_enabled"] is True
+    assert body["runtime_policy"]["affective_assessment_source"] == "environment_default"
+    assert body["runtime_policy"]["affective_classifier_available"] is False
+    assert body["runtime_policy"]["affective_assessment_posture"] == "fallback_only_classifier_unavailable"
     assert body["runtime_policy"]["event_debug_shared_ingress_mode"] == "compatibility"
     assert body["runtime_policy"]["compatibility_sunset_ready"] is False
     assert body["runtime_policy"]["event_debug_query_compat_telemetry"]["recent_window_size"] == 20
@@ -605,6 +632,41 @@ def test_health_endpoint_returns_ok() -> None:
     assert body["reflection"]["deployment_readiness"]["ready"] is True
     assert body["reflection"]["worker"]["queued_task_ids"] == [42]
     assert body["reflection"]["adaptive_outputs"] == {}
+
+
+def test_health_endpoint_exposes_affective_assessment_policy_disabled_in_production_by_default() -> None:
+    client, _, _ = _client(
+        app_env="production",
+        event_debug_enabled=False,
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["runtime_policy"]["affective_assessment_enabled"] is False
+    assert body["runtime_policy"]["affective_assessment_source"] == "environment_default"
+    assert body["runtime_policy"]["affective_classifier_available"] is False
+    assert body["runtime_policy"]["affective_assessment_posture"] == "fallback_only_policy_disabled"
+    assert body["runtime_policy"]["affective_assessment_hint"] == "policy_disabled_use_deterministic_affective_baseline"
+
+
+def test_health_endpoint_exposes_affective_assessment_ai_assisted_posture_when_enabled_and_key_present() -> None:
+    client, _, _ = _client(
+        app_env="production",
+        affective_assessment_enabled=True,
+        openai_api_key="test-openai-key",
+        event_debug_enabled=False,
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["runtime_policy"]["affective_assessment_enabled"] is True
+    assert body["runtime_policy"]["affective_assessment_source"] == "explicit"
+    assert body["runtime_policy"]["affective_classifier_available"] is True
+    assert body["runtime_policy"]["affective_assessment_posture"] == "ai_assisted_active"
 
 
 def test_health_endpoint_allows_deferred_reflection_mode_without_running_worker() -> None:
@@ -1106,6 +1168,12 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
     body = response.json()
     assert body["status"] == "ok"
     assert body["runtime_policy"] == {
+        "affective_assessment_enabled": False,
+        "affective_assessment_source": "environment_default",
+        "affective_classifier_available": False,
+        "affective_assessment_posture": "fallback_only_policy_disabled",
+        "affective_assessment_hint": "policy_disabled_use_deterministic_affective_baseline",
+        "affective_assessment_owner": "affective_assessment_rollout_policy",
         "startup_schema_mode": "create_tables",
         "startup_schema_compatibility_posture": "compatibility_create_tables",
         "startup_schema_compatibility_sunset_ready": False,
@@ -2104,6 +2172,9 @@ def test_event_debug_endpoint_exposes_system_debug_behavior_contract() -> None:
     assert system_debug["role"]["selection_policy_owner"] == "role_selection_policy"
     assert "selection_reason" in system_debug["role"]
     assert "selection_evidence" in system_debug["role"]
+    assert system_debug["adaptive_state"]["affective_assessment_policy"]["affective_assessment_owner"] == (
+        "affective_assessment_rollout_policy"
+    )
     assert system_debug["action_result"]["status"] == "success"
     assert "x-aion-debug-shared-compat" not in debug_response.headers
 

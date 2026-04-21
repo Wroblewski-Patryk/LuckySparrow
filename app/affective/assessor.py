@@ -18,8 +18,16 @@ class AffectiveAssessor:
         "positive_engagement",
     }
 
-    def __init__(self, classifier_client: AffectiveClassifierClient | None = None):
+    def __init__(
+        self,
+        classifier_client: AffectiveClassifierClient | None = None,
+        *,
+        enabled: bool = True,
+        policy_source: str = "runtime_default",
+    ):
         self.classifier_client = classifier_client
+        self.enabled = bool(enabled)
+        self.policy_source = str(policy_source).strip().lower() or "runtime_default"
 
     async def assess(
         self,
@@ -31,6 +39,9 @@ class AffectiveAssessor:
         text = str(user_text or "").strip()
         if not text:
             return self._fallback_output(fallback)
+
+        if not self.enabled:
+            return self._fallback_output(fallback, reason="policy_disabled")
 
         if self.classifier_client is None:
             return self._fallback_output(fallback)
@@ -53,6 +64,25 @@ class AffectiveAssessor:
             return self._fallback_output(fallback, reason=self._normalization_failure_reason(raw))
 
         return normalized
+
+    def snapshot(self) -> dict[str, str | bool]:
+        if self.enabled and self.classifier_client is not None:
+            posture = "ai_assisted_active"
+            hint = "ai_classifier_available_for_affective_assessment"
+        elif self.enabled:
+            posture = "fallback_only_classifier_unavailable"
+            hint = "configure_classifier_or_disable_ai_affective_assessment"
+        else:
+            posture = "fallback_only_policy_disabled"
+            hint = "policy_disabled_use_deterministic_affective_baseline"
+        return {
+            "affective_assessment_enabled": self.enabled,
+            "affective_assessment_source": self.policy_source,
+            "affective_classifier_available": self.classifier_client is not None,
+            "affective_assessment_posture": posture,
+            "affective_assessment_hint": hint,
+            "affective_assessment_owner": "affective_assessment_rollout_policy",
+        }
 
     def _fallback_output(
         self,

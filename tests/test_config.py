@@ -9,6 +9,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.startup_schema_mode == "migrate"
     assert settings.production_policy_enforcement == "warn"
     assert settings.event_debug_enabled is None
+    assert settings.affective_assessment_enabled is None
     assert settings.event_debug_token is None
     assert settings.production_debug_token_required is True
     assert settings.event_debug_query_compat_enabled is None
@@ -37,6 +38,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.attention_burst_window_ms == 120
     assert settings.attention_answered_ttl_seconds == 5.0
     assert settings.attention_stale_turn_seconds == 30.0
+    assert settings.is_affective_assessment_enabled() is True
     assert settings.is_event_debug_enabled() is True
     assert settings.is_event_debug_query_compat_enabled() is True
 
@@ -79,6 +81,8 @@ def test_settings_default_to_debug_payload_disabled_in_production() -> None:
     )
 
     assert settings.event_debug_enabled is None
+    assert settings.affective_assessment_enabled is None
+    assert settings.is_affective_assessment_enabled() is False
     assert settings.is_event_debug_enabled() is False
     assert settings.event_debug_query_compat_enabled is None
     assert settings.is_event_debug_query_compat_enabled() is False
@@ -114,6 +118,17 @@ def test_settings_allow_explicit_debug_payload_enablement_in_production() -> Non
 
     assert settings.event_debug_enabled is True
     assert settings.is_event_debug_enabled() is True
+
+
+def test_settings_allow_explicit_affective_assessment_enablement_in_production() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        app_env="production",
+        affective_assessment_enabled=True,
+    )
+
+    assert settings.affective_assessment_enabled is True
+    assert settings.is_affective_assessment_enabled() is True
 
 
 def test_settings_allow_optional_event_debug_token() -> None:

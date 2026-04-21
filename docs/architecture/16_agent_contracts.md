@@ -215,6 +215,9 @@ themselves.
    evidence
 3. undocumented tie-breakers are disallowed; new adaptive influence requires
    contract updates first
+4. AI-assisted affective classification rollout posture must remain explicit
+   through one rollout-policy owner; disabled-policy fallback and
+   classifier-unavailable fallback are both valid but must be machine-visible
 
 ---
 

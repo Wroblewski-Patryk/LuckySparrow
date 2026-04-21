@@ -33,6 +33,12 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
     snapshot = runtime_policy_snapshot(settings)
 
     assert snapshot == {
+        "affective_assessment_enabled": True,
+        "affective_assessment_source": "environment_default",
+        "affective_classifier_available": False,
+        "affective_assessment_posture": "fallback_only_classifier_unavailable",
+        "affective_assessment_hint": "configure_openai_api_key_or_disable_ai_affective_assessment",
+        "affective_assessment_owner": "affective_assessment_rollout_policy",
         "startup_schema_mode": "migrate",
         "startup_schema_compatibility_posture": "migration_only",
         "startup_schema_compatibility_sunset_ready": True,
@@ -97,6 +103,10 @@ def test_runtime_policy_snapshot_includes_all_production_mismatches() -> None:
     assert snapshot["event_debug_shared_ingress_sunset_reason"] == "shared_debug_route_still_in_compatibility_mode"
     assert snapshot["debug_access_posture"] == "token_gated"
     assert snapshot["debug_token_policy_hint"] == "token_gated"
+    assert snapshot["affective_assessment_enabled"] is False
+    assert snapshot["affective_assessment_source"] == "environment_default"
+    assert snapshot["affective_classifier_available"] is False
+    assert snapshot["affective_assessment_posture"] == "fallback_only_policy_disabled"
     assert snapshot["recommended_production_policy_enforcement"] == "warn"
     assert snapshot["strict_rollout_hint"] == "resolve_mismatches_before_strict"
     assert snapshot["production_policy_enforcement"] == "strict"
@@ -174,6 +184,10 @@ def test_runtime_policy_snapshot_marks_event_debug_source_as_environment_default
     )
     assert snapshot["debug_access_posture"] == "disabled"
     assert snapshot["debug_token_policy_hint"] == "not_applicable_debug_disabled"
+    assert snapshot["affective_assessment_enabled"] is False
+    assert snapshot["affective_assessment_source"] == "environment_default"
+    assert snapshot["affective_classifier_available"] is False
+    assert snapshot["affective_assessment_posture"] == "fallback_only_policy_disabled"
     assert snapshot["production_policy_mismatches"] == []
     assert snapshot["production_policy_mismatch_count"] == 0
     assert snapshot["strict_startup_blocked"] is False

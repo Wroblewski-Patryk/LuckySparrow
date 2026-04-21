@@ -132,6 +132,7 @@ For meaningful repo changes, leave behind:
   - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 - for affective rollout-policy slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+  - `.\.venv\Scripts\python -m pytest -q tests/test_config.py`
 - for reflection-scope governance slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
 - for durable attention contract-store slices, regression evidence from:

@@ -174,8 +174,13 @@ Current implementation posture:
 - perception emits deterministic placeholder signals as baseline
 - runtime runs a dedicated `affective_assessment` stage that can consume LLM
   classification and normalize it to the shared contract
+- affective-assessment rollout is now governed by one explicit policy owner,
+  with environment-default enablement (`enabled` outside production,
+  `disabled` in production) unless explicitly overridden
 - when LLM classification is unavailable or invalid, the stage falls back to
   deterministic baseline signals and marks source as `fallback`
+- policy-disabled fallback and classifier-unavailable fallback are now separate
+  machine-visible postures in runtime policy and system-debug surfaces
 - motivation, role, and expression now consume `perception.affective` as the
   primary support/emotion signal owner for turn behavior
 

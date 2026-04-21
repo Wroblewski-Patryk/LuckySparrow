@@ -153,6 +153,7 @@ class RuntimeOrchestrator:
             adaptive_state={
                 **dict(adaptive_state),
                 "retrieval_depth_policy": dict(retrieval_depth_policy),
+                "affective_assessment_policy": dict(self.affective_assessor.snapshot()),
             },
         )
 

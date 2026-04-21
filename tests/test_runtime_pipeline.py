@@ -4541,6 +4541,63 @@ async def test_runtime_pipeline_exposes_system_debug_surface_for_behavior_valida
     assert result.system_debug.action_result.status in {"success", "noop"}
     assert result.system_debug.adaptive_state["retrieval_depth_policy"]["episodic_limit"] == RuntimeOrchestrator.MEMORY_LOAD_LIMIT
     assert result.system_debug.adaptive_state["background_adaptive_outputs"]["theta_loaded"] is False
+    assert result.system_debug.adaptive_state["affective_assessment_policy"]["affective_assessment_owner"] == (
+        "affective_assessment_rollout_policy"
+    )
+
+
+async def test_runtime_pipeline_exposes_disabled_affective_policy_in_system_debug() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+        affective_assessor=AffectiveAssessor(
+            classifier_client=FakeAffectiveClassifierClient(
+                {
+                    "affect_label": "support_distress",
+                    "intensity": 0.92,
+                    "needs_support": True,
+                    "confidence": 0.88,
+                    "evidence": ["overwhelmed"],
+                }
+            ),
+            enabled=False,
+            policy_source="explicit",
+        ),
+    )
+
+    event = Event(
+        event_id="evt-affective-policy-off",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "I feel overwhelmed"},
+        meta=EventMeta(user_id="u-1", trace_id="t-affective-policy-off"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.system_debug is not None
+    assert result.affective.source == "fallback"
+    assert result.affective.evidence[0] == "fallback_reason:policy_disabled"
+    assert result.system_debug.adaptive_state["affective_assessment_policy"] == {
+        "affective_assessment_enabled": False,
+        "affective_assessment_source": "explicit",
+        "affective_classifier_available": True,
+        "affective_assessment_posture": "fallback_only_policy_disabled",
+        "affective_assessment_hint": "policy_disabled_use_deterministic_affective_baseline",
+        "affective_assessment_owner": "affective_assessment_rollout_policy",
+    }
 
 
 async def test_behavior_harness_outputs_structured_contract_results() -> None:

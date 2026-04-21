@@ -1675,6 +1675,18 @@ Last updated: 2026-04-21
   passed with `729 passed`.
 - 2026-04-21: `PRJ-399` is now the first `READY` task, focused on explicit
   rollout policy ownership for AI-assisted affective assessment.
+- 2026-04-21: `PRJ-399..PRJ-402` are complete: affective assessment now has an
+  explicit rollout policy owner with environment-default enablement semantics,
+  policy-disabled fallback posture, and machine-visible runtime policy / debug
+  snapshots.
+- 2026-04-21: Group 46 (`PRJ-399..PRJ-402`) is now complete.
+- 2026-04-21: Group 46 validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_config.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+  passed with `199 passed`, and
+  `.\.venv\Scripts\python -m pytest -q`
+  passed with `734 passed`.
+- 2026-04-21: `PRJ-403` is now the first `READY` task, focused on explicit
+  scope governance for remaining reflection outputs with multi-goal risk.
 
 ## Working Agreements
 

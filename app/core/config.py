@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_port: int = 8000
     log_level: str = "INFO"
+    affective_assessment_enabled: bool | None = None
     event_debug_enabled: bool | None = None
     event_debug_token: str | None = None
     production_debug_token_required: bool = True
@@ -99,6 +100,11 @@ class Settings(BaseSettings):
     def is_event_debug_enabled(self) -> bool:
         if self.event_debug_enabled is not None:
             return self.event_debug_enabled
+        return self.app_env.lower() != "production"
+
+    def is_affective_assessment_enabled(self) -> bool:
+        if self.affective_assessment_enabled is not None:
+            return self.affective_assessment_enabled
         return self.app_env.lower() != "production"
 
     def is_event_debug_query_compat_enabled(self) -> bool:
