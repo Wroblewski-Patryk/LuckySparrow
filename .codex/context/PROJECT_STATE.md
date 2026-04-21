@@ -1467,8 +1467,19 @@ Last updated: 2026-04-21
   `docs/engineering/testing.md`,
   `.codex/context/TASK_BOARD.md`, and
   `.codex/context/PROJECT_STATE.md`.
-- 2026-04-21: `PRJ-355` is now the next `READY` slice, focused on
-  deployment-trigger evidence capture for Coolify webhook operations.
+- 2026-04-21: `PRJ-355` is complete: Coolify deploy trigger now has a shared
+  evidence-capable Python owner with optional machine-readable output for
+  webhook invocation metadata and response posture.
+- 2026-04-21: `PRJ-355` also aligns PowerShell/bash trigger wrappers onto the
+  shared Python entrypoint so deployment evidence semantics remain consistent
+  across operator environments.
+- 2026-04-21: `PRJ-355` validation is green:
+  `.\.venv\Scripts\python .\scripts\trigger_coolify_deploy_webhook.py --help`
+  verified argument contract, and
+  `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
+  passed with `101 passed`.
+- 2026-04-21: `PRJ-356` is now the next `READY` slice, focused on optional
+  release-smoke verification for deployment-trigger evidence posture.
 
 ## Working Agreements
 

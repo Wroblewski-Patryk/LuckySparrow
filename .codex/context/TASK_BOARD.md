@@ -36,29 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-355 Add deployment-trigger evidence capture script for Coolify webhook invocations
-  - Status: READY
-  - Group: Deployment Trigger SLO Instrumentation
-  - Owner: Ops/Release
-  - Depends on: PRJ-354
-  - Priority: P1
-  - Result:
-    - release operations can persist machine-readable Coolify webhook evidence
-      (request timestamp, response code/body, endpoint metadata) for SLO
-      tracking
-    - deployment-trigger evidence capture remains optional and does not block
-      current manual fallback posture
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-356 Add release-smoke support for optional deployment-trigger evidence verification
-  - Status: FUTURE
+  - Status: READY
   - Group: Deployment Trigger SLO Instrumentation
   - Owner: Ops/Release
   - Depends on: PRJ-355
@@ -69,7 +48,13 @@ Last updated: 2026-04-21
     - operator flow remains backward-compatible when evidence verification is
       not requested
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_main_runtime_policy.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-357 Add regressions for deployment-trigger evidence and release-smoke verification posture
   - Status: FUTURE
@@ -113,6 +98,23 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-355 Add deployment-trigger evidence capture script for Coolify webhook invocations
+  - Status: DONE
+  - Group: Deployment Trigger SLO Instrumentation
+  - Owner: Ops/Release
+  - Depends on: PRJ-354
+  - Priority: P1
+  - Result:
+    - Coolify deploy trigger now has a shared Python owner with optional
+      machine-readable evidence output (`coolify_deploy_webhook_evidence`)
+    - PowerShell and bash trigger scripts now route through the shared
+      evidence-capable entrypoint while preserving existing trigger arguments
+  - Validation:
+    - `.\.venv\Scripts\python .\scripts\trigger_coolify_deploy_webhook.py --help`
+      (argument contract verified)
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
+      (`101 passed`)
 
 - [x] PRJ-354 Sync docs/context for behavior-validation artifact-governance lane
   - Status: DONE
