@@ -36,28 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-349 Add regressions for behavior-validation artifact and CI gate semantics
-  - Status: READY
-  - Group: Behavior Validation CI-Ingestion Follow-up
-  - Owner: QA/Test
-  - Depends on: PRJ-348
-  - Priority: P1
-  - Result:
-    - regression coverage now pins behavior artifact schema and CI gate
-      fail/pass semantics
-    - fallback posture between local evidence mode and CI gate mode is
-      explicitly test-visible
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-350 Sync docs/context for behavior-validation CI-ingestion lane
-  - Status: FUTURE
+  - Status: READY
   - Group: Behavior Validation CI-Ingestion Follow-up
   - Owner: Product Docs
   - Depends on: PRJ-349
@@ -70,6 +50,14 @@ Last updated: 2026-04-21
     - doc-and-context sync across `.codex/context/`, `docs/planning/`,
       `docs/operations/`, and `docs/engineering/` with targeted
       cross-reference checks
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
+
+- [ ] (none)
 
 ## IN_PROGRESS
 
@@ -84,6 +72,25 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-349 Add regressions for behavior-validation artifact and CI gate semantics
+  - Status: DONE
+  - Group: Behavior Validation CI-Ingestion Follow-up
+  - Owner: QA/Test
+  - Depends on: PRJ-348
+  - Priority: P1
+  - Result:
+    - regression coverage now pins behavior-validation gate semantics for
+      `operator` versus `ci` posture, including CI `no tests collected`
+      fail-fast behavior
+    - artifact gate contract is now test-visible (`gate.mode`,
+      `gate.status`, `gate.violations`, `gate.ci_require_tests`) through
+      script-level regressions
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py`
+      (`5 passed`)
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
+      (`176 passed`)
 
 - [x] PRJ-348 Add release/ops script support for behavior-validation CI gate posture
   - Status: DONE

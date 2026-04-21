@@ -1399,8 +1399,20 @@ Last updated: 2026-04-21
 - 2026-04-21: `PRJ-348` required regression scope is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
   passed with `101 passed`.
-- 2026-04-21: `PRJ-349` is now the next `READY` slice, focused on regression
-  coverage for behavior-validation artifact schema and CI gate semantics.
+- 2026-04-21: `PRJ-349` is complete: script-level regressions now pin
+  behavior-validation artifact gate semantics for `operator` and `ci` modes,
+  including explicit CI fail-fast posture when no tests are collected.
+- 2026-04-21: `PRJ-349` regression contract now verifies artifact gate fields
+  (`gate.mode`, `gate.status`, `gate.violations`, `gate.ci_require_tests`) and
+  preserves operator-mode exit behavior.
+- 2026-04-21: `PRJ-349` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py`
+  passed with `5 passed`.
+- 2026-04-21: `PRJ-349` required regression scope is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
+  passed with `176 passed`.
+- 2026-04-21: `PRJ-350` is now the next `READY` slice, focused on docs/context
+  synchronization for behavior-validation CI-ingestion posture.
 
 ## Working Agreements
 
