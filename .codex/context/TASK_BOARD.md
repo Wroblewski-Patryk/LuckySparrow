@@ -36,20 +36,21 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-342 Sync docs/context for manual runtime reliability fix lane
+- [ ] PRJ-343 Add delivery-reliability-aware gates for inferred goal/task promotion
   - Status: READY
-  - Group: Manual Runtime Reliability Fixes
-  - Owner: Product Docs
-  - Depends on: PRJ-341
+  - Group: Relation-Aware Inferred Promotion Governance
+  - Owner: Backend Builder
+  - Depends on: PRJ-342
   - Priority: P1
   - Result:
-    - planning docs, runbook guidance, and context truth reflect the new
-      manual-runtime fix lane and updated Telegram reliability baseline
-    - queue and project-state continuity stay explicit after manual validation
-      findings
+    - inferred goal/task promotion thresholds now account for
+      delivery-reliability posture (`low_trust|medium_trust|high_trust`)
+      without weakening explicit user-declared intent handling
+    - trust-aware gating remains deterministic and bounded to inferred
+      promotion paths only (`promote_inferred_goal|promote_inferred_task|
+      maintain_task_status`)
   - Validation:
-    - doc-and-context sync across `.codex/context/`, `docs/planning/`, and
-      `docs/operations/` with targeted cross-reference checks
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_adaptive_policy.py`
 
 ## BACKLOG
 
@@ -57,7 +58,50 @@ Last updated: 2026-04-21
 
 ## FUTURE
 
-- [ ] (none)
+- [ ] PRJ-344 Add inferred-promotion gate diagnostics for planning and runtime debug surfaces
+  - Status: FUTURE
+  - Group: Relation-Aware Inferred Promotion Governance
+  - Owner: Backend Builder
+  - Depends on: PRJ-343
+  - Priority: P1
+  - Result:
+    - planning now emits explicit inferred-gate diagnostics
+      (for example `reason=trust_gate_low_confidence`) for blocked or promoted
+      inferred intents
+    - runtime/system-debug visibility now includes inferred-gate posture so
+      trust-driven promotion decisions are operator-traceable
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- [ ] PRJ-345 Add regressions for trust-aware inferred promotion gates and diagnostics
+  - Status: FUTURE
+  - Group: Relation-Aware Inferred Promotion Governance
+  - Owner: QA/Test
+  - Depends on: PRJ-344
+  - Priority: P1
+  - Result:
+    - regression coverage now pins no-unsafe inferred promotions under low
+      trust confidence and expected promotions under neutral/high trust posture
+    - diagnostic contract regressions pin inferred-gate reason visibility
+      across planning/runtime paths
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_reflection_worker.py`
+
+- [ ] PRJ-346 Sync docs/context for relation-aware inferred promotion governance lane
+  - Status: FUTURE
+  - Group: Relation-Aware Inferred Promotion Governance
+  - Owner: Product Docs
+  - Depends on: PRJ-345
+  - Priority: P1
+  - Result:
+    - planning docs, open-decision notes, and context truth align on
+      trust-aware inferred promotion gates and diagnostics boundaries
+    - queue/project-state continuity remains explicit for the next derived
+      architecture slices
+  - Validation:
+    - doc-and-context sync across `.codex/context/`, `docs/planning/`,
+      `docs/architecture/`, and `docs/implementation/` with targeted
+      cross-reference checks
 
 ## IN_PROGRESS
 
@@ -72,6 +116,21 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-342 Sync docs/context for manual runtime reliability fix lane
+  - Status: DONE
+  - Group: Manual Runtime Reliability Fixes
+  - Owner: Product Docs
+  - Depends on: PRJ-341
+  - Priority: P1
+  - Result:
+    - planning docs, runbook guidance, and context truth now align for
+      manual-runtime reliability fixes through `PRJ-342`
+    - next derived queue is now seeded for relation-aware inferred promotion
+      governance follow-up (`PRJ-343..PRJ-346`)
+  - Validation:
+    - doc-and-context sync across `.codex/context/`, `docs/planning/`, and
+      `docs/operations/` with targeted cross-reference checks
 
 - [x] PRJ-341 Add Telegram integration smoke workflow for webhook/listen mode switching
   - Status: DONE

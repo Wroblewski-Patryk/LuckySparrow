@@ -1319,8 +1319,21 @@ Last updated: 2026-04-21
 - 2026-04-21: `PRJ-341` live Telegram smoke execution is not recorded in this
   workspace because runtime bot credentials are unavailable here; evidence
   coverage is provided through shipped operator scripts and runbook checklist.
-- 2026-04-21: `PRJ-342` is now the next `READY` slice, focused on docs/context
-  synchronization for manual runtime reliability fixes.
+- 2026-04-21: `PRJ-342` is complete: planning docs, operations runbook, and
+  context truth now align for manual runtime reliability fixes through
+  `PRJ-342`.
+- 2026-04-21: `PRJ-342` also seeds the next derived architecture queue
+  (`PRJ-343..PRJ-346`) for relation-aware inferred promotion governance
+  follow-up.
+- 2026-04-21: `PRJ-342` validation is recorded as doc-and-context sync plus
+  targeted cross-reference checks across
+  `docs/planning/next-iteration-plan.md`,
+  `docs/planning/open-decisions.md`,
+  `docs/operations/runtime-ops-runbook.md`,
+  `.codex/context/TASK_BOARD.md`, and
+  `.codex/context/PROJECT_STATE.md`.
+- 2026-04-21: `PRJ-343` is now the next `READY` slice, focused on
+  delivery-reliability-aware gates for inferred goal/task promotion.
 
 ## Working Agreements
 

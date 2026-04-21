@@ -40,15 +40,19 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `PRJ-322..PRJ-325`: scheduler externalization and attention ownership
     (`1`, `12`, `12a` implementation follow-up) - complete
   - `PRJ-326..PRJ-329`: identity, language, and profile boundary hardening
-    (`8`, `9`)
+    (`8`, `9`) - complete
   - `PRJ-330..PRJ-333`: relation lifecycle and trust influence rollout
-    (`9a`, `10`, `12`)
+    (`9a`, `10`, `12`) - complete
   - `PRJ-334..PRJ-337`: goal/task inference and typed-intent expansion
-    (`5a`, `10a`, `12c`)
+    (`5a`, `10a`, `12c`) - complete
+  - `PRJ-339..PRJ-342`: manual runtime reliability fixes
+    (`3`, `13`) - complete
+  - `PRJ-343..PRJ-346`: relation-aware inferred promotion governance
+    (`9a`, `10a`) - queued
 - reflection deployment lane is complete through `PRJ-304`, and
   post-reflection hardening decisions are now complete through `PRJ-309`.
 - runtime behavior-validation lane is now complete through `PRJ-317`.
-- next architecture-to-code queue is now seeded through `PRJ-342`.
+- next architecture-to-code queue is now seeded through `PRJ-346`.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
@@ -637,9 +641,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - low-confidence relation cues remain descriptive-only and must not directly
     drive trust-sensitive planning/expression/proactive behavior.
 - Follow-up decision:
-  - once goal/task inference rollout (`PRJ-334..PRJ-337`) stabilizes, decide
-    whether relation lifecycle should influence inferred planning promotion
-    thresholds or remain a separate adaptive channel.
+  - relation-aware inferred planning governance follow-up is now queued in
+    `PRJ-343..PRJ-346` to decide and implement whether delivery-reliability
+    posture should tighten inferred promotion thresholds while preserving typed
+    intent ownership boundaries.
 
 ### 10. Preference Influence Scope
 
