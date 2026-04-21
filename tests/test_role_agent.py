@@ -70,6 +70,7 @@ def test_role_agent_uses_analyst_for_planning_topics() -> None:
     )
 
     assert result.selected == "analyst"
+    assert result.selection_reason == "planning_topic_or_analysis_keyword"
     assert any(skill.skill_id == "structured_reasoning" for skill in result.selected_skills)
 
 
@@ -113,6 +114,44 @@ def test_role_agent_uses_preferred_role_as_tie_breaker_for_ambiguous_question() 
     )
 
     assert result.selected == "analyst"
+    assert result.selection_reason == "preferred_role_help_tie_break"
+    assert any(item.source == "user_preference" and item.applied for item in result.selection_evidence)
+
+
+def test_role_agent_uses_active_goal_risk_context_for_ambiguous_help_turn() -> None:
+    result = RoleAgent().run(
+        event=_event("Can you help me think through this blocker?"),
+        perception=_perception("question", "general", "request_help"),
+        context=ContextOutput(
+            summary="ctx",
+            related_goals=["ship the MVP this week"],
+            related_tags=["goal"],
+            risk_level=0.62,
+        ),
+    )
+
+    assert result.selected == "advisor"
+    assert result.selection_reason == "active_goal_risk_review"
+    assert any(item.signal == "active_goal_context" and item.applied for item in result.selection_evidence)
+    assert any(item.signal == "context_risk" and item.applied for item in result.selection_evidence)
+
+
+def test_role_agent_raises_analyst_confidence_when_planning_turn_has_active_goal_context() -> None:
+    result = RoleAgent().run(
+        event=_event("Can you plan the rollout around the current milestone?"),
+        perception=_perception("question", "planning", "request_help"),
+        context=ContextOutput(
+            summary="ctx",
+            related_goals=["ship the MVP this week"],
+            related_tags=["goal"],
+            risk_level=0.34,
+        ),
+    )
+
+    assert result.selected == "analyst"
+    assert result.confidence == 0.85
+    assert result.selection_reason == "planning_topic_active_goal_context"
+    assert any(item.signal == "active_goal_context" and item.applied for item in result.selection_evidence)
 
 
 def test_role_agent_does_not_override_explicit_executor_signal_with_preference() -> None:

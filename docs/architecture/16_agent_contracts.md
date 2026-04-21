@@ -487,6 +487,17 @@ Select the behavioral stance for the turn.
   "role": {
     "selected": "advisor|analyst|mentor|executor|friend",
     "confidence": 0.0,
+    "selection_policy_owner": "role_selection_policy",
+    "selection_reason": "...",
+    "selection_evidence": [
+      {
+        "signal": "preferred_role",
+        "source": "user_preference",
+        "value": "analyst",
+        "applied": true,
+        "note": "..."
+      }
+    ],
     "selected_skills": [
       {
         "skill_id": "structured_reasoning",

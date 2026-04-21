@@ -71,6 +71,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `PRJ-387..PRJ-390`: role-and-skill capability convergence (`4`, `6`) - complete
   - `PRJ-391..PRJ-394`: retrieval-depth and theta-governance baseline
     (`5`, `5d`, `10b`) - complete
+  - `PRJ-395..PRJ-398`: role-selection evidence baseline (`4`, `10b`) - complete
+  - `PRJ-399..PRJ-402`: affective-assessment rollout policy (`4a`) - planned
+  - `PRJ-403..PRJ-406`: reflection scope governance (`5c`) - planned
+  - `PRJ-407..PRJ-410`: durable attention contract-store rollout (`12a`) - planned
 - reflection deployment lane is complete through `PRJ-304`, and
   post-reflection hardening decisions are now complete through `PRJ-309`.
 - runtime behavior-validation lane is now complete through `PRJ-317`.
@@ -78,6 +82,8 @@ The current repo already works as an MVP slice, but several architecture-level d
 - post-Group-44 state now has no remaining `READY` task; the next convergence
   queue should again be derived from planning docs plus the still-open
   architecture decisions below.
+- post-Group-45 state now has `PRJ-399` as the first `READY` task, focused on
+  explicit rollout policy ownership for AI-assisted affective assessment.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
@@ -374,8 +380,21 @@ The current repo already works as an MVP slice, but several architecture-level d
 
 - Current repo fact:
   - runtime role now uses lightweight heuristic selection (`friend`, `analyst`, `executor`, `mentor`, `advisor`), can use a reflected `preferred_role` as a tie-breaker for more ambiguous turns, and can also fall back to lightweight reflected theta bias when explicit heuristics do not decide the turn.
-- Decision needed:
-  - when should role selection move from heuristics into a richer module with user-state, memory, and goal-aware logic?
+  - role outputs now expose explicit `selection_reason` and
+    `selection_evidence` metadata from one shared policy owner
+    (`app/core/role_selection_policy.py`).
+  - active-goal context can now reinforce analytical role selection on
+    planning turns, while preferred-role/relation/theta tie breaks remain
+    bounded metadata-backed decisions instead of hidden local heuristics.
+- Follow-up implementation (resolved in `PRJ-395..PRJ-398`, 2026-04-21):
+  - role selection now has a shared evidence-driven policy owner with
+    machine-readable precedence diagnostics
+  - runtime debug and role outputs expose bounded evidence metadata without
+    changing action ownership
+- Remaining follow-up decision:
+  - how much further should role selection grow toward longer-horizon
+    user-state and goal-history reasoning before it stops being a lightweight
+    foreground policy?
 
 ### 4a. Affective Assessment Strategy
 
@@ -393,6 +412,10 @@ The current repo already works as an MVP slice, but several architecture-level d
     non-production environments, or behind an explicit feature gate?
   - which affective outputs deserve first-class contract fields
     (`label|intensity|needs_support|confidence|source|evidence`)?
+- Planned implementation lane:
+  - `PRJ-399..PRJ-402` will make affective rollout ownership explicit before
+    broader empathy/affective expansion work builds on classifier availability
+    assumptions.
 
 ### 5. Memory Retrieval Depth
 
@@ -435,6 +458,10 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Decision needed:
   - which reflection outputs should be global per user, and which must become
     goal-scoped or task-scoped before the runtime grows further?
+- Planned implementation lane:
+  - `PRJ-403..PRJ-406` will turn reflection scope policy into an explicit
+    implementation lane before additional adaptive/reflection outputs widen the
+    cross-goal leakage surface.
 
 ### 5d. Vector Retrieval Activation
 
@@ -898,6 +925,10 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Remaining follow-up decision:
   - when should the repo add a true repository-backed durable inbox owner
     instead of the current parity-preserving rollout baseline?
+- Planned implementation lane:
+  - `PRJ-407..PRJ-410` will define and begin the durable attention
+    contract-store rollout so parity mode can evolve toward a true repository
+    owner through bounded slices.
 
 ### 12b. Conscious vs Subconscious Coordination Boundary
 

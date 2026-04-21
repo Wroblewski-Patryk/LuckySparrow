@@ -43,18 +43,115 @@ Last updated: 2026-04-21
 - Background adaptive outputs, durable attention parity baseline, bounded
   role-to-skill capability metadata, and retrieval/theta governance snapshots
   are now explicit runtime surfaces instead of planning-only follow-ups.
+- The next convergence queue is now seeded through `PRJ-410`.
+- That queue focuses on evidence-driven role selection, affective-assessment
+  rollout policy, reflection scope governance, and true durable attention
+  contract-store rollout preparation.
 
 ## READY
 
-- [ ] (none)
+- [ ] PRJ-399 Define rollout policy ownership for AI-assisted affective assessment
+  - Group: Affective Assessment Rollout Policy
+  - Owner: Planner
+  - Depends on: PRJ-398
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 
 ## BACKLOG
 
-- [ ] (none)
+- [ ] PRJ-400 Expose affective-assessment rollout posture through runtime policy and debug surfaces
+  - Group: Affective Assessment Rollout Policy
+  - Owner: Backend Builder
+  - Depends on: PRJ-399
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-401 Add regressions for affective rollout defaults and deterministic fallback gating
+  - Group: Affective Assessment Rollout Policy
+  - Owner: QA/Test
+  - Depends on: PRJ-400
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- [ ] PRJ-402 Sync docs/context for affective-assessment rollout policy
+  - Group: Affective Assessment Rollout Policy
+  - Owner: Product Docs
+  - Depends on: PRJ-401
+  - Priority: P1
+  - Validation:
+    - doc-and-context sync across `docs/architecture/`,
+      `docs/implementation/`, `docs/planning/`, and `.codex/context/`
 
 ## FUTURE
 
-- [ ] (none)
+- [ ] PRJ-403 Define explicit scope policy for reflection outputs with multi-goal risk
+  - Group: Reflection Scope Governance
+  - Owner: Planner
+  - Depends on: PRJ-402
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-404 Apply scope policy to remaining reflection outputs and runtime readers
+  - Group: Reflection Scope Governance
+  - Owner: Backend Builder
+  - Depends on: PRJ-403
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-405 Add regressions for no-cross-goal leakage in scoped reflection outputs
+  - Group: Reflection Scope Governance
+  - Owner: QA/Test
+  - Depends on: PRJ-404
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-406 Sync docs/context for reflection scope governance
+  - Group: Reflection Scope Governance
+  - Owner: Product Docs
+  - Depends on: PRJ-405
+  - Priority: P1
+  - Validation:
+    - doc-and-context sync across `docs/architecture/`,
+      `docs/implementation/`, `docs/planning/`, and `.codex/context/`
+
+- [ ] PRJ-407 Define the durable attention contract-store shape and persistence responsibilities
+  - Group: Durable Attention Contract-Store Rollout
+  - Owner: Planner
+  - Depends on: PRJ-406
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_graph_state_contract.py`
+
+- [ ] PRJ-408 Add repository-backed durable attention store primitives behind owner-mode rollout
+  - Group: Durable Attention Contract-Store Rollout
+  - Owner: Backend Builder
+  - Depends on: PRJ-407
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-409 Add regressions for durable attention contract-store parity and cleanup behavior
+  - Group: Durable Attention Contract-Store Rollout
+  - Owner: QA/Test
+  - Depends on: PRJ-408
+  - Priority: P1
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- [ ] PRJ-410 Sync docs/context for durable attention contract-store rollout
+  - Group: Durable Attention Contract-Store Rollout
+  - Owner: Product Docs
+  - Depends on: PRJ-409
+  - Priority: P1
+  - Validation:
+    - doc-and-context sync across `docs/architecture/`,
+      `docs/implementation/`, `docs/planning/`, and `.codex/context/`
 
 ## IN_PROGRESS
 
@@ -69,6 +166,71 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-398 Sync docs/context for role-selection evidence baseline
+  - Status: DONE
+  - Group: Role-Selection Evidence Baseline
+  - Owner: Product Docs
+  - Depends on: PRJ-397
+  - Priority: P1
+  - Result:
+    - architecture, runtime-reality, planning docs, testing guidance, and
+      context truth now align on the shared role-selection policy owner,
+      evidence metadata, and bounded goal-aware diagnostics
+    - `PRJ-399` is now the next `READY` task for affective-assessment rollout
+      policy
+  - Validation:
+    - doc-and-context sync across `docs/architecture/`,
+      `docs/implementation/`, `docs/planning/`, `docs/engineering/`, and
+      `.codex/context/`
+
+- [x] PRJ-397 Add regressions for role-selection evidence precedence and bounded diagnostics
+  - Status: DONE
+  - Group: Role-Selection Evidence Baseline
+  - Owner: QA/Test
+  - Depends on: PRJ-396
+  - Priority: P1
+  - Result:
+    - regressions now pin role-selection reasons/evidence for preferred-role
+      tie breaks, active-goal planning context, and debug-surface visibility
+    - role diagnostics remain metadata-only and do not affect action ownership
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+      (`160 passed`)
+    - `.\.venv\Scripts\python -m pytest -q`
+      (`729 passed`)
+
+- [x] PRJ-396 Apply a shared role-selection policy owner with evidence-driven diagnostics
+  - Status: DONE
+  - Group: Role-Selection Evidence Baseline
+  - Owner: Backend Builder
+  - Depends on: PRJ-395
+  - Priority: P1
+  - Result:
+    - role selection now routes through one shared policy owner with explicit
+      `selection_reason` and `selection_evidence` metadata
+    - active-goal context can now reinforce planning-role selection without
+      turning role diagnostics into side-effect owners
+  - Validation:
+    - Group 45 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`729 passed`)
+
+- [x] PRJ-395 Define a shared role-selection evidence contract and baseline policy owner
+  - Status: DONE
+  - Group: Role-Selection Evidence Baseline
+  - Owner: Planner
+  - Depends on: PRJ-394
+  - Priority: P1
+  - Result:
+    - runtime contracts now treat role selection as an evidence-driven policy
+      owner rather than a bare selected-string heuristic
+    - role outputs now expose bounded, machine-readable diagnostics that can be
+      consumed by runtime debug and behavior validation
+  - Validation:
+    - Group 45 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`729 passed`)
 
 - [x] PRJ-394 Sync docs/context for retrieval-depth and theta-governance baseline
   - Status: DONE

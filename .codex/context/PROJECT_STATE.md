@@ -1657,6 +1657,24 @@ Last updated: 2026-04-21
 - 2026-04-21: Group 41 through Group 44 are now complete, so no `READY` task
   remains on the task board after `PRJ-394`; the next queue should again be
   derived from planning docs and open decisions.
+- 2026-04-21: the next architecture-to-code queue is now seeded through
+  `PRJ-410`.
+- 2026-04-21: newly planned Groups 45 through 48 now turn the remaining
+  architecture follow-ups into executable lanes for role-selection evidence,
+  affective rollout policy, reflection scope governance, and durable attention
+  contract-store rollout.
+- 2026-04-21: `PRJ-395..PRJ-398` are complete: role selection now has a shared
+  policy owner (`app/core/role_selection_policy.py`) with explicit
+  `selection_reason` and `selection_evidence` metadata on role outputs and
+  system-debug surfaces.
+- 2026-04-21: Group 45 (`PRJ-395..PRJ-398`) is now complete.
+- 2026-04-21: Group 45 validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+  passed with `160 passed`, and
+  `.\.venv\Scripts\python -m pytest -q`
+  passed with `729 passed`.
+- 2026-04-21: `PRJ-399` is now the first `READY` task, focused on explicit
+  rollout policy ownership for AI-assisted affective assessment.
 
 ## Working Agreements
 

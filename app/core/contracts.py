@@ -210,9 +210,20 @@ class SkillCapabilityOutput(BaseModel):
     side_effect_posture: Literal["metadata_only"] = "metadata_only"
 
 
+class RoleSelectionEvidenceOutput(BaseModel):
+    signal: str
+    source: str
+    value: str
+    applied: bool = False
+    note: str = ""
+
+
 class RoleOutput(BaseModel):
     selected: str
     confidence: float
+    selection_policy_owner: Literal["role_selection_policy"] = "role_selection_policy"
+    selection_reason: str = ""
+    selection_evidence: list[RoleSelectionEvidenceOutput] = Field(default_factory=list)
     selected_skills: list[SkillCapabilityOutput] = Field(default_factory=list)
 
 

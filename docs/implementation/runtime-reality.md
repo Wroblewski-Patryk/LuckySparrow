@@ -586,6 +586,10 @@ Current intent-ownership boundary:
 - role selection now also emits bounded `selected_skills` capability metadata
   from `app/core/skill_registry.py`, and planning carries that metadata
   forward without turning skills into tools or side-effect owners
+- role selection now routes through `app/core/role_selection_policy.py`, which
+  exposes `selection_reason` and `selection_evidence` metadata on role outputs
+  and system-debug surfaces so role precedence stops living only in local agent
+  conditionals
 
 Reflection also derives lightweight operational signals such as:
 

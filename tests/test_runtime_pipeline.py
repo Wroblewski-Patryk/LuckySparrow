@@ -2626,6 +2626,9 @@ async def test_runtime_pipeline_uses_preferred_role_from_semantic_memory_for_amb
     result = await runtime.run(event)
 
     assert result.role.selected == "analyst"
+    assert result.role.selection_policy_owner == "role_selection_policy"
+    assert result.role.selection_reason == "preferred_role_help_tie_break"
+    assert any(item.source == "user_preference" and item.applied for item in result.role.selection_evidence)
     assert any(skill.skill_id == "structured_reasoning" for skill in result.role.selected_skills)
     assert any(skill.skill_id == "structured_reasoning" for skill in result.plan.selected_skills)
     assert result.reflection_triggered is True
@@ -2669,6 +2672,68 @@ async def test_runtime_pipeline_uses_theta_bias_when_no_preferred_role_exists() 
     assert result.system_debug is not None
     assert result.system_debug.adaptive_state["theta_influence"]["dominant_channel"] == "analysis"
     assert result.system_debug.adaptive_state["theta_influence"]["role_posture"] == "applied"
+
+
+async def test_runtime_pipeline_uses_active_goal_context_in_role_selection_diagnostics() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.active_goals = [
+        {
+            "id": 11,
+            "user_id": "u-1",
+            "name": "ship the MVP this week",
+            "description": "Finish the rollout safely",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "tactical",
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+        }
+    ]
+    memory.active_tasks = [
+        {
+            "id": 31,
+            "user_id": "u-1",
+            "goal_id": 11,
+            "name": "fix deployment blocker",
+            "description": "Resolve the blocker before release",
+            "priority": "high",
+            "status": "blocked",
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-role-risk-1",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Can you help me plan how to ship the MVP this week?"},
+        meta=EventMeta(user_id="u-1", trace_id="t-role-risk-1"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.role.selected == "analyst"
+    assert result.role.selection_reason == "planning_topic_active_goal_context"
+    assert any(item.signal == "active_goal_context" and item.applied for item in result.role.selection_evidence)
+    assert result.role.confidence == 0.85
+    assert result.system_debug is not None
+    assert result.system_debug.role.selection_reason == "planning_topic_active_goal_context"
 
 
 async def test_runtime_pipeline_uses_theta_bias_for_motivation_and_planning_on_brief_turn() -> None:

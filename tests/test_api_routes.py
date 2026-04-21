@@ -2101,6 +2101,9 @@ def test_event_debug_endpoint_exposes_system_debug_behavior_contract() -> None:
         "domain_intents",
         "inferred_promotion_diagnostics",
     }
+    assert system_debug["role"]["selection_policy_owner"] == "role_selection_policy"
+    assert "selection_reason" in system_debug["role"]
+    assert "selection_evidence" in system_debug["role"]
     assert system_debug["action_result"]["status"] == "success"
     assert "x-aion-debug-shared-compat" not in debug_response.headers
 

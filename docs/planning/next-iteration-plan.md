@@ -86,6 +86,13 @@ Completed on 2026-04-21:
 - `PRJ-391..PRJ-394` are complete: runtime and `/health` now expose shared
   retrieval-depth policy snapshots plus bounded theta-influence diagnostics
   across foreground stages.
+- after Group 44 closed, the next architecture-convergence queue is now seeded
+  through `PRJ-410`, with new groups focused on role-selection evidence,
+  affective rollout policy, reflection scope governance, and durable attention
+  contract-store rollout.
+- `PRJ-395..PRJ-398` are complete: role selection now has one shared policy
+  owner with explicit selection reasons/evidence and bounded active-goal
+  planning diagnostics through runtime debug surfaces.
 
 Completed on 2026-04-17:
 
@@ -2323,6 +2330,176 @@ Status update (2026-04-21): `PRJ-391..PRJ-394` are complete.
   - Validation:
     - doc-and-context sync plus targeted adaptive-governance cross-doc review
 
+## Group 45 - Role-Selection Evidence Baseline
+
+This group moves role selection from a bare heuristic result toward an
+evidence-driven policy owner, while keeping the role layer bounded and
+side-effect-free.
+
+Status update (2026-04-21): `PRJ-395..PRJ-398` are complete.
+
+- `PRJ-395` Define a shared role-selection evidence contract and baseline policy owner. (complete)
+  - Result:
+    - role outputs now expose machine-readable selection reason/evidence fields
+      instead of only a selected string plus confidence
+    - richer role-selection work can extend one policy owner instead of
+      growing ad-hoc heuristics in the agent directly
+  - Validation:
+    - Group 45 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`729 passed`)
+
+- `PRJ-396` Apply a shared role-selection policy owner with evidence-driven diagnostics. (complete)
+  - Result:
+    - `app/core/role_selection_policy.py` now owns selection precedence and
+      bounded diagnostics for affective, preference, relation, theta, and
+      active-goal planning context
+    - role debug surfaces now stay architecture-visible without turning role
+      metadata into action authority
+  - Validation:
+    - Group 45 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q`
+      (`729 passed`)
+
+- `PRJ-397` Add regressions for role-selection evidence precedence and bounded diagnostics. (complete)
+  - Result:
+    - regressions now pin preferred-role tie breaks, active-goal planning
+      reinforcement, and system-debug visibility of role-selection evidence
+    - richer role-selection work can extend from pinned precedence instead of
+      implicit heuristics
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+      (`160 passed`)
+    - `.\.venv\Scripts\python -m pytest -q`
+      (`729 passed`)
+
+- `PRJ-398` Sync docs/context for role-selection evidence baseline. (complete)
+  - Result:
+    - architecture, runtime-reality, planning docs, and context truth align on
+      one shared role-selection policy owner with bounded evidence metadata
+    - the next group can now treat affective rollout policy as a separate
+      concern instead of mixing it into role-selection ownership
+  - Validation:
+    - doc-and-context sync plus targeted role-selection cross-doc review
+
+## Group 46 - Affective Assessment Rollout Policy
+
+This group makes AI-assisted affective classification rollout posture explicit
+so runtime behavior can stay architecture-aligned whether the assessor is
+enabled broadly or kept behind stricter rollout controls.
+
+- `PRJ-399` Define rollout policy ownership for AI-assisted affective assessment.
+  - Result:
+    - affective-assessment enablement/default posture gains one explicit
+      policy owner instead of living only in implementation assumptions
+    - non-production and production rollout choices become machine-visible
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-400` Expose affective-assessment rollout posture through runtime policy and debug surfaces.
+  - Result:
+    - `/health` and runtime debug surfaces expose whether AI-assisted affective
+      classification is enabled, gated, or falling back deterministically
+    - operator/debug visibility no longer depends on inference from logs
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- `PRJ-401` Add regressions for affective rollout defaults and deterministic fallback gating.
+  - Result:
+    - rollout defaults, fallback posture, and debug visibility become
+      regression-pinned for both enabled and disabled classifier modes
+    - affective rollout changes stay test-visible before broader deployment
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-402` Sync docs/context for affective-assessment rollout policy.
+  - Result:
+    - architecture, runtime-reality, planning docs, and context truth align on
+      affective rollout ownership and fallback posture
+    - later empathy/affective improvements can extend one rollout policy owner
+  - Validation:
+    - doc-and-context sync plus targeted affective-policy cross-doc review
+
+## Group 47 - Reflection Scope Governance
+
+This group resolves the remaining question of which reflection outputs should
+stay global and which need scoped ownership as goal/task complexity grows.
+
+- `PRJ-403` Define explicit scope policy for reflection outputs with multi-goal risk.
+  - Result:
+    - reflection outputs gain one explicit scope policy instead of relying on
+      mixed historical conventions
+    - future reflection additions can choose global versus goal/task scope from
+      one documented rule set
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
+
+- `PRJ-404` Apply scope policy to remaining reflection outputs and runtime readers.
+  - Result:
+    - runtime readers and reflection writers align on which outputs must stay
+      scoped to goal/task context versus user-global posture
+    - multi-goal leakage risk decreases without broad architectural churn
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
+
+- `PRJ-405` Add regressions for no-cross-goal leakage in scoped reflection outputs.
+  - Result:
+    - scoped reflection leakage becomes test-visible across reflection,
+      repository, and runtime integration paths
+    - future scoped-output additions inherit pinned non-leakage behavior
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
+
+- `PRJ-406` Sync docs/context for reflection scope governance.
+  - Result:
+    - architecture, runtime-reality, planning docs, and context truth align on
+      reflection scope ownership and multi-goal guardrails
+    - later adaptive/reflection work can extend scopes without reopening the
+      baseline governance question
+  - Validation:
+    - doc-and-context sync plus targeted reflection-scope cross-doc review
+
+## Group 48 - Durable Attention Contract-Store Rollout
+
+This group starts the move from parity-only durable attention posture to a real
+repository-backed contract store while preserving current owner-mode rollout
+guardrails.
+
+- `PRJ-407` Define the durable attention contract-store shape and persistence responsibilities.
+  - Result:
+    - attention inbox persistence and cleanup responsibilities gain one
+      explicit repository-backed contract shape
+    - future durable owner rollout can proceed without redefining turn
+      semantics again
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_graph_state_contract.py`
+
+- `PRJ-408` Add repository-backed durable attention store primitives behind owner-mode rollout.
+  - Result:
+    - runtime gains the first real durable attention primitives behind the
+      existing owner-mode boundary
+    - in-process parity baseline remains available while storage-backed rollout
+      starts becoming real
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- `PRJ-409` Add regressions for durable attention contract-store parity and cleanup behavior.
+  - Result:
+    - contract-store parity and stale/answered cleanup behavior become
+      regression-pinned before any production default switch
+    - durable attention rollout stays bounded and observable
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
+
+- `PRJ-410` Sync docs/context for durable attention contract-store rollout.
+  - Result:
+    - architecture, runtime-reality, planning docs, and context truth align on
+      durable attention contract-store rollout posture
+    - later production default changes can build on an explicit store owner
+      instead of parity-only scaffolding
+  - Validation:
+    - doc-and-context sync plus targeted durable-attention cross-doc review
+
 ## Parallel-Ready Lanes
 
 The next three groups intentionally stay sequential because they define shared
@@ -2377,10 +2554,14 @@ group locks the production and release baseline for the converged runtime.
 28. `PRJ-383..PRJ-386` Durable attention-inbox rollout baseline
 29. `PRJ-387..PRJ-390` Role-and-skill capability convergence
 30. `PRJ-391..PRJ-394` Retrieval-depth and theta-governance baseline
+31. `PRJ-395..PRJ-398` Role-selection evidence baseline
+32. `PRJ-399..PRJ-402` Affective-assessment rollout policy
+33. `PRJ-403..PRJ-406` Reflection scope governance
+34. `PRJ-407..PRJ-410` Durable attention contract-store rollout
 
 The queue should still be treated as intentionally open after those items.
 Additional small architecture-alignment slices may still be discovered while
-executing Groups 17 through 44.
+executing Groups 17 through 48.
 
 ## Handoff Rules For Execution Agents
 
