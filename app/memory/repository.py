@@ -62,6 +62,8 @@ class MemoryRepository:
             "goal_milestone_due_window",
             "goal_milestone_risk",
             "goal_completion_criteria",
+            "proactive_outreach_state",
+            "proactive_outreach_trigger",
         }
     )
     GLOBAL_SCOPE_TYPE = "global"
@@ -1228,6 +1230,10 @@ class MemoryRepository:
                 set_preference("goal_milestone_risk", row.content, row)
             elif row.kind == "goal_completion_criteria":
                 set_preference("goal_completion_criteria", row.content, row)
+            elif row.kind == "proactive_outreach_state":
+                set_preference("proactive_outreach_state", row.content, row)
+            elif row.kind == "proactive_outreach_trigger":
+                set_preference("proactive_outreach_trigger", row.content, row)
 
         return preferences
 

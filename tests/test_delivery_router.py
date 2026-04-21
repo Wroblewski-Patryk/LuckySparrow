@@ -1,4 +1,8 @@
-from app.core.contracts import ActionDelivery
+from app.core.contracts import (
+    ActionDelivery,
+    ActionDeliveryConnectorIntent,
+    ActionDeliveryExecutionEnvelope,
+)
 from app.integrations.delivery_router import DeliveryRouter
 
 
@@ -31,6 +35,38 @@ async def test_delivery_router_handles_api_channel() -> None:
 
     assert result.status == "success"
     assert result.actions == ["api_response"]
+
+
+async def test_delivery_router_appends_execution_envelope_note_for_connector_safe_delivery() -> None:
+    router = DeliveryRouter(telegram_client=FakeTelegramClient())
+
+    result = await router.deliver(
+        ActionDelivery(
+            message="hello",
+            tone="supportive",
+            channel="api",
+            language="en",
+            execution_envelope=ActionDeliveryExecutionEnvelope(
+                connector_safe=True,
+                connector_intents=[
+                    ActionDeliveryConnectorIntent(
+                        connector_kind="task_system",
+                        provider_hint="clickup",
+                        operation="create_task",
+                        mode="mutate_with_confirmation",
+                        allowed=False,
+                        requires_confirmation=True,
+                        reason="explicit_user_confirmation_required",
+                    )
+                ],
+            ),
+        )
+    )
+
+    assert result.status == "success"
+    assert "Execution envelope:" in result.notes
+    assert "connector_intents=1" in result.notes
+    assert "permission_gates=0" in result.notes
 
 
 async def test_delivery_router_handles_telegram_channel() -> None:

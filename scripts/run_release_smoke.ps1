@@ -52,6 +52,19 @@ function Has-Property {
     return $null -ne $Object -and $Object.PSObject.Properties.Name -contains $Name
 }
 
+function ConvertFrom-JsonCompat {
+    param(
+        [Parameter(Mandatory = $true)][string]$Json
+    )
+
+    $command = Get-Command ConvertFrom-Json -ErrorAction Stop
+    if ($command.Parameters.ContainsKey("Depth")) {
+        return $Json | ConvertFrom-Json -Depth 8
+    }
+
+    return $Json | ConvertFrom-Json
+}
+
 function Validate-DeploymentEvidence {
     param(
         [string]$Path,
@@ -75,7 +88,7 @@ function Validate-DeploymentEvidence {
 
     try {
         $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
-        $evidence = $raw | ConvertFrom-Json -Depth 8
+        $evidence = ConvertFrom-JsonCompat -Json $raw
     }
     catch {
         throw "Deployment evidence verification failed: invalid JSON in '$Path'."

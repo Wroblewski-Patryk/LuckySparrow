@@ -486,6 +486,8 @@ def _client(
     maintenance_interval: int = 3600,
     proactive_enabled: bool = False,
     attention_burst_window_ms: int = 120,
+    attention_answered_ttl_seconds: float = 0.5,
+    attention_stale_turn_seconds: float = 3.0,
     attention_coordination_mode: str = "in_process",
 ) -> tuple[TestClient, FakeRuntime, FakeTelegramClient]:
     app = FastAPI()
@@ -547,8 +549,8 @@ def _client(
     app.state.scheduler_worker = scheduler_worker
     app.state.attention_turn_coordinator = AttentionTurnCoordinator(
         burst_window_ms=attention_burst_window_ms,
-        answered_ttl_seconds=0.5,
-        stale_turn_seconds=3.0,
+        answered_ttl_seconds=attention_answered_ttl_seconds,
+        stale_turn_seconds=attention_stale_turn_seconds,
         coordination_mode=attention_coordination_mode,
     )
     return TestClient(app), runtime, telegram_client
@@ -731,24 +733,42 @@ def test_health_endpoint_returns_ok() -> None:
             "last_reflection_summary": {},
             "last_maintenance_summary": {},
         },
-        "attention": {
-            "healthy": True,
-            "coordination_mode": "in_process",
-            "turn_state_owner": "in_process_coordinator",
-            "durable_inbox_expected": False,
+            "attention": {
+                "healthy": True,
+                "coordination_mode": "in_process",
+                "turn_state_owner": "in_process_coordinator",
+                "durable_inbox_expected": False,
             "deployment_readiness": {
                 "baseline_coordination_mode": "in_process",
                 "selected_coordination_mode": "in_process",
                 "ready": True,
                 "blocking_signals": [],
-                "turn_state_owner": "in_process_coordinator",
-                "durable_inbox_expected": False,
-            },
-            "burst_window_ms": 120,
-            "answered_ttl_seconds": 0.5,
-            "stale_turn_seconds": 3.0,
-            "pending": 0,
-            "claimed": 0,
+                    "turn_state_owner": "in_process_coordinator",
+                    "durable_inbox_expected": False,
+                },
+                "timing_policy": {
+                    "production_baseline": {
+                        "burst_window_ms": 120,
+                        "answered_ttl_seconds": 5.0,
+                        "stale_turn_seconds": 30.0,
+                    },
+                    "current": {
+                        "burst_window_ms": 120,
+                        "answered_ttl_seconds": 0.5,
+                        "stale_turn_seconds": 3.0,
+                    },
+                    "alignment_state": "customized_timing_override",
+                    "alignment_hint": "review_attention_timing_override_before_production_rollout",
+                    "deviations": [
+                        "answered_ttl_lower_than_baseline",
+                        "stale_turn_window_lower_than_baseline",
+                    ],
+                },
+                "burst_window_ms": 120,
+                "answered_ttl_seconds": 0.5,
+                "stale_turn_seconds": 3.0,
+                "pending": 0,
+                "claimed": 0,
             "answered": 0,
         },
         "reflection": {
@@ -1334,12 +1354,59 @@ def test_health_endpoint_exposes_attention_snapshot() -> None:
             "turn_state_owner": "in_process_coordinator",
             "durable_inbox_expected": False,
         },
+        "timing_policy": {
+            "production_baseline": {
+                "burst_window_ms": 120,
+                "answered_ttl_seconds": 5.0,
+                "stale_turn_seconds": 30.0,
+            },
+            "current": {
+                "burst_window_ms": 240,
+                "answered_ttl_seconds": 0.5,
+                "stale_turn_seconds": 3.0,
+            },
+            "alignment_state": "customized_timing_override",
+            "alignment_hint": "review_attention_timing_override_before_production_rollout",
+            "deviations": [
+                "burst_window_higher_than_baseline",
+                "answered_ttl_lower_than_baseline",
+                "stale_turn_window_lower_than_baseline",
+            ],
+        },
         "burst_window_ms": 240,
         "answered_ttl_seconds": 0.5,
         "stale_turn_seconds": 3.0,
         "pending": 0,
         "claimed": 0,
         "answered": 0,
+    }
+
+
+def test_health_endpoint_exposes_attention_timing_policy_as_aligned_when_defaults_match() -> None:
+    client, _, _ = _client(
+        attention_burst_window_ms=120,
+        attention_answered_ttl_seconds=5.0,
+        attention_stale_turn_seconds=30.0,
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["attention"]["timing_policy"] == {
+        "production_baseline": {
+            "burst_window_ms": 120,
+            "answered_ttl_seconds": 5.0,
+            "stale_turn_seconds": 30.0,
+        },
+        "current": {
+            "burst_window_ms": 120,
+            "answered_ttl_seconds": 5.0,
+            "stale_turn_seconds": 30.0,
+        },
+        "alignment_state": "aligned_with_production_baseline",
+        "alignment_hint": "production_attention_timing_baseline_selected",
+        "deviations": [],
     }
 
 

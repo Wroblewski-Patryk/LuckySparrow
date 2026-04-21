@@ -30,6 +30,7 @@ class FakeMemoryRepository:
         self.user_profile = user_profile
         self.profile_updates: list[dict] = []
         self.conclusion_updates: list[dict] = []
+        self.relation_updates: list[dict] = []
         self.user_preferences: dict = {}
         self.scoped_user_preferences: dict[tuple[str, str], dict] = {}
         self.user_conclusions: list[dict] = []
@@ -184,6 +185,11 @@ class FakeMemoryRepository:
     async def upsert_conclusion(self, **kwargs) -> dict:
         self.conclusion_updates.append(kwargs)
         return kwargs
+
+    async def upsert_relation(self, **kwargs) -> dict:
+        payload = {"id": len(self.relation_updates) + 1, **kwargs}
+        self.relation_updates.append(payload)
+        return payload
 
     async def upsert_theta(self, **kwargs) -> dict:
         self.user_theta = kwargs
@@ -1035,6 +1041,58 @@ async def test_runtime_pipeline_builds_explicit_action_delivery_contract() -> No
     assert captured_delivery.chat_id == 777
     assert captured_delivery.message == "Mocked OpenAI reply"
     assert captured_delivery.language == "en"
+    assert captured_delivery.execution_envelope.connector_safe is False
+    assert captured_delivery.execution_envelope.connector_intents == []
+    assert captured_delivery.execution_envelope.connector_permission_gates == []
+
+
+async def test_runtime_pipeline_builds_connector_safe_action_delivery_envelope_for_connector_intents() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+
+    captured_delivery = None
+    original_execute = action.execute
+
+    async def capture_execute(plan, delivery):
+        nonlocal captured_delivery
+        captured_delivery = delivery
+        return await original_execute(plan, delivery)
+
+    action.execute = capture_execute  # type: ignore[method-assign]
+
+    event = Event(
+        event_id="evt-delivery-envelope",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Create calendar meeting tomorrow, create task in ClickUp, and upload notes to Google Drive."},
+        meta=EventMeta(user_id="u-1", trace_id="t-delivery-envelope"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.action_result.status == "success"
+    assert captured_delivery is not None
+    assert captured_delivery.execution_envelope.connector_safe is True
+    assert len(captured_delivery.execution_envelope.connector_intents) == 3
+    assert len(captured_delivery.execution_envelope.connector_permission_gates) == 3
+    assert {intent.connector_kind for intent in captured_delivery.execution_envelope.connector_intents} == {
+        "calendar",
+        "task_system",
+        "cloud_drive",
+    }
+    assert "Execution envelope:" in result.action_result.notes
 
 
 async def test_runtime_pipeline_degrades_telegram_delivery_exception_to_fail_action_result() -> None:
@@ -3691,6 +3749,8 @@ async def test_runtime_pipeline_runs_proactive_warning_tick_with_response_enable
     assert result.plan.proactive_decision.should_interrupt is True
     assert result.plan.proactive_delivery_guard is not None
     assert result.plan.proactive_delivery_guard.allowed is True
+    assert result.plan.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.plan.domain_intents[0].state == "delivery_ready"
     assert result.motivation.mode == "execute"
     assert "compose_proactive_warning" in result.plan.steps
     assert "send_telegram_message" in result.plan.steps
@@ -3699,6 +3759,24 @@ async def test_runtime_pipeline_runs_proactive_warning_tick_with_response_enable
     assert result.action_result.status == "success"
     assert result.action_result.actions == ["send_telegram_message"]
     assert result.reflection_triggered is True
+    assert memory.conclusion_updates == [
+        {
+            "user_id": "scheduler",
+            "kind": "proactive_outreach_state",
+            "content": "delivery_ready",
+            "confidence": 0.9,
+            "source": "proactive_planning",
+            "supporting_event_id": event.event_id,
+        },
+        {
+            "user_id": "scheduler",
+            "kind": "proactive_outreach_trigger",
+            "content": "task_blocked",
+            "confidence": 0.9,
+            "source": "proactive_planning",
+            "supporting_event_id": event.event_id,
+        },
+    ]
 
 
 async def test_runtime_pipeline_defers_proactive_tick_when_interruption_cost_is_high() -> None:
@@ -3759,6 +3837,9 @@ async def test_runtime_pipeline_defers_proactive_tick_when_interruption_cost_is_
     assert result.plan.needs_response is False
     assert result.action_result.status == "noop"
     assert result.reflection_triggered is True
+    assert result.plan.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.plan.domain_intents[0].state == "attention_gate_blocked"
+    assert memory.conclusion_updates[0]["content"] == "attention_gate_blocked"
 
 
 async def test_runtime_pipeline_defers_proactive_tick_when_user_did_not_opt_in() -> None:
@@ -3816,6 +3897,9 @@ async def test_runtime_pipeline_defers_proactive_tick_when_user_did_not_opt_in()
     assert "respect_proactive_delivery_guardrails" in result.plan.steps
     assert result.plan.needs_response is False
     assert result.action_result.status == "noop"
+    assert result.plan.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.plan.domain_intents[0].state == "delivery_guard_blocked"
+    assert memory.conclusion_updates[0]["content"] == "delivery_guard_blocked"
 
 
 async def test_runtime_pipeline_applies_adaptive_attention_limits_without_bypassing_guardrails() -> None:
@@ -3884,6 +3968,7 @@ async def test_runtime_pipeline_applies_adaptive_attention_limits_without_bypass
     assert "respect_attention_gate" in result.plan.steps
     assert result.plan.needs_response is False
     assert result.action_result.status == "noop"
+    assert result.plan.domain_intents[0].state == "attention_gate_blocked"
 
 
 async def test_runtime_pipeline_tightens_attention_gate_for_low_delivery_trust() -> None:
@@ -3946,6 +4031,7 @@ async def test_runtime_pipeline_tightens_attention_gate_for_low_delivery_trust()
     assert result.event.payload["attention_gate"]["relation_delivery_reliability"] == "low_trust"
     assert "respect_attention_gate" in result.plan.steps
     assert result.action_result.status == "noop"
+    assert result.plan.domain_intents[0].state == "attention_gate_blocked"
 
 
 async def test_runtime_pipeline_ignores_low_confidence_delivery_trust_for_attention_gate() -> None:
@@ -4087,7 +4173,8 @@ async def test_runtime_pipeline_keeps_proactive_tick_separate_from_proposal_hand
     assert result.plan.proactive_decision is not None
     assert result.plan.needs_response is True
     assert result.plan.needs_action is True
-    assert result.plan.domain_intents[0].intent_type == "noop"
+    assert result.plan.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.plan.domain_intents[0].state == "delivery_ready"
     assert result.plan.proposal_handoffs == []
     assert result.plan.accepted_proposals == []
     assert result.plan.connector_permission_gates == []
@@ -4098,6 +4185,12 @@ async def test_runtime_pipeline_keeps_proactive_tick_separate_from_proposal_hand
     assert result.memory_record.payload["calendar_connector_update"] == ""
     assert result.memory_record.payload["task_connector_update"] == ""
     assert result.memory_record.payload["drive_connector_update"] == ""
+    assert result.memory_record.payload["relation_update"] == ""
+    assert result.memory_record.payload["proactive_state_update"] == "delivery_ready:task_blocked:delivery_ready"
+    assert result.memory_record.payload["connector_expansion_guardrail"] == ""
+    assert result.memory_record.payload["calendar_connector_guardrail"] == ""
+    assert result.memory_record.payload["task_connector_guardrail"] == ""
+    assert result.memory_record.payload["drive_connector_guardrail"] == ""
     assert "proposal_handoff" not in result.stage_timings_ms
 
 
@@ -4263,6 +4356,10 @@ async def test_runtime_pipeline_emits_connector_expansion_discovery_outputs_from
     )
     assert result.memory_record is not None
     assert result.memory_record.payload["connector_expansion_update"] == "task_system:clickup:task_sync"
+    assert (
+        result.memory_record.payload["connector_expansion_guardrail"]
+        == "proposal_only_no_external_access:allowed_without_external_access"
+    )
     assert len(memory.resolved_subconscious_proposals) == 1
 
 
@@ -4298,6 +4395,18 @@ async def test_runtime_pipeline_emits_connector_permission_gates_and_connector_p
     assert result.memory_record.payload["calendar_connector_update"] == "create_event:mutate_with_confirmation:generic"
     assert result.memory_record.payload["task_connector_update"] == "create_task:mutate_with_confirmation:clickup"
     assert result.memory_record.payload["drive_connector_update"] == "upload_file:mutate_with_confirmation:google_drive"
+    assert (
+        result.memory_record.payload["calendar_connector_guardrail"]
+        == "external_mutation_requires_confirmation:blocked_until_confirmation"
+    )
+    assert (
+        result.memory_record.payload["task_connector_guardrail"]
+        == "external_mutation_requires_confirmation:blocked_until_confirmation"
+    )
+    assert (
+        result.memory_record.payload["drive_connector_guardrail"]
+        == "external_mutation_requires_confirmation:blocked_until_confirmation"
+    )
 
 
 def _build_behavior_runtime(memory_repository: FakeMemoryRepository) -> RuntimeOrchestrator:

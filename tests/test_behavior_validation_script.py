@@ -204,6 +204,104 @@ def test_main_evaluates_existing_artifact_without_running_pytest(
     assert payload["summary"]["total"] == 5
     assert payload["gate"]["status"] == "pass"
     assert payload["gate"]["violations"] == []
+    assert payload["gate"]["violation_context"]["artifact_input_schema_version"] is None
+    assert payload["gate"]["violation_context"]["expected_artifact_schema_version"] == MODULE.ARTIFACT_SCHEMA_VERSION
+
+
+def test_main_fails_ci_gate_when_existing_artifact_schema_major_version_is_incompatible(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    input_artifact_path = tmp_path / "major-mismatch-input.json"
+    output_artifact_path = tmp_path / "major-mismatch-output.json"
+    input_artifact_path.write_text(
+        MODULE.json.dumps(
+            {
+                "kind": "behavior_validation_artifact",
+                "artifact_schema_version": "2.0.0",
+                "summary": {
+                    "total": 5,
+                    "passed": 5,
+                    "failed": 0,
+                    "errors": 0,
+                    "skipped": 0,
+                    "exit_code": 0,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        MODULE,
+        "_parse_args",
+        lambda: Namespace(
+            python_exe="python",
+            artifact_path=str(output_artifact_path),
+            artifact_input_path=str(input_artifact_path),
+            print_artifact_json=False,
+            gate_mode="ci",
+            ci_require_tests=True,
+        ),
+    )
+
+    exit_code = MODULE.main()
+
+    payload = MODULE.json.loads(output_artifact_path.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert payload["gate"]["status"] == "fail"
+    assert payload["gate"]["violations"] == [MODULE.GATE_REASON_ARTIFACT_SCHEMA_MAJOR_VERSION_MISMATCH]
+    assert payload["gate"]["violation_context"]["artifact_input_schema_version"] == "2.0.0"
+    assert payload["gate"]["violation_context"]["artifact_input_schema_major"] == 2
+    assert payload["gate"]["violation_context"]["expected_artifact_schema_major"] == 1
+
+
+def test_main_keeps_operator_mode_backward_compatible_for_schema_major_version_mismatch(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    input_artifact_path = tmp_path / "major-mismatch-input.json"
+    output_artifact_path = tmp_path / "major-mismatch-output.json"
+    input_artifact_path.write_text(
+        MODULE.json.dumps(
+            {
+                "kind": "behavior_validation_artifact",
+                "artifact_schema_version": "2.0.0",
+                "summary": {
+                    "total": 5,
+                    "passed": 5,
+                    "failed": 0,
+                    "errors": 0,
+                    "skipped": 0,
+                    "exit_code": 0,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        MODULE,
+        "_parse_args",
+        lambda: Namespace(
+            python_exe="python",
+            artifact_path=str(output_artifact_path),
+            artifact_input_path=str(input_artifact_path),
+            print_artifact_json=False,
+            gate_mode="operator",
+            ci_require_tests=True,
+        ),
+    )
+
+    exit_code = MODULE.main()
+
+    payload = MODULE.json.loads(output_artifact_path.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert payload["gate"]["status"] == "pass"
+    assert payload["gate"]["violations"] == []
+    assert payload["gate"]["violation_context"]["artifact_input_schema_version"] == "2.0.0"
+    assert payload["gate"]["violation_context"]["artifact_input_schema_major"] == 2
+    assert payload["gate"]["violation_context"]["expected_artifact_schema_major"] == 1
 
 
 def test_main_marks_ci_gate_failed_when_existing_artifact_summary_is_missing(

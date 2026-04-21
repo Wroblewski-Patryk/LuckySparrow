@@ -32,6 +32,7 @@ GATE_REASON_NO_BEHAVIOR_TESTS_COLLECTED = "no_behavior_validation_tests_collecte
 GATE_REASON_ARTIFACT_INPUT_UNREADABLE = "artifact_input_unreadable"
 GATE_REASON_ARTIFACT_SUMMARY_MISSING = "artifact_summary_missing"
 GATE_REASON_ARTIFACT_SUMMARY_INVALID = "artifact_summary_invalid"
+GATE_REASON_ARTIFACT_SCHEMA_MAJOR_VERSION_MISMATCH = "artifact_schema_major_version_mismatch"
 
 
 @dataclass(frozen=True)
@@ -236,6 +237,42 @@ def _coerce_artifact_summary(payload: dict[str, Any]) -> tuple[dict[str, int] | 
     return summary, []
 
 
+def _schema_major(version: Any) -> int | None:
+    if not isinstance(version, str):
+        return None
+    raw = version.strip()
+    if not raw:
+        return None
+    major_text = raw.split(".", 1)[0]
+    try:
+        return int(major_text)
+    except ValueError:
+        return None
+
+
+def _evaluate_artifact_schema_compatibility(
+    *,
+    gate_mode: str,
+    artifact_schema_version: Any,
+) -> tuple[list[str], dict[str, Any]]:
+    input_major = _schema_major(artifact_schema_version)
+    expected_major = _schema_major(ARTIFACT_SCHEMA_VERSION)
+    context: dict[str, Any] = {
+        "artifact_input_schema_version": artifact_schema_version,
+        "artifact_input_schema_major": input_major,
+        "expected_artifact_schema_version": ARTIFACT_SCHEMA_VERSION,
+        "expected_artifact_schema_major": expected_major,
+    }
+
+    if gate_mode != "ci":
+        return [], context
+    if input_major is None or expected_major is None:
+        return [], context
+    if input_major != expected_major:
+        return [GATE_REASON_ARTIFACT_SCHEMA_MAJOR_VERSION_MISMATCH], context
+    return [], context
+
+
 def main() -> int:
     args = _parse_args()
     artifact_input_path = Path(args.artifact_input_path) if args.artifact_input_path else None
@@ -271,6 +308,10 @@ def main() -> int:
     else:
         payload, read_violations = _load_artifact_payload(artifact_input_path=artifact_input_path)
         summary, summary_violations = _coerce_artifact_summary(payload)
+        schema_violations, schema_context = _evaluate_artifact_schema_compatibility(
+            gate_mode=str(args.gate_mode),
+            artifact_schema_version=payload.get("artifact_schema_version"),
+        )
         payload["kind"] = "behavior_validation_artifact"
         payload["artifact_schema_version"] = ARTIFACT_SCHEMA_VERSION
         payload["gate_reason_taxonomy_version"] = GATE_REASON_TAXONOMY_VERSION
@@ -294,6 +335,7 @@ def main() -> int:
                 "summary_errors": 0,
                 "pytest_exit_code": 1,
             }
+            gate_context.update(schema_context)
         else:
             payload["summary"] = summary
             gate_status, gate_violations, gate_context = _evaluate_gate(
@@ -301,6 +343,10 @@ def main() -> int:
                 summary=summary,
                 ci_require_tests=bool(args.ci_require_tests),
             )
+            gate_context.update(schema_context)
+            if schema_violations:
+                gate_status = "fail"
+                gate_violations = [*schema_violations, *gate_violations]
             if read_violations:
                 gate_status = "fail"
                 gate_violations = [*read_violations, *gate_violations]

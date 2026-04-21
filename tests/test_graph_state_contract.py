@@ -4,6 +4,8 @@ import pytest
 
 from app.core.contracts import (
     ActionResult,
+    CalendarSchedulingIntentDomainIntent,
+    ConnectorPermissionGateOutput,
     ContextOutput,
     Event,
     EventMeta,
@@ -169,8 +171,51 @@ def test_runtime_result_to_graph_state_maps_orchestrator_contract() -> None:
     assert graph_state.memory.operational["active_goals"][0]["id"] == 11
     assert graph_state.action_delivery is not None
     assert graph_state.action_delivery.channel == "api"
+    assert graph_state.action_delivery.execution_envelope.connector_safe is False
     assert graph_state.action_result is not None
     assert graph_state.action_result.status == "success"
+
+
+def test_runtime_result_to_graph_state_builds_connector_safe_action_delivery_envelope() -> None:
+    runtime_result = _runtime_result().model_copy(
+        update={
+            "plan": PlanOutput(
+                goal="schedule follow-up",
+                steps=["prepare_response"],
+                needs_action=True,
+                needs_response=True,
+                domain_intents=[
+                    CalendarSchedulingIntentDomainIntent(
+                        operation="create_event",
+                        provider_hint="google_calendar",
+                        mode="mutate_with_confirmation",
+                        title_hint="team sync",
+                        time_hint="tomorrow 10:00",
+                    )
+                ],
+                connector_permission_gates=[
+                    ConnectorPermissionGateOutput(
+                        connector_kind="calendar",
+                        provider_hint="google_calendar",
+                        operation="create_event",
+                        mode="mutate_with_confirmation",
+                        requires_opt_in=True,
+                        requires_confirmation=True,
+                        allowed=False,
+                        reason="explicit_user_confirmation_required",
+                    )
+                ],
+            )
+        }
+    )
+
+    graph_state = runtime_result_to_graph_state(runtime_result)
+
+    assert graph_state.action_delivery is not None
+    assert graph_state.action_delivery.execution_envelope.connector_safe is True
+    assert len(graph_state.action_delivery.execution_envelope.connector_intents) == 1
+    assert len(graph_state.action_delivery.execution_envelope.connector_permission_gates) == 1
+    assert graph_state.action_delivery.execution_envelope.connector_intents[0].operation == "create_event"
 
 
 def test_graph_state_to_runtime_result_roundtrip() -> None:

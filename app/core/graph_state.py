@@ -3,6 +3,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.core.action_delivery import build_action_delivery_execution_envelope
 from app.core.contracts import (
     ActionDelivery,
     ActionResult,
@@ -145,7 +146,12 @@ class GraphRuntimeState(BaseModel):
     duration_ms: int | None = None
 
 
-def expression_to_action_delivery(*, event: Event, expression: ExpressionOutput) -> ActionDelivery:
+def expression_to_action_delivery(
+    *,
+    event: Event,
+    expression: ExpressionOutput,
+    plan: PlanOutput | None = None,
+) -> ActionDelivery:
     channel = expression.channel if expression.channel in {"api", "telegram"} else "api"
     raw_chat_id = event.payload.get("chat_id") if channel == "telegram" else None
     chat_id = raw_chat_id if isinstance(raw_chat_id, (int, str)) else None
@@ -155,6 +161,7 @@ def expression_to_action_delivery(*, event: Event, expression: ExpressionOutput)
         channel=channel,
         language=expression.language,
         chat_id=chat_id,
+        execution_envelope=build_action_delivery_execution_envelope(plan),
     )
 
 
@@ -178,7 +185,11 @@ def runtime_result_to_graph_state(
     if result.memory_record is not None:
         episodic_rows.append(result.memory_record.model_dump(mode="python"))
 
-    action_delivery = expression_to_action_delivery(event=result.event, expression=result.expression)
+    action_delivery = expression_to_action_delivery(
+        event=result.event,
+        expression=result.expression,
+        plan=result.plan,
+    )
     return GraphRuntimeState(
         event=result.event,
         source_runtime=source_runtime,

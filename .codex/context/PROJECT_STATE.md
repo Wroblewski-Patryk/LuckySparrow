@@ -1486,8 +1486,135 @@ Last updated: 2026-04-21
 - 2026-04-21: `PRJ-356` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_main_runtime_policy.py`
   passed with `101 passed`.
-- 2026-04-21: `PRJ-357` is now the next `READY` slice, focused on regression
-  coverage for deployment-trigger evidence verification posture.
+- 2026-04-21: `PRJ-357` is complete: deployment-trigger SLO instrumentation is
+  now regression-covered through a dedicated script suite that pins Coolify
+  evidence shape for success/failure paths plus release-smoke optional
+  evidence omission, freshness checks, and unsuccessful-webhook failure
+  posture.
+- 2026-04-21: `PRJ-357` also hardens PowerShell release-smoke compatibility by
+  routing deployment-evidence JSON parsing through a version-tolerant
+  `ConvertFrom-Json` helper instead of assuming `-Depth` support.
+- 2026-04-21: `PRJ-357` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py`
+  passed with `6 passed`, and
+  `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
+  passed with `101 passed`.
+- 2026-04-21: `PRJ-358` is complete: planning, testing, operations runbook,
+  and context truth now align on deployment-trigger evidence capture,
+  optional release-smoke evidence verification, and the new regression
+  coverage for Group 34.
+- 2026-04-21: `PRJ-358` also closes the currently seeded deployment-trigger
+  SLO instrumentation lane (`PRJ-355..PRJ-358`); the next execution slice
+  should now be derived from planning docs and open decisions because no task
+  remains in `READY`.
+- 2026-04-21: `PRJ-359` is complete: behavior-validation artifact gate
+  evaluation now treats incompatible `artifact_schema_version` major values as
+  CI-blocking posture while preserving operator-mode compatibility for local
+  inspection of older artifacts.
+- 2026-04-21: `PRJ-359` also makes schema-major compatibility machine-visible
+  through gate violation context (`artifact_input_schema_version`,
+  `artifact_input_schema_major`, `expected_artifact_schema_version`,
+  `expected_artifact_schema_major`).
+- 2026-04-21: `PRJ-359` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py`
+  passed with `12 passed`, and
+  `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
+  passed with `176 passed`.
+- 2026-04-21: `PRJ-360` is complete: planning docs, testing guidance, and
+  context truth now align on schema-major compatibility governance for
+  behavior-validation artifacts.
+- 2026-04-21: `PRJ-360` also closes the current compatibility-governance
+  follow-up lane; no task remains in `READY`, so the next slice should again
+  be derived from planning docs and open decisions.
+- 2026-04-21: `PRJ-361` is complete: `/health.attention` now exposes explicit
+  production timing baseline posture for burst coalescing (`120ms`), answered
+  turn retention (`5s`), and stale-turn cleanup (`30s`) together with
+  alignment diagnostics for customized overrides.
+- 2026-04-21: `PRJ-361` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_config.py`
+  passed with `111 passed`, and
+  `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_main_runtime_policy.py`
+  passed with `111 passed`.
+- 2026-04-21: `PRJ-362` is complete: planning docs, operations guidance, and
+  context truth now align on the attention timing production baseline and
+  health-visible alignment posture.
+- 2026-04-21: `PRJ-362` also closes the current attention timing baseline
+  governance slice; no task remains in `READY`, so the next slice should again
+  be derived from planning docs and open decisions.
+- 2026-04-21: the next architecture-to-code queue is now seeded through
+  `PRJ-378`.
+- 2026-04-21: newly planned Groups 37 through 40 now turn the remaining
+  architecture follow-ups into executable lanes for connector execution
+  policy, future-write typed intents, `ActionDelivery` extensibility, and
+  compatibility-sunset readiness.
+- 2026-04-21: `PRJ-363` is now the first `READY` task, focused on defining one
+  shared connector operation policy before more connector/provider behavior is
+  added.
+- 2026-04-21: `PRJ-363` is complete: connector operation defaults now have one
+  shared owner in `app/core/connector_policy.py` across `calendar`,
+  `task_system`, and `cloud_drive`.
+- 2026-04-21: `PRJ-363` also moves planner connector intent mode selection onto
+  that shared policy owner, replacing open-coded local mode literals while
+  preserving the current external side-effect boundary.
+- 2026-04-21: `PRJ-363` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py`
+  passed with `91 passed`, and
+  `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py`
+  passed with `141 passed`.
+- 2026-04-21: `PRJ-364` is complete: planning permission gates now consume the
+  shared connector-policy helper and action now fails fast on inconsistent
+  connector intent mode posture before response delivery.
+- 2026-04-21: `PRJ-364` also persists connector guardrail posture in runtime
+  memory payloads alongside connector intent update traces for operator triage.
+- 2026-04-21: `PRJ-365` is complete: regressions now pin shared-policy-derived
+  connector permission gates for read-only, suggestion-only, mutation, and
+  proposal-only posture plus action-side connector mode mismatch blocking.
+- 2026-04-21: `PRJ-365` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py`
+  passed with `95 passed`, and
+  `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py`
+  passed with `141 passed`.
+- 2026-04-21: `PRJ-366` is complete: architecture, implementation reality,
+  planning docs, testing guidance, and context truth now align on the shared
+  connector execution-policy baseline and action guardrail posture.
+- 2026-04-21: Group 37 (`PRJ-363..PRJ-366`) is now complete.
+- 2026-04-21: `PRJ-367` is complete: runtime contracts now define
+  `maintain_relation` and `update_proactive_state` as first-class typed
+  intent families for future durable writes.
+- 2026-04-21: `PRJ-367` also moves proactive planning off generic `noop`
+  placeholders when durable proactive-state posture still needs to be
+  recorded.
+- 2026-04-21: `PRJ-368` is complete: action now executes
+  relation-maintenance and proactive follow-up state only from explicit typed
+  intents, and proactive paths now persist state through typed ownership even
+  when delivery is deferred.
+- 2026-04-21: `PRJ-369` is complete: regressions now pin typed future-write
+  boundaries across planning, action, runtime, reflection, and scheduler
+  paths so relation/proactive durable writes cannot drift back to generic
+  mutation posture.
+- 2026-04-21: `PRJ-369` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py tests/test_scheduler_worker.py`
+  passed with `225 passed`.
+- 2026-04-21: `PRJ-370` is complete: architecture, implementation reality,
+  planning docs, testing guidance, and context truth now align on expanded
+  typed-intent ownership for proactive follow-up state and
+  relation-maintenance writes.
+- 2026-04-21: Group 38 (`PRJ-367..PRJ-370`) is now complete.
+- 2026-04-21: `PRJ-371..PRJ-373` are complete: `ActionDelivery` now carries a
+  bounded connector-safe execution envelope, action validates envelope parity
+  against planning before side effects, and regressions pin shared handoff
+  stability across runtime, graph adapters, and delivery routing.
+- 2026-04-21: Group 39 (`PRJ-371..PRJ-374`) is now complete.
+- 2026-04-21: Group 39 validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_delivery_router.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py tests/test_graph_state_contract.py`
+  passed with `138 passed`.
+- 2026-04-21: `PRJ-374` is complete: architecture, runtime-reality, planning
+  docs, testing guidance, and context truth now align on one shared
+  extensible `ActionDelivery` contract with connector-safe execution
+  envelopes and bounded routing visibility.
+- 2026-04-21: `PRJ-375` is now the next `READY` task, focused on
+  compatibility-sunset readiness diagnostics for migration-only bootstrap and
+  internal-only debug ingress.
 
 ## Working Agreements
 

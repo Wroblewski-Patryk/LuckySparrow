@@ -633,6 +633,38 @@ def test_planning_agent_builds_connected_drive_intent_and_permission_gate() -> N
     assert gate.allowed is False
 
 
+def test_planning_agent_builds_allowed_connector_permission_gates_for_read_and_suggestion_posture() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="List tasks in ClickUp and suggest how to organize files in Google Drive."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.7,
+            urgency=0.33,
+            valence=0.02,
+            arousal=0.36,
+            mode="analyze",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.82),
+    )
+
+    task_gate = next(
+        gate for gate in result.connector_permission_gates if gate.connector_kind == "task_system"
+    )
+    drive_gate = next(
+        gate for gate in result.connector_permission_gates if gate.connector_kind == "cloud_drive"
+    )
+
+    assert task_gate.operation == "list_tasks"
+    assert task_gate.allowed is True
+    assert task_gate.requires_confirmation is False
+    assert task_gate.reason == "suggestion_or_read_only_allowed"
+
+    assert drive_gate.operation == "suggest_file_plan"
+    assert drive_gate.allowed is True
+    assert drive_gate.requires_confirmation is False
+    assert drive_gate.reason == "suggestion_or_read_only_allowed"
+
+
 def test_planning_agent_promotes_connector_expansion_proposal_into_discovery_intent() -> None:
     result = PlanningAgent().run(
         event=_event(text="Can we integrate ClickUp with this assistant for task sync?"),
@@ -1828,7 +1860,9 @@ def test_planning_agent_builds_proactive_warning_plan_when_interrupt_is_allowed(
     assert "send_telegram_message" in result.steps
     assert result.needs_response is True
     assert result.needs_action is True
-    assert result.domain_intents[0].intent_type == "noop"
+    assert result.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.domain_intents[0].state == "delivery_ready"
+    assert result.domain_intents[0].trigger == "task_blocked"
 
 
 def test_planning_agent_calibrates_proactive_outreach_tone_for_low_trust_relation() -> None:
@@ -1915,7 +1949,8 @@ def test_planning_agent_defers_proactive_outreach_when_interruption_cost_is_high
     assert "defer_proactive_outreach" in result.steps
     assert result.needs_response is False
     assert result.needs_action is False
-    assert result.domain_intents[0].intent_type == "noop"
+    assert result.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.domain_intents[0].state == "interruption_deferred"
 
 
 def test_planning_agent_defers_proactive_outreach_when_opt_in_is_missing() -> None:
@@ -1959,6 +1994,8 @@ def test_planning_agent_defers_proactive_outreach_when_opt_in_is_missing() -> No
     assert "respect_proactive_delivery_guardrails" in result.steps
     assert result.needs_response is False
     assert result.needs_action is False
+    assert result.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.domain_intents[0].state == "delivery_guard_blocked"
 
 
 def test_planning_agent_respects_attention_gate_before_other_proactive_delivery_logic() -> None:
@@ -2004,6 +2041,8 @@ def test_planning_agent_respects_attention_gate_before_other_proactive_delivery_
     assert result.steps == ["evaluate_proactive_trigger", "assess_user_context", "respect_attention_gate"]
     assert result.needs_response is False
     assert result.needs_action is False
+    assert result.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.domain_intents[0].state == "attention_gate_blocked"
 
 
 def test_planning_agent_keeps_proactive_path_separate_from_proposal_handoff_and_connector_intents() -> None:
@@ -2064,7 +2103,8 @@ def test_planning_agent_keeps_proactive_path_separate_from_proposal_handoff_and_
     assert result.proactive_decision is not None
     assert result.needs_response is True
     assert result.needs_action is True
-    assert result.domain_intents[0].intent_type == "noop"
+    assert result.domain_intents[0].intent_type == "update_proactive_state"
+    assert result.domain_intents[0].state == "delivery_ready"
     assert result.proposal_handoffs == []
     assert result.accepted_proposals == []
     assert result.connector_permission_gates == []

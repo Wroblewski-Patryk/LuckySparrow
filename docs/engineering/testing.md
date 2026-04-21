@@ -7,6 +7,7 @@ The repository currently contains lightweight backend-focused tests for:
 - event normalization
 - expression behavior
 - end-to-end runtime pipeline composition with fake dependencies
+- deployment-trigger and release-smoke script regressions
 
 Canonical behavior-validation expectations now also live in:
 
@@ -77,6 +78,15 @@ Artifact-input gate evaluation command (CI split-stage, no pytest rerun):
 - Integration changes:
   - mock external providers
   - verify fallback behavior when providers are unavailable
+- Release/deployment script changes:
+  - add or update script-level regressions for evidence artifacts, failure
+    posture, and smoke compatibility behavior
+  - verify Windows PowerShell execution path in this workspace
+  - keep bash logic symmetric and document when live bash execution is blocked
+- Health/governance snapshot changes:
+  - extend endpoint-level coverage for new policy or alignment fields
+  - pin both baseline and customized-override posture when the contract is
+    rollout-sensitive
 
 ## Risk Areas To Keep Honest
 
@@ -99,6 +109,15 @@ For meaningful repo changes, leave behind:
 - for release-readiness-sensitive slices, behavior validation evidence from:
   - `.\scripts\run_behavior_validation.ps1 -GateMode operator`
   - `./scripts/run_behavior_validation.sh --gate-mode operator`
+- for deployment-trigger or release-smoke changes, script regression evidence
+  from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py`
+- for connector execution-policy slices, regression evidence from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py`
+- for typed future-write ownership slices, regression evidence from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py tests/test_scheduler_worker.py`
+- for `ActionDelivery` extensibility slices, regression evidence from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_delivery_router.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py tests/test_graph_state_contract.py`
 - for CI-sensitive slices, behavior gate evidence from:
   - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
   - `./scripts/run_behavior_validation.sh --gate-mode ci --artifact-path artifacts/behavior_validation/report.json`
@@ -108,6 +127,9 @@ For meaningful repo changes, leave behind:
   - `artifact_schema_version` identifies schema evolution
   - `gate_reason_taxonomy_version` identifies reason-code taxonomy
   - `gate.violation_context` carries machine-readable context for gate reasons
+  - CI artifact-input evaluation now blocks on incompatible
+    `artifact_schema_version` major values, while operator mode remains
+    backward-compatible for local inspection
 
 Useful migration verification command:
 

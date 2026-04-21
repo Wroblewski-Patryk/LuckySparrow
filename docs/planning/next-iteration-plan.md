@@ -59,8 +59,17 @@ Completed on 2026-04-21:
 - `PRJ-351..PRJ-354` are complete: artifact schema-version/taxonomy governance
   is now explicit, artifact-input gate evaluation is available, and regression
   coverage plus docs/context sync are complete for this lane.
-- next derived queue is now seeded through `PRJ-358` for deployment-trigger
-  SLO instrumentation follow-up.
+- `PRJ-355..PRJ-358` are complete: deployment-trigger evidence capture,
+  optional release-smoke evidence verification, dedicated script regressions,
+  and synchronized docs/context are now in place for the Coolify-trigger
+  reliability lane.
+- `PRJ-359..PRJ-360` are complete: behavior-validation artifact-input
+  evaluation now enforces schema-major compatibility in CI mode while
+  preserving operator-mode compatibility, with synchronized docs/context for
+  the new governance posture.
+- `PRJ-361..PRJ-362` are complete: attention timing now has an explicit
+  production baseline (`120ms` burst window, `5s` answered TTL, `30s` stale
+  cleanup) with health-visible alignment posture and synchronized docs/context.
 
 Completed on 2026-04-17:
 
@@ -1819,18 +1828,42 @@ Status update (2026-04-21): `PRJ-351..PRJ-354` are complete.
 This group turns deployment-trigger reliability from an anecdotal signal into
 explicit machine-readable evidence tied to release operations.
 
-- `PRJ-355` Add deployment-trigger evidence capture script for Coolify webhook invocations.
-- `PRJ-356` Add release-smoke support for optional deployment-trigger evidence verification.
-- `PRJ-357` Add regressions for deployment-trigger evidence and release-smoke verification posture.
-- `PRJ-358` Sync docs/context for deployment-trigger SLO instrumentation lane.
+Status update (2026-04-21): `PRJ-355..PRJ-358` are complete.
+
+- `PRJ-355` Add deployment-trigger evidence capture script for Coolify webhook invocations. (complete)
+- `PRJ-356` Add release-smoke support for optional deployment-trigger evidence verification. (complete)
+- `PRJ-357` Add regressions for deployment-trigger evidence and release-smoke verification posture. (complete)
+- `PRJ-358` Sync docs/context for deployment-trigger SLO instrumentation lane. (complete)
+
+## Group 35 - Behavior Validation Artifact Compatibility Governance
+
+This group turns artifact schema-version metadata into an explicit CI
+compatibility policy without weakening local operator inspection workflows.
+
+Status update (2026-04-21): `PRJ-359..PRJ-360` are complete.
+
+- `PRJ-359` Enforce schema-major compatibility gate for behavior-validation artifact input in CI mode. (complete)
+- `PRJ-360` Sync docs/context for behavior-validation schema-major compatibility posture. (complete)
+
+## Group 36 - Attention Timing Baseline Governance
+
+This group turns attention timing defaults into an explicit production
+governance surface instead of leaving rollout posture implicit in config-only
+values.
+
+Status update (2026-04-21): `PRJ-361..PRJ-362` are complete.
+
+- `PRJ-361` Expose attention timing baseline and alignment posture through `/health`. (complete)
+- `PRJ-362` Sync docs/context for attention timing baseline governance. (complete)
 
 ## Next Derived Slice
 
 Runtime behavior-validation queue is now complete through `PRJ-317`.
-Next implementation queue is now seeded through `PRJ-358`.
+Next implementation queue is now seeded through `PRJ-378`.
 Before the next implementation slice:
 
-- take `PRJ-355` directly from `.codex/context/TASK_BOARD.md`
+- derive the next smallest useful task from `.codex/context/TASK_BOARD.md`,
+  `docs/planning/next-iteration-plan.md`, and `docs/planning/open-decisions.md`
 - keep the implementation scope bounded to one reversible slice
 - preserve target-state architecture bias when resolving local runtime choices
 
@@ -1870,6 +1903,198 @@ Next architecture-to-code queue:
 - `PRJ-347..PRJ-350` Behavior-validation CI-ingestion follow-up
 - `PRJ-351..PRJ-354` Behavior-validation artifact governance
 - `PRJ-355..PRJ-358` Deployment-trigger SLO instrumentation
+- `PRJ-359..PRJ-360` Behavior-validation artifact compatibility governance
+- `PRJ-361..PRJ-362` Attention timing baseline governance
+- `PRJ-363..PRJ-366` Connector boundary execution policy
+- `PRJ-367..PRJ-370` Typed-intent coverage for future writes
+- `PRJ-371..PRJ-374` Action-delivery extensibility
+- `PRJ-375..PRJ-378` Compatibility sunset readiness
+
+## Group 37 - Connector Boundary Execution Policy
+
+This group closes the still-open internal-versus-external boundary by turning
+connector permission posture into one shared execution policy instead of
+scattered connector-family heuristics.
+
+Status update (2026-04-21): `PRJ-363..PRJ-366` are complete.
+
+- `PRJ-363` Define shared connector operation policy for internal planning versus external systems.
+  - Result: (complete)
+    - one policy owner defines which connector operations default to
+      `read_only`, `suggestion_only`, or `mutate_with_confirmation`
+    - architecture-aligned connector posture becomes executable without
+      introducing provider-specific integrations first
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-364` Apply shared connector execution policy to planning permission gates and action guardrails. (complete)
+  - Result:
+    - planning and action share one connector execution baseline for calendar,
+      task-system, and cloud-drive flows
+    - internal planning state stays bounded until user-authorized external
+      execution posture is explicit
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-365` Add regressions for connector execution posture and no-self-authorization rules. (complete)
+  - Result:
+    - connector execution boundaries are pinned across intent shaping,
+      permission gates, and action outcomes
+    - capability-expansion proposals remain suggestion-only and cannot
+      self-authorize external access
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-366` Sync docs/context for connector execution policy baseline. (complete)
+  - Result:
+    - architecture, implementation reality, planning docs, and context truth
+      now describe the same connector execution boundary
+    - later provider-backed connector work can reuse one explicit policy owner
+  - Validation:
+    - doc-and-context sync plus targeted connector-boundary cross-doc review
+      recorded in this slice
+
+## Group 38 - Typed-Intent Coverage For Future Writes
+
+This group extends the typed-intent rule from current goal/task/preference
+mutations to the next class of durable writes so action ownership keeps
+growing without slipping back into generic mutation paths.
+
+Status update (2026-04-21): `PRJ-367..PRJ-370` are complete.
+
+- `PRJ-367` Add dedicated typed intents for relation-maintenance and proactive-state writes. (complete)
+  - Result:
+    - relation lifecycle and proactive follow-up state are now represented as
+      explicit future-write intents (`maintain_relation`,
+      `update_proactive_state`) instead of generic side-effect payloads
+    - typed intent ownership expands without weakening current planning/action
+      boundaries
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py`
+
+- `PRJ-368` Route future durable writes through typed-intent-only action execution. (complete)
+  - Result:
+    - action now executes relation-maintenance and proactive follow-up state
+      only from explicit typed intents
+    - proactive planning paths stop depending on generic `noop` placeholders
+      when durable proactive state should still be recorded
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_scheduler_worker.py tests/test_reflection_worker.py`
+
+- `PRJ-369` Add regressions for typed future-write boundaries and no-raw-text durable mutation posture. (complete)
+  - Result:
+    - typed future-write boundaries are pinned in planning/action/runtime
+      suites
+    - durable mutation drift back to raw-text or generic fallbacks becomes
+      test-visible
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_scheduler_worker.py tests/test_reflection_worker.py`
+
+- `PRJ-370` Sync docs/context for expanded typed-intent ownership. (complete)
+  - Result:
+    - architecture, implementation reality, planning docs, and context truth
+      now align on the expanded typed-intent boundary for proactive follow-up
+      state and relation-maintenance writes
+    - later autonomy work can add new write families without reopening action
+      ownership drift
+  - Validation:
+    - doc-and-context sync plus targeted typed-intent boundary review recorded
+      in this slice
+
+## Group 39 - Action-Delivery Extensibility
+
+This group resolves the remaining expression-versus-action follow-up by keeping
+one shared handoff owner while making the contract extensible enough for
+connector-heavy execution paths.
+
+Status update (2026-04-21): `PRJ-371..PRJ-374` are complete.
+
+- `PRJ-371` Extend the shared `ActionDelivery` contract with connector-safe execution envelopes. (complete)
+  - Result:
+    - one shared expression-to-action handoff now carries bounded
+      connector-oriented execution metadata without splitting into
+      connector-specific handoff owners
+    - stage ordering stays architecture-aligned (`expression -> action`)
+  - Validation:
+    - Group 39 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_delivery_router.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py tests/test_graph_state_contract.py`
+      (`138 passed`)
+
+- `PRJ-372` Consume `ActionDelivery` execution envelopes in action and integration routing without expression leakage. (complete)
+  - Result:
+    - action now validates extension-envelope parity against planning while
+      delivery routing consumes bounded envelope notes
+    - connector-aware routing metadata no longer depends on ad-hoc payload
+      coupling
+  - Validation:
+    - Group 39 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_delivery_router.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py tests/test_graph_state_contract.py`
+      (`138 passed`)
+
+- `PRJ-373` Add regressions for shared handoff stability and connector-extension compatibility. (complete)
+  - Result:
+    - backward-compatible handoff behavior is pinned for standard responses,
+      graph-runtime parity, and extension-ready connector flows
+    - stage-boundary drift between expression, action, and delivery routing
+      becomes test-visible
+  - Validation:
+    - Group 39 consolidated validation:
+      `.\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_action_executor.py tests/test_delivery_router.py tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py tests/test_graph_state_contract.py`
+      (`138 passed`)
+
+- `PRJ-374` Sync docs/context for `ActionDelivery` extensibility baseline. (complete)
+  - Result:
+    - architecture, implementation reality, planning docs, and context truth
+      align on one extensible shared handoff contract
+    - future connector/provider work can enrich delivery semantics without
+      re-opening the stage-ordering decision
+  - Validation:
+    - doc-and-context sync plus targeted expression/action boundary review
+      recorded in this slice
+
+## Group 40 - Compatibility Sunset Readiness
+
+This group turns the remaining production-hardening follow-ups into explicit
+readiness evidence so the repo can schedule actual compatibility removals from
+observable runtime posture instead of only from planning notes.
+
+- `PRJ-375` Add compatibility-sunset readiness diagnostics for migration-only bootstrap and internal-only debug ingress.
+  - Result:
+    - runtime health exposes machine-readable readiness posture for removing
+      `create_tables` compatibility and retiring shared debug ingress from
+      normal production use
+    - release-window decisions gain explicit runtime evidence
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_main_runtime_policy.py`
+
+- `PRJ-376` Extend release smoke and runtime-policy gates for compatibility-sunset readiness evidence.
+  - Result:
+    - release smoke can verify migration-only bootstrap posture and
+      dedicated-internal-ingress debug posture as explicit release evidence
+    - compatibility-removal planning gains a repeatable operator workflow
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+
+- `PRJ-377` Add regressions for compatibility-sunset readiness and release-gate semantics.
+  - Result:
+    - readiness posture and release-gate semantics are pinned for
+      `create_tables` removal and shared-debug-ingress retirement
+    - remaining compatibility paths stay observable until explicit removal
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_main_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+
+- `PRJ-378` Sync docs/context for compatibility-sunset readiness governance.
+  - Result:
+    - architecture, operations guidance, planning docs, and context truth
+      align on how transitional compatibility paths become retirement-ready
+    - the next queue can choose actual removal windows from runtime evidence
+      instead of re-planning the baseline
+  - Validation:
+    - doc-and-context sync plus targeted compatibility-sunset cross-doc review
+      recorded in this slice
 
 ## Parallel-Ready Lanes
 
@@ -1915,10 +2140,16 @@ group locks the production and release baseline for the converged runtime.
 18. `PRJ-347..PRJ-350` Behavior-validation CI-ingestion follow-up
 19. `PRJ-351..PRJ-354` Behavior-validation artifact governance
 20. `PRJ-355..PRJ-358` Deployment-trigger SLO instrumentation
+21. `PRJ-359..PRJ-360` Behavior-validation artifact compatibility governance
+22. `PRJ-361..PRJ-362` Attention timing baseline governance
+23. `PRJ-363..PRJ-366` Connector boundary execution policy
+24. `PRJ-367..PRJ-370` Typed-intent coverage for future writes
+25. `PRJ-371..PRJ-374` Action-delivery extensibility
+26. `PRJ-375..PRJ-378` Compatibility sunset readiness
 
 The queue should still be treated as intentionally open after those items.
 Additional small architecture-alignment slices may still be discovered while
-executing Groups 17 through 34.
+executing Groups 17 through 40.
 
 ## Handoff Rules For Execution Agents
 

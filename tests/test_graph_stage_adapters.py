@@ -7,7 +7,19 @@ from app.agents.perception import PerceptionAgent
 from app.agents.planning import PlanningAgent
 from app.agents.role import RoleAgent
 from app.core.action import ActionExecutor
-from app.core.contracts import ActionDelivery, Event, EventMeta, PlanOutput
+from app.core.contracts import (
+    ActionDelivery,
+    CalendarSchedulingIntentDomainIntent,
+    ConnectorPermissionGateOutput,
+    ContextOutput,
+    Event,
+    EventMeta,
+    IdentityOutput,
+    MotivationOutput,
+    PerceptionOutput,
+    PlanOutput,
+    RoleOutput,
+)
 from app.core.graph_adapters import GraphStageAdapters
 from app.core.graph_state import GraphMemoryState, build_graph_state_seed
 from app.expression.generator import ExpressionAgent
@@ -160,6 +172,93 @@ async def test_graph_stage_adapters_action_consumes_explicit_delivery_handoff() 
     assert state.action_delivery is not None
     assert state.action_result is not None
     assert state.action_result.status == "success"
+
+
+@pytest.mark.asyncio
+async def test_graph_stage_adapters_expression_builds_connector_safe_delivery_envelope() -> None:
+    adapters = GraphStageAdapters(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=_FakeOpenAIClient()),
+        action_executor=ActionExecutor(
+            memory_repository=_NoopMemoryRepository(),
+            telegram_client=_FakeTelegramClient(),
+        ),
+    )
+    state = build_graph_state_seed(_event()).model_copy(
+        update={
+            "identity": IdentityOutput(
+                mission="Help the user move forward.",
+                values=["clarity"],
+                behavioral_style=["direct", "supportive"],
+                boundaries=["no hidden side effects"],
+                summary="Direct and supportive help.",
+            ),
+            "perception": PerceptionOutput(
+                event_type="request",
+                topic="calendar",
+                topic_tags=["calendar", "planning"],
+                intent="request_help",
+                language="en",
+                language_source="default",
+                language_confidence=0.8,
+                ambiguity=0.1,
+                initial_salience=0.6,
+            ),
+            "context": ContextOutput(
+                summary="User asked for schedule help.",
+                related_goals=[],
+                related_tags=["calendar"],
+                risk_level=0.1,
+            ),
+            "motivation": MotivationOutput(
+                importance=0.7,
+                urgency=0.3,
+                valence=0.1,
+                arousal=0.4,
+                mode="respond",
+            ),
+            "role": RoleOutput(selected="advisor", confidence=0.8),
+            "plan": PlanOutput(
+                goal="help with scheduling",
+                steps=["prepare_response"],
+                needs_action=True,
+                needs_response=True,
+                domain_intents=[
+                    CalendarSchedulingIntentDomainIntent(
+                        operation="create_event",
+                        provider_hint="google_calendar",
+                        mode="mutate_with_confirmation",
+                        title_hint="team sync",
+                        time_hint="tomorrow 10:00",
+                    )
+                ],
+                connector_permission_gates=[
+                    ConnectorPermissionGateOutput(
+                        connector_kind="calendar",
+                        provider_hint="google_calendar",
+                        operation="create_event",
+                        mode="mutate_with_confirmation",
+                        requires_opt_in=True,
+                        requires_confirmation=True,
+                        allowed=False,
+                        reason="explicit_user_confirmation_required",
+                    )
+                ],
+            ),
+        }
+    )
+
+    state = await adapters.run_expression(state)
+
+    assert state.action_delivery is not None
+    assert state.action_delivery.execution_envelope.connector_safe is True
+    assert len(state.action_delivery.execution_envelope.connector_intents) == 1
+    assert len(state.action_delivery.execution_envelope.connector_permission_gates) == 1
+    assert state.action_delivery.execution_envelope.connector_intents[0].operation == "create_event"
 
 
 def test_graph_stage_adapters_validate_required_state_fields() -> None:

@@ -94,7 +94,8 @@ class RuntimeOrchestrator:
         return "yes" if value else "no"
 
     def _build_action_delivery(self, *, event: Event, expression: ExpressionOutput) -> ActionDelivery:
-        return expression_to_action_delivery(event=event, expression=expression)
+        plan = None
+        return expression_to_action_delivery(event=event, expression=expression, plan=plan)
 
     def _build_system_debug_output(
         self,

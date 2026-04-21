@@ -1,0 +1,333 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+import shutil
+import subprocess
+import sys
+import threading
+from datetime import datetime, timedelta, timezone
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from types import SimpleNamespace
+from urllib.parse import parse_qs, urlparse
+
+import pytest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+TRIGGER_SCRIPT_PATH = ROOT / "scripts" / "trigger_coolify_deploy_webhook.py"
+RELEASE_SMOKE_PS1_PATH = ROOT / "scripts" / "run_release_smoke.ps1"
+PYTHON_EXE = ROOT / ".venv" / "Scripts" / "python.exe"
+
+TRIGGER_SPEC = importlib.util.spec_from_file_location("trigger_coolify_deploy_webhook_script", TRIGGER_SCRIPT_PATH)
+assert TRIGGER_SPEC is not None and TRIGGER_SPEC.loader is not None
+TRIGGER_MODULE = importlib.util.module_from_spec(TRIGGER_SPEC)
+sys.modules[TRIGGER_SPEC.name] = TRIGGER_MODULE
+TRIGGER_SPEC.loader.exec_module(TRIGGER_MODULE)
+
+
+def _powershell_exe() -> str | None:
+    return shutil.which("powershell") or shutil.which("pwsh")
+
+
+class _StubAionHandler(BaseHTTPRequestHandler):
+    health_payload: dict[str, object] = {}
+    event_payload: dict[str, object] = {}
+
+    def _write_json(self, payload: dict[str, object], *, status: int = 200) -> None:
+        body = json.dumps(payload).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, format: str, *args) -> None:  # noqa: A003
+        return
+
+    def do_GET(self) -> None:  # noqa: N802
+        if self.path == "/health":
+            self._write_json(type(self).health_payload)
+            return
+        self._write_json({"detail": "not found"}, status=404)
+
+    def do_POST(self) -> None:  # noqa: N802
+        parsed = urlparse(self.path)
+        if parsed.path != "/event":
+            self._write_json({"detail": "not found"}, status=404)
+            return
+
+        body_length = int(self.headers.get("Content-Length", "0"))
+        if body_length > 0:
+            self.rfile.read(body_length)
+
+        payload = dict(type(self).event_payload)
+        query = parse_qs(parsed.query)
+        if query.get("debug") == ["true"]:
+            payload.setdefault("debug", {"mode": "debug"})
+        self._write_json(payload)
+
+
+class _StubAionServer:
+    def __init__(self) -> None:
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), _StubAionHandler)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+
+    @property
+    def base_url(self) -> str:
+        host, port = self.server.server_address
+        return f"http://{host}:{port}"
+
+    def start(self) -> "_StubAionServer":
+        self.thread.start()
+        return self
+
+    def stop(self) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=5)
+
+
+@pytest.fixture
+def stub_aion_server() -> _StubAionServer:
+    _StubAionHandler.health_payload = {
+        "status": "ok",
+        "runtime_policy": {
+            "event_debug_internal_ingress_path": "/internal/event/debug",
+            "event_debug_shared_ingress_path": "/event/debug",
+            "event_debug_shared_ingress_mode": "compatibility",
+            "event_debug_shared_ingress_break_glass_required": False,
+            "event_debug_shared_ingress_posture": "transitional_compatibility",
+            "strict_startup_blocked": False,
+            "event_debug_query_compat_enabled": False,
+            "production_policy_mismatches": [],
+        },
+        "release_readiness": {
+            "ready": True,
+            "violations": [],
+        },
+        "reflection": {
+            "healthy": True,
+            "deployment_readiness": {
+                "ready": True,
+                "blocking_signals": [],
+            },
+        },
+    }
+    _StubAionHandler.event_payload = {
+        "event_id": "evt-test",
+        "trace_id": "trace-test",
+        "reply": {
+            "message": "Smoke response",
+            "language": "en",
+            "tone": "supportive",
+            "channel": "api",
+        },
+        "runtime": {
+            "role": "advisor",
+            "motivation_mode": "respond",
+            "action_status": "success",
+            "reflection_triggered": False,
+        },
+    }
+    server = _StubAionServer().start()
+    try:
+        yield server
+    finally:
+        server.stop()
+
+
+def _run_release_smoke(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
+    powershell_exe = _powershell_exe()
+    if powershell_exe is None:
+        pytest.skip("PowerShell executable is unavailable in this environment.")
+
+    return subprocess.run(
+        [powershell_exe, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(RELEASE_SMOKE_PS1_PATH), *args],
+        cwd=str(cwd),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=30,
+        check=False,
+    )
+
+
+def _write_evidence(path: Path, *, minutes_ago: int = 0, ok: bool = True, status_code: int = 200) -> None:
+    generated_at = datetime.now(timezone.utc) - timedelta(minutes=minutes_ago)
+    payload = {
+        "kind": "coolify_deploy_webhook_evidence",
+        "generated_at": generated_at.isoformat(),
+        "triggered_at": generated_at.isoformat(),
+        "finished_at": generated_at.isoformat(),
+        "response": {
+            "ok": ok,
+            "status_code": status_code,
+            "body": "queued",
+            "error": "",
+        },
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_trigger_main_writes_success_evidence_file(monkeypatch, tmp_path: Path) -> None:
+    evidence_path = tmp_path / "deploy-evidence.json"
+
+    monkeypatch.setattr(
+        TRIGGER_MODULE,
+        "_parse_args",
+        lambda: SimpleNamespace(
+            webhook_url="https://coolify.example/webhook",
+            webhook_secret="secret",
+            repository="owner/repo",
+            branch="main",
+            before_sha="a" * 40,
+            after_sha="b" * 40,
+            pusher_name="codex",
+            evidence_path=str(evidence_path),
+        ),
+    )
+    monkeypatch.setattr(
+        TRIGGER_MODULE,
+        "_post_webhook",
+        lambda **_: (True, 202, "queued", ""),
+    )
+
+    exit_code = TRIGGER_MODULE.main()
+
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    assert exit_code == 0
+    assert evidence["kind"] == "coolify_deploy_webhook_evidence"
+    assert evidence["webhook_url"] == "https://coolify.example/webhook"
+    assert evidence["repository"] == "owner/repo"
+    assert evidence["branch"] == "main"
+    assert evidence["before_sha"] == "a" * 40
+    assert evidence["after_sha"] == "b" * 40
+    assert evidence["response"] == {
+        "ok": True,
+        "status_code": 202,
+        "body": "queued",
+        "error": "",
+    }
+    assert evidence["generated_at"] == evidence["finished_at"]
+
+
+def test_trigger_main_writes_failure_evidence_file_and_returns_non_zero(monkeypatch, tmp_path: Path) -> None:
+    evidence_path = tmp_path / "deploy-evidence.json"
+
+    monkeypatch.setattr(
+        TRIGGER_MODULE,
+        "_parse_args",
+        lambda: SimpleNamespace(
+            webhook_url="https://coolify.example/webhook",
+            webhook_secret="secret",
+            repository="owner/repo",
+            branch="main",
+            before_sha="a" * 40,
+            after_sha="b" * 40,
+            pusher_name="codex",
+            evidence_path=str(evidence_path),
+        ),
+    )
+    monkeypatch.setattr(
+        TRIGGER_MODULE,
+        "_post_webhook",
+        lambda **_: (False, 500, "failed", "http_error:500"),
+    )
+
+    exit_code = TRIGGER_MODULE.main()
+
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert evidence["kind"] == "coolify_deploy_webhook_evidence"
+    assert evidence["response"] == {
+        "ok": False,
+        "status_code": 500,
+        "body": "failed",
+        "error": "http_error:500",
+    }
+
+
+def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    result = _run_release_smoke("-BaseUrl", stub_aion_server.base_url, cwd=ROOT)
+
+    assert result.returncode == 0, result.stderr
+    summary = json.loads(result.stdout)
+    assert summary["health_status"] == "ok"
+    assert summary["deployment_evidence_checked"] is False
+    assert summary["deployment_evidence_path"] == ""
+    assert summary["deployment_evidence_status_code"] is None
+
+
+def test_release_smoke_verifies_fresh_successful_deployment_evidence(
+    stub_aion_server: _StubAionServer,
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "deploy-evidence.json"
+    _write_evidence(evidence_path)
+
+    result = _run_release_smoke(
+        "-BaseUrl",
+        stub_aion_server.base_url,
+        "-DeploymentEvidencePath",
+        str(evidence_path),
+        "-DeploymentEvidenceMaxAgeMinutes",
+        "60",
+        cwd=ROOT,
+    )
+
+    assert result.returncode == 0, result.stderr
+    summary = json.loads(result.stdout)
+    assert summary["deployment_evidence_checked"] is True
+    assert summary["deployment_evidence_path"] == str(evidence_path)
+    assert summary["deployment_evidence_status_code"] == 200
+    assert isinstance(summary["deployment_evidence_age_minutes"], float)
+    assert summary["deployment_evidence_age_minutes"] >= 0.0
+
+
+def test_release_smoke_fails_when_deployment_evidence_is_stale(
+    stub_aion_server: _StubAionServer,
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "deploy-evidence.json"
+    _write_evidence(evidence_path, minutes_ago=90)
+
+    result = _run_release_smoke(
+        "-BaseUrl",
+        stub_aion_server.base_url,
+        "-DeploymentEvidencePath",
+        str(evidence_path),
+        "-DeploymentEvidenceMaxAgeMinutes",
+        "60",
+        cwd=ROOT,
+    )
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "Deployment evidence verification failed" in combined_output
+    assert "exceeds 60 min" in combined_output
+
+
+def test_release_smoke_fails_when_deployment_evidence_response_is_unsuccessful(
+    stub_aion_server: _StubAionServer,
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "deploy-evidence.json"
+    _write_evidence(evidence_path, ok=False, status_code=500)
+
+    result = _run_release_smoke(
+        "-BaseUrl",
+        stub_aion_server.base_url,
+        "-DeploymentEvidencePath",
+        str(evidence_path),
+        cwd=ROOT,
+    )
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "Deployment evidence verification failed" in combined_output
+    assert "webhook response is not successful" in combined_output

@@ -65,6 +65,9 @@ settings) and latest reflection/maintenance tick summaries.
 posture (`coordination_mode`, owner/readiness semantics, timing windows) and
 live turn counters (`pending`, `claimed`, `answered`) to support burst-message
 triage and owner-mode rollout verification.
+`GET /health.attention.timing_policy` now also exposes the production timing
+baseline (`120ms` burst window, `5s` answered TTL, `30s` stale cleanup) plus
+alignment posture for the currently selected config values.
 
 `GET /health` now also includes a `memory_retrieval` object with semantic
 retrieval posture:
@@ -320,6 +323,11 @@ Explicit fallback path (when automation is delayed or missing):
 1. trigger Coolify deploy webhook manually:
    - Windows: `.\scripts\trigger_coolify_deploy_webhook.ps1`
    - Debian/bash: `./scripts/trigger_coolify_deploy_webhook.sh`
+   - optional evidence capture:
+     - Windows:
+       `.\scripts\trigger_coolify_deploy_webhook.ps1 -EvidencePath artifacts/deploy/coolify-webhook.json`
+     - Debian/bash:
+       `./scripts/trigger_coolify_deploy_webhook.sh "<webhook_url>" "<webhook_secret>" "" "main" "" "" "codex" artifacts/deploy/coolify-webhook.json`
 2. if webhook trigger is unavailable, run Coolify UI redeploy for the same app
 3. verify target commit is running before release smoke
 
@@ -328,12 +336,23 @@ Release smoke ownership:
 - release operator (Ops/Release owner of the deploy) runs:
   - Windows: `.\scripts\run_release_smoke.ps1 -BaseUrl "<deployment_url>"`
   - Debian/bash: `./scripts/run_release_smoke.sh "<deployment_url>"`
+- when deployment-trigger evidence was captured, release smoke can verify it
+  before the HTTP smoke roundtrip:
+  - Windows:
+    `.\scripts\run_release_smoke.ps1 -BaseUrl "<deployment_url>" -DeploymentEvidencePath artifacts/deploy/coolify-webhook.json`
+  - Debian/bash:
+    `./scripts/run_release_smoke.sh "<deployment_url>" "" "manual-smoke" "false" artifacts/deploy/coolify-webhook.json`
+- deployment evidence verification remains optional so existing smoke posture
+  stays backward-compatible when no evidence artifact is available.
 - smoke now fails fast when `/health.release_readiness.ready=false`
   (or when fallback policy-gate checks detect drift on older runtimes).
 - smoke now also fails fast when
   `/health.reflection.deployment_readiness.ready=false`
   (or when fallback reflection handoff/task-health checks detect deployment
   readiness blockers on older runtimes).
+- when deployment evidence is provided, smoke also fails fast if the artifact
+  kind is wrong, the webhook response was unsuccessful, or the artifact age
+  exceeds the selected max-age window.
 - release is not considered complete until smoke passes (`GET /health` plus
   `POST /event` roundtrip).
 - release-readiness now also requires behavior-validation evidence for the

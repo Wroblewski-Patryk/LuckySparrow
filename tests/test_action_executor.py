@@ -3,14 +3,18 @@ from datetime import datetime, timezone
 from app.core.action import ActionExecutor
 from app.core.contracts import (
     ActionDelivery,
+    ActionDeliveryConnectorIntent,
+    ActionDeliveryExecutionEnvelope,
     CalendarSchedulingIntentDomainIntent,
     ConnectedDriveAccessDomainIntent,
     ConnectorCapabilityDiscoveryDomainIntent,
+    ConnectorPermissionGateOutput,
     ContextOutput,
     Event,
     EventMeta,
     ExpressionOutput,
     ExternalTaskSyncDomainIntent,
+    MaintainRelationDomainIntent,
     MaintainTaskStatusDomainIntent,
     MotivationOutput,
     NoopDomainIntent,
@@ -20,6 +24,7 @@ from app.core.contracts import (
     PromoteInferredTaskDomainIntent,
     ProactiveDeliveryGuardOutput,
     RoleOutput,
+    UpdateProactiveStateDomainIntent,
     UpdateCollaborationPreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
     UpdateTaskStatusDomainIntent,
@@ -36,6 +41,8 @@ class FakeMemoryRepository:
         self.active_goals: list[dict] = []
         self.active_tasks: list[dict] = []
         self.task_status_updates: list[dict] = []
+        self.relation_updates: list[dict] = []
+        self.conclusion_updates: list[dict] = []
         self.written_episodes: list[dict] = []
         self.semantic_embedding_updates: list[dict] = []
 
@@ -80,6 +87,15 @@ class FakeMemoryRepository:
                 self.task_status_updates.append(payload)
                 return task
         return None
+
+    async def upsert_relation(self, **kwargs) -> dict:
+        payload = {"id": len(self.relation_updates) + 1, **kwargs}
+        self.relation_updates.append(payload)
+        return payload
+
+    async def upsert_conclusion(self, **kwargs) -> dict:
+        self.conclusion_updates.append(kwargs)
+        return kwargs
 
     async def upsert_semantic_embedding(self, **kwargs) -> dict:
         self.semantic_embedding_updates.append(kwargs)
@@ -138,8 +154,20 @@ def _expression() -> ExpressionOutput:
     return ExpressionOutput(message="hello", tone="supportive", channel="api", language="en")
 
 
-def _delivery(*, channel: str = "api", chat_id: int | str | None = None) -> ActionDelivery:
-    return ActionDelivery(message="hello", tone="supportive", channel=channel, language="en", chat_id=chat_id)
+def _delivery(
+    *,
+    channel: str = "api",
+    chat_id: int | str | None = None,
+    execution_envelope: ActionDeliveryExecutionEnvelope | None = None,
+) -> ActionDelivery:
+    return ActionDelivery(
+        message="hello",
+        tone="supportive",
+        channel=channel,
+        language="en",
+        chat_id=chat_id,
+        execution_envelope=execution_envelope or ActionDeliveryExecutionEnvelope(),
+    )
 
 
 def _perception(topic_tags: list[str], language_source: str = "keyword_signal") -> PerceptionOutput:
@@ -209,6 +237,87 @@ async def test_execute_handles_telegram_delivery_exception_as_fail_result() -> N
     assert "TimeoutError" in result.notes
     assert "upstream timeout" in result.notes
     assert telegram_client.calls == [{"chat_id": 123456, "text": "hello"}]
+
+
+async def test_execute_blocks_connector_intent_when_mode_violates_shared_policy() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=telegram_client)
+
+    result = await executor.execute(
+        _plan(
+            domain_intents=[
+                ExternalTaskSyncDomainIntent(
+                    operation="list_tasks",
+                    provider_hint="clickup",
+                    mode="mutate_with_confirmation",
+                    task_hint="sprint board",
+                )
+            ]
+        ),
+        _delivery(channel="telegram", chat_id=123456),
+    )
+
+    assert result.status == "fail"
+    assert result.actions == []
+    assert "Connector policy guardrail blocked inconsistent intent posture" in result.notes
+    assert "external_task_sync_intent:list_tasks" in result.notes
+    assert telegram_client.calls == []
+
+
+async def test_execute_fails_when_action_delivery_envelope_drifts_from_plan() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=telegram_client)
+
+    result = await executor.execute(
+        _plan(
+            domain_intents=[
+                CalendarSchedulingIntentDomainIntent(
+                    operation="create_event",
+                    provider_hint="google_calendar",
+                    mode="mutate_with_confirmation",
+                    title_hint="team sync",
+                    time_hint="tomorrow 10:00",
+                )
+            ]
+        ),
+        _delivery(
+            channel="telegram",
+            chat_id=123456,
+            execution_envelope=ActionDeliveryExecutionEnvelope(
+                connector_safe=True,
+                connector_intents=[
+                    ActionDeliveryConnectorIntent(
+                        connector_kind="calendar",
+                        provider_hint="google_calendar",
+                        operation="suggest_slots",
+                        mode="suggestion_only",
+                        allowed=True,
+                        requires_confirmation=False,
+                        reason="suggestion_or_read_only_allowed",
+                    )
+                ],
+                connector_permission_gates=[
+                    ConnectorPermissionGateOutput(
+                        connector_kind="calendar",
+                        provider_hint="google_calendar",
+                        operation="suggest_slots",
+                        mode="suggestion_only",
+                        requires_opt_in=True,
+                        requires_confirmation=False,
+                        allowed=True,
+                        reason="suggestion_or_read_only_allowed",
+                    )
+                ],
+            ),
+        ),
+    )
+
+    assert result.status == "fail"
+    assert result.actions == []
+    assert "Action delivery envelope drift detected" in result.notes
+    assert telegram_client.calls == []
 
 
 async def test_execute_defers_when_proactive_delivery_guard_disallows_outreach() -> None:
@@ -772,6 +881,14 @@ async def test_persist_episode_tracks_calendar_and_external_task_connector_inten
 
     assert record.payload["calendar_connector_update"] == "create_event:mutate_with_confirmation:google_calendar"
     assert record.payload["task_connector_update"] == "create_task:mutate_with_confirmation:clickup"
+    assert (
+        record.payload["calendar_connector_guardrail"]
+        == "external_mutation_requires_confirmation:blocked_until_confirmation"
+    )
+    assert (
+        record.payload["task_connector_guardrail"]
+        == "external_mutation_requires_confirmation:blocked_until_confirmation"
+    )
     assert record.payload["domain_intents"] == [
         "calendar_scheduling_intent",
         "external_task_sync_intent",
@@ -804,6 +921,10 @@ async def test_persist_episode_tracks_connected_drive_connector_intent() -> None
     )
 
     assert record.payload["drive_connector_update"] == "upload_file:mutate_with_confirmation:google_drive"
+    assert (
+        record.payload["drive_connector_guardrail"]
+        == "external_mutation_requires_confirmation:blocked_until_confirmation"
+    )
     assert record.payload["domain_intents"] == ["connected_drive_access_intent"]
 
 
@@ -833,4 +954,98 @@ async def test_persist_episode_tracks_connector_capability_discovery_intent() ->
     )
 
     assert record.payload["connector_expansion_update"] == "task_system:clickup:task_sync"
+    assert (
+        record.payload["connector_expansion_guardrail"]
+        == "proposal_only_no_external_access:allowed_without_external_access"
+    )
     assert record.payload["domain_intents"] == ["connector_capability_discovery_intent"]
+
+
+async def test_persist_episode_maintains_relation_from_typed_domain_intent() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+
+    plan = _plan(
+        domain_intents=[
+            MaintainRelationDomainIntent(
+                relation_type="delivery_reliability",
+                relation_value="high_trust",
+                confidence=0.86,
+                source="planning_intent",
+            )
+        ]
+    )
+    record = await executor.persist_episode(
+        event=_event("You can be more direct with me now."),
+        perception=_perception(["general", "trust"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role("advisor"),
+        plan=plan,
+        action_result=await executor.execute(plan, _delivery()),
+        expression=_expression(),
+    )
+
+    assert record.payload["relation_update"] == "delivery_reliability:high_trust:global:global"
+    assert memory_repository.relation_updates == [
+        {
+            "id": 1,
+            "user_id": "u-1",
+            "relation_type": "delivery_reliability",
+            "relation_value": "high_trust",
+            "confidence": 0.86,
+            "source": "planning_intent",
+            "supporting_event_id": "evt-1",
+            "scope_type": "global",
+            "scope_key": "global",
+            "evidence_count": 1,
+            "decay_rate": 0.02,
+        }
+    ]
+
+
+async def test_persist_episode_updates_proactive_state_from_typed_domain_intent() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+
+    plan = _plan(
+        domain_intents=[
+            UpdateProactiveStateDomainIntent(
+                state="delivery_ready",
+                trigger="task_blocked",
+                reason="delivery_ready",
+                output_type="warning",
+                mode="strong",
+            )
+        ]
+    )
+    record = await executor.persist_episode(
+        event=_event("scheduler proactive tick"),
+        perception=_perception(["general", "proactive"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role("advisor"),
+        plan=plan,
+        action_result=await executor.execute(plan, _delivery()),
+        expression=_expression(),
+    )
+
+    assert record.payload["proactive_state_update"] == "delivery_ready:task_blocked:delivery_ready"
+    assert memory_repository.conclusion_updates == [
+        {
+            "user_id": "u-1",
+            "kind": "proactive_outreach_state",
+            "content": "delivery_ready",
+            "confidence": 0.9,
+            "source": "proactive_planning",
+            "supporting_event_id": "evt-1",
+        },
+        {
+            "user_id": "u-1",
+            "kind": "proactive_outreach_trigger",
+            "content": "task_blocked",
+            "confidence": 0.9,
+            "source": "proactive_planning",
+            "supporting_event_id": "evt-1",
+        },
+    ]

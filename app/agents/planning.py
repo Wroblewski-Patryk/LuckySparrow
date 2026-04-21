@@ -14,15 +14,21 @@ from app.core.contracts import (
     PlanOutput,
     PromoteInferredGoalDomainIntent,
     PromoteInferredTaskDomainIntent,
+    ProactiveDecisionOutput,
     ProposalHandoffDecisionOutput,
     RoleOutput,
     SubconsciousProposalRecord,
+    UpdateProactiveStateDomainIntent,
     UpdateCollaborationPreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
     UpdateTaskStatusDomainIntent,
-    ProactiveDecisionOutput,
     UpsertGoalDomainIntent,
     UpsertTaskDomainIntent,
+)
+from app.core.connector_policy import (
+    build_connector_permission_gate,
+    resolve_connector_capability_discovery_policy,
+    resolve_connector_operation_policy,
 )
 from app.proactive.engine import ProactiveDecisionEngine, ProactiveDeliveryGuard
 from app.utils.goal_task_signals import detect_goal_signal, detect_task_signal, detect_task_status_signal
@@ -367,7 +373,13 @@ class PlanningAgent:
                 steps=[*base_steps, "respect_attention_gate"],
                 needs_action=False,
                 needs_response=False,
-                domain_intents=[NoopDomainIntent()],
+                domain_intents=[
+                    self._proactive_state_intent(
+                        proactive_decision=proactive_decision,
+                        state="attention_gate_blocked",
+                        reason=str(attention_gate.get("reason", "attention_gate_blocked") or "attention_gate_blocked"),
+                    )
+                ],
                 proactive_decision=proactive_decision,
             )
         if not proactive_decision.should_interrupt:
@@ -376,7 +388,13 @@ class PlanningAgent:
                 steps=[*base_steps, "defer_proactive_outreach"],
                 needs_action=False,
                 needs_response=False,
-                domain_intents=[NoopDomainIntent()],
+                domain_intents=[
+                    self._proactive_state_intent(
+                        proactive_decision=proactive_decision,
+                        state="interruption_deferred",
+                        reason=str(proactive_decision.reason or "interruption_cost_too_high"),
+                    )
+                ],
                 proactive_decision=proactive_decision,
             )
         delivery_guard = self.proactive_delivery_guard.evaluate(
@@ -390,7 +408,13 @@ class PlanningAgent:
                 steps=[*base_steps, "respect_proactive_delivery_guardrails"],
                 needs_action=False,
                 needs_response=False,
-                domain_intents=[NoopDomainIntent()],
+                domain_intents=[
+                    self._proactive_state_intent(
+                        proactive_decision=proactive_decision,
+                        state="delivery_guard_blocked",
+                        reason=str(delivery_guard.reason or "delivery_guard_blocked"),
+                    )
+                ],
                 proactive_decision=proactive_decision,
                 proactive_delivery_guard=delivery_guard,
             )
@@ -439,9 +463,30 @@ class PlanningAgent:
             steps=steps,
             needs_action=needs_action,
             needs_response=needs_response,
-            domain_intents=[NoopDomainIntent()],
+            domain_intents=[
+                self._proactive_state_intent(
+                    proactive_decision=proactive_decision,
+                    state="delivery_ready",
+                    reason="delivery_ready",
+                )
+            ],
             proactive_decision=proactive_decision,
             proactive_delivery_guard=delivery_guard,
+        )
+
+    def _proactive_state_intent(
+        self,
+        *,
+        proactive_decision: ProactiveDecisionOutput,
+        state: str,
+        reason: str,
+    ) -> UpdateProactiveStateDomainIntent:
+        return UpdateProactiveStateDomainIntent(
+            state=state,
+            trigger=str(proactive_decision.trigger or "time_checkin"),
+            reason=reason,
+            output_type=proactive_decision.output_type,
+            mode=proactive_decision.mode,
         )
 
     def _build_domain_action_intents(
@@ -881,20 +926,20 @@ class PlanningAgent:
         if any(keyword in lowered_text for keyword in ("create", "utw", "zaplanuj", "book", "reserve")):
             return CalendarSchedulingIntentDomainIntent(
                 operation="create_event",
-                mode="mutate_with_confirmation",
+                mode=resolve_connector_operation_policy("calendar", "create_event").mode,
                 title_hint=lowered_text[:120],
                 time_hint=lowered_text[:120],
             )
         if any(keyword in lowered_text for keyword in ("availability", "free", "woln", "when can", "kiedy")):
             return CalendarSchedulingIntentDomainIntent(
                 operation="read_availability",
-                mode="read_only",
+                mode=resolve_connector_operation_policy("calendar", "read_availability").mode,
                 title_hint=lowered_text[:120],
                 time_hint=lowered_text[:120],
             )
         return CalendarSchedulingIntentDomainIntent(
             operation="suggest_slots",
-            mode="suggestion_only",
+            mode=resolve_connector_operation_policy("calendar", "suggest_slots").mode,
             title_hint=lowered_text[:120],
             time_hint=lowered_text[:120],
         )
@@ -912,20 +957,20 @@ class PlanningAgent:
             return ExternalTaskSyncDomainIntent(
                 operation="create_task",
                 provider_hint=provider,
-                mode="mutate_with_confirmation",
+                mode=resolve_connector_operation_policy("task_system", "create_task").mode,
                 task_hint=lowered_text[:120],
             )
         if any(keyword in lowered_text for keyword in ("sync", "synchron", "export", "mirror", "link")):
             return ExternalTaskSyncDomainIntent(
                 operation="suggest_sync",
                 provider_hint=provider,
-                mode="suggestion_only",
+                mode=resolve_connector_operation_policy("task_system", "suggest_sync").mode,
                 task_hint=lowered_text[:120],
             )
         return ExternalTaskSyncDomainIntent(
             operation="list_tasks",
             provider_hint=provider,
-            mode="read_only",
+            mode=resolve_connector_operation_policy("task_system", "list_tasks").mode,
             task_hint=lowered_text[:120],
         )
 
@@ -959,48 +1004,48 @@ class PlanningAgent:
             return ConnectedDriveAccessDomainIntent(
                 operation="delete_file",
                 provider_hint=provider,
-                mode="mutate_with_confirmation",
+                mode=resolve_connector_operation_policy("cloud_drive", "delete_file").mode,
                 file_hint=lowered_text[:120],
             )
         if any(keyword in lowered_text for keyword in ("upload", "add file", "wrzu", "zaladuj")):
             return ConnectedDriveAccessDomainIntent(
                 operation="upload_file",
                 provider_hint=provider,
-                mode="mutate_with_confirmation",
+                mode=resolve_connector_operation_policy("cloud_drive", "upload_file").mode,
                 file_hint=lowered_text[:120],
             )
         if any(keyword in lowered_text for keyword in ("update", "edit", "modify", "zmien", "edyt")):
             return ConnectedDriveAccessDomainIntent(
                 operation="update_document",
                 provider_hint=provider,
-                mode="mutate_with_confirmation",
+                mode=resolve_connector_operation_policy("cloud_drive", "update_document").mode,
                 file_hint=lowered_text[:120],
             )
         if any(keyword in lowered_text for keyword in ("search", "find", "szuk", "znajd")):
             return ConnectedDriveAccessDomainIntent(
                 operation="search_documents",
                 provider_hint=provider,
-                mode="read_only",
+                mode=resolve_connector_operation_policy("cloud_drive", "search_documents").mode,
                 file_hint=lowered_text[:120],
             )
         if any(keyword in lowered_text for keyword in ("read", "open", "preview", "otw", "pokaz")):
             return ConnectedDriveAccessDomainIntent(
                 operation="read_document",
                 provider_hint=provider,
-                mode="read_only",
+                mode=resolve_connector_operation_policy("cloud_drive", "read_document").mode,
                 file_hint=lowered_text[:120],
             )
         if any(keyword in lowered_text for keyword in ("organize", "plan", "suggest", "uporzadkuj", "zaproponuj")):
             return ConnectedDriveAccessDomainIntent(
                 operation="suggest_file_plan",
                 provider_hint=provider,
-                mode="suggestion_only",
+                mode=resolve_connector_operation_policy("cloud_drive", "suggest_file_plan").mode,
                 file_hint=lowered_text[:120],
             )
         return ConnectedDriveAccessDomainIntent(
             operation="list_files",
             provider_hint=provider,
-            mode="read_only",
+            mode=resolve_connector_operation_policy("cloud_drive", "list_files").mode,
             file_hint=lowered_text[:120],
         )
 
@@ -1011,72 +1056,13 @@ class PlanningAgent:
         gates: list[ConnectorPermissionGateOutput] = []
         for intent in domain_intents:
             if isinstance(intent, CalendarSchedulingIntentDomainIntent):
-                mutate = intent.mode == "mutate_with_confirmation"
-                gates.append(
-                    ConnectorPermissionGateOutput(
-                        connector_kind="calendar",
-                        provider_hint=intent.provider_hint,
-                        operation=intent.operation,
-                        mode=intent.mode,
-                        requires_opt_in=True,
-                        requires_confirmation=mutate,
-                        allowed=not mutate,
-                        reason=(
-                            "explicit_user_confirmation_required"
-                            if mutate
-                            else "suggestion_or_read_only_allowed"
-                        ),
-                    )
-                )
+                gates.append(build_connector_permission_gate(intent))
             if isinstance(intent, ExternalTaskSyncDomainIntent):
-                mutate = intent.mode == "mutate_with_confirmation"
-                gates.append(
-                    ConnectorPermissionGateOutput(
-                        connector_kind="task_system",
-                        provider_hint=intent.provider_hint,
-                        operation=intent.operation,
-                        mode=intent.mode,
-                        requires_opt_in=True,
-                        requires_confirmation=mutate,
-                        allowed=not mutate,
-                        reason=(
-                            "explicit_user_confirmation_required"
-                            if mutate
-                            else "suggestion_or_read_only_allowed"
-                        ),
-                    )
-                )
+                gates.append(build_connector_permission_gate(intent))
             if isinstance(intent, ConnectedDriveAccessDomainIntent):
-                mutate = intent.mode == "mutate_with_confirmation"
-                gates.append(
-                    ConnectorPermissionGateOutput(
-                        connector_kind="cloud_drive",
-                        provider_hint=intent.provider_hint,
-                        operation=intent.operation,
-                        mode=intent.mode,
-                        requires_opt_in=True,
-                        requires_confirmation=mutate,
-                        allowed=not mutate,
-                        reason=(
-                            "explicit_user_confirmation_required"
-                            if mutate
-                            else "suggestion_or_read_only_allowed"
-                        ),
-                    )
-                )
+                gates.append(build_connector_permission_gate(intent))
             if isinstance(intent, ConnectorCapabilityDiscoveryDomainIntent):
-                gates.append(
-                    ConnectorPermissionGateOutput(
-                        connector_kind=intent.connector_kind,
-                        provider_hint=intent.provider_hint,
-                        operation=f"discover_{intent.requested_capability}",
-                        mode=intent.mode,
-                        requires_opt_in=False,
-                        requires_confirmation=False,
-                        allowed=True,
-                        reason="proposal_only_no_external_access",
-                    )
-                )
+                gates.append(build_connector_permission_gate(intent))
         return gates
 
     def _build_connector_expansion_intents(
@@ -1106,6 +1092,10 @@ class PlanningAgent:
                     provider_hint=provider_hint,
                     requested_capability=requested_capability,
                     evidence="subconscious_repeated_unmet_need",
+                    mode=resolve_connector_capability_discovery_policy(
+                        connector_kind,  # type: ignore[arg-type]
+                        requested_capability,
+                    ).mode,
                 )
             )
         return intents

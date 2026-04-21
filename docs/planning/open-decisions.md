@@ -54,11 +54,20 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `PRJ-351..PRJ-354`: behavior-validation artifact governance
     (`13`) - complete
   - `PRJ-355..PRJ-358`: deployment-trigger SLO instrumentation
-    (`7`) - queued
+    (`7`) - complete
+  - `PRJ-359..PRJ-360`: behavior-validation artifact compatibility governance
+    (`13`) - complete
+  - `PRJ-361..PRJ-362`: attention timing baseline governance (`12a`) - complete
+  - `PRJ-363..PRJ-366`: connector boundary execution policy
+    (`12c`) - complete
+  - `PRJ-367..PRJ-370`: typed-intent coverage for future writes
+    (`10a`) - complete
+  - `PRJ-371..PRJ-374`: action-delivery extensibility (`3a`) - planned
+  - `PRJ-375..PRJ-378`: compatibility sunset readiness (`2`, `3`) - planned
 - reflection deployment lane is complete through `PRJ-304`, and
   post-reflection hardening decisions are now complete through `PRJ-309`.
 - runtime behavior-validation lane is now complete through `PRJ-317`.
-- next architecture-to-code queue is now seeded through `PRJ-358`.
+- next architecture-to-code queue is now seeded through `PRJ-378`.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
@@ -158,6 +167,9 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Remaining follow-up decision:
   - after guardrails are met, in which release window should the actual code
     removal of `create_tables` be scheduled?
+- Planned implementation lane:
+  - `PRJ-375..PRJ-378` will make migration-only removal readiness
+    machine-visible before an actual release-window removal is scheduled.
 
 ### 3. Public API Shape
 
@@ -284,6 +296,9 @@ The current repo already works as an MVP slice, but several architecture-level d
   - in which release window should production enforce dedicated internal
     ingress-only debug access (shared-endpoint debug disabled except
     break-glass override)?
+- Planned implementation lane:
+  - `PRJ-375..PRJ-378` will turn shared-debug-ingress retirement into explicit
+    readiness and release evidence before selecting the enforcement window.
 
 ### 3a. Expression vs Action Ordering
 
@@ -295,10 +310,13 @@ The current repo already works as an MVP slice, but several architecture-level d
   - action still delegates channel delivery to integration-owned routing
     (`DeliveryRouter`), so integration dispatch consumes explicit handoff
     payload while side effects remain action-triggered.
-- Decision needed:
-  - should future connector-heavy flows keep one shared `ActionDelivery`
-    contract, or introduce connector-specific handoff extensions while
-    preserving expression/action ownership boundaries?
+- Resolved baseline (2026-04-21):
+  - `PRJ-371..PRJ-374` completed the shared-contract path first by adding a
+    bounded `execution_envelope` to `ActionDelivery` instead of introducing
+    connector-specific handoff owners.
+  - action now validates envelope parity against planning before side effects,
+    and integration routing may surface bounded envelope notes without
+    changing expression ownership.
 
 ### 3b. Graph Orchestration Adoption
 
@@ -585,6 +603,14 @@ The current repo already works as an MVP slice, but several architecture-level d
   - after pushing `main`, production required a manual redeploy from Coolify before the latest commit became live.
   - a manually sent, correctly signed GitHub-style webhook request to the configured Coolify endpoint successfully queued a deployment on 2026-04-15.
   - the repo now has a repeatable release smoke helper for `GET /health` plus `POST /event`, so manual verification no longer depends on hand-written curl snippets.
+  - Coolify deploy trigger helpers now emit optional machine-readable webhook
+    evidence (`coolify_deploy_webhook_evidence`) for response posture and
+    timing metadata.
+  - release-smoke helpers now optionally verify that deployment evidence is
+    fresh and reflects a successful webhook response before the smoke
+    roundtrip runs.
+  - dedicated script regressions now pin evidence file shape, unsuccessful
+    webhook failure posture, optional evidence omission, and freshness checks.
 - Decision (PRJ-298 operational baseline, 2026-04-20):
   - deploy trigger posture is `automation_first_with_explicit_manual_fallback`:
     GitHub/Coolify webhook automation is preferred when it fires correctly.
@@ -597,9 +623,9 @@ The current repo already works as an MVP slice, but several architecture-level d
 - Remaining follow-up decision:
   - what objective webhook-delivery SLO should allow manual fallback to become
     exception-only instead of routine fallback posture?
-  - implementation follow-up for this decision is now queued in
-    `PRJ-355..PRJ-358` (deployment-trigger evidence capture and
-    release-smoke verification posture).
+  - current implementation baseline for this decision is complete through
+    `PRJ-358` (deployment-trigger evidence capture, release-smoke optional
+    verification, regressions, and docs/context sync).
 
 ### 8. Language Handling Strategy
 
@@ -688,10 +714,18 @@ The current repo already works as an MVP slice, but several architecture-level d
     intents before action can mutate durable task state
   - duplicate/no-unsafe inferred promotion behavior is now regression-pinned
     in planning and runtime suites.
-- Follow-up decision:
-  - decide whether additional future writes (for example relation lifecycle
-    maintenance or proactive scheduling state) should also require dedicated
-    typed intents instead of reusing generic intent families.
+- Follow-up implementation (resolved in `PRJ-367..PRJ-370`, 2026-04-21):
+  - relation-maintenance writes now have an explicit typed owner
+    (`maintain_relation`) that action can execute without falling back to
+    generic payload interpretation
+  - proactive planning now emits explicit durable state intents
+    (`update_proactive_state`) for `delivery_ready`,
+    `delivery_guard_blocked`, `interruption_deferred`, and
+    `attention_gate_blocked` posture instead of hiding write semantics behind
+    generic `noop`
+  - action persists those relation/proactive writes only from explicit typed
+    intents, and regression coverage now pins the boundary across planning,
+    action, runtime, reflection, and scheduler paths
 
 ### 10b. Adaptive Signal Governance
 
@@ -811,9 +845,14 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `/health.attention` now exposes owner-mode deployment readiness posture
     (`coordination_mode`, `turn_state_owner`, `deployment_readiness`) for
     durable-inbox rollout preparation
-- Remaining follow-up decision:
-  - what production-default timing values should be promoted as the release
-    baseline once dual-loop rollout stabilizes?
+- Decision (resolved in `PRJ-361..PRJ-362`, 2026-04-21):
+  - production-default attention timing baseline is now explicit:
+    - `ATTENTION_BURST_WINDOW_MS=120`
+    - `ATTENTION_ANSWERED_TTL_SECONDS=5.0`
+    - `ATTENTION_STALE_TURN_SECONDS=30.0`
+  - `/health.attention.timing_policy` now exposes both the production baseline
+    and the current configured values together with alignment posture so
+    operators can distinguish baseline deployment from local/rollout overrides.
 
 ### 12b. Conscious vs Subconscious Coordination Boundary
 
@@ -850,6 +889,15 @@ The current repo already works as an MVP slice, but several architecture-level d
     cloud-drive integrations.
   - planning now includes explicit connector and permission-gate slices
     (`PRJ-087`, `PRJ-093..PRJ-097`).
+  - `PRJ-363` now defines one shared connector execution-policy owner
+    (`app/core/connector_policy.py`) for baseline operation posture across
+    `calendar`, `task_system`, and `cloud_drive`.
+  - planner connector intents now derive baseline
+    `read_only|suggestion_only|mutate_with_confirmation` mode from that shared
+    policy instead of local connector-family literals.
+  - planning permission gates and action guardrails now both consume that
+    shared policy owner, and action fails fast on inconsistent connector
+    intent posture before delivery side effects.
 - Decision needed:
   - where should the system draw the line between internal planning state and
     user-authorized external productivity systems?
@@ -858,6 +906,10 @@ The current repo already works as an MVP slice, but several architecture-level d
     in?
   - how should the personality propose new capabilities or connectors without
     self-authorizing access to outside systems?
+- Planned implementation lane:
+  - current implementation baseline for this decision is complete through
+    `PRJ-366` (shared policy owner, permission-gate/action adoption,
+    regressions, and docs/context sync).
 
 ### 13. Runtime Behavior Validation Surface
 
@@ -900,6 +952,10 @@ The current repo already works as an MVP slice, but several architecture-level d
     pytest, while keeping one gate contract owner.
   - malformed artifact-input paths are now regression-pinned for
     `missing|summary_missing|summary_invalid` posture.
-- Remaining follow-up decision:
-  - should future CI governance enforce schema major-version compatibility as a
-    strict blocker or warning-only posture?
+- Decision (resolved in `PRJ-359..PRJ-360`, 2026-04-21):
+  - CI artifact-input evaluation now treats incompatible
+    `artifact_schema_version` major values as strict blockers.
+  - operator-mode artifact-input evaluation remains backward-compatible for
+    local inspection even when schema-major mismatch is present.
+  - gate violation context now records input-versus-expected schema-major
+    posture for machine-visible CI triage.

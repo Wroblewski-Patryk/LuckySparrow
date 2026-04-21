@@ -12,6 +12,9 @@ from app.core.events import coalesce_turn_text
 AttentionCoordinationMode = Literal["in_process", "durable_inbox"]
 DEFAULT_ATTENTION_COORDINATION_MODE: AttentionCoordinationMode = "in_process"
 ATTENTION_COORDINATION_BASELINE_MODE: AttentionCoordinationMode = "in_process"
+ATTENTION_PRODUCTION_BASELINE_BURST_WINDOW_MS = 120
+ATTENTION_PRODUCTION_BASELINE_ANSWERED_TTL_SECONDS = 5.0
+ATTENTION_PRODUCTION_BASELINE_STALE_TURN_SECONDS = 30.0
 
 
 def normalize_attention_coordination_mode(value: str | None) -> AttentionCoordinationMode:
@@ -41,6 +44,52 @@ def attention_coordination_readiness_snapshot(
         "blocking_signals": blocking_signals,
         "turn_state_owner": turn_state_owner,
         "durable_inbox_expected": selected_mode == "durable_inbox",
+    }
+
+
+def attention_timing_policy_snapshot(
+    *,
+    burst_window_ms: int,
+    answered_ttl_seconds: float,
+    stale_turn_seconds: float,
+) -> dict[str, Any]:
+    deviations: list[str] = []
+    if burst_window_ms < ATTENTION_PRODUCTION_BASELINE_BURST_WINDOW_MS:
+        deviations.append("burst_window_lower_than_baseline")
+    elif burst_window_ms > ATTENTION_PRODUCTION_BASELINE_BURST_WINDOW_MS:
+        deviations.append("burst_window_higher_than_baseline")
+
+    if answered_ttl_seconds < ATTENTION_PRODUCTION_BASELINE_ANSWERED_TTL_SECONDS:
+        deviations.append("answered_ttl_lower_than_baseline")
+    elif answered_ttl_seconds > ATTENTION_PRODUCTION_BASELINE_ANSWERED_TTL_SECONDS:
+        deviations.append("answered_ttl_higher_than_baseline")
+
+    if stale_turn_seconds < ATTENTION_PRODUCTION_BASELINE_STALE_TURN_SECONDS:
+        deviations.append("stale_turn_window_lower_than_baseline")
+    elif stale_turn_seconds > ATTENTION_PRODUCTION_BASELINE_STALE_TURN_SECONDS:
+        deviations.append("stale_turn_window_higher_than_baseline")
+
+    if deviations:
+        alignment_state = "customized_timing_override"
+        alignment_hint = "review_attention_timing_override_before_production_rollout"
+    else:
+        alignment_state = "aligned_with_production_baseline"
+        alignment_hint = "production_attention_timing_baseline_selected"
+
+    return {
+        "production_baseline": {
+            "burst_window_ms": ATTENTION_PRODUCTION_BASELINE_BURST_WINDOW_MS,
+            "answered_ttl_seconds": ATTENTION_PRODUCTION_BASELINE_ANSWERED_TTL_SECONDS,
+            "stale_turn_seconds": ATTENTION_PRODUCTION_BASELINE_STALE_TURN_SECONDS,
+        },
+        "current": {
+            "burst_window_ms": int(burst_window_ms),
+            "answered_ttl_seconds": float(answered_ttl_seconds),
+            "stale_turn_seconds": float(stale_turn_seconds),
+        },
+        "alignment_state": alignment_state,
+        "alignment_hint": alignment_hint,
+        "deviations": deviations,
     }
 
 

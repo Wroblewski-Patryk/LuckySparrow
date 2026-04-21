@@ -41,8 +41,13 @@ Current implementation details:
 
 - `ExpressionAgent` produces message, tone, language, and channel-oriented output
 - expression stage materializes an explicit `ActionDelivery` handoff contract
-- `ActionExecutor` consumes that delivery object
-- `DeliveryRouter` owns the channel-specific dispatch behavior
+- `ActionDelivery` now includes a bounded `execution_envelope` that can carry
+  connector intent snapshots and permission-gate posture without creating a
+  connector-specific expression handoff
+- `ActionExecutor` consumes that delivery object and validates
+  `execution_envelope` parity against planning before delivery side effects
+- `DeliveryRouter` owns the channel-specific dispatch behavior and may append
+  bounded execution-envelope visibility notes for operator-facing traces
 
 This is a runtime convenience and transport contract, not a replacement for the canonical cognitive order.
 
@@ -559,10 +564,14 @@ Current intent-ownership boundary:
 - planning emits explicit `domain_intents` (goal/task/task-status plus
   inferred-promotion and maintenance intents, plus preference intents, or
   `noop`)
+- planning now also emits explicit future-write intents for proactive follow-up
+  state (`update_proactive_state`) and can represent relation-maintenance
+  writes through `maintain_relation`
 - planning also emits `inferred_promotion_diagnostics`
   (`reason=...`, `result=...`) so inferred trust-gate posture is machine-visible
 - action executes those typed intents and no longer reparses raw user text for
-  durable domain writes
+  durable domain writes; proactive follow-up state no longer hides behind
+  generic `noop` when the runtime still needs a durable state trace
 - runtime `system_debug.plan` now carries those inferred diagnostics for
   operator-facing debug triage
 
@@ -690,11 +699,21 @@ What is already live:
 - proactive scheduler events now pass through an explicit attention gate
   (quiet-hours, cooldown, unanswered-backlog with adaptive-only tightening
   limits) before delivery planning
+- proactive planning now records the resulting delivery posture through typed
+  `update_proactive_state` intents
 - proactive outreach outcomes and connector permission-gate outcomes now share
   the same conscious plan/action execution boundary
 - planning/action contracts now include connector permission-gate outputs plus
   typed calendar/task/drive connector intents without direct provider side
   effects
+- relation-maintenance writes can now also pass through that same typed
+  action boundary through explicit `maintain_relation` intents
+- connector operation posture now has one shared owner in
+  `app/core/connector_policy.py`, reused by planner gate shaping and action
+  guardrails across `calendar`, `task_system`, and `cloud_drive`
+- action now fails fast on connector intent mode mismatch before delivery side
+  effects and persists connector guardrail posture alongside connector intent
+  updates for runtime-visible triage
 - regression coverage now explicitly pins that proactive scheduler plans stay
   separate from proposal handoff resolution and connector permission-gate intent
   shaping, while API attention turn assembly and conscious proposal resolution

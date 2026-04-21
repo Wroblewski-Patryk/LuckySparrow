@@ -307,6 +307,33 @@ class ConnectorCapabilityDiscoveryDomainIntent(BaseModel):
     mode: Literal["suggestion_only"] = "suggestion_only"
 
 
+class MaintainRelationDomainIntent(BaseModel):
+    intent_type: Literal["maintain_relation"] = "maintain_relation"
+    relation_type: str
+    relation_value: str
+    confidence: float = 0.7
+    source: str = "planning_intent"
+    scope_type: Literal["global", "goal", "task"] = "global"
+    scope_key: str = "global"
+    evidence_count: int = 1
+    decay_rate: float = 0.02
+
+
+class UpdateProactiveStateDomainIntent(BaseModel):
+    intent_type: Literal["update_proactive_state"] = "update_proactive_state"
+    state: Literal[
+        "attention_gate_blocked",
+        "interruption_deferred",
+        "delivery_guard_blocked",
+        "delivery_ready",
+    ]
+    trigger: str
+    reason: str
+    output_type: ProactiveOutputType
+    mode: ProactiveMode
+    source: str = "proactive_planning"
+
+
 DomainActionIntent = Annotated[
     NoopDomainIntent
     | UpsertGoalDomainIntent
@@ -320,7 +347,9 @@ DomainActionIntent = Annotated[
     | CalendarSchedulingIntentDomainIntent
     | ExternalTaskSyncDomainIntent
     | ConnectedDriveAccessDomainIntent
-    | ConnectorCapabilityDiscoveryDomainIntent,
+    | ConnectorCapabilityDiscoveryDomainIntent
+    | MaintainRelationDomainIntent
+    | UpdateProactiveStateDomainIntent,
     Field(discriminator="intent_type"),
 ]
 
@@ -352,12 +381,29 @@ class ExpressionOutput(BaseModel):
     language: str
 
 
+class ActionDeliveryConnectorIntent(BaseModel):
+    connector_kind: ConnectorKind
+    provider_hint: str | None = None
+    operation: str
+    mode: ConnectorOperationMode
+    allowed: bool = False
+    requires_confirmation: bool = False
+    reason: str = "explicit_user_authorization_required"
+
+
+class ActionDeliveryExecutionEnvelope(BaseModel):
+    connector_safe: bool = False
+    connector_intents: list[ActionDeliveryConnectorIntent] = Field(default_factory=list)
+    connector_permission_gates: list[ConnectorPermissionGateOutput] = Field(default_factory=list)
+
+
 class ActionDelivery(BaseModel):
     message: str
     tone: str
     channel: Literal["api", "telegram"]
     language: str
     chat_id: int | str | None = None
+    execution_envelope: ActionDeliveryExecutionEnvelope = Field(default_factory=ActionDeliveryExecutionEnvelope)
 
 
 class MemoryRecord(BaseModel):

@@ -6,6 +6,7 @@ from app.api.schemas import EventQueueResponse, EventResponse, EventReplyRespons
 from app.core.attention import (
     AttentionTurnCoordinator,
     attention_coordination_readiness_snapshot,
+    attention_timing_policy_snapshot,
 )
 from app.core.debug_compat import (
     DebugQueryCompatTelemetry,
@@ -98,10 +99,18 @@ def _attention_coordinator_from_request(request: Request) -> AttentionTurnCoordi
 def _attention_snapshot_from_request(request: Request) -> dict[str, Any]:
     coordinator = _attention_coordinator_from_request(request)
     snapshot = coordinator.snapshot()
+    burst_window_ms = int(round(coordinator.burst_window_seconds * 1000))
+    answered_ttl_seconds = float(coordinator.answered_ttl_seconds)
+    stale_turn_seconds = float(coordinator.stale_turn_seconds)
     readiness = attention_coordination_readiness_snapshot(
         coordination_mode=coordinator.coordination_mode,
         pending=int(snapshot.get("pending", 0)),
         claimed=int(snapshot.get("claimed", 0)),
+    )
+    timing_policy = attention_timing_policy_snapshot(
+        burst_window_ms=burst_window_ms,
+        answered_ttl_seconds=answered_ttl_seconds,
+        stale_turn_seconds=stale_turn_seconds,
     )
     return {
         "healthy": bool(readiness["ready"]),
@@ -109,9 +118,10 @@ def _attention_snapshot_from_request(request: Request) -> dict[str, Any]:
         "turn_state_owner": str(readiness["turn_state_owner"]),
         "durable_inbox_expected": bool(readiness["durable_inbox_expected"]),
         "deployment_readiness": readiness,
-        "burst_window_ms": int(round(coordinator.burst_window_seconds * 1000)),
-        "answered_ttl_seconds": coordinator.answered_ttl_seconds,
-        "stale_turn_seconds": coordinator.stale_turn_seconds,
+        "timing_policy": timing_policy,
+        "burst_window_ms": burst_window_ms,
+        "answered_ttl_seconds": answered_ttl_seconds,
+        "stale_turn_seconds": stale_turn_seconds,
         **snapshot,
     }
 

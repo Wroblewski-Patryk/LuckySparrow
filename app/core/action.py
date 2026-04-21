@@ -1,3 +1,4 @@
+from app.core.action_delivery import action_delivery_envelope_matches_plan
 from app.core.contracts import (
     ActionDelivery,
     ActionResult,
@@ -17,11 +18,17 @@ from app.core.contracts import (
     PromoteInferredGoalDomainIntent,
     PromoteInferredTaskDomainIntent,
     RoleOutput,
+    MaintainRelationDomainIntent,
+    UpdateProactiveStateDomainIntent,
     UpdateCollaborationPreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
     UpdateTaskStatusDomainIntent,
     UpsertGoalDomainIntent,
     UpsertTaskDomainIntent,
+)
+from app.core.connector_policy import (
+    connector_guardrail_snapshot,
+    connector_intent_policy_violation,
 )
 from app.integrations.delivery_router import DeliveryRouter
 from app.integrations.telegram.client import TelegramClient
@@ -73,6 +80,25 @@ class ActionExecutor:
                 actions=[],
                 notes=f"Proactive delivery deferred: {proactive_delivery_guard.reason}.",
             )
+        connector_policy_violations = self._connector_policy_violations(plan)
+        if connector_policy_violations:
+            return ActionResult(
+                status="fail",
+                actions=[],
+                notes=(
+                    "Connector policy guardrail blocked inconsistent intent posture: "
+                    + "; ".join(connector_policy_violations)
+                ),
+            )
+        if not action_delivery_envelope_matches_plan(
+            envelope=delivery.execution_envelope,
+            plan=plan,
+        ):
+            return ActionResult(
+                status="fail",
+                actions=[],
+                notes="Action delivery envelope drift detected between planning and action.",
+            )
         if not plan.needs_response:
             return ActionResult(status="noop", actions=[], notes="No response required.")
         return await self.delivery_router.deliver(delivery)
@@ -100,6 +126,12 @@ class ActionExecutor:
         task_connector_update = str(intent_updates["task_connector_update"])
         drive_connector_update = str(intent_updates["drive_connector_update"])
         connector_expansion_update = str(intent_updates["connector_expansion_update"])
+        relation_update = str(intent_updates["relation_update"])
+        proactive_state_update = str(intent_updates["proactive_state_update"])
+        calendar_connector_guardrail = str(intent_updates["calendar_connector_guardrail"])
+        task_connector_guardrail = str(intent_updates["task_connector_guardrail"])
+        drive_connector_guardrail = str(intent_updates["drive_connector_guardrail"])
+        connector_expansion_guardrail = str(intent_updates["connector_expansion_guardrail"])
         executed_intents = list(intent_updates["executed_intents"])
 
         payload = {
@@ -123,6 +155,12 @@ class ActionExecutor:
             "task_connector_update": task_connector_update,
             "drive_connector_update": drive_connector_update,
             "connector_expansion_update": connector_expansion_update,
+            "relation_update": relation_update,
+            "proactive_state_update": proactive_state_update,
+            "calendar_connector_guardrail": calendar_connector_guardrail,
+            "task_connector_guardrail": task_connector_guardrail,
+            "drive_connector_guardrail": drive_connector_guardrail,
+            "connector_expansion_guardrail": connector_expansion_guardrail,
             "context": context.summary,
             "motivation": motivation.mode,
             "role": role.selected,
@@ -211,6 +249,12 @@ class ActionExecutor:
         task_connector_update = ""
         drive_connector_update = ""
         connector_expansion_update = ""
+        relation_update = ""
+        proactive_state_update = ""
+        calendar_connector_guardrail = ""
+        task_connector_guardrail = ""
+        drive_connector_guardrail = ""
+        connector_expansion_guardrail = ""
         executed_intents: list[str] = []
         active_goals_cache: list[dict] | None = None
         active_tasks_cache: list[dict] | None = None
@@ -341,24 +385,71 @@ class ActionExecutor:
                 calendar_connector_update = (
                     f"{intent.operation}:{intent.mode}:{intent.provider_hint or 'generic'}"
                 )
+                calendar_connector_guardrail = connector_guardrail_snapshot(intent)
                 continue
 
             if isinstance(intent, ExternalTaskSyncDomainIntent):
                 task_connector_update = (
                     f"{intent.operation}:{intent.mode}:{intent.provider_hint}"
                 )
+                task_connector_guardrail = connector_guardrail_snapshot(intent)
                 continue
 
             if isinstance(intent, ConnectedDriveAccessDomainIntent):
                 drive_connector_update = (
                     f"{intent.operation}:{intent.mode}:{intent.provider_hint}"
                 )
+                drive_connector_guardrail = connector_guardrail_snapshot(intent)
                 continue
 
             if isinstance(intent, ConnectorCapabilityDiscoveryDomainIntent):
                 connector_expansion_update = (
                     f"{intent.connector_kind}:{intent.provider_hint}:{intent.requested_capability}"
                 )
+                connector_expansion_guardrail = connector_guardrail_snapshot(intent)
+                continue
+
+            if isinstance(intent, MaintainRelationDomainIntent):
+                if hasattr(self.memory_repository, "upsert_relation"):
+                    stored_relation = await self.memory_repository.upsert_relation(
+                        user_id=event.meta.user_id,
+                        relation_type=intent.relation_type,
+                        relation_value=intent.relation_value,
+                        confidence=float(intent.confidence),
+                        source=intent.source,
+                        supporting_event_id=event.event_id,
+                        scope_type=intent.scope_type,
+                        scope_key=intent.scope_key,
+                        evidence_count=int(intent.evidence_count),
+                        decay_rate=float(intent.decay_rate),
+                    )
+                    relation_update = (
+                        f"{stored_relation['relation_type']}:"
+                        f"{stored_relation['relation_value']}:"
+                        f"{stored_relation['scope_type']}:"
+                        f"{stored_relation['scope_key']}"
+                    )
+                continue
+
+            if isinstance(intent, UpdateProactiveStateDomainIntent):
+                proactive_state_update = f"{intent.state}:{intent.trigger}:{intent.reason}"
+                if hasattr(self.memory_repository, "upsert_conclusion"):
+                    await self.memory_repository.upsert_conclusion(
+                        user_id=event.meta.user_id,
+                        kind="proactive_outreach_state",
+                        content=intent.state,
+                        confidence=0.9,
+                        source=intent.source,
+                        supporting_event_id=event.event_id,
+                    )
+                    await self.memory_repository.upsert_conclusion(
+                        user_id=event.meta.user_id,
+                        kind="proactive_outreach_trigger",
+                        content=intent.trigger,
+                        confidence=0.9,
+                        source=intent.source,
+                        supporting_event_id=event.event_id,
+                    )
                 continue
 
         return {
@@ -371,8 +462,31 @@ class ActionExecutor:
             "task_connector_update": task_connector_update,
             "drive_connector_update": drive_connector_update,
             "connector_expansion_update": connector_expansion_update,
+            "relation_update": relation_update,
+            "proactive_state_update": proactive_state_update,
+            "calendar_connector_guardrail": calendar_connector_guardrail,
+            "task_connector_guardrail": task_connector_guardrail,
+            "drive_connector_guardrail": drive_connector_guardrail,
+            "connector_expansion_guardrail": connector_expansion_guardrail,
             "executed_intents": executed_intents,
         }
+
+    def _connector_policy_violations(self, plan: PlanOutput) -> list[str]:
+        violations: list[str] = []
+        for intent in plan.domain_intents:
+            if isinstance(
+                intent,
+                (
+                    CalendarSchedulingIntentDomainIntent,
+                    ExternalTaskSyncDomainIntent,
+                    ConnectedDriveAccessDomainIntent,
+                    ConnectorCapabilityDiscoveryDomainIntent,
+                ),
+            ):
+                violation = connector_intent_policy_violation(intent)
+                if violation is not None:
+                    violations.append(violation)
+        return violations
 
     def _match_goal_for_task(self, task_name: str, active_goals: list[dict]) -> int | None:
         task_tokens = self._text_tokens(task_name)

@@ -146,6 +146,28 @@ canonical architecture docs are explicitly revised first.
 
 ---
 
+## Shared Action-Delivery Contract
+
+Expression and action continue to share one bounded handoff owner.
+
+Contract rules:
+
+1. expression may produce one `ActionDelivery` payload only after planning
+   completes.
+2. `ActionDelivery` may carry a bounded `execution_envelope` for
+   connector-oriented execution metadata, but expression must not execute or
+   authorize connector side effects.
+3. action validates and consumes the delivery handoff, including any
+   extension envelope, before world-facing side effects occur.
+4. integration routing may consume bounded delivery-envelope metadata for
+   transport-visible notes, but must not replace action as the side-effect
+   owner.
+
+This preserves the canonical ordering `planning -> expression -> action`
+without fragmenting handoff ownership by connector family.
+
+---
+
 ## Adaptive Influence Governance Contract (PRJ-288 Baseline)
 
 Adaptive signals may influence foreground cognition only through one governed
@@ -301,7 +323,7 @@ Minimum contract fields:
       "requires_opt_in": true,
       "requires_confirmation": false,
       "allowed": false,
-      "reason": "connector_not_enabled|permission_required|confirmation_required|proposal_only_no_external_access"
+      "reason": "suggestion_or_read_only_allowed|explicit_user_confirmation_required|proposal_only_no_external_access"
     }
   ]
 }
@@ -312,6 +334,10 @@ Rules:
 1. connector capabilities can inform planning but do not execute by themselves
 2. permission gates are explicit plan outputs consumed by action boundaries
 3. internal goals/tasks remain first-class internal planning state
+4. one shared connector execution-policy owner defines baseline operation
+   posture for `calendar`, `task_system`, and `cloud_drive`
+5. action must validate connector intent posture against that shared policy
+   before any delivery or external execution path continues
 
 ---
 
@@ -560,6 +586,26 @@ Decide what should happen next.
         "mode": "suggestion_only"
       },
       {
+        "intent_type": "maintain_relation",
+        "relation_type": "delivery_reliability|collaboration_dynamic|support_intensity_preference",
+        "relation_value": "high_trust|guided|high_support",
+        "confidence": 0.0,
+        "source": "planning_intent",
+        "scope_type": "global|goal|task",
+        "scope_key": "global|goal_id|task_id",
+        "evidence_count": 1,
+        "decay_rate": 0.02
+      },
+      {
+        "intent_type": "update_proactive_state",
+        "state": "attention_gate_blocked|interruption_deferred|delivery_guard_blocked|delivery_ready",
+        "trigger": "task_blocked|goal_stagnation|time_checkin|...",
+        "reason": "...",
+        "output_type": "suggestion|reminder|question|warning|encouragement|insight",
+        "mode": "soft|medium|strong",
+        "source": "proactive_planning"
+      },
+      {
         "intent_type": "noop",
         "reason": "no_domain_change_detected"
       }
@@ -781,6 +827,8 @@ Rules:
 4. expression shapes communication before action executes it
 5. reflection updates future state asynchronously
 6. planning owns domain-change intent; action executes only explicit domain intents
+7. proactive follow-up state and future relation-maintenance writes must use
+   explicit typed intents instead of generic fallback payloads or `noop`
 
 ---
 
