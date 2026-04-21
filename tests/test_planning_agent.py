@@ -9,7 +9,10 @@ from app.core.contracts import (
     Event,
     EventMeta,
     ExternalTaskSyncDomainIntent,
+    MaintainTaskStatusDomainIntent,
     MotivationOutput,
+    PromoteInferredGoalDomainIntent,
+    PromoteInferredTaskDomainIntent,
     RoleOutput,
     UpdateCollaborationPreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
@@ -150,11 +153,11 @@ def test_planning_agent_infers_task_from_repeated_blocker_evidence() -> None:
     )
 
     inferred_task = next(
-        intent for intent in result.domain_intents if isinstance(intent, UpsertTaskDomainIntent)
+        intent for intent in result.domain_intents if isinstance(intent, PromoteInferredTaskDomainIntent)
     )
     assert inferred_task.description.startswith("Inferred task from repeated execution evidence:")
     assert inferred_task.status == "blocked"
-    assert not any(isinstance(intent, UpsertGoalDomainIntent) for intent in result.domain_intents)
+    assert not any(isinstance(intent, PromoteInferredGoalDomainIntent) for intent in result.domain_intents)
 
 
 def test_planning_agent_infers_goal_and_task_when_repeated_evidence_has_no_active_goal() -> None:
@@ -174,15 +177,57 @@ def test_planning_agent_infers_goal_and_task_when_repeated_evidence_has_no_activ
     )
 
     inferred_goal = next(
-        intent for intent in result.domain_intents if isinstance(intent, UpsertGoalDomainIntent)
+        intent for intent in result.domain_intents if isinstance(intent, PromoteInferredGoalDomainIntent)
     )
     inferred_task = next(
-        intent for intent in result.domain_intents if isinstance(intent, UpsertTaskDomainIntent)
+        intent for intent in result.domain_intents if isinstance(intent, PromoteInferredTaskDomainIntent)
     )
     assert inferred_goal.description.startswith("Inferred goal from repeated execution evidence:")
     assert inferred_goal.name.startswith("stabilize ")
     assert inferred_task.description.startswith("Inferred task from repeated execution evidence:")
     assert inferred_task.status == "blocked"
+
+
+def test_planning_agent_emits_maintenance_task_status_intent_when_repeated_blocker_matches_existing_task() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Again I am still blocked by deployment migration failures for the MVP release."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.84,
+            urgency=0.76,
+            valence=-0.08,
+            arousal=0.58,
+            mode="execute",
+        ),
+        role=RoleOutput(selected="executor", confidence=0.82),
+        active_goals=[
+            {
+                "id": 7,
+                "name": "ship the MVP this week",
+                "description": "User-declared goal: ship the MVP this week",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "operational",
+            }
+        ],
+        active_tasks=[
+            {
+                "id": 21,
+                "goal_id": 7,
+                "name": "deployment migration failures mvp release",
+                "description": "Tracked task from earlier turn",
+                "priority": "high",
+                "status": "todo",
+            }
+        ],
+    )
+
+    maintenance_intent = next(
+        intent for intent in result.domain_intents if isinstance(intent, MaintainTaskStatusDomainIntent)
+    )
+    assert maintenance_intent.status == "blocked"
+    assert maintenance_intent.reason == "inferred_repeated_blocker_evidence"
+    assert not any(isinstance(intent, PromoteInferredTaskDomainIntent) for intent in result.domain_intents)
 
 
 def test_planning_agent_emits_preference_domain_intents_from_explicit_request() -> None:

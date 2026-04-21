@@ -8,11 +8,14 @@ from app.core.contracts import (
     Event,
     ExternalTaskSyncDomainIntent,
     ExpressionOutput,
+    MaintainTaskStatusDomainIntent,
     MemoryRecord,
     MotivationOutput,
     NoopDomainIntent,
     PerceptionOutput,
     PlanOutput,
+    PromoteInferredGoalDomainIntent,
+    PromoteInferredTaskDomainIntent,
     RoleOutput,
     UpdateCollaborationPreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
@@ -241,6 +244,21 @@ class ActionExecutor:
                     active_goals_cache.append(stored_goal)
                 continue
 
+            if isinstance(intent, PromoteInferredGoalDomainIntent):
+                stored_goal = await self.memory_repository.upsert_active_goal(
+                    user_id=event.meta.user_id,
+                    name=intent.name,
+                    description=intent.description,
+                    priority=intent.priority,
+                    goal_type=intent.goal_type,
+                )
+                goal_update = str(stored_goal["name"])
+                if active_goals_cache is None:
+                    active_goals_cache = [stored_goal]
+                else:
+                    active_goals_cache.append(stored_goal)
+                continue
+
             if isinstance(intent, UpsertTaskDomainIntent):
                 if active_goals_cache is None:
                     active_goals_cache = await self.memory_repository.get_active_goals(
@@ -263,7 +281,46 @@ class ActionExecutor:
                     active_tasks_cache.append(stored_task)
                 continue
 
+            if isinstance(intent, PromoteInferredTaskDomainIntent):
+                if active_goals_cache is None:
+                    active_goals_cache = await self.memory_repository.get_active_goals(
+                        user_id=event.meta.user_id,
+                        limit=5,
+                    )
+                linked_goal_id = self._match_goal_for_task(intent.name, active_goals_cache)
+                stored_task = await self.memory_repository.upsert_active_task(
+                    user_id=event.meta.user_id,
+                    name=intent.name,
+                    description=intent.description,
+                    priority=intent.priority,
+                    goal_id=linked_goal_id,
+                    status=intent.status,
+                )
+                task_update = str(stored_task["name"])
+                if active_tasks_cache is None:
+                    active_tasks_cache = [stored_task]
+                else:
+                    active_tasks_cache.append(stored_task)
+                continue
+
             if isinstance(intent, UpdateTaskStatusDomainIntent):
+                if active_tasks_cache is None:
+                    active_tasks_cache = await self.memory_repository.get_active_tasks(
+                        user_id=event.meta.user_id,
+                        limit=8,
+                    )
+                matched_task = self._match_task_for_status(intent.task_hint, active_tasks_cache)
+                if matched_task is None:
+                    continue
+                updated_task = await self.memory_repository.update_task_status(
+                    task_id=int(matched_task["id"]),
+                    status=intent.status,
+                )
+                if updated_task is not None:
+                    task_status_update = f"{updated_task['name']}:{updated_task['status']}"
+                continue
+
+            if isinstance(intent, MaintainTaskStatusDomainIntent):
                 if active_tasks_cache is None:
                     active_tasks_cache = await self.memory_repository.get_active_tasks(
                         user_id=event.meta.user_id,

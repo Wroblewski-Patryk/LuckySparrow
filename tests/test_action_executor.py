@@ -11,10 +11,13 @@ from app.core.contracts import (
     EventMeta,
     ExpressionOutput,
     ExternalTaskSyncDomainIntent,
+    MaintainTaskStatusDomainIntent,
     MotivationOutput,
     NoopDomainIntent,
     PerceptionOutput,
     PlanOutput,
+    PromoteInferredGoalDomainIntent,
+    PromoteInferredTaskDomainIntent,
     ProactiveDeliveryGuardOutput,
     RoleOutput,
     UpdateCollaborationPreferenceDomainIntent,
@@ -601,6 +604,114 @@ async def test_persist_episode_updates_matching_task_status_from_domain_intent()
 
     assert record.payload["task_status_update"] == "fix deployment blocker:done"
     assert memory_repository.task_status_updates == [{"task_id": 5, "status": "done"}]
+
+
+async def test_persist_episode_promotes_inferred_goal_from_typed_domain_intent() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+
+    plan = _plan(
+        domain_intents=[
+            PromoteInferredGoalDomainIntent(
+                name="stabilize deployment migration failures",
+                description="Inferred goal from repeated execution evidence: stabilize deployment migration failures",
+                priority="high",
+                goal_type="tactical",
+            )
+        ]
+    )
+    record = await executor.persist_episode(
+        event=_event("Again still blocked by deployment migration failures."),
+        perception=_perception(["general", "deploy"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role(),
+        plan=plan,
+        action_result=await executor.execute(plan, _delivery()),
+        expression=_expression(),
+    )
+
+    assert record.payload["goal_update"] == "stabilize deployment migration failures"
+    assert memory_repository.goal_updates[0]["description"].startswith("Inferred goal from repeated execution evidence:")
+
+
+async def test_persist_episode_promotes_inferred_task_from_typed_domain_intent() -> None:
+    memory_repository = FakeMemoryRepository()
+    memory_repository.active_goals = [
+        {
+            "id": 7,
+            "user_id": "u-1",
+            "name": "stabilize deployment migration failures",
+            "description": "Inferred goal from repeated execution evidence: stabilize deployment migration failures",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "tactical",
+        }
+    ]
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+
+    plan = _plan(
+        domain_intents=[
+            PromoteInferredTaskDomainIntent(
+                name="deployment migration failures staging",
+                description="Inferred task from repeated execution evidence: deployment migration failures staging",
+                priority="high",
+                status="blocked",
+            )
+        ]
+    )
+    record = await executor.persist_episode(
+        event=_event("Again still blocked by deployment migration failures in staging."),
+        perception=_perception(["general", "deploy"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role(),
+        plan=plan,
+        action_result=await executor.execute(plan, _delivery()),
+        expression=_expression(),
+    )
+
+    assert record.payload["task_update"] == "deployment migration failures staging"
+    assert memory_repository.task_updates[0]["description"].startswith("Inferred task from repeated execution evidence:")
+    assert memory_repository.task_updates[0]["goal_id"] == 7
+
+
+async def test_persist_episode_maintains_task_status_from_typed_maintenance_intent() -> None:
+    memory_repository = FakeMemoryRepository()
+    memory_repository.active_tasks = [
+        {
+            "id": 5,
+            "user_id": "u-1",
+            "goal_id": None,
+            "name": "deployment migration failures staging",
+            "description": "Inferred task from repeated execution evidence: deployment migration failures staging",
+            "priority": "high",
+            "status": "todo",
+        }
+    ]
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+
+    plan = _plan(
+        domain_intents=[
+            MaintainTaskStatusDomainIntent(
+                status="blocked",
+                task_hint="deployment migration failures",
+            )
+        ]
+    )
+    record = await executor.persist_episode(
+        event=_event("Again still blocked by deployment migration failures in staging."),
+        perception=_perception(["general", "deploy"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role(),
+        plan=plan,
+        action_result=await executor.execute(plan, _delivery()),
+        expression=_expression(),
+    )
+
+    assert record.payload["task_status_update"] == "deployment migration failures staging:blocked"
+    assert memory_repository.task_status_updates == [{"task_id": 5, "status": "blocked"}]
 
 
 async def test_persist_episode_does_not_infer_domain_updates_without_domain_intents() -> None:

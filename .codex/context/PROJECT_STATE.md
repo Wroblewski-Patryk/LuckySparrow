@@ -1264,9 +1264,15 @@ Last updated: 2026-04-21
 - 2026-04-21: `PRJ-334` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_memory_repository.py`
   passed with `167 passed`.
-- 2026-04-21: `PRJ-335` is now the next `READY` slice, focused on expanding
-  typed domain intents for inferred planning state and controlled maintenance
-  writes.
+- 2026-04-21: `PRJ-335` is complete: inferred planning writes now use explicit
+  typed intents (`promote_inferred_goal`, `promote_inferred_task`,
+  `maintain_task_status`) and action executes those intents as the only owner
+  of durable inferred promotion and maintenance writes.
+- 2026-04-21: `PRJ-335` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+  passed with `150 passed`.
+- 2026-04-21: `PRJ-336` is now the next `READY` slice, focused on regression
+  coverage for no-duplicate/no-unsafe inferred planning promotion behavior.
 
 ## Working Agreements
 

@@ -1776,8 +1776,8 @@ async def test_runtime_pipeline_persists_inferred_goal_and_task_promotions_from_
 
     result = await runtime.run(event)
 
-    assert any(intent.intent_type == "upsert_goal" for intent in result.plan.domain_intents)
-    assert any(intent.intent_type == "upsert_task" for intent in result.plan.domain_intents)
+    assert any(intent.intent_type == "promote_inferred_goal" for intent in result.plan.domain_intents)
+    assert any(intent.intent_type == "promote_inferred_task" for intent in result.plan.domain_intents)
     assert result.active_goals
     assert result.active_tasks
     assert result.active_goals[0].description.startswith("Inferred goal from repeated execution evidence:")

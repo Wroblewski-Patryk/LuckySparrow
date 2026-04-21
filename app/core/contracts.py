@@ -228,6 +228,31 @@ class UpdateTaskStatusDomainIntent(BaseModel):
     task_hint: str
 
 
+class PromoteInferredGoalDomainIntent(BaseModel):
+    intent_type: Literal["promote_inferred_goal"] = "promote_inferred_goal"
+    name: str
+    description: str
+    priority: str = "medium"
+    goal_type: str = "tactical"
+    evidence: Literal["repeated_execution_blocker"] = "repeated_execution_blocker"
+
+
+class PromoteInferredTaskDomainIntent(BaseModel):
+    intent_type: Literal["promote_inferred_task"] = "promote_inferred_task"
+    name: str
+    description: str
+    priority: str = "medium"
+    status: str = "todo"
+    evidence: Literal["repeated_execution_blocker"] = "repeated_execution_blocker"
+
+
+class MaintainTaskStatusDomainIntent(BaseModel):
+    intent_type: Literal["maintain_task_status"] = "maintain_task_status"
+    status: str
+    task_hint: str
+    reason: str = "inferred_repeated_blocker_evidence"
+
+
 class UpdateResponseStyleDomainIntent(BaseModel):
     intent_type: Literal["update_response_style"] = "update_response_style"
     style: Literal["concise", "structured"]
@@ -287,6 +312,9 @@ DomainActionIntent = Annotated[
     | UpsertGoalDomainIntent
     | UpsertTaskDomainIntent
     | UpdateTaskStatusDomainIntent
+    | PromoteInferredGoalDomainIntent
+    | PromoteInferredTaskDomainIntent
+    | MaintainTaskStatusDomainIntent
     | UpdateResponseStyleDomainIntent
     | UpdateCollaborationPreferenceDomainIntent
     | CalendarSchedulingIntentDomainIntent

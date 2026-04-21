@@ -8,9 +8,12 @@ from app.core.contracts import (
     DomainActionIntent,
     Event,
     ExternalTaskSyncDomainIntent,
+    MaintainTaskStatusDomainIntent,
     MotivationOutput,
     NoopDomainIntent,
     PlanOutput,
+    PromoteInferredGoalDomainIntent,
+    PromoteInferredTaskDomainIntent,
     ProposalHandoffDecisionOutput,
     RoleOutput,
     SubconsciousProposalRecord,
@@ -546,21 +549,45 @@ class PlanningAgent:
 
         has_goal_intent = any(isinstance(intent, UpsertGoalDomainIntent) for intent in existing_intents)
         has_task_intent = any(isinstance(intent, UpsertTaskDomainIntent) for intent in existing_intents)
+        has_task_status_intent = any(
+            isinstance(intent, (UpdateTaskStatusDomainIntent, MaintainTaskStatusDomainIntent))
+            for intent in existing_intents
+        )
         inferred_intents: list[DomainActionIntent] = []
         normalized = normalize_for_matching(event_text)
         inferred_task_name = self._infer_task_name_from_repeated_evidence(event_text)
+        inferred_task_status = self._inferred_task_status(normalized)
+        matching_task = (
+            self._find_matching_task_candidate(inferred_task_name, active_tasks)
+            if inferred_task_name is not None
+            else None
+        )
 
         if (
             not has_task_intent
             and inferred_task_name is not None
-            and not self._is_duplicate_task_candidate(inferred_task_name, active_tasks)
+            and matching_task is None
         ):
             inferred_intents.append(
-                UpsertTaskDomainIntent(
+                PromoteInferredTaskDomainIntent(
                     name=inferred_task_name,
                     description=f"Inferred task from repeated execution evidence: {inferred_task_name[:220]}",
                     priority=self._inferred_priority(normalized, motivation),
-                    status=self._inferred_task_status(normalized),
+                    status=inferred_task_status,
+                )
+            )
+        elif (
+            not has_task_status_intent
+            and inferred_task_name is not None
+            and matching_task is not None
+            and inferred_task_status == "blocked"
+            and str(matching_task.get("status", "")).strip().lower() not in {"blocked", "done", "cancelled"}
+        ):
+            inferred_intents.append(
+                MaintainTaskStatusDomainIntent(
+                    status="blocked",
+                    task_hint=inferred_task_name,
+                    reason="inferred_repeated_blocker_evidence",
                 )
             )
 
@@ -580,7 +607,7 @@ class PlanningAgent:
             return inferred_intents
 
         inferred_intents.append(
-            UpsertGoalDomainIntent(
+            PromoteInferredGoalDomainIntent(
                 name=inferred_goal_name,
                 description=f"Inferred goal from repeated execution evidence: {inferred_goal_name[:220]}",
                 priority=self._inferred_priority(normalized, motivation),
@@ -755,9 +782,12 @@ class PlanningAgent:
         return False
 
     def _is_duplicate_task_candidate(self, candidate_name: str, active_tasks: list[dict]) -> bool:
+        return self._find_matching_task_candidate(candidate_name, active_tasks) is not None
+
+    def _find_matching_task_candidate(self, candidate_name: str, active_tasks: list[dict]) -> dict | None:
         candidate_tokens = self._text_tokens(candidate_name)
         if not candidate_tokens:
-            return True
+            return None
         for task in active_tasks:
             task_name = str(task.get("name", "")).strip()
             task_description = str(task.get("description", "")).strip()
@@ -765,8 +795,8 @@ class PlanningAgent:
             if not existing_tokens:
                 continue
             if self._token_overlap_ratio(candidate_tokens, existing_tokens) >= 0.6:
-                return True
-        return False
+                return task
+        return None
 
     def _token_overlap_ratio(self, left: set[str], right: set[str]) -> float:
         if not left or not right:

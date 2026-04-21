@@ -36,27 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-335 Expand typed domain intents for inferred planning state and controlled maintenance writes
-  - Status: READY
-  - Group: Goal/Task Inference And Typed-Intent Expansion
-  - Owner: Backend Builder
-  - Depends on: PRJ-334
-  - Priority: P1
-  - Result:
-    - inferred goal/task promotion and related maintenance writes stay blocked
-      behind explicit typed intents
-    - action remains the sole owner of durable planning-state side effects
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-336 Add regressions for inferred planning growth and no-duplicate/no-unsafe promotion behavior
-  - Status: FUTURE
+  - Status: READY
   - Group: Goal/Task Inference And Typed-Intent Expansion
   - Owner: QA/Test
   - Depends on: PRJ-335
@@ -67,6 +48,12 @@ Last updated: 2026-04-21
     - architecture drift on internal planning autonomy fails fast
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-337 Sync docs/context for goal/task inference and typed-intent expansion
   - Status: FUTURE
@@ -267,6 +254,23 @@ Last updated: 2026-04-21
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_memory_repository.py`
       (`167 passed`)
+
+- [x] PRJ-335 Expand typed domain intents for inferred planning state and controlled maintenance writes
+  - Status: DONE
+  - Group: Goal/Task Inference And Typed-Intent Expansion
+  - Owner: Backend Builder
+  - Depends on: PRJ-334
+  - Priority: P1
+  - Result:
+    - inferred planning promotion now uses explicit typed intents
+      (`promote_inferred_goal`, `promote_inferred_task`) rather than
+      reusing explicit user-declaration intent classes
+    - repeated-blocker maintenance updates now stay behind explicit
+      `maintain_task_status` intents, preserving action ownership for
+      all durable inferred planning writes
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+      (`150 passed`)
 
 - [x] PRJ-330 Implement relation decay and confidence revalidation policy
   - Status: DONE
