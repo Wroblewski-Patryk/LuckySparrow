@@ -112,6 +112,11 @@ For meaningful repo changes, leave behind:
 - for deployment-trigger or release-smoke changes, script regression evidence
   from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py`
+- for runtime-topology, adaptive-governance, planning-governance, or
+  deployment-policy surface changes, regression evidence from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+- for retrieval-provider rollout changes, regression evidence from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
 - for connector execution-policy slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py`
 - for typed future-write ownership slices, regression evidence from:

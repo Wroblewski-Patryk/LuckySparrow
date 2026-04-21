@@ -40,10 +40,20 @@ def event_debug_query_compat_source(settings: Any) -> Literal["explicit", "envir
 
 
 def event_debug_shared_ingress_mode(settings: Any) -> Literal["compatibility", "break_glass_only"]:
-    mode = str(getattr(settings, "event_debug_shared_ingress_mode", "compatibility") or "compatibility").strip().lower()
+    explicit_mode = getattr(settings, "event_debug_shared_ingress_mode", None)
+    if explicit_mode is None:
+        mode = "break_glass_only" if app_environment(settings) == "production" else "compatibility"
+    else:
+        mode = str(explicit_mode or "compatibility").strip().lower()
     if mode == "break_glass_only":
         return "break_glass_only"
     return "compatibility"
+
+
+def event_debug_shared_ingress_mode_source(settings: Any) -> Literal["explicit", "environment_default"]:
+    if getattr(settings, "event_debug_shared_ingress_mode", None) is not None:
+        return "explicit"
+    return "environment_default"
 
 
 def event_debug_shared_ingress_posture(
@@ -226,6 +236,14 @@ def compatibility_sunset_ready(settings: Any) -> bool:
     return len(compatibility_sunset_blockers(settings)) == 0
 
 
+def startup_schema_removal_window() -> str:
+    return "after_group_51_release_evidence_green"
+
+
+def shared_debug_ingress_enforcement_window() -> str:
+    return "after_group_51_release_evidence_green"
+
+
 def release_readiness_violations(runtime_policy: Mapping[str, Any]) -> list[str]:
     if runtime_policy.get("strict_rollout_hint") == "not_applicable_non_production":
         return []
@@ -288,10 +306,12 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
         "event_debug_shared_ingress_mode": shared_ingress_mode,
+        "event_debug_shared_ingress_mode_source": event_debug_shared_ingress_mode_source(settings),
         "event_debug_shared_ingress_break_glass_required": shared_ingress_mode == "break_glass_only",
         "event_debug_shared_ingress_posture": event_debug_shared_ingress_posture(settings),
         "event_debug_shared_ingress_sunset_ready": shared_ingress_sunset_ready,
         "event_debug_shared_ingress_sunset_reason": shared_ingress_sunset_reason,
+        "event_debug_shared_ingress_enforcement_window": shared_debug_ingress_enforcement_window(),
         "debug_access_posture": debug_access_posture(settings),
         "debug_token_policy_hint": debug_token_policy_hint(settings),
         "event_debug_source": event_debug_source(settings),
@@ -302,6 +322,7 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
         "strict_startup_blocked": enforcement == "strict" and mismatch_count > 0,
         "strict_rollout_ready": mismatch_count == 0,
         "strict_rollout_hint": rollout_hint,
+        "startup_schema_removal_window": startup_schema_removal_window(),
         "compatibility_sunset_ready": len(sunset_blockers) == 0,
         "compatibility_sunset_blockers": sunset_blockers,
     }

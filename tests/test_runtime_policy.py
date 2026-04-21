@@ -52,10 +52,12 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
         "event_debug_shared_ingress_mode": "compatibility",
+        "event_debug_shared_ingress_mode_source": "environment_default",
         "event_debug_shared_ingress_break_glass_required": False,
         "event_debug_shared_ingress_posture": "transitional_compatibility",
         "event_debug_shared_ingress_sunset_ready": False,
         "event_debug_shared_ingress_sunset_reason": "shared_debug_route_still_in_compatibility_mode",
+        "event_debug_shared_ingress_enforcement_window": "after_group_51_release_evidence_green",
         "debug_access_posture": "open_no_token",
         "debug_token_policy_hint": "debug_access_open_without_token",
         "event_debug_source": "explicit",
@@ -66,6 +68,7 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
         "strict_startup_blocked": False,
         "strict_rollout_ready": True,
         "strict_rollout_hint": "not_applicable_non_production",
+        "startup_schema_removal_window": "after_group_51_release_evidence_green",
         "compatibility_sunset_ready": False,
         "compatibility_sunset_blockers": ["shared_debug_ingress_compatibility_mode_active"],
     }
@@ -96,11 +99,13 @@ def test_runtime_policy_snapshot_includes_all_production_mismatches() -> None:
     assert snapshot["event_debug_ingress_owner"] == "internal_route_primary_shared_route_compat"
     assert snapshot["event_debug_internal_ingress_path"] == "/internal/event/debug"
     assert snapshot["event_debug_shared_ingress_path"] == "/event/debug"
-    assert snapshot["event_debug_shared_ingress_mode"] == "compatibility"
-    assert snapshot["event_debug_shared_ingress_break_glass_required"] is False
-    assert snapshot["event_debug_shared_ingress_posture"] == "transitional_compatibility"
-    assert snapshot["event_debug_shared_ingress_sunset_ready"] is False
-    assert snapshot["event_debug_shared_ingress_sunset_reason"] == "shared_debug_route_still_in_compatibility_mode"
+    assert snapshot["event_debug_shared_ingress_mode"] == "break_glass_only"
+    assert snapshot["event_debug_shared_ingress_mode_source"] == "environment_default"
+    assert snapshot["event_debug_shared_ingress_break_glass_required"] is True
+    assert snapshot["event_debug_shared_ingress_posture"] == "transitional_break_glass_only"
+    assert snapshot["event_debug_shared_ingress_sunset_ready"] is True
+    assert snapshot["event_debug_shared_ingress_sunset_reason"] == "shared_debug_route_break_glass_only"
+    assert snapshot["event_debug_shared_ingress_enforcement_window"] == "after_group_51_release_evidence_green"
     assert snapshot["debug_access_posture"] == "token_gated"
     assert snapshot["debug_token_policy_hint"] == "token_gated"
     assert snapshot["affective_assessment_enabled"] is False
@@ -116,7 +121,6 @@ def test_runtime_policy_snapshot_includes_all_production_mismatches() -> None:
     assert snapshot["compatibility_sunset_ready"] is False
     assert snapshot["compatibility_sunset_blockers"] == [
         "startup_schema_compatibility_active",
-        "shared_debug_ingress_compatibility_mode_active",
     ]
 
 
@@ -174,14 +178,16 @@ def test_runtime_policy_snapshot_marks_event_debug_source_as_environment_default
     assert snapshot["event_debug_ingress_owner"] == "internal_route_primary_shared_route_compat"
     assert snapshot["event_debug_internal_ingress_path"] == "/internal/event/debug"
     assert snapshot["event_debug_shared_ingress_path"] == "/event/debug"
-    assert snapshot["event_debug_shared_ingress_mode"] == "compatibility"
-    assert snapshot["event_debug_shared_ingress_break_glass_required"] is False
-    assert snapshot["event_debug_shared_ingress_posture"] == "transitional_compatibility"
+    assert snapshot["event_debug_shared_ingress_mode"] == "break_glass_only"
+    assert snapshot["event_debug_shared_ingress_mode_source"] == "environment_default"
+    assert snapshot["event_debug_shared_ingress_break_glass_required"] is True
+    assert snapshot["event_debug_shared_ingress_posture"] == "transitional_break_glass_only"
     assert snapshot["event_debug_shared_ingress_sunset_ready"] is True
     assert (
         snapshot["event_debug_shared_ingress_sunset_reason"]
         == "shared_debug_route_disabled_with_debug_payload_off"
     )
+    assert snapshot["event_debug_shared_ingress_enforcement_window"] == "after_group_51_release_evidence_green"
     assert snapshot["debug_access_posture"] == "disabled"
     assert snapshot["debug_token_policy_hint"] == "not_applicable_debug_disabled"
     assert snapshot["affective_assessment_enabled"] is False
@@ -198,6 +204,7 @@ def test_runtime_policy_snapshot_marks_event_debug_source_as_environment_default
     assert snapshot["startup_schema_compatibility_posture"] == "migration_only"
     assert snapshot["startup_schema_compatibility_sunset_ready"] is True
     assert snapshot["startup_schema_compatibility_sunset_reason"] == "migration_only_baseline_active"
+    assert snapshot["startup_schema_removal_window"] == "after_group_51_release_evidence_green"
     assert snapshot["compatibility_sunset_ready"] is True
     assert snapshot["compatibility_sunset_blockers"] == []
 

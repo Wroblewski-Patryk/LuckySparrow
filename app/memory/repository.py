@@ -15,6 +15,7 @@ from app.core.reflection_scope_policy import (
 from app.memory.embeddings import (
     cosine_similarity,
     deterministic_embedding,
+    local_hybrid_embedding,
     normalize_embedding_refresh_mode,
     normalize_embedding_source_kinds,
     resolve_embedding_posture,
@@ -2013,6 +2014,11 @@ class MemoryRepository:
     def _materialize_embedding(self, *, content: str) -> tuple[list[float] | None, str]:
         if self.embedding_refresh_mode == "manual":
             return None, "pending_manual_refresh"
+        if self.embedding_posture["provider_effective"] == "local_hybrid":
+            return (
+                local_hybrid_embedding(content, dimensions=self.embedding_dimensions),
+                "materialized_by_local_hybrid_provider",
+            )
         return (
             deterministic_embedding(content, dimensions=self.embedding_dimensions),
             "materialized_on_write",

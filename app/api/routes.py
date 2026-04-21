@@ -17,6 +17,13 @@ from app.core.debug_compat import (
 )
 from app.core.events import looks_like_telegram_update, normalize_event
 from app.core.identity_policy import identity_policy_snapshot
+from app.core.adaptive_governance import adaptive_identity_governance_snapshot
+from app.core.connector_policy import (
+    connector_authorization_matrix_snapshot,
+    connector_capability_proposal_snapshot,
+)
+from app.core.deployment_policy import deployment_policy_snapshot
+from app.core.planning_governance import planning_governance_snapshot
 from app.core.runtime_policy import (
     app_environment,
     event_debug_enabled,
@@ -36,6 +43,7 @@ from app.core.scheduler_contracts import (
     reflection_topology_handoff_posture,
     scheduler_cadence_execution_snapshot,
 )
+from app.core.topology_policy import runtime_topology_policy_snapshot
 from app.integrations.telegram.client import TelegramClient
 from app.memory.embeddings import embedding_strategy_snapshot, normalize_embedding_source_kinds
 from app.memory.repository import MemoryRepository
@@ -398,15 +406,28 @@ async def health(request: Request) -> dict[str, Any]:
     attention_snapshot = await _attention_snapshot_from_request(request)
     memory_retrieval_snapshot = _memory_retrieval_snapshot_from_settings(settings)
     release_readiness = release_readiness_snapshot(runtime_policy)
+    topology_policy = runtime_topology_policy_snapshot(
+        reflection_runtime_mode=reflection_runtime_mode,
+        reflection_readiness=reflection_deployment_readiness,
+        attention_snapshot=attention_snapshot,
+    )
     return {
         "status": "ok",
         "runtime_policy": runtime_policy,
         "release_readiness": release_readiness,
+        "runtime_topology": topology_policy,
         "identity": {
             **identity_policy_snapshot(),
             "language_continuity": language_continuity_policy_snapshot(),
+            "adaptive_governance": adaptive_identity_governance_snapshot(),
         },
         "memory_retrieval": memory_retrieval_snapshot,
+        "planning_governance": planning_governance_snapshot(),
+        "connectors": {
+            **connector_authorization_matrix_snapshot(),
+            "capability_proposal": connector_capability_proposal_snapshot(),
+        },
+        "deployment": deployment_policy_snapshot(),
         "scheduler": {
             "healthy": scheduler_healthy,
             **scheduler_snapshot,

@@ -447,6 +447,27 @@ if (-not $reflectionDeploymentReady) {
     throw "Reflection deployment readiness check failed: $details."
 }
 
+$runtimeTopology = $health.runtime_topology
+if ($null -eq $runtimeTopology) {
+    throw "Health check failed: response is missing runtime_topology."
+}
+if (-not (Has-Property -Object $runtimeTopology -Name "policy_owner")) {
+    throw "Health check failed: runtime_topology is missing policy_owner."
+}
+if ([string]$runtimeTopology.policy_owner -ne "runtime_topology_finalization") {
+    throw "Health check failed: unexpected runtime_topology.policy_owner '$($runtimeTopology.policy_owner)'."
+}
+$deployment = $health.deployment
+if ($null -eq $deployment) {
+    throw "Health check failed: response is missing deployment."
+}
+if (-not (Has-Property -Object $deployment -Name "hosting_baseline")) {
+    throw "Health check failed: deployment is missing hosting_baseline."
+}
+if (-not (Has-Property -Object $deployment -Name "deployment_trigger_slo")) {
+    throw "Health check failed: deployment is missing deployment_trigger_slo."
+}
+
 $response = Invoke-JsonUtf8 -Method POST -Uri $eventUrl -BodyBytes $bodyBytes
 
 if (-not $response.event_id) {
@@ -492,6 +513,10 @@ $summary = @{
     debug_shared_ingress_sunset_reason = $sharedIngressSunsetReason
     compatibility_sunset_ready = $compatibilitySunsetReady
     compatibility_sunset_blockers = @($compatibilitySunsetBlockers)
+    runtime_topology_owner = [string]$runtimeTopology.policy_owner
+    topology_release_window = [string]$runtimeTopology.release_window
+    deployment_hosting_baseline = [string]$deployment.hosting_baseline
+    deployment_manual_fallback_exception_rate_percent = [double]$deployment.deployment_trigger_slo.manual_redeploy_exception_rate_percent
     debug_included       = [bool]$response.debug
     deployment_evidence_checked = [bool]$deploymentEvidenceCheck.checked
     deployment_evidence_path = [string]$deploymentEvidenceCheck.path

@@ -260,6 +260,35 @@ def resolve_policy_for_connector_intent(
     )
 
 
+def connector_authorization_matrix_snapshot() -> dict[str, object]:
+    matrix: dict[str, list[dict[str, object]]] = {}
+    for (connector_kind, operation), policy in sorted(_OPERATION_POLICIES.items()):
+        matrix.setdefault(connector_kind, []).append(
+            {
+                "operation": operation,
+                "mode": policy.mode,
+                "requires_opt_in": policy.requires_opt_in,
+                "requires_confirmation": policy.requires_confirmation,
+                "allowed_without_external_access": policy.allowed_without_external_access,
+                "policy_reason": policy.policy_reason,
+            }
+        )
+    return {
+        "policy_owner": "connector_execution_policy",
+        "authorization_matrix": matrix,
+    }
+
+
+def connector_capability_proposal_snapshot() -> dict[str, object]:
+    return {
+        "policy_owner": "connector_capability_proposal_boundary",
+        "proposal_mode": "suggestion_only",
+        "self_authorization_allowed": False,
+        "proposal_trigger": "repeated_unmet_need",
+        "authorization_transition": "explicit_user_opt_in_required_before_external_access",
+    }
+
+
 def connector_guardrail_snapshot(
     intent: CalendarSchedulingIntentDomainIntent
     | ExternalTaskSyncDomainIntent

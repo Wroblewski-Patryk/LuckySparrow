@@ -78,17 +78,17 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `PRJ-411..PRJ-414`: identity/profile ownership and language continuity
     governance (`8`, `9`) - complete
   - `PRJ-415..PRJ-418`: runtime topology finalization
-    (`1`, `3b`, `12`, `12a`, `12b`)
-  - `PRJ-419..PRJ-422`: production boundary hardening (`2`, `3`)
+    (`1`, `3b`, `12`, `12a`, `12b`) - complete
+  - `PRJ-419..PRJ-422`: production boundary hardening (`2`, `3`) - complete
   - `PRJ-423..PRJ-426`: retrieval and affective-memory productionization
-    (`5`, `5b`, `5d`, `5e`)
+    (`5`, `5b`, `5d`, `5e`) - complete
   - `PRJ-427..PRJ-430`: adaptive identity and role-governance evolution
-    (`4`, `4a`, `8`, `9`, `10`, `11`)
-  - `PRJ-431..PRJ-434`: goal/task and proposal governance (`5a`, `12b`)
+    (`4`, `4a`, `8`, `9`, `10`, `11`) - complete
+  - `PRJ-431..PRJ-434`: goal/task and proposal governance (`5a`, `12b`) - complete
   - `PRJ-435..PRJ-438`: scheduler and connector capability convergence
-    (`12`, `12a`, `12c`)
+    (`12`, `12a`, `12c`) - complete
   - `PRJ-439..PRJ-442`: deployment standard and release-reliability closure
-    (`6`, `7`)
+    (`6`, `7`) - complete
 - reflection deployment lane is complete through `PRJ-304`, and
   post-reflection hardening decisions are now complete through `PRJ-309`.
 - runtime behavior-validation lane is now complete through `PRJ-317`.
@@ -106,6 +106,9 @@ The current repo already works as an MVP slice, but several architecture-level d
 - on 2026-04-22, the next convergence queue was seeded through `PRJ-442` so
   the remaining open decisions now map to explicit groups instead of an empty
   post-Group-49 backlog.
+- post-Group-56 state has no remaining seeded `READY`; the next architecture
+  slice should again be derived from any newly discovered post-convergence
+  follow-up instead of the previously open decision clusters below.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
@@ -150,9 +153,10 @@ The current repo already works as an MVP slice, but several architecture-level d
       (`scheduler_tick_dispatch=false` with external-driver expectation)
     - release smoke and rollback steps updated to include reflection-mode
       readiness checks
-- Remaining follow-up decision:
-  - once deferred readiness criteria are continuously satisfied, should
-    production default move from `in_process` to `deferred`?
+- Resolved in `PRJ-415..PRJ-418` (2026-04-22):
+  - production default switch from `in_process` to `deferred` is now gated by
+    one explicit runtime-topology switch policy plus machine-visible readiness
+    evidence instead of an open-ended operator judgment.
 
 ### 2. Migration Strategy
 
@@ -202,9 +206,9 @@ The current repo already works as an MVP slice, but several architecture-level d
       mismatch path
     - clean up: remove obsolete docs/config references and compatibility-only
       tests
-- Remaining follow-up decision:
-  - after guardrails are met, in which release window should the actual code
-    removal of `create_tables` be scheduled?
+- Resolved in `PRJ-419..PRJ-422` (2026-04-22):
+  - runtime policy now exposes the scheduled removal window as
+    `after_group_51_release_evidence_green`.
 - Planned implementation lane:
   - `PRJ-375..PRJ-378` will make migration-only removal readiness
     machine-visible before an actual release-window removal is scheduled.
@@ -338,10 +342,10 @@ The current repo already works as an MVP slice, but several architecture-level d
       previews)
     - Ops/Release owns ingress routing, network/auth controls, and
       release/rollback evidence for the dedicated debug ingress path
-- Remaining follow-up decision:
-  - in which release window should production enforce dedicated internal
-    ingress-only debug access (shared-endpoint debug disabled except
-    break-glass override)?
+- Resolved in `PRJ-419..PRJ-422` (2026-04-22):
+  - runtime policy now exposes the shared-debug enforcement window as
+    `after_group_51_release_evidence_green`, and production default posture is
+    break-glass-only when no explicit override is configured.
 - Planned implementation lane:
   - `PRJ-375..PRJ-378` will turn shared-debug-ingress retirement into explicit
   readiness and release evidence before selecting the enforcement window.
@@ -392,11 +396,10 @@ The current repo already works as an MVP slice, but several architecture-level d
     - runtime-owned: baseline load, episodic memory write, reflection trigger
     - graph-owned: cognitive stage graph (`perception -> ... -> action`)
   - `LangChain` is described as optional support, not the architectural core.
-- Decision needed:
-  - should any non-stage segments move into graph-owned nodes in a future phase,
-    or should current pre/post graph ownership stay the long-term baseline?
-  - where does LangChain actually reduce complexity, and where would it only
-    add more framework surface?
+- Resolved in `PRJ-415..PRJ-418` (2026-04-22):
+  - current pre/post graph ownership remains the canonical long-term baseline;
+    future node expansion is bounded and optional rather than a default
+    migration goal.
 
 ### 4. Role Selection
 
@@ -413,10 +416,9 @@ The current repo already works as an MVP slice, but several architecture-level d
     machine-readable precedence diagnostics
   - runtime debug and role outputs expose bounded evidence metadata without
     changing action ownership
-- Remaining follow-up decision:
-  - how much further should role selection grow toward longer-horizon
-    user-state and goal-history reasoning before it stops being a lightweight
-    foreground policy?
+- Resolved in `PRJ-427..PRJ-430` (2026-04-22):
+  - role selection remains a foreground policy with bounded history evidence
+    rather than a broader long-horizon identity owner.
 
 ### 4a. Affective Assessment Strategy
 
@@ -429,20 +431,20 @@ The current repo already works as an MVP slice, but several architecture-level d
     deterministically.
   - motivation, role, and expression now consume `perception.affective` as the
     shared support/emotion signal owner.
-- Decision needed:
-  - should AI-assisted affective classification be enabled by default in all
-    non-production environments, or behind an explicit feature gate?
-  - which affective outputs deserve first-class contract fields
-    (`label|intensity|needs_support|confidence|source|evidence`)?
+- Resolved in `PRJ-399..PRJ-402` and `PRJ-427..PRJ-430`:
+  - AI-assisted affective classification remains enabled by default in
+    non-production, disabled by default in production, and the first-class
+    affective contract fields remain
+    `label|intensity|needs_support|confidence|source|evidence`.
 - Follow-up implementation (resolved in `PRJ-399..PRJ-402`, 2026-04-21):
   - affective assessment now has a shared rollout policy owner with
     environment-default enablement, explicit override support, and
     machine-visible health/debug posture
   - policy-disabled fallback and classifier-unavailable fallback are now
     separated in deterministic, test-visible runtime behavior
-- Remaining follow-up decision:
-  - should non-production default enablement remain the long-term posture, or
-    should future affective rollout tighten behind an explicit feature gate?
+- Resolved in `PRJ-427..PRJ-430` (2026-04-22):
+  - affective rollout remains enabled-by-default in non-production and
+    disabled-by-default in production unless explicitly overridden.
 
 ### 5. Memory Retrieval Depth
 
@@ -455,9 +457,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - within that pool, context now distinguishes between `continuity` and `semantic` memory, applies affective relevance scoring, and prefers topically overlapping memories before falling back to lower-signal items.
   - for more specific requests, context now skips unrelated memory entirely instead of forcing a weak fallback; ambiguous short follow-ups can still reuse continuity memory.
   - context also now receives lightweight semantic conclusions and can include stable user preferences alongside episodic recall.
-- Decision needed:
-  - when to replace heuristic ranking with a hybrid lexical plus vector retrieval path?
-  - what should be the default load depth in production once vector retrieval exists?
+- Resolved in `PRJ-423..PRJ-426` (2026-04-22):
+  - retrieval now treats hybrid lexical plus vector as the production target
+    path, with explicit production-default depth surfaced as
+    `episodic_limit=12` and `conclusion_limit=8`.
 
 ### 5b. Affective Memory Model
 
@@ -468,11 +471,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - reflection now derives slower-moving affective conclusions
     (`affective_support_pattern`, `affective_support_sensitivity`) from recent
     episodic traces.
-- Decision needed:
-  - should affective memory be a separate persisted memory family, or an
-    orthogonal layer carried by episodic and semantic records?
-  - which affective signals should remain transient turn-state and which should
-    become durable long-term patterns?
+- Resolved in `PRJ-423..PRJ-426` (2026-04-22):
+  - affective memory remains an orthogonal layer across episodic and semantic
+    records, while long-lived affective conclusions stay durable and current
+    turn affect remains transient.
 
 ### 5c. Reflection Scope And Multi-Goal Leakage
 
@@ -513,9 +515,9 @@ The current repo already works as an MVP slice, but several architecture-level d
     source families
   - keep deterministic fallback explicit until provider-backed execution is
     implemented and validated
-- Follow-up decision:
-  - decide when to switch default provider posture from deterministic baseline
-    to provider-owned execution after provider implementation lands
+- Resolved in `PRJ-423..PRJ-426` (2026-04-22):
+  - provider-owned execution is now available through the local `local_hybrid`
+    provider path; deterministic remains the fallback baseline.
 
 ### 5e. Embedding Strategy
 
@@ -655,16 +657,17 @@ The current repo already works as an MVP slice, but several architecture-level d
   - enforcement rollout posture:
     - keep source-rollout enforcement aligned to `warn` while relation is
       pending; recommend `strict` after full rollout completion
-- Follow-up decision:
-  - once provider-backed execution exists, decide the production default timing
-    for moving from deterministic baseline owner to provider-owned execution
+- Resolved in `PRJ-423..PRJ-426` (2026-04-22):
+  - provider-backed execution timing is now rollout-owned through explicit
+    provider posture instead of a planning-only placeholder.
 
 ### 5a. Goal And Task Scope
 
 - Current repo fact:
 - runtime now loads active goals and active tasks, includes them in the runtime result, refreshes them after Action-layer writes, lets context/motivation/planning react to them, can seed lightweight goals/tasks from explicit user phrases such as `My goal is to ...` and `I need to ...`, can update task status from explicit progress phrases such as `I fixed ...`, and reflection can now derive a lightweight semantic `goal_execution_state` like `blocked`, `recovering`, `advancing`, `progressing`, or `stagnating`, plus a lightweight `goal_progress_score`, `goal_progress_trend`, `goal_progress_arc`, `goal_milestone_state`, `goal_milestone_transition`, `goal_milestone_arc`, `goal_milestone_pressure`, `goal_milestone_dependency_state`, `goal_milestone_due_state`, `goal_milestone_due_window`, `goal_milestone_risk`, and `goal_completion_criteria`; it also persists a short goal-level progress history in `aion_goal_progress`, syncs lightweight `aion_goal_milestone` objects for the active goal focus, persists short `aion_goal_milestone_history` snapshots, and runtime enriches those milestone objects with the current operational arc/pressure/dependency/due/due-window/risk/completion signals without introducing a heavier milestone schema yet.
-- Decision needed:
-  - should goal and task creation stay limited to explicit user declarations for MVP, or should the system begin inferring and creating them from plans and repeated execution patterns?
+- Resolved in `PRJ-431..PRJ-434` (2026-04-22):
+  - goal/task growth stays bounded to repeated execution-blocker evidence
+    through explicit typed intents instead of broad free-form inference.
 
 ### 6. Deployment Path After Coolify
 
@@ -676,9 +679,9 @@ The current repo already works as an MVP slice, but several architecture-level d
     baseline, while `docker-compose.yml` remains local-development oriented.
   - hosting-standard replacement is explicitly future work; runtime slices must
     not assume another deployment platform until operations records that change.
-- Remaining follow-up decision:
-  - when should the project formally migrate from Coolify baseline to a
-    different hosting standard?
+- Resolved in `PRJ-439..PRJ-442` (2026-04-22):
+  - Coolify remains the medium-term hosting baseline, and no replacement
+    transition is currently scheduled.
 
 ### 7. Deployment Trigger Reliability
 
@@ -703,12 +706,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - release completion requires running
     `scripts/run_release_smoke.{ps1,sh}` against the deployed URL and treating
     smoke failure as a release-blocking signal.
-- Remaining follow-up decision:
-  - what objective webhook-delivery SLO should allow manual fallback to become
-    exception-only instead of routine fallback posture?
-  - current implementation baseline for this decision is complete through
-    `PRJ-358` (deployment-trigger evidence capture, release-smoke optional
-    verification, regressions, and docs/context sync).
+- Resolved in `PRJ-439..PRJ-442` (2026-04-22):
+  - deployment trigger SLO is now explicit through release-health posture:
+    `delivery_success_rate_percent=99.0` and
+    `manual_redeploy_exception_rate_percent=5.0`.
 
 ### 8. Language Handling Strategy
 
@@ -736,10 +737,9 @@ The current repo already works as an MVP slice, but several architecture-level d
   - language handling stays heuristic-plus-profile for the MVP
   - multilingual posture remains explicitly bounded to supported runtime codes
     (`en|pl`) until a broader language model is intentionally added
-- Remaining follow-up decision:
-  - when should language continuity move from the current heuristic-plus-profile
-    baseline to a richer multilingual preference model with broader channel
-    support?
+- Resolved in `PRJ-427..PRJ-430` (2026-04-22):
+  - multilingual expansion remains explicitly deferred until a new contract is
+    introduced beyond the current supported runtime codes.
 
 ### 9. Lightweight Profile Scope
 
@@ -761,10 +761,9 @@ The current repo already works as an MVP slice, but several architecture-level d
     `aion_conclusion`
   - relation fallback cues remain foreground tie-break inputs only, not
     durable profile identity writes
-- Remaining follow-up decision:
-  - should the repo keep this split permanently, or should a later
-    identity-linked profile model merge some conclusion-owned preferences into
-    a wider profile surface?
+- Resolved in `PRJ-427..PRJ-430` (2026-04-22):
+  - the split between profile-owned language continuity and
+    conclusion-owned learned preferences remains the long-term baseline.
 
 ### 9a. Relation System Rollout
 
@@ -803,10 +802,9 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `response_style` remains formatting-oriented and may shape expression/planning structure, not execution ownership
   - `preferred_role` remains a role tie-break signal only, gated by confidence (`>= 0.72`) and ambiguous-turn posture
   - `collaboration_preference` may shape role/motivation/planning/expression only through ambiguous-turn tie-break paths
-- Follow-up decision:
-  - after `PRJ-289..PRJ-290`, decide whether any preference signal should
-    influence proactive or attention-gate posture beyond current foreground
-    tie-break scope
+- Resolved in `PRJ-427..PRJ-430` (2026-04-22):
+  - preference signals remain foreground tie-break inputs and do not gain
+    proactive or attention-gate authority.
 
 ### 10a. Action Intent Ownership
 
@@ -857,9 +855,9 @@ The current repo already works as an MVP slice, but several architecture-level d
     - theta last
   - below-threshold adaptive signals are descriptive-only and must not alter
     role, motivation mode, planning steps, or expression tone
-- Follow-up decision:
-  - complete shared policy-owner adoption across role/motivation/planning
-    (`PRJ-289`) and attention/proactive consumers (`PRJ-290`)
+- Resolved through `PRJ-289..PRJ-290` and the later convergence queue:
+  - adaptive policy-owner adoption is now complete across foreground,
+    proactive, attention, and health/debug policy surfaces.
 
 ### 11. Theta Scope And Durability
 
@@ -881,9 +879,9 @@ The current repo already works as an MVP slice, but several architecture-level d
     explicit runtime surfaces
   - bounded theta posture is regression-pinned in runtime, role, planning, and
     health contract coverage
-- Remaining follow-up decision:
-  - should theta remain permanently bounded to tie-break posture, or should a
-    later long-horizon identity model ever receive broader authority?
+- Resolved in `PRJ-427..PRJ-430` (2026-04-22):
+  - theta remains permanently bounded to tie-break posture in the current
+    architecture convergence baseline.
 
 ### 12. Scheduler And Proactive Runtime
 
@@ -932,10 +930,10 @@ The current repo already works as an MVP slice, but several architecture-level d
       selected owner path
     - keep app-local scheduler as explicit fallback while external ownership
       SLOs and rollback path are being proven
-- Remaining follow-up decision:
-  - with `PRJ-295` complete, should conscious attention boundary ownership
-    remain in-process coordination, or move to a dedicated durable
-    attention-inbox owner in later rollout?
+- Resolved in `PRJ-415..PRJ-418` and `PRJ-435..PRJ-438` (2026-04-22):
+  - durable attention remains the rollout target owner, while current
+    production-default switching is gated by explicit topology and scheduler
+    ownership evidence.
 
 ### 12a. Attention Inbox And Turn Assembly
 
@@ -1011,9 +1009,10 @@ The current repo already works as an MVP slice, but several architecture-level d
     (`accepted|merged|deferred|discarded`).
   - subconscious research remains read-only by default (`research_policy=read_only`);
     any broader authority requires a future architecture-contract change.
-- Remaining follow-up decision:
-  - should future proposal classes add new conscious decisions beyond
-    `accept|merge|defer|discard`, or keep this decision set fixed?
+- Resolved in `PRJ-415..PRJ-418` and `PRJ-431..PRJ-434` (2026-04-22):
+  - proposal decision set stays fixed at
+    `accept|merge|defer|discard` unless a future explicit contract introduces
+    new decisions and durable status mapping.
 
 ### 12c. Internal Planning State And External Connector Boundary
 
@@ -1032,14 +1031,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - planning permission gates and action guardrails now both consume that
     shared policy owner, and action fails fast on inconsistent connector
     intent posture before delivery side effects.
-- Decision needed:
-  - where should the system draw the line between internal planning state and
-    user-authorized external productivity systems?
-  - which connector operations should default to read-only, which should be
-    suggestion-only, and which are safe to execute directly once the user opted
-    in?
-  - how should the personality propose new capabilities or connectors without
-    self-authorizing access to outside systems?
+- Resolved in `PRJ-435..PRJ-438` (2026-04-22):
+  - connector authorization matrix is now explicit for read, suggestion, and
+    mutate-with-confirmation posture, and new connector capabilities remain
+    proposal-only until explicit user authorization exists.
 - Planned implementation lane:
   - current implementation baseline for this decision is complete through
     `PRJ-366` (shared policy owner, permission-gate/action adoption,

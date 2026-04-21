@@ -658,11 +658,24 @@ When compat route is accepted, response includes compatibility/deprecation
 headers that point to `POST /internal/event/debug` as the preferred internal
 path.
 
+Production default posture now treats shared `POST /event/debug` as
+break-glass-only when no explicit override is configured; use
+`POST /internal/event/debug` as the normal operator ingress.
+
 ### Run Health Check
 
 ```powershell
 curl http://localhost:8000/health
 ```
+
+Important health surfaces for current release checks:
+
+- `runtime_policy.startup_schema_removal_window`
+- `runtime_policy.event_debug_shared_ingress_enforcement_window`
+- `runtime_topology`
+- `planning_governance`
+- `connectors`
+- `deployment`
 
 ### Send Manual Event
 

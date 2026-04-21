@@ -42,6 +42,33 @@ Planned on 2026-04-22:
   boundaries before widening inference authority or changing production
   defaults.
 
+Completed on 2026-04-22:
+
+- `PRJ-415..PRJ-418` are complete: runtime now exposes one explicit topology
+  switch policy for reflection and durable attention, plus a machine-visible
+  graph/proposal baseline through `/health.runtime_topology`.
+- `PRJ-419..PRJ-422` are complete: runtime policy now exposes concrete
+  enforcement/removal windows, and production defaults shared debug ingress to
+  break-glass-only posture when not explicitly overridden.
+- `PRJ-423..PRJ-426` are complete: retrieval depth policy now exposes explicit
+  production defaults, and embeddings now support a local provider-owned
+  `local_hybrid` execution path instead of only deterministic fallback
+  posture.
+- `PRJ-427..PRJ-430` are complete: health/runtime debug now expose one bounded
+  adaptive identity governance snapshot for role horizon, affective rollout,
+  preference authority, theta authority, and multilingual/profile posture.
+- `PRJ-431..PRJ-434` are complete: planning governance is now explicit through
+  one machine-visible snapshot for inferred goal/task growth and fixed
+  proposal-decision posture.
+- `PRJ-435..PRJ-438` are complete: connector authorization matrix and
+  capability-proposal boundary are now explicit runtime surfaces alongside the
+  existing shared connector policy owner.
+- `PRJ-439..PRJ-442` are complete: deployment health and release smoke now
+  expose the selected hosting baseline plus deployment-trigger SLO posture, and
+  planning/context truth are synchronized through Group 56.
+- after Group 56 closed, no seeded `READY` task remains; the next queue should
+  again be derived from any newly discovered post-convergence follow-up.
+
 Completed on 2026-04-21:
 
 - `PRJ-329` is complete: canonical docs, runtime-reality notes, and context

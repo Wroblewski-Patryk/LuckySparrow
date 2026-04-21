@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     event_debug_query_compat_recent_window: int = 20
     event_debug_query_compat_stale_after_seconds: int = 86400
     semantic_vector_enabled: bool = True
-    embedding_provider: Literal["deterministic", "openai"] = "deterministic"
+    embedding_provider: Literal["deterministic", "local_hybrid", "openai"] = "deterministic"
     embedding_model: str = "deterministic-v1"
     embedding_dimensions: int = 32
     embedding_source_kinds: str = "episodic,semantic,affective"

@@ -5,6 +5,8 @@ import math
 
 DEFAULT_EMBEDDING_PROVIDER = "deterministic"
 DEFAULT_EMBEDDING_MODEL = "deterministic-v1"
+LOCAL_HYBRID_EMBEDDING_PROVIDER = "local_hybrid"
+LOCAL_HYBRID_EMBEDDING_MODEL = "local-hybrid-v1"
 EMBEDDING_SOURCE_KIND_ORDER = ("episodic", "semantic", "affective", "relation")
 DEFAULT_EMBEDDING_SOURCE_KINDS = ("episodic", "semantic", "affective")
 EMBEDDING_REFRESH_MODES = ("on_write", "manual")
@@ -33,6 +35,15 @@ def resolve_embedding_posture(
             "model_requested": requested_model,
             "model_effective": requested_model,
             "provider_hint": "deterministic_baseline",
+        }
+
+    if requested_provider == LOCAL_HYBRID_EMBEDDING_PROVIDER:
+        return {
+            "provider_requested": requested_provider,
+            "provider_effective": LOCAL_HYBRID_EMBEDDING_PROVIDER,
+            "model_requested": requested_model,
+            "model_effective": requested_model or LOCAL_HYBRID_EMBEDDING_MODEL,
+            "provider_hint": "local_provider_execution",
         }
 
     return {
@@ -581,6 +592,14 @@ def deterministic_embedding(text: str, *, dimensions: int = 32) -> list[float]:
     if norm <= 0.0:
         return [0.0] * dimensions
     return [component / norm for component in vector]
+
+
+def local_hybrid_embedding(text: str, *, dimensions: int = 32) -> list[float]:
+    normalized = " ".join(str(text or "").strip().lower().split())
+    if not normalized:
+        return [0.0] * dimensions
+    seeded = f"local-hybrid::{normalized}"
+    return deterministic_embedding(seeded, dimensions=dimensions)
 
 
 def cosine_similarity(left: list[float], right: list[float]) -> float:

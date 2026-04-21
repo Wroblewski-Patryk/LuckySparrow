@@ -115,6 +115,18 @@ def stub_aion_server() -> _StubAionServer:
             "ready": True,
             "violations": [],
         },
+        "runtime_topology": {
+            "policy_owner": "runtime_topology_finalization",
+            "release_window": "after_group_50_evidence_green",
+        },
+        "deployment": {
+            "hosting_baseline": "coolify_medium_term_standard",
+            "deployment_trigger_slo": {
+                "delivery_success_rate_percent": 99.0,
+                "manual_redeploy_exception_rate_percent": 5.0,
+                "evidence_owner": "coolify_webhook_plus_release_smoke",
+            },
+        },
         "reflection": {
             "healthy": True,
             "deployment_readiness": {
@@ -273,6 +285,10 @@ def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
     assert summary["debug_shared_ingress_sunset_reason"] == "shared_debug_route_disabled_with_debug_payload_off"
     assert summary["compatibility_sunset_ready"] is True
     assert summary["compatibility_sunset_blockers"] == []
+    assert summary["runtime_topology_owner"] == "runtime_topology_finalization"
+    assert summary["topology_release_window"] == "after_group_50_evidence_green"
+    assert summary["deployment_hosting_baseline"] == "coolify_medium_term_standard"
+    assert summary["deployment_manual_fallback_exception_rate_percent"] == 5.0
     assert summary["deployment_evidence_checked"] is False
     assert summary["deployment_evidence_path"] == ""
     assert summary["deployment_evidence_status_code"] is None

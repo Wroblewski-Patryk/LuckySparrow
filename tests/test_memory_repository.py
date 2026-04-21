@@ -394,6 +394,45 @@ async def test_memory_repository_upsert_conclusion_keeps_semantic_embedding_pend
     await engine.dispose()
 
 
+async def test_memory_repository_materializes_local_hybrid_embedding_provider_when_selected(tmp_path) -> None:
+    database_path = tmp_path / "memory-conclusion-embedding-local-hybrid.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(
+        session_factory=session_factory,
+        embedding_provider="local_hybrid",
+        embedding_model="local-hybrid-v1",
+        embedding_dimensions=16,
+    )
+    await repository.create_tables(engine)
+
+    await repository.upsert_conclusion(
+        user_id="u-1",
+        kind="custom_semantic_fact",
+        content="release evidence must verify topology and ingress posture",
+        confidence=0.82,
+        source="background_reflection",
+        supporting_event_id="evt-local-hybrid",
+    )
+
+    async with session_factory() as session:
+        rows = (
+            await session.execute(
+                select(AionSemanticEmbedding).order_by(AionSemanticEmbedding.id.asc())
+            )
+        ).scalars().all()
+
+    assert len(rows) == 1
+    assert rows[0].embedding_model == "local-hybrid-v1"
+    assert rows[0].embedding_dimensions == 16
+    assert rows[0].metadata_json["embedding_provider_requested"] == "local_hybrid"
+    assert rows[0].metadata_json["embedding_provider_effective"] == "local_hybrid"
+    assert rows[0].metadata_json["embedding_provider_hint"] == "local_provider_execution"
+    assert rows[0].metadata_json["embedding_status"] == "materialized_by_local_hybrid_provider"
+
+    await engine.dispose()
+
+
 async def test_memory_repository_upsert_conclusion_keeps_affective_embedding_pending_in_manual_refresh_mode(
     tmp_path,
 ) -> None:

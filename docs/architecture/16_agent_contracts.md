@@ -934,6 +934,14 @@ Rules:
 6. planning owns domain-change intent; action executes only explicit domain intents
 7. proactive follow-up state and future relation-maintenance writes must use
    explicit typed intents instead of generic fallback payloads or `noop`
+8. runtime topology switches (reflection mode, durable attention owner) must
+   be driven by one explicit machine-visible switch policy instead of implicit
+   rollout intuition
+9. proposal handoff decisions remain fixed to
+   `accept|merge|defer|discard` unless a future contract explicitly widens the
+   decision set
+10. learned preferences and theta remain bounded tie-break signals, not broader
+    identity or proactive-attention owners
 
 ---
 

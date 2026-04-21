@@ -10,6 +10,11 @@ from app.agents.role import RoleAgent
 from app.core.action import ActionExecutor
 from app.core.attention_gate import evaluate_proactive_attention_gate
 from app.core.background_adaptive_outputs import summarize_loaded_adaptive_state
+from app.core.adaptive_governance import adaptive_identity_governance_snapshot
+from app.core.connector_policy import (
+    connector_authorization_matrix_snapshot,
+    connector_capability_proposal_snapshot,
+)
 from app.core.contracts import (
     ActionDelivery,
     Event,
@@ -23,6 +28,7 @@ from app.core.contracts import (
 from app.core.graph_adapters import GraphStageAdapters
 from app.core.graph_state import GraphMemoryState, build_graph_state_seed, expression_to_action_delivery
 from app.core.identity_policy import identity_policy_snapshot
+from app.core.planning_governance import planning_governance_snapshot
 from app.core.logging import RuntimeLogContext, RuntimeStageLogger, get_logger
 from app.core.retrieval_policy import retrieval_depth_policy_snapshot, theta_influence_snapshot
 from app.core.runtime_graph import ForegroundLangGraphRunner
@@ -30,6 +36,7 @@ from app.core.scheduler_contracts import (
     normalize_reflection_runtime_mode,
     reflection_enqueue_dispatch_decision,
 )
+from app.core.topology_policy import runtime_topology_policy_snapshot
 from app.expression.generator import ExpressionAgent
 from app.identity.service import IdentityService
 from app.memory.embeddings import deterministic_embedding, resolve_embedding_posture
@@ -839,6 +846,7 @@ class RuntimeOrchestrator:
         )
         adaptive_state = {
             "identity_policy": identity_policy_snapshot(),
+            "adaptive_governance": adaptive_identity_governance_snapshot(),
             "language_continuity": detect_language_with_diagnostics(
                 text=text,
                 recent_memory=memory,
@@ -855,6 +863,22 @@ class RuntimeOrchestrator:
                 motivation_mode=motivation.mode,
                 plan_steps=list(plan.steps),
                 expression_tone=expression.tone,
+            ),
+            "planning_governance": planning_governance_snapshot(),
+            "connector_authorization_matrix": connector_authorization_matrix_snapshot(),
+            "connector_capability_proposal": connector_capability_proposal_snapshot(),
+            "runtime_topology": runtime_topology_policy_snapshot(
+                reflection_runtime_mode=self.reflection_runtime_mode,
+                reflection_readiness={
+                    "ready": self.reflection_runtime_mode == "deferred"
+                    or bool(self.reflection_worker is not None and self.reflection_worker.is_running()),
+                },
+                attention_snapshot={
+                    "coordination_mode": "in_process",
+                    "deployment_readiness": {
+                        "ready": True,
+                    },
+                },
             ),
             "selected_skills": [skill.model_dump(mode="json") for skill in role.selected_skills],
             "planned_skills": [skill.model_dump(mode="json") for skill in plan.selected_skills],

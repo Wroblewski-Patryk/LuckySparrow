@@ -18,6 +18,7 @@ def test_schema_baseline_includes_expected_tables() -> None:
         "aion_goal_milestone_history",
         "aion_reflection_task",
         "aion_subconscious_proposal",
+        "aion_attention_turn",
     }
 
 

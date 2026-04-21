@@ -44,7 +44,7 @@ def test_startup_logs_warning_when_production_enables_query_compat_debug_route(c
 
     messages = [record.getMessage() for record in caplog.records if record.name == logger_name]
     assert any("disable_event_debug_query_compat_in_production" in message for message in messages)
-    assert any("retire_shared_debug_ingress_from_normal_production_use" in message for message in messages)
+    assert not any("retire_shared_debug_ingress_from_normal_production_use" in message for message in messages)
 
 
 def test_startup_skips_warning_when_debug_payload_is_disabled(caplog) -> None:

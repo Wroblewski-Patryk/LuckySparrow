@@ -711,41 +711,46 @@ def test_health_endpoint_returns_ok() -> None:
     assert body["runtime_policy"]["event_debug_shared_ingress_mode"] == "compatibility"
     assert body["runtime_policy"]["compatibility_sunset_ready"] is False
     assert body["runtime_policy"]["event_debug_query_compat_telemetry"]["recent_window_size"] == 20
-    assert body["identity"] == {
-        "policy_owner": "identity_policy",
-        "language_strategy": "heuristic_plus_profile_continuity",
-        "profile_owner_fields": ["preferred_language"],
-        "conclusion_owner_fields": ["response_style", "collaboration_preference", "preferred_role"],
-        "relation_fallback_identity_write": "disallowed",
+    assert body["identity"]["policy_owner"] == "identity_policy"
+    assert body["identity"]["language_strategy"] == "heuristic_plus_profile_continuity"
+    assert body["identity"]["profile_owner_fields"] == ["preferred_language"]
+    assert body["identity"]["conclusion_owner_fields"] == [
+        "response_style",
+        "collaboration_preference",
+        "preferred_role",
+    ]
+    assert body["identity"]["relation_fallback_identity_write"] == "disallowed"
+    assert body["identity"]["supported_language_codes"] == ["en", "pl"]
+    assert body["identity"]["multilingual_posture"] == "mvp_supported_languages_only"
+    assert body["identity"]["adaptive_governance"]["policy_owner"] == "adaptive_identity_governance"
+    assert body["identity"]["language_continuity"] == {
+        "policy_owner": "language_continuity",
+        "profile_owner_field": "preferred_language",
         "supported_language_codes": ["en", "pl"],
+        "precedence": [
+            "explicit_request",
+            "diacritic_signal",
+            "strong_keyword_signal",
+            "continuity_resolution",
+            "weak_keyword_signal",
+            "default",
+        ],
+        "continuity_sources": [
+            "explicit_request",
+            "diacritic_signal",
+            "keyword_signal",
+            "recent_memory",
+            "user_profile",
+            "default",
+        ],
         "multilingual_posture": "mvp_supported_languages_only",
-        "language_continuity": {
-            "policy_owner": "language_continuity",
-            "profile_owner_field": "preferred_language",
-            "supported_language_codes": ["en", "pl"],
-            "precedence": [
-                "explicit_request",
-                "diacritic_signal",
-                "strong_keyword_signal",
-                "continuity_resolution",
-                "weak_keyword_signal",
-                "default",
-            ],
-            "continuity_sources": [
-                "explicit_request",
-                "diacritic_signal",
-                "keyword_signal",
-                "recent_memory",
-                "user_profile",
-                "default",
-            ],
-            "multilingual_posture": "mvp_supported_languages_only",
-        },
     }
     assert body["memory_retrieval"]["semantic_retrieval_mode"] == "hybrid_vector_lexical"
     assert body["memory_retrieval"]["retrieval_depth_policy"] == {
         "episodic_limit": 12,
         "conclusion_limit": 8,
+        "production_default_episodic_limit": 12,
+        "production_default_conclusion_limit": 8,
         "semantic_vector_enabled": True,
         "retrieval_mode": "hybrid_vector_lexical",
         "vector_hits": 0,
@@ -753,6 +758,7 @@ def test_health_endpoint_returns_ok() -> None:
         "semantic_candidates": 0,
         "affective_candidates": 0,
         "policy_owner": "runtime_memory_load",
+        "default_depth_alignment": "aligned_with_production_default",
     }
     assert body["scheduler"]["healthy"] is True
     assert body["scheduler"]["cadence_execution"]["selected_execution_mode"] == "in_process"
@@ -869,6 +875,8 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
     assert body["memory_retrieval"]["retrieval_depth_policy"] == {
         "episodic_limit": 12,
         "conclusion_limit": 8,
+        "production_default_episodic_limit": 12,
+        "production_default_conclusion_limit": 8,
         "semantic_vector_enabled": False,
         "retrieval_mode": "lexical_only",
         "vector_hits": 0,
@@ -876,6 +884,7 @@ def test_health_endpoint_exposes_lexical_only_memory_retrieval_mode_when_semanti
         "semantic_candidates": 0,
         "affective_candidates": 0,
         "policy_owner": "runtime_memory_load",
+        "default_depth_alignment": "aligned_with_production_default",
     }
 
 
@@ -1331,10 +1340,12 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
         "event_debug_shared_ingress_mode": "compatibility",
+        "event_debug_shared_ingress_mode_source": "explicit",
         "event_debug_shared_ingress_break_glass_required": False,
         "event_debug_shared_ingress_posture": "transitional_compatibility",
         "event_debug_shared_ingress_sunset_ready": True,
         "event_debug_shared_ingress_sunset_reason": "shared_debug_route_disabled_with_debug_payload_off",
+        "event_debug_shared_ingress_enforcement_window": "after_group_51_release_evidence_green",
         "debug_access_posture": "disabled",
         "debug_token_policy_hint": "not_applicable_debug_disabled",
         "event_debug_source": "explicit",
@@ -1345,6 +1356,7 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
         "strict_startup_blocked": True,
         "strict_rollout_ready": False,
         "strict_rollout_hint": "resolve_mismatches_before_strict",
+        "startup_schema_removal_window": "after_group_51_release_evidence_green",
         "compatibility_sunset_ready": False,
         "compatibility_sunset_blockers": ["startup_schema_compatibility_active"],
         "event_debug_query_compat_allow_rate": 0.0,
@@ -1557,6 +1569,37 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     assert body["runtime_policy"]["event_debug_query_compat_last_attempt_state"] == "no_attempts_recorded"
     assert body["runtime_policy"]["event_debug_query_compat_activity_state"] == "compat_disabled"
     assert body["runtime_policy"]["event_debug_query_compat_activity_hint"] == "compat_disabled_no_action"
+    assert body["runtime_policy"]["startup_schema_removal_window"] == "after_group_51_release_evidence_green"
+    assert body["runtime_policy"]["event_debug_shared_ingress_enforcement_window"] == "after_group_51_release_evidence_green"
+    assert body["runtime_topology"]["policy_owner"] == "runtime_topology_finalization"
+    assert body["runtime_topology"]["proposal_decision_policy"]["decision_set"] == [
+        "accept",
+        "merge",
+        "defer",
+        "discard",
+    ]
+    assert body["planning_governance"]["goal_task_creation_posture"] == (
+        "bounded_inferred_growth_from_repeated_execution_blockers_only"
+    )
+    assert body["identity"]["adaptive_governance"]["theta_authority"] == "foreground_tie_break_only"
+    assert body["connectors"]["capability_proposal"]["self_authorization_allowed"] is False
+    assert body["deployment"]["hosting_baseline"] == "coolify_medium_term_standard"
+
+
+def test_health_endpoint_exposes_local_hybrid_embedding_provider_as_ready_owner() -> None:
+    client, _, _ = _client(
+        embedding_provider="local_hybrid",
+        embedding_model="local-hybrid-v1",
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["memory_retrieval"]["semantic_embedding_provider_requested"] == "local_hybrid"
+    assert body["memory_retrieval"]["semantic_embedding_provider_effective"] == "local_hybrid"
+    assert body["memory_retrieval"]["semantic_embedding_provider_ready"] is True
+    assert body["memory_retrieval"]["semantic_embedding_provider_hint"] == "local_provider_execution"
 
 
 def test_health_endpoint_defaults_to_strict_policy_enforcement_in_production_when_unset() -> None:

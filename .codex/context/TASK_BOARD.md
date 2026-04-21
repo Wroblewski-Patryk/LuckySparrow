@@ -58,52 +58,23 @@ Last updated: 2026-04-22
   identity governance, goal/task plus proposal governance, scheduler and
   connector capability convergence, and deployment standard plus
   release-reliability closure.
+- Groups 50 through 56 are now complete through `PRJ-442`.
+- Runtime topology switch policy, production-boundary hardening, local
+  provider-backed retrieval posture, adaptive/planning/connector governance
+  snapshots, and deployment-standard release evidence are now explicit runtime
+  surfaces instead of open planning-only follow-ups.
 
 ## READY
 
-- [ ] PRJ-415 Define the production switch criteria for deferred reflection and durable attention ownership
-  - Status: READY
-  - Group: Runtime Topology Finalization
-  - Owner: Planner
-  - Depends on: PRJ-414
-  - Priority: P1
-  - Goal:
-    - record one explicit release-switch contract for `REFLECTION_RUNTIME_MODE`
-      and `ATTENTION_COORDINATION_MODE` before any production default change is
-      attempted
+- [ ] (none)
 
 ## BACKLOG
 
-- [ ] PRJ-416 Add machine-visible readiness evidence for the selected topology owner path
-- [ ] PRJ-417 Decide the long-term graph ownership boundary and proposal decision-set baseline
-- [ ] PRJ-418 Sync docs/context for runtime topology finalization
-- [ ] PRJ-419 Schedule the actual `create_tables()` removal window and strict startup baseline
-- [ ] PRJ-420 Enforce dedicated internal-ingress-only debug posture with break-glass override
-- [ ] PRJ-421 Add release evidence for migration-only startup and debug-ingress enforcement
-- [ ] PRJ-422 Sync docs/context for production boundary hardening
+- [ ] (none)
 
 ## FUTURE
 
-- [ ] PRJ-423 Define the production retrieval architecture and default depth policy
-- [ ] PRJ-424 Implement provider-backed retrieval and embedding rollout behind explicit owner-mode policy
-- [ ] PRJ-425 Separate durable affective-memory patterns from transient turn-state and pin their influence
-- [ ] PRJ-426 Sync docs/context for retrieval and affective-memory productionization
-- [ ] PRJ-427 Define the long-horizon role-selection and affective-rollout boundary
-- [ ] PRJ-428 Decide the future authority of learned preferences and theta signals
-- [ ] PRJ-429 Define the future profile and multilingual identity boundary
-- [ ] PRJ-430 Sync docs/context for adaptive identity and role governance
-- [ ] PRJ-431 Define the inference boundary for future goal and task creation
-- [ ] PRJ-432 Decide the long-term conscious decision set for subconscious proposals
-- [ ] PRJ-433 Add machine-visible governance diagnostics for inferred planning growth and proposal handling
-- [ ] PRJ-434 Sync docs/context for goal/task and proposal governance
-- [ ] PRJ-435 Define the final scheduler-versus-attention ownership split
-- [ ] PRJ-436 Define the connector authorization matrix for read, suggestion, and direct execution
-- [ ] PRJ-437 Define the capability-proposal workflow for new connectors without self-authorization
-- [ ] PRJ-438 Sync docs/context for scheduler and connector capability convergence
-- [ ] PRJ-439 Choose the post-Coolify hosting baseline and responsibility split
-- [ ] PRJ-440 Define the deployment-trigger SLO and manual-fallback retirement criteria
-- [ ] PRJ-441 Align release evidence, smoke workflow, and rollback notes to the chosen deployment standard
-- [ ] PRJ-442 Sync docs/context for deployment standard and release reliability closure
+- [ ] (none)
 
 ## IN_PROGRESS
 

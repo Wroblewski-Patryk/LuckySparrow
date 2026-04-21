@@ -446,6 +446,9 @@ Health output now also exposes explicit debug-ingress ownership/posture fields:
 `event_debug_shared_ingress_path`, `event_debug_shared_ingress_mode`,
 `event_debug_shared_ingress_break_glass_required`, and
 `event_debug_shared_ingress_posture`.
+Runtime policy now also exposes explicit enforcement/removal windows through
+`startup_schema_removal_window` and
+`event_debug_shared_ingress_enforcement_window`.
 Health output also exposes derived compat sunset signals:
 `event_debug_query_compat_allow_rate`, `event_debug_query_compat_block_rate`,
 `event_debug_query_compat_recommendation`,
@@ -764,9 +767,22 @@ What is already live:
 - connector operation posture now has one shared owner in
   `app/core/connector_policy.py`, reused by planner gate shaping and action
   guardrails across `calendar`, `task_system`, and `cloud_drive`
+- `/health.connectors` now exposes the connector authorization matrix plus the
+  capability-proposal boundary so connector rollout stays explicit
 - action now fails fast on connector intent mode mismatch before delivery side
   effects and persists connector guardrail posture alongside connector intent
   updates for runtime-visible triage
+- `/health.runtime_topology` now exposes the reflection/attention switch policy
+  and fixed graph/proposal baseline, while `/health.planning_governance`
+  exposes bounded inferred goal/task growth and fixed proposal decisions
+- retrieval now supports a local provider-owned `local_hybrid` embedding path,
+  and retrieval depth policy now surfaces explicit production default depth
+  alignment
+- `/health.identity.adaptive_governance` now exposes the bounded future
+  authority model for role horizon, affective rollout, preferences, theta, and
+  multilingual/profile posture
+- `/health.deployment` now exposes the selected hosting baseline and
+  deployment-trigger SLO posture consumed by release smoke
 - regression coverage now explicitly pins that proactive scheduler plans stay
   separate from proposal handoff resolution and connector permission-gate intent
   shaping, while API attention turn assembly and conscious proposal resolution
