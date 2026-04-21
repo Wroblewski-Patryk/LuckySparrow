@@ -36,28 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-356 Add release-smoke support for optional deployment-trigger evidence verification
-  - Status: READY
-  - Group: Deployment Trigger SLO Instrumentation
-  - Owner: Ops/Release
-  - Depends on: PRJ-355
-  - Priority: P1
-  - Result:
-    - release smoke can optionally verify deployment-trigger evidence freshness
-      and basic response posture
-    - operator flow remains backward-compatible when evidence verification is
-      not requested
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-357 Add regressions for deployment-trigger evidence and release-smoke verification posture
-  - Status: FUTURE
+  - Status: READY
   - Group: Deployment Trigger SLO Instrumentation
   - Owner: QA/Test
   - Depends on: PRJ-356
@@ -67,7 +47,13 @@ Last updated: 2026-04-21
       verification behavior in release-smoke scripts
     - SLO instrumentation stays test-visible as deployment scripts evolve
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_main_runtime_policy.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-358 Sync docs/context for deployment-trigger SLO instrumentation lane
   - Status: FUTURE
@@ -98,6 +84,22 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-356 Add release-smoke support for optional deployment-trigger evidence verification
+  - Status: DONE
+  - Group: Deployment Trigger SLO Instrumentation
+  - Owner: Ops/Release
+  - Depends on: PRJ-355
+  - Priority: P1
+  - Result:
+    - release-smoke scripts now support optional deployment-evidence
+      verification (freshness and successful webhook response posture) in both
+      PowerShell and bash paths
+    - existing smoke workflow remains backward-compatible when evidence path is
+      not provided
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_main_runtime_policy.py`
+      (`101 passed`)
 
 - [x] PRJ-355 Add deployment-trigger evidence capture script for Coolify webhook invocations
   - Status: DONE

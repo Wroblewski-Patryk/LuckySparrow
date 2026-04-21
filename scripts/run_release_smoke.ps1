@@ -2,7 +2,9 @@ param(
     [Parameter(Mandatory = $true)][string]$BaseUrl,
     [string]$Text = "AION manual smoke test",
     [string]$UserId = "manual-smoke",
-    [switch]$IncludeDebug
+    [switch]$IncludeDebug,
+    [string]$DeploymentEvidencePath = "",
+    [int]$DeploymentEvidenceMaxAgeMinutes = 60
 )
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -50,6 +52,81 @@ function Has-Property {
     return $null -ne $Object -and $Object.PSObject.Properties.Name -contains $Name
 }
 
+function Validate-DeploymentEvidence {
+    param(
+        [string]$Path,
+        [int]$MaxAgeMinutes
+    )
+
+    $result = @{
+        checked     = $false
+        path        = $Path
+        age_minutes = $null
+        status_code = $null
+    }
+
+    if (-not $Path) {
+        return $result
+    }
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "Deployment evidence verification failed: file not found '$Path'."
+    }
+
+    try {
+        $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
+        $evidence = $raw | ConvertFrom-Json -Depth 8
+    }
+    catch {
+        throw "Deployment evidence verification failed: invalid JSON in '$Path'."
+    }
+
+    if ([string]$evidence.kind -ne "coolify_deploy_webhook_evidence") {
+        throw "Deployment evidence verification failed: unexpected kind '$($evidence.kind)'."
+    }
+
+    if ($null -eq $evidence.response) {
+        throw "Deployment evidence verification failed: response block is missing."
+    }
+
+    $responseOk = [bool]$evidence.response.ok
+    $statusCode = 0
+    try {
+        $statusCode = [int]$evidence.response.status_code
+    }
+    catch {
+        $statusCode = 0
+    }
+
+    if (-not $responseOk -or $statusCode -lt 200 -or $statusCode -ge 300) {
+        throw "Deployment evidence verification failed: webhook response is not successful."
+    }
+
+    $generatedAtRaw = [string]$evidence.generated_at
+    if (-not $generatedAtRaw) {
+        throw "Deployment evidence verification failed: generated_at is missing."
+    }
+
+    try {
+        $generatedAt = [datetimeoffset]::Parse($generatedAtRaw).ToUniversalTime()
+    }
+    catch {
+        throw "Deployment evidence verification failed: generated_at is invalid '$generatedAtRaw'."
+    }
+
+    $ageMinutes = ([datetimeoffset]::UtcNow - $generatedAt).TotalMinutes
+    if ($ageMinutes -gt $MaxAgeMinutes) {
+        throw "Deployment evidence verification failed: evidence age $([math]::Round($ageMinutes, 2)) min exceeds $MaxAgeMinutes min."
+    }
+
+    return @{
+        checked     = $true
+        path        = $Path
+        age_minutes = [math]::Round($ageMinutes, 2)
+        status_code = $statusCode
+    }
+}
+
 $trimmedBaseUrl = $BaseUrl.TrimEnd("/")
 $traceId = [guid]::NewGuid().ToString()
 $eventUrl = "$trimmedBaseUrl/event"
@@ -69,6 +146,7 @@ $payload = @{
 
 $json = $payload | ConvertTo-Json -Depth 6 -Compress
 $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+$deploymentEvidenceCheck = Validate-DeploymentEvidence -Path $DeploymentEvidencePath -MaxAgeMinutes $DeploymentEvidenceMaxAgeMinutes
 
 $health = Invoke-JsonUtf8 -Method GET -Uri "$trimmedBaseUrl/health"
 if ($health.status -ne "ok") {
@@ -315,6 +393,10 @@ $summary = @{
     debug_shared_break_glass_required = $sharedBreakGlassRequired
     debug_shared_ingress_posture     = $sharedIngressPosture
     debug_included       = [bool]$response.debug
+    deployment_evidence_checked = [bool]$deploymentEvidenceCheck.checked
+    deployment_evidence_path = [string]$deploymentEvidenceCheck.path
+    deployment_evidence_age_minutes = $deploymentEvidenceCheck.age_minutes
+    deployment_evidence_status_code = $deploymentEvidenceCheck.status_code
 }
 
 $summary | ConvertTo-Json -Depth 6

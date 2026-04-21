@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <base_url> [text] [user_id] [debug]" >&2
+  echo "Usage: $0 <base_url> [text] [user_id] [debug] [deployment_evidence_path] [deployment_evidence_max_age_minutes]" >&2
   exit 1
 fi
 
@@ -10,14 +10,20 @@ BASE_URL="${1%/}"
 TEXT="${2:-AION manual smoke test}"
 USER_ID="${3:-manual-smoke}"
 DEBUG_FLAG="${4:-false}"
+DEPLOYMENT_EVIDENCE_PATH="${5:-}"
+DEPLOYMENT_EVIDENCE_MAX_AGE_MINUTES="${6:-60}"
 
 BASE_URL="$BASE_URL" \
 TEXT="$TEXT" \
 USER_ID="$USER_ID" \
 DEBUG_FLAG="$DEBUG_FLAG" \
+DEPLOYMENT_EVIDENCE_PATH="$DEPLOYMENT_EVIDENCE_PATH" \
+DEPLOYMENT_EVIDENCE_MAX_AGE_MINUTES="$DEPLOYMENT_EVIDENCE_MAX_AGE_MINUTES" \
 python3 - <<'PY'
+from datetime import datetime, timezone
 import json
 import os
+from pathlib import Path
 import urllib.parse
 import urllib.request
 import uuid
@@ -26,7 +32,60 @@ base_url = os.environ["BASE_URL"].rstrip("/")
 text = os.environ["TEXT"]
 user_id = os.environ["USER_ID"]
 debug_flag = os.environ["DEBUG_FLAG"].strip().lower() in {"1", "true", "yes", "debug"}
+deployment_evidence_path = os.environ.get("DEPLOYMENT_EVIDENCE_PATH", "").strip()
+try:
+    deployment_evidence_max_age_minutes = int(os.environ.get("DEPLOYMENT_EVIDENCE_MAX_AGE_MINUTES", "60"))
+except ValueError:
+    raise SystemExit("Deployment evidence verification failed: invalid max age minutes value.")
 trace_id = str(uuid.uuid4())
+
+deployment_evidence_checked = False
+deployment_evidence_age_minutes = None
+deployment_evidence_status_code = None
+
+if deployment_evidence_path:
+    evidence_file = Path(deployment_evidence_path)
+    if not evidence_file.exists():
+        raise SystemExit(f"Deployment evidence verification failed: file not found {deployment_evidence_path!r}")
+
+    try:
+        evidence = json.loads(evidence_file.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        raise SystemExit(f"Deployment evidence verification failed: invalid JSON in {deployment_evidence_path!r}")
+
+    if not isinstance(evidence, dict) or evidence.get("kind") != "coolify_deploy_webhook_evidence":
+        raise SystemExit("Deployment evidence verification failed: unexpected evidence kind.")
+
+    response = evidence.get("response")
+    if not isinstance(response, dict):
+        raise SystemExit("Deployment evidence verification failed: response block is missing.")
+
+    response_ok = bool(response.get("ok"))
+    try:
+        deployment_evidence_status_code = int(response.get("status_code", 0))
+    except (TypeError, ValueError):
+        deployment_evidence_status_code = 0
+    if not response_ok or deployment_evidence_status_code < 200 or deployment_evidence_status_code >= 300:
+        raise SystemExit("Deployment evidence verification failed: webhook response is not successful.")
+
+    generated_at_raw = str(evidence.get("generated_at") or "").strip()
+    if not generated_at_raw:
+        raise SystemExit("Deployment evidence verification failed: generated_at is missing.")
+    generated_at = generated_at_raw.replace("Z", "+00:00")
+    try:
+        generated_at_dt = datetime.fromisoformat(generated_at).astimezone(timezone.utc)
+    except ValueError:
+        raise SystemExit("Deployment evidence verification failed: generated_at is invalid.")
+    deployment_evidence_age_minutes = round(
+        (datetime.now(timezone.utc) - generated_at_dt).total_seconds() / 60.0,
+        2,
+    )
+    if deployment_evidence_age_minutes > deployment_evidence_max_age_minutes:
+        raise SystemExit(
+            "Deployment evidence verification failed: evidence age "
+            f"{deployment_evidence_age_minutes} min exceeds {deployment_evidence_max_age_minutes} min."
+        )
+    deployment_evidence_checked = True
 
 health_request = urllib.request.Request(f"{base_url}/health", method="GET")
 with urllib.request.urlopen(health_request, timeout=30) as response:
@@ -216,6 +275,10 @@ summary = {
     "debug_shared_break_glass_required": shared_break_glass_required,
     "debug_shared_ingress_posture": shared_ingress_posture,
     "debug_included": "debug" in result,
+    "deployment_evidence_checked": deployment_evidence_checked,
+    "deployment_evidence_path": deployment_evidence_path,
+    "deployment_evidence_age_minutes": deployment_evidence_age_minutes,
+    "deployment_evidence_status_code": deployment_evidence_status_code,
 }
 
 print(json.dumps(summary, ensure_ascii=False))

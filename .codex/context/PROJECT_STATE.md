@@ -1478,8 +1478,16 @@ Last updated: 2026-04-21
   verified argument contract, and
   `.\.venv\Scripts\python -m pytest -q tests/test_main_runtime_policy.py tests/test_api_routes.py`
   passed with `101 passed`.
-- 2026-04-21: `PRJ-356` is now the next `READY` slice, focused on optional
-  release-smoke verification for deployment-trigger evidence posture.
+- 2026-04-21: `PRJ-356` is complete: release-smoke scripts now support optional
+  deployment-trigger evidence verification with freshness and successful
+  webhook response checks in both PowerShell and bash paths.
+- 2026-04-21: `PRJ-356` preserves backward-compatible smoke behavior when
+  deployment evidence is not provided.
+- 2026-04-21: `PRJ-356` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_main_runtime_policy.py`
+  passed with `101 passed`.
+- 2026-04-21: `PRJ-357` is now the next `READY` slice, focused on regression
+  coverage for deployment-trigger evidence verification posture.
 
 ## Working Agreements
 
