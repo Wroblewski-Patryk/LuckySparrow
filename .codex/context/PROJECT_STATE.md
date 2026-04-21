@@ -1271,8 +1271,15 @@ Last updated: 2026-04-21
 - 2026-04-21: `PRJ-335` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
   passed with `150 passed`.
-- 2026-04-21: `PRJ-336` is now the next `READY` slice, focused on regression
-  coverage for no-duplicate/no-unsafe inferred planning promotion behavior.
+- 2026-04-21: `PRJ-336` is complete: inference safety and duplicate-avoidance
+  regressions now pin non-repeated/weak-signal no-promotion posture and
+  no-duplicate behavior when matching active inferred planning state already
+  exists.
+- 2026-04-21: `PRJ-336` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py`
+  passed with `202 passed`.
+- 2026-04-21: `PRJ-337` is now the next `READY` slice, focused on docs/context
+  synchronization for goal/task inference and typed-intent expansion.
 
 ## Working Agreements
 

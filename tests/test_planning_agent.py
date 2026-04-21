@@ -230,6 +230,91 @@ def test_planning_agent_emits_maintenance_task_status_intent_when_repeated_block
     assert not any(isinstance(intent, PromoteInferredTaskDomainIntent) for intent in result.domain_intents)
 
 
+def test_planning_agent_does_not_infer_promotion_without_repeated_evidence() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="I am blocked by deployment migration failures."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.81,
+            urgency=0.74,
+            valence=-0.05,
+            arousal=0.52,
+            mode="execute",
+        ),
+        role=RoleOutput(selected="executor", confidence=0.8),
+        active_goals=[],
+        active_tasks=[],
+    )
+
+    assert len(result.domain_intents) == 1
+    assert result.domain_intents[0].intent_type == "noop"
+    assert not any(isinstance(intent, PromoteInferredGoalDomainIntent) for intent in result.domain_intents)
+    assert not any(isinstance(intent, PromoteInferredTaskDomainIntent) for intent in result.domain_intents)
+
+
+def test_planning_agent_does_not_infer_promotion_when_repeated_signal_is_weak() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Again still blocked by deployment migration failures."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.45,
+            urgency=0.42,
+            valence=-0.05,
+            arousal=0.44,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.77),
+        active_goals=[],
+        active_tasks=[],
+    )
+
+    assert len(result.domain_intents) == 1
+    assert result.domain_intents[0].intent_type == "noop"
+    assert not any(isinstance(intent, PromoteInferredGoalDomainIntent) for intent in result.domain_intents)
+    assert not any(isinstance(intent, PromoteInferredTaskDomainIntent) for intent in result.domain_intents)
+
+
+def test_planning_agent_avoids_duplicate_inferred_promotions_for_matching_active_state() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Again I am still blocked by deployment migration failures for the MVP release."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.84,
+            urgency=0.76,
+            valence=-0.08,
+            arousal=0.58,
+            mode="execute",
+        ),
+        role=RoleOutput(selected="executor", confidence=0.82),
+        active_goals=[
+            {
+                "id": 7,
+                "name": "stabilize deployment migration failures mvp release",
+                "description": "Inferred goal from repeated execution evidence: stabilize deployment migration failures mvp release",
+                "priority": "high",
+                "status": "active",
+                "goal_type": "tactical",
+            }
+        ],
+        active_tasks=[
+            {
+                "id": 21,
+                "goal_id": 7,
+                "name": "deployment migration failures mvp release",
+                "description": "Inferred task from repeated execution evidence: deployment migration failures mvp release",
+                "priority": "high",
+                "status": "blocked",
+            }
+        ],
+    )
+
+    assert len(result.domain_intents) == 1
+    assert result.domain_intents[0].intent_type == "noop"
+    assert not any(isinstance(intent, PromoteInferredGoalDomainIntent) for intent in result.domain_intents)
+    assert not any(isinstance(intent, PromoteInferredTaskDomainIntent) for intent in result.domain_intents)
+    assert not any(isinstance(intent, MaintainTaskStatusDomainIntent) for intent in result.domain_intents)
+
+
 def test_planning_agent_emits_preference_domain_intents_from_explicit_request() -> None:
     result = PlanningAgent().run(
         event=_event(text="Please answer briefly and walk me through this step by step."),

@@ -1785,6 +1785,65 @@ async def test_runtime_pipeline_persists_inferred_goal_and_task_promotions_from_
     assert result.active_tasks[0].status == "blocked"
 
 
+async def test_runtime_pipeline_does_not_duplicate_inferred_goal_task_when_matching_active_state_exists() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    memory.active_goals = [
+        {
+            "id": 7,
+            "user_id": "u-1",
+            "name": "stabilize deployment migration failures mvp release",
+            "description": "Inferred goal from repeated execution evidence: stabilize deployment migration failures mvp release",
+            "priority": "high",
+            "status": "active",
+            "goal_type": "tactical",
+        }
+    ]
+    memory.active_tasks = [
+        {
+            "id": 11,
+            "goal_id": 7,
+            "name": "deployment migration failures mvp release",
+            "description": "Inferred task from repeated execution evidence: deployment migration failures mvp release",
+            "priority": "high",
+            "status": "blocked",
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-inferred-no-duplicate",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Again I am still blocked by deployment migration failures for the MVP release."},
+        meta=EventMeta(user_id="u-1", trace_id="t-inferred-no-duplicate"),
+    )
+
+    result = await runtime.run(event)
+
+    assert len(result.active_goals) == 1
+    assert len(result.active_tasks) == 1
+    assert result.active_goals[0].name == "stabilize deployment migration failures mvp release"
+    assert result.active_tasks[0].name == "deployment migration failures mvp release"
+    assert result.plan.domain_intents[0].intent_type == "noop"
+    assert not any(intent.intent_type == "promote_inferred_goal" for intent in result.plan.domain_intents)
+    assert not any(intent.intent_type == "promote_inferred_task" for intent in result.plan.domain_intents)
+    assert not any(intent.intent_type == "maintain_task_status" for intent in result.plan.domain_intents)
+
+
 async def test_runtime_pipeline_does_not_write_domain_state_without_planning_intents() -> None:
     class NoDomainWritePlanningAgent(PlanningAgent):
         def run(self, *args, **kwargs):  # type: ignore[override]

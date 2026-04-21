@@ -36,27 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-336 Add regressions for inferred planning growth and no-duplicate/no-unsafe promotion behavior
-  - Status: READY
-  - Group: Goal/Task Inference And Typed-Intent Expansion
-  - Owner: QA/Test
-  - Depends on: PRJ-335
-  - Priority: P1
-  - Result:
-    - inferred planning growth is pinned against duplicate, unsafe, or weakly
-      evidenced promotions
-    - architecture drift on internal planning autonomy fails fast
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-337 Sync docs/context for goal/task inference and typed-intent expansion
-  - Status: FUTURE
+  - Status: READY
   - Group: Goal/Task Inference And Typed-Intent Expansion
   - Owner: Product Docs
   - Depends on: PRJ-336
@@ -68,6 +49,12 @@ Last updated: 2026-04-21
   - Validation:
     - doc-and-context sync plus targeted planning-autonomy cross-doc review
       recorded in this slice
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-339 Enforce structured affective-classifier output parsing and fallback diagnostics
   - Status: FUTURE
@@ -271,6 +258,22 @@ Last updated: 2026-04-21
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
       (`150 passed`)
+
+- [x] PRJ-336 Add regressions for inferred planning growth and no-duplicate/no-unsafe promotion behavior
+  - Status: DONE
+  - Group: Goal/Task Inference And Typed-Intent Expansion
+  - Owner: QA/Test
+  - Depends on: PRJ-335
+  - Priority: P1
+  - Result:
+    - inferred planning growth now has explicit regression coverage for
+      duplicate-avoidance and weak-evidence safety gates in planning and
+      end-to-end runtime behavior
+    - inference drift now fails fast when repeated blocker phrasing is weak,
+      non-repeated, or already represented in active planning state
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py`
+      (`202 passed`)
 
 - [x] PRJ-330 Implement relation decay and confidence revalidation policy
   - Status: DONE
