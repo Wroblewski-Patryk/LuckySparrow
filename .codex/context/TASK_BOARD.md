@@ -36,28 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-345 Add regressions for trust-aware inferred promotion gates and diagnostics
-  - Status: READY
-  - Group: Relation-Aware Inferred Promotion Governance
-  - Owner: QA/Test
-  - Depends on: PRJ-344
-  - Priority: P1
-  - Result:
-    - regression coverage now pins no-unsafe inferred promotions under low
-      trust confidence and expected promotions under neutral/high trust posture
-    - diagnostic contract regressions pin inferred-gate reason visibility
-      across planning/runtime paths
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_reflection_worker.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-346 Sync docs/context for relation-aware inferred promotion governance lane
-  - Status: FUTURE
+  - Status: READY
   - Group: Relation-Aware Inferred Promotion Governance
   - Owner: Product Docs
   - Depends on: PRJ-345
@@ -72,6 +52,14 @@ Last updated: 2026-04-21
       `docs/architecture/`, and `docs/implementation/` with targeted
       cross-reference checks
 
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
+
+- [ ] (none)
+
 ## IN_PROGRESS
 
 - [ ] (none)
@@ -85,6 +73,22 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-345 Add regressions for trust-aware inferred promotion gates and diagnostics
+  - Status: DONE
+  - Group: Relation-Aware Inferred Promotion Governance
+  - Owner: QA/Test
+  - Depends on: PRJ-344
+  - Priority: P1
+  - Result:
+    - regression coverage now pins trust-aware inferred promotion behavior:
+      low-trust threshold blocking, medium/high-trust promotion posture, and
+      low-trust repeated-signal guardrails
+    - diagnostics regressions now pin `reason=...` and `result=...` visibility
+      across planning/runtime and API debug contract surfaces
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_reflection_worker.py`
+      (`251 passed`)
 
 - [x] PRJ-344 Add inferred-promotion gate diagnostics for planning and runtime debug surfaces
   - Status: DONE

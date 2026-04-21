@@ -1348,8 +1348,18 @@ Last updated: 2026-04-21
 - 2026-04-21: `PRJ-344` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
   passed with `200 passed`.
-- 2026-04-21: `PRJ-345` is now the next `READY` slice, focused on regression
-  hardening for trust-aware inferred promotion gates and diagnostics.
+- 2026-04-21: `PRJ-345` is complete: regression coverage now pins trust-aware
+  inferred promotion gates and diagnostics across planning/runtime paths
+  (including low-trust repeated-signal guardrails and high-trust/medium-trust
+  promotion behavior).
+- 2026-04-21: `PRJ-345` also extends debug-surface coverage so inferred gate
+  diagnostics remain visible and contract-stable in runtime and API debug
+  responses.
+- 2026-04-21: `PRJ-345` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_reflection_worker.py`
+  passed with `251 passed`.
+- 2026-04-21: `PRJ-346` is now the next `READY` slice, focused on docs/context
+  synchronization for relation-aware inferred promotion governance.
 
 ## Working Agreements
 

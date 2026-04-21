@@ -1927,6 +1927,59 @@ async def test_runtime_pipeline_blocks_inferred_promotion_under_low_trust_with_b
     assert result.active_tasks == []
 
 
+async def test_runtime_pipeline_surfaces_high_trust_inferred_promotion_diagnostics() -> None:
+    class FixedMotivationEngine:
+        def run(self, **kwargs) -> MotivationOutput:  # noqa: ANN003
+            return MotivationOutput(
+                importance=0.59,
+                urgency=0.71,
+                valence=-0.08,
+                arousal=0.58,
+                mode="execute",
+            )
+
+    memory = FakeHybridMemoryRepository(recent_memory=[])
+    memory.relations = [
+        {
+            "relation_type": "delivery_reliability",
+            "relation_value": "high_trust",
+            "confidence": 0.79,
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=FixedMotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-inferred-trust-open",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Again I am still blocked by deployment migration failures for the MVP release."},
+        meta=EventMeta(user_id="u-1", trace_id="t-inferred-trust-open"),
+    )
+
+    result = await runtime.run(event)
+
+    assert any(intent.intent_type == "promote_inferred_goal" for intent in result.plan.domain_intents)
+    assert any(intent.intent_type == "promote_inferred_task" for intent in result.plan.domain_intents)
+    assert "reason=gate_open" in result.plan.inferred_promotion_diagnostics
+    assert "result=promote_inferred_goal" in result.plan.inferred_promotion_diagnostics
+    assert "result=promote_inferred_task" in result.plan.inferred_promotion_diagnostics
+    assert "reason=gate_open" in result.system_debug.plan.inferred_promotion_diagnostics
+
+
 async def test_runtime_pipeline_does_not_duplicate_inferred_goal_task_when_matching_active_state_exists() -> None:
     memory = FakeMemoryRepository(recent_memory=[])
     memory.active_goals = [

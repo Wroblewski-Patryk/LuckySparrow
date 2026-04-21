@@ -264,6 +264,72 @@ def test_planning_agent_allows_inferred_promotion_on_high_trust_with_lower_impor
     assert "result=promote_inferred_goal" in result.inferred_promotion_diagnostics
 
 
+def test_planning_agent_requires_explicit_repeated_signal_under_low_trust_even_with_memory_hint() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="I am blocked by deployment migration failures for the MVP release."),
+        context=ContextOutput(
+            summary="Relevant recent memory suggests repeated blockers around deployment migration.",
+            related_goals=[],
+            related_tags=["deploy"],
+            risk_level=0.35,
+        ),
+        motivation=MotivationOutput(
+            importance=0.82,
+            urgency=0.78,
+            valence=-0.08,
+            arousal=0.61,
+            mode="execute",
+        ),
+        role=RoleOutput(selected="executor", confidence=0.82),
+        relations=[
+            {
+                "relation_type": "delivery_reliability",
+                "relation_value": "low_trust",
+                "confidence": 0.79,
+            }
+        ],
+        active_goals=[],
+        active_tasks=[],
+    )
+
+    assert len(result.domain_intents) == 1
+    assert result.domain_intents[0].intent_type == "noop"
+    assert "reason=missing_repeated_signal" in result.inferred_promotion_diagnostics
+
+
+def test_planning_agent_allows_memory_hint_repetition_gate_for_medium_trust() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="I am blocked by deployment migration failures for the MVP release."),
+        context=ContextOutput(
+            summary="Relevant recent memory suggests repeated blockers around deployment migration.",
+            related_goals=[],
+            related_tags=["deploy"],
+            risk_level=0.35,
+        ),
+        motivation=MotivationOutput(
+            importance=0.64,
+            urgency=0.62,
+            valence=-0.08,
+            arousal=0.55,
+            mode="execute",
+        ),
+        role=RoleOutput(selected="executor", confidence=0.82),
+        relations=[
+            {
+                "relation_type": "delivery_reliability",
+                "relation_value": "medium_trust",
+                "confidence": 0.79,
+            }
+        ],
+        active_goals=[],
+        active_tasks=[],
+    )
+
+    assert any(isinstance(intent, PromoteInferredGoalDomainIntent) for intent in result.domain_intents)
+    assert any(isinstance(intent, PromoteInferredTaskDomainIntent) for intent in result.domain_intents)
+    assert "reason=gate_open" in result.inferred_promotion_diagnostics
+
+
 def test_planning_agent_emits_maintenance_task_status_intent_when_repeated_blocker_matches_existing_task() -> None:
     result = PlanningAgent().run(
         event=_event(text="Again I am still blocked by deployment migration failures for the MVP release."),
