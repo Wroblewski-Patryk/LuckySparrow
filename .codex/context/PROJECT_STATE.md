@@ -1332,8 +1332,15 @@ Last updated: 2026-04-21
   `docs/operations/runtime-ops-runbook.md`,
   `.codex/context/TASK_BOARD.md`, and
   `.codex/context/PROJECT_STATE.md`.
-- 2026-04-21: `PRJ-343` is now the next `READY` slice, focused on
-  delivery-reliability-aware gates for inferred goal/task promotion.
+- 2026-04-21: `PRJ-343` is complete: inferred goal/task promotion gating now
+  uses delivery-reliability posture (`low_trust|medium_trust|high_trust`)
+  through deterministic thresholds while keeping explicit declaration intents
+  unaffected.
+- 2026-04-21: `PRJ-343` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_adaptive_policy.py`
+  passed with `145 passed`.
+- 2026-04-21: `PRJ-344` is now the next `READY` slice, focused on inferred
+  promotion gate diagnostics across planning/runtime debug surfaces.
 
 ## Working Agreements
 

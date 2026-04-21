@@ -15,7 +15,7 @@ from app.core.behavior_harness import (
     behavior_results_as_jsonable,
     execute_behavior_scenarios,
 )
-from app.core.contracts import Event, EventMeta, NoopDomainIntent
+from app.core.contracts import Event, EventMeta, MotivationOutput, NoopDomainIntent
 from app.core.events import build_scheduler_event
 from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
@@ -563,7 +563,7 @@ async def test_runtime_pipeline_api_source() -> None:
 
 
 async def test_runtime_pipeline_persists_reflection_task_without_in_process_worker() -> None:
-    memory = FakeMemoryRepository(recent_memory=[])
+    memory = FakeHybridMemoryRepository(recent_memory=[])
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     runtime = RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
@@ -602,7 +602,7 @@ async def test_runtime_pipeline_persists_reflection_task_without_in_process_work
 
 
 async def test_runtime_pipeline_respects_deferred_enqueue_dispatch_boundary_when_worker_is_attached() -> None:
-    memory = FakeMemoryRepository(recent_memory=[])
+    memory = FakeHybridMemoryRepository(recent_memory=[])
     action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
     reflection = FakeReflectionWorker(running=True)
     runtime = RuntimeOrchestrator(
@@ -1868,6 +1868,58 @@ async def test_runtime_pipeline_persists_inferred_goal_and_task_promotions_from_
     assert result.active_goals[0].description.startswith("Inferred goal from repeated execution evidence:")
     assert result.active_tasks[0].description.startswith("Inferred task from repeated execution evidence:")
     assert result.active_tasks[0].status == "blocked"
+
+
+async def test_runtime_pipeline_blocks_inferred_promotion_under_low_trust_with_borderline_importance() -> None:
+    class FixedMotivationEngine:
+        def run(self, **kwargs) -> MotivationOutput:  # noqa: ANN003
+            return MotivationOutput(
+                importance=0.69,
+                urgency=0.71,
+                valence=-0.08,
+                arousal=0.58,
+                mode="execute",
+            )
+
+    memory = FakeHybridMemoryRepository(recent_memory=[])
+    memory.relations = [
+        {
+            "relation_type": "delivery_reliability",
+            "relation_value": "low_trust",
+            "confidence": 0.79,
+        }
+    ]
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    reflection = FakeReflectionWorker()
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=FixedMotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=reflection,
+    )
+
+    event = Event(
+        event_id="evt-inferred-trust-gate",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Again I am still blocked by deployment migration failures for the MVP release."},
+        meta=EventMeta(user_id="u-1", trace_id="t-inferred-trust-gate"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.plan.domain_intents[0].intent_type == "noop"
+    assert not any(intent.intent_type == "promote_inferred_goal" for intent in result.plan.domain_intents)
+    assert not any(intent.intent_type == "promote_inferred_task" for intent in result.plan.domain_intents)
+    assert result.active_goals == []
+    assert result.active_tasks == []
 
 
 async def test_runtime_pipeline_does_not_duplicate_inferred_goal_task_when_matching_active_state_exists() -> None:

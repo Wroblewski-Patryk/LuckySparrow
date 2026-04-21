@@ -206,6 +206,60 @@ def test_planning_agent_infers_goal_and_task_when_repeated_evidence_has_no_activ
     assert inferred_task.status == "blocked"
 
 
+def test_planning_agent_blocks_inferred_promotion_on_low_trust_with_borderline_importance() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Again I am still blocked by deployment migration failures for the MVP release."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.69,
+            urgency=0.71,
+            valence=-0.08,
+            arousal=0.58,
+            mode="execute",
+        ),
+        role=RoleOutput(selected="executor", confidence=0.82),
+        relations=[
+            {
+                "relation_type": "delivery_reliability",
+                "relation_value": "low_trust",
+                "confidence": 0.79,
+            }
+        ],
+        active_goals=[],
+        active_tasks=[],
+    )
+
+    assert len(result.domain_intents) == 1
+    assert result.domain_intents[0].intent_type == "noop"
+
+
+def test_planning_agent_allows_inferred_promotion_on_high_trust_with_lower_importance() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Again I am still blocked by deployment migration failures for the MVP release."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.59,
+            urgency=0.7,
+            valence=-0.08,
+            arousal=0.58,
+            mode="execute",
+        ),
+        role=RoleOutput(selected="executor", confidence=0.82),
+        relations=[
+            {
+                "relation_type": "delivery_reliability",
+                "relation_value": "high_trust",
+                "confidence": 0.79,
+            }
+        ],
+        active_goals=[],
+        active_tasks=[],
+    )
+
+    assert any(isinstance(intent, PromoteInferredGoalDomainIntent) for intent in result.domain_intents)
+    assert any(isinstance(intent, PromoteInferredTaskDomainIntent) for intent in result.domain_intents)
+
+
 def test_planning_agent_emits_maintenance_task_status_intent_when_repeated_blocker_matches_existing_task() -> None:
     result = PlanningAgent().run(
         event=_event(text="Again I am still blocked by deployment migration failures for the MVP release."),

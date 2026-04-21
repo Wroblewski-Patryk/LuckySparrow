@@ -36,30 +36,8 @@ Last updated: 2026-04-21
 
 ## READY
 
-- [ ] PRJ-343 Add delivery-reliability-aware gates for inferred goal/task promotion
-  - Status: READY
-  - Group: Relation-Aware Inferred Promotion Governance
-  - Owner: Backend Builder
-  - Depends on: PRJ-342
-  - Priority: P1
-  - Result:
-    - inferred goal/task promotion thresholds now account for
-      delivery-reliability posture (`low_trust|medium_trust|high_trust`)
-      without weakening explicit user-declared intent handling
-    - trust-aware gating remains deterministic and bounded to inferred
-      promotion paths only (`promote_inferred_goal|promote_inferred_task|
-      maintain_task_status`)
-  - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_adaptive_policy.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
 - [ ] PRJ-344 Add inferred-promotion gate diagnostics for planning and runtime debug surfaces
-  - Status: FUTURE
+  - Status: READY
   - Group: Relation-Aware Inferred Promotion Governance
   - Owner: Backend Builder
   - Depends on: PRJ-343
@@ -72,6 +50,12 @@ Last updated: 2026-04-21
       trust-driven promotion decisions are operator-traceable
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+## BACKLOG
+
+- [ ] (none)
+
+## FUTURE
 
 - [ ] PRJ-345 Add regressions for trust-aware inferred promotion gates and diagnostics
   - Status: FUTURE
@@ -116,6 +100,22 @@ Last updated: 2026-04-21
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-343 Add delivery-reliability-aware gates for inferred goal/task promotion
+  - Status: DONE
+  - Group: Relation-Aware Inferred Promotion Governance
+  - Owner: Backend Builder
+  - Depends on: PRJ-342
+  - Priority: P1
+  - Result:
+    - inferred goal/task promotion thresholds now account for
+      delivery-reliability posture (`low_trust|medium_trust|high_trust`)
+      without weakening explicit user-declared intent handling
+    - trust-aware gating now applies only to inferred promotion flow and keeps
+      explicit user-declared goal/task intent extraction unchanged
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_adaptive_policy.py`
+      (`145 passed`)
 
 - [x] PRJ-342 Sync docs/context for manual runtime reliability fix lane
   - Status: DONE

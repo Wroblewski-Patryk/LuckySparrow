@@ -332,6 +332,7 @@ class PlanningAgent:
             motivation=motivation,
             active_goals=active_goals or [],
             active_tasks=active_tasks or [],
+            relation_delivery=relation_delivery,
         )
         domain_intents.extend(self._build_connector_expansion_intents(accepted_proposals))
         connector_permission_gates = self._build_connector_permission_gates(domain_intents)
@@ -450,6 +451,7 @@ class PlanningAgent:
         motivation: MotivationOutput,
         active_goals: list[dict],
         active_tasks: list[dict],
+        relation_delivery: str | None,
     ) -> list[DomainActionIntent]:
         intents: list[DomainActionIntent] = []
         lowered_text = event_text.strip().lower()
@@ -523,6 +525,7 @@ class PlanningAgent:
                 active_goals=active_goals,
                 active_tasks=active_tasks,
                 existing_intents=intents,
+                relation_delivery=relation_delivery,
             )
         )
 
@@ -539,11 +542,13 @@ class PlanningAgent:
         active_goals: list[dict],
         active_tasks: list[dict],
         existing_intents: list[DomainActionIntent],
+        relation_delivery: str | None,
     ) -> list[DomainActionIntent]:
         if not self._can_infer_goal_task_promotion(
             event_text=event_text,
             context_summary=context_summary,
             motivation=motivation,
+            relation_delivery=relation_delivery,
         ):
             return []
 
@@ -622,10 +627,11 @@ class PlanningAgent:
         event_text: str,
         context_summary: str,
         motivation: MotivationOutput,
+        relation_delivery: str | None,
     ) -> bool:
         if motivation.mode not in {"respond", "analyze", "execute"}:
             return False
-        if motivation.importance < 0.62:
+        if motivation.importance < self._inferred_promotion_importance_min(relation_delivery or ""):
             return False
 
         normalized_event = normalize_for_matching(event_text)
@@ -670,9 +676,22 @@ class PlanningAgent:
         if not has_issue:
             return False
         has_repeated = any(marker in normalized_event for marker in repeated_markers)
-        if not has_repeated and "relevant recent memory" not in normalized_context:
+        if (
+            not has_repeated
+            and (
+                relation_delivery == "low_trust"
+                or "relevant recent memory" not in normalized_context
+            )
+        ):
             return False
         return True
+
+    def _inferred_promotion_importance_min(self, relation_delivery: str) -> float:
+        if relation_delivery == "low_trust":
+            return 0.74
+        if relation_delivery == "high_trust":
+            return 0.58
+        return 0.62
 
     def _infer_task_name_from_repeated_evidence(self, event_text: str) -> str | None:
         normalized = normalize_for_matching(event_text)
