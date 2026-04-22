@@ -5453,6 +5453,91 @@ async def test_runtime_behavior_proactive_scenarios_cover_delivery_and_anti_spam
     assert {result.status for result in results} == {"pass"}
 
 
+async def test_runtime_behavior_life_assistant_workflow_scenario_covers_capture_planning_and_follow_up() -> None:
+    async def life_assistant_workflow_scenario() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(recent_memory=[])
+        runtime = _build_behavior_runtime(memory)
+
+        reminder_result = await runtime.run(
+            _behavior_event(
+                event_id="evt-life-assistant-reminder-1",
+                trace_id="t-life-assistant-reminder-1",
+                user_id="123456",
+                text="Remind me to send the release summary tomorrow.",
+            )
+        )
+        planning_result = await runtime.run(
+            _behavior_event(
+                event_id="evt-life-assistant-plan-1",
+                trace_id="t-life-assistant-plan-1",
+                user_id="123456",
+                text="Help me plan tomorrow.",
+            )
+        )
+        proactive_result = await runtime.run(
+            build_scheduler_event(
+                subsource="proactive_tick",
+                user_id="123456",
+                payload={
+                    "text": "time check-in for tomorrow plan",
+                    "chat_id": 123456,
+                    "proactive_trigger": "time_checkin",
+                    "user_context": {
+                        "quiet_hours": False,
+                        "focus_mode": False,
+                        "recent_user_activity": "active",
+                        "recent_outbound_count": 0,
+                        "unanswered_proactive_count": 0,
+                    },
+                },
+            )
+        )
+
+        active_task_names = {str(task.get("name", "")) for task in memory.active_tasks}
+        checks = {
+            "preference_persisted": memory.user_preferences.get("proactive_opt_in") is True,
+            "reminder_task_captured": "send the release summary tomorrow" in active_task_names,
+            "daily_planning_task_captured": "plan tomorrow" in active_task_names,
+            "reminder_payload_visible": (
+                reminder_result.memory_record is not None
+                and reminder_result.memory_record.payload.get("proactive_preference_update") == "proactive_opt_in:true"
+            ),
+            "proactive_follow_up_ready": (
+                proactive_result.action_result.status == "success"
+                and "send_telegram_message" in proactive_result.action_result.actions
+                and proactive_result.memory_record is not None
+                and proactive_result.memory_record.payload["proactive_state_update"].startswith("delivery_ready:")
+            ),
+        }
+        missing = [name for name, passed in checks.items() if not passed]
+        return BehaviorScenarioCheck(
+            passed=not missing,
+            reason="life_assistant_capture_plan_follow_up"
+            if not missing
+            else "life_assistant_workflow_missing:" + ",".join(missing),
+            trace_id=proactive_result.event.meta.trace_id,
+            notes=(
+                f"preference={checks['preference_persisted']};"
+                f"reminder_task={checks['reminder_task_captured']};"
+                f"planning_task={checks['daily_planning_task_captured']};"
+                f"payload={checks['reminder_payload_visible']};"
+                f"follow_up={checks['proactive_follow_up_ready']};"
+                f"plan_status={planning_result.action_result.status}"
+            ),
+        )
+
+    results = await execute_behavior_scenarios(
+        [
+            BehaviorScenarioDefinition(
+                test_id="T13.1",
+                run=life_assistant_workflow_scenario,
+            )
+        ]
+    )
+    assert len(results) == 1
+    assert results[0].status == "pass"
+
+
 async def test_runtime_behavior_role_skill_connector_and_deferred_reflection_scenarios() -> None:
     async def role_skill_boundary_scenario() -> BehaviorScenarioCheck:
         memory = PersistingFakeMemoryRepository(recent_memory=[])

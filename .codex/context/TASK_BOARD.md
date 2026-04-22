@@ -194,12 +194,26 @@ Last updated: 2026-04-22
   - Priority: P1
   - Status: DONE
 
+- [x] PRJ-546 Add end-to-end behavior validation for life-assistant scenarios
+  - Owner: QA/Test
+  - Group: Life Assistant Workflow Activation
+  - Depends on: PRJ-545
+  - Priority: P1
+  - Status: DONE
+
+- [ ] PRJ-547 Sync docs/context for the `v1` life-assistant workflow baseline
+  - Owner: Product Docs
+  - Group: Life Assistant Workflow Activation
+  - Depends on: PRJ-546
+  - Priority: P1
+  - Status: READY
+
 - [ ] PRJ-548 Freeze the learned-state model for `v1`
   - Owner: Planner
   - Group: Learned-State And Skill Introspection
-  - Depends on: PRJ-545
+  - Depends on: PRJ-547
   - Priority: P1
-  - Status: READY
+  - Status: BACKLOG
 
 - [ ] PRJ-552 Define the architecture baseline for web search and browser tool families
   - Owner: Planner

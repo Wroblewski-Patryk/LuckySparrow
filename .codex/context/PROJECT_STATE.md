@@ -84,6 +84,13 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-546` is now the first `READY` task; the next slice should
   prove the frozen `v1` workflow set with behavior-level scenarios for reminder
   capture, continuity, and follow-up posture across turns.
+- 2026-04-22: `PRJ-546` is complete: behavior-level validation now proves that a
+  no-UI `v1` assistant can capture reminder intent, persist proactive opt-in,
+  add a daily-planning task anchor, and later execute a proactive follow-up
+  through the scheduler path instead of only exposing correct internal payloads.
+- 2026-04-22: `PRJ-547` is now the first `READY` task; the next slice should
+  sync architecture, runtime reality, testing, ops, and planning/context around
+  the newly proven `v1` workflow baseline and its validation evidence.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence
