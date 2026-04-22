@@ -199,11 +199,12 @@ Last updated: 2026-04-23
   describe the same live bounded tool slices and point to behavior-validation
   proof through `T14.1..T14.3` instead of describing search/browser as
   policy-only placeholders.
-- 2026-04-23: `PRJ-570` is in progress: production repair work is switching
-  the repository-driven Coolify `db` service from plain `postgres:15` to a
-  pgvector-capable PostgreSQL 15 image so Alembic can reach `head` and restore
-  Telegram/API foreground turns without violating the migration-first
-  architecture.
+- 2026-04-23: `PRJ-570` is complete: repository-driven Coolify production now
+  uses `pgvector/pgvector:pg15`, forced deploy
+  `ihgdzv1gug3ketq0u7sm3n2s` finished on commit `e41772e`, public `/health`
+  returned `200`, Telegram round-trip telemetry recorded a successful ingress
+  and delivery after the repair, and the post-deploy migration hook was
+  normalized to `python -m alembic upgrade head`.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.

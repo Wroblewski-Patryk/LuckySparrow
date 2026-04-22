@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-570
 - Title: Restore production migration parity by switching Coolify Postgres to a pgvector-enabled image
-- Status: IN_PROGRESS
+- Status: DONE
 - Owner: Ops/Release
 - Depends on: PRJ-569
 - Priority: P0
@@ -27,9 +27,9 @@ Telegram/API turn handling without introducing a compatibility bypass.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] `docker-compose.coolify.yml` uses a pgvector-capable PostgreSQL 15 image.
-- [ ] production deployment completes with Alembic upgraded to `head`.
-- [ ] production `/health` is reachable again and no longer fails foreground
+- [x] `docker-compose.coolify.yml` uses a pgvector-capable PostgreSQL 15 image.
+- [x] production deployment completes with Alembic upgraded to `head`.
+- [x] production `/health` is reachable again and no longer fails foreground
   turns because of missing schema columns or missing `vector` extension.
 
 ## Forbidden
@@ -40,9 +40,23 @@ Telegram/API turn handling without introducing a compatibility bypass.
 
 ## Validation Evidence
 - Tests:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_main_lifespan_policy.py tests/test_deployment_trigger_scripts.py`
 - Manual checks:
+  - pushed commit `e41772e` to `main`
+  - forced Coolify deploy `ihgdzv1gug3ketq0u7sm3n2s`
+  - verified public `GET https://personality.luckysparrow.ch/health` returns `200`
+  - verified `/health.conversation_channels.telegram` reports:
+    - `round_trip_ready=true`
+    - `ingress_runtime_failures=0`
+    - `delivery_successes=1`
 - Screenshots/logs:
+  - Coolify deployment `ihgdzv1gug3ketq0u7sm3n2s` finished on commit
+    `e41772e89a8a89abb159a640751f54f960d82072`
+  - post-repair app logs show successful startup and healthy `/health` probes
 - High-risk checks:
+  - post-deploy migration hook was normalized from
+    `python -m alembic stamp 20260416_0001 && python -m alembic upgrade head`
+    to `python -m alembic upgrade head`
 
 ## Architecture Evidence (required for architecture-impacting tasks)
 - Architecture source reviewed:
@@ -59,14 +73,14 @@ Telegram/API turn handling without introducing a compatibility bypass.
     requirement for Coolify production
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This task closes a production-only architecture mismatch: the repo-driven
