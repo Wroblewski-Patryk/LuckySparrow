@@ -468,6 +468,225 @@ Completed on 2026-04-22:
 - the next slice should come only from new architecture analysis, runtime
   drift, release evidence, or operator-facing gaps
 
+Planned on 2026-04-22 after post-queue architecture review:
+
+- the next queue is now seeded through `PRJ-515`
+- this queue no longer targets broad convergence; it targets the remaining
+  transitional surfaces that still keep runtime reality slightly behind the
+  canonical architecture or release-hardening intent
+
+New groups:
+
+- `PRJ-492..PRJ-495` Debug ingress retirement and admin boundary closure
+- `PRJ-496..PRJ-499` External scheduler ownership rollout
+- `PRJ-500..PRJ-503` Connector read posture and provider expansion baseline
+- `PRJ-504..PRJ-507` Retrieval lifecycle and source-rollout closure
+- `PRJ-508..PRJ-511` Reflection worker supervision and durability closure
+- `PRJ-512..PRJ-515` Observability export and incident-evidence baseline
+
+Why this order:
+
+- debug ingress is still the most visible transitional boundary and should be
+  frozen before further runtime expansion
+- external scheduler ownership is the biggest remaining runtime-topology gap
+  after proactive activation and deferred reflection external-driver baseline
+- connector expansion should happen only after scheduler/debug boundaries are
+  less transitional
+- retrieval lifecycle closure comes after execution-boundary work so provider
+  ownership and source rollout can harden without also moving operator surface
+  assumptions
+- reflection supervision and observability close the remaining operational gaps
+  that still keep the architecture more inspectable locally than operationally
+
+Detailed queue:
+
+## Group 70 - Debug Ingress Retirement And Admin Boundary Closure
+
+- `PRJ-492` Freeze the dedicated-admin debug ingress target and compatibility-retirement checklist.
+  - Result:
+    - one explicit contract records the long-term admin/debug ingress owner,
+      which shared compatibility paths remain temporary, and which conditions
+      allow shared-endpoint retirement
+  - Validation:
+    - architecture/planning cross-review across runtime policy, ops, and debug contracts
+
+- `PRJ-493` Expose machine-visible admin-ingress posture and shared-ingress retirement blockers.
+  - Result:
+    - `/health.runtime_policy` and release evidence can show whether runtime is
+      still on transitional shared ingress or aligned with the dedicated-admin
+      target posture
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+
+- `PRJ-494` Add release-smoke and operator guidance for dedicated-admin debug posture.
+  - Result:
+    - smoke and runbook flows can prove debug posture without relying on
+      operator memory or shared-route assumptions
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
+
+- `PRJ-495` Sync docs/context for debug ingress retirement and admin boundary closure.
+  - Result:
+    - canonical docs, implementation notes, ops guidance, testing guidance,
+      and planning/context truth all describe the same admin-only debug target
+  - Validation:
+    - doc-and-context sync across planning, ops, implementation, architecture, and context
+
+## Group 71 - External Scheduler Ownership Rollout
+
+- `PRJ-496` Define the production external-scheduler owner baseline for maintenance and proactive cadence.
+  - Result:
+    - one explicit contract records when `externalized` scheduler ownership is
+      considered production-aligned and what remains local fallback only
+  - Validation:
+    - scheduler/attention/planning cross-review across architecture, runtime reality, and ops
+
+- `PRJ-497` Implement canonical external cadence entrypoints and ownership checks.
+  - Result:
+    - the repo provides explicit operator or automation entrypoints for
+      maintenance and proactive cadence execution under external owner mode,
+      without leaking app-local scheduling assumptions back into runtime
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- `PRJ-498` Add release and health evidence for external scheduler ownership posture.
+  - Result:
+    - `/health.scheduler` and smoke flows can distinguish in-process fallback
+      from externalized production owner posture with machine-visible blockers
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py`
+
+- `PRJ-499` Sync docs/context for external scheduler ownership rollout.
+  - Result:
+    - planning, implementation notes, ops guidance, and context truth align on
+      the same cadence-owner production baseline
+  - Validation:
+    - doc-and-context sync across planning, ops, implementation, and context
+
+## Group 72 - Connector Read Posture And Provider Expansion Baseline
+
+- `PRJ-500` Decide the first live read-capable connector baseline beyond ClickUp task creation.
+  - Result:
+    - the repo records which read-oriented connector capability should become
+      the next live provider-backed path and which families remain policy-only
+  - Validation:
+    - connector policy and architecture cross-review
+
+- `PRJ-501` Implement the selected read-capable connector adapter behind existing permission gates.
+  - Result:
+    - at least one connector read path becomes genuinely provider-backed while
+      preserving existing planning and action boundaries
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+
+- `PRJ-502` Expose provider-read readiness and failure posture for the expanded connector baseline.
+  - Result:
+    - `/health.connectors.execution_baseline` can distinguish mutation-only,
+      read-capable, and still-policy-only connector families in one view
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+
+- `PRJ-503` Sync docs/context for connector read posture and provider expansion baseline.
+  - Result:
+    - contracts, runtime reality, ops notes, and planning/context truth all
+      describe the same expanded connector execution boundary
+  - Validation:
+    - doc-and-context sync across architecture, implementation, ops, testing, and context
+
+## Group 73 - Retrieval Lifecycle And Source-Rollout Closure
+
+- `PRJ-504` Define the production retrieval lifecycle baseline beyond current provider-owned materialization.
+  - Result:
+    - one explicit contract records the steady-state owner for refresh,
+      source-family rollout completion, and fallback retirement posture
+  - Validation:
+    - retrieval architecture/planning cross-review
+
+- `PRJ-505` Implement lifecycle visibility for refresh, pending source families, and provider fallback drift.
+  - Result:
+    - runtime and `/health.memory_retrieval` expose the remaining lifecycle
+      gaps as first-class machine-readable posture instead of scattered hints
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_runtime_policy.py tests/test_api_routes.py`
+
+- `PRJ-506` Add behavior and release evidence for retrieval lifecycle alignment.
+  - Result:
+    - behavior validation or smoke evidence can prove retrieval lifecycle
+      alignment rather than only provider selection
+  - Validation:
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_runtime_pipeline.py`
+
+- `PRJ-507` Sync docs/context for retrieval lifecycle and source-rollout closure.
+  - Result:
+    - planning, implementation, ops, and testing surfaces all describe the
+      same retrieval steady-state lifecycle baseline
+  - Validation:
+    - doc-and-context sync across implementation, ops, testing, planning, and context
+
+## Group 74 - Reflection Worker Supervision And Durability Closure
+
+- `PRJ-508` Define the production supervision baseline for deferred reflection workers.
+  - Result:
+    - one explicit contract records queue-drain supervision, failure ownership,
+      and what counts as production-ready deferred reflection operations
+  - Validation:
+    - reflection topology and ops cross-review
+
+- `PRJ-509` Implement machine-visible supervision posture for deferred reflection execution.
+  - Result:
+    - runtime health and worker-facing scripts expose supervision posture,
+      backlog pressure, and recovery guidance beyond one-shot queue drain
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_api_routes.py`
+
+- `PRJ-510` Add release evidence for deferred reflection supervision and recovery posture.
+  - Result:
+    - smoke and ops flows can prove reflection durability posture across queue
+      drain, backlog pressure, and recovery expectations
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
+
+- `PRJ-511` Sync docs/context for reflection worker supervision and durability closure.
+  - Result:
+    - architecture notes, runtime reality, ops guidance, and planning/context
+      truth align on the same supervised deferred-worker baseline
+  - Validation:
+    - doc-and-context sync across architecture, implementation, ops, planning, and context
+
+## Group 75 - Observability Export And Incident-Evidence Baseline
+
+- `PRJ-512` Define the minimum exportable observability baseline beyond local logs and `/health`.
+  - Result:
+    - one explicit contract records which runtime evidence must be exportable
+      for incidents and releases instead of remaining console-only
+  - Validation:
+    - observability cross-review across architecture, ops, and logging docs
+
+- `PRJ-513` Implement exportable runtime evidence for stage timings and policy posture.
+  - Result:
+    - the repo can produce machine-readable incident or release evidence for
+      stage timings, policy posture, and key owner-mode surfaces without
+      depending on ad hoc operator capture
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+
+- `PRJ-514` Extend behavior or smoke flows to consume the exported incident-evidence baseline.
+  - Result:
+    - behavior validation or smoke tooling can consume exported evidence
+      directly, making observability part of done-state rather than optional
+      local debugging
+  - Validation:
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py tests/test_deployment_trigger_scripts.py`
+
+- `PRJ-515` Sync docs/context for observability export and incident-evidence baseline.
+  - Result:
+    - planning, architecture, ops, testing guidance, and context truth all
+      describe the same exportable observability baseline
+  - Validation:
+    - doc-and-context sync across architecture, ops, testing, planning, and context
+
 ## Post-Convergence Operating Mode
 
 After `PRJ-453`, the repo no longer has a pre-seeded architecture queue.

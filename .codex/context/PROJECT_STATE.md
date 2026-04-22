@@ -1937,6 +1937,18 @@ Last updated: 2026-04-22
 - 2026-04-22: no seeded `READY` task remains after `PRJ-491`; the queued
   post-convergence architecture follow-ups are fully complete and the next
   slice should be derived only from new analysis, drift, or runtime evidence.
+- 2026-04-22: architecture-planning follow-up has now seeded a new queue
+  through `PRJ-515`, focused on remaining transitional runtime surfaces rather
+  than broad convergence scaffolding.
+- 2026-04-22: the new hardening lanes target six concrete gaps still visible
+  against the canonical architecture and runtime reality:
+  dedicated-admin debug ingress closure, external scheduler ownership,
+  connector-read posture beyond ClickUp mutation-only baseline, retrieval
+  lifecycle/source-rollout closure, reflection-worker supervision, and
+  observability/export evidence.
+- 2026-04-22: `PRJ-492` is now the first `READY` task, focused on freezing the
+  dedicated-admin debug-ingress target and the retirement checklist for shared
+  compatibility ingress before deeper runtime hardening proceeds.
 
 ## Working Agreements
 

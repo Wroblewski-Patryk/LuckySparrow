@@ -190,9 +190,19 @@ The current repo already works as an MVP slice, but several architecture-level d
   - behavior validation now covers role/skill boundary posture, connector
     execution posture, proactive cadence behavior, and deferred reflection
     enqueue expectations in one CI gate flow
-- the seeded post-convergence queue through `PRJ-491` is now complete; the
-  next architecture slice should again be derived only from new analysis,
-  runtime drift, release evidence, or operator-facing gaps.
+- post-queue architecture review on 2026-04-22 identifies six new hardening
+  lanes that should be handled before the next broad analysis pass:
+  - `PRJ-492..PRJ-495`: debug ingress retirement and admin boundary closure
+  - `PRJ-496..PRJ-499`: external scheduler ownership rollout
+  - `PRJ-500..PRJ-503`: connector read posture and provider expansion baseline
+  - `PRJ-504..PRJ-507`: retrieval lifecycle and source-rollout closure
+  - `PRJ-508..PRJ-511`: reflection worker supervision and durability closure
+  - `PRJ-512..PRJ-515`: observability export and incident-evidence baseline
+- this queue is intentionally ordered around the most visible transitional
+  runtime surfaces still left in implementation reality and release posture:
+  shared debug ingress, app-local cadence ownership, partial connector live
+  coverage, incomplete retrieval lifecycle closure, lightweight reflection
+  supervision, and local-only observability evidence.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

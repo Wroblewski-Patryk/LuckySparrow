@@ -46,14 +46,32 @@ Last updated: 2026-04-22
   of being discoverable only through runtime reality and tests.
 - The post-convergence execution queue seeded through `PRJ-491` is now
   complete.
-- The next architecture lane prioritizes migration parity first, then
-  canonical-doc consistency, then productionization of still-rollout
-  subsystems (connectors, retrieval provider path, background execution,
-  proactive cadence, role/skill maturity, and behavior validation breadth).
+- A new architecture-hardening queue is now seeded through `PRJ-515`.
+- The next architecture lane prioritizes retiring remaining transitional
+  runtime surfaces first, then external cadence ownership, connector-read
+  posture, retrieval lifecycle closure, reflection supervision, and
+  observability/export evidence.
 
 ## READY
 
-- [ ] (none)
+- [ ] PRJ-492 Freeze the dedicated-admin debug ingress target and compatibility-retirement checklist
+  - Owner: Planner
+  - Group: Debug Ingress Retirement And Admin Boundary Closure
+  - Depends on: PRJ-491
+  - Priority: P1
+  - Why now:
+    - debug posture is still the clearest remaining transitional runtime
+      surface, and architecture hardening should remove shared-endpoint drift
+      before expanding more subsystem capabilities
+  - Done when:
+    - the repo records one explicit target for dedicated admin-only debug
+      ingress, shared-endpoint retirement criteria, and rollback-safe
+      compatibility posture
+    - runtime, ops, and release evidence can converge on one non-transitional
+      debug boundary
+  - Validation:
+    - architecture/planning cross-review across runtime policy, ops notes, and
+      debug-surface contracts
 
 ## BACKLOG
 
