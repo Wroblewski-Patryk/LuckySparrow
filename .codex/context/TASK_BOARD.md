@@ -54,19 +54,20 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-503 Sync docs/context for connector read posture and provider expansion baseline
-  - Owner: Product Docs
-  - Group: Connector Read Posture And Provider Expansion Baseline
-  - Depends on: PRJ-502
+- [ ] PRJ-504 Define the production retrieval lifecycle baseline beyond current provider-owned materialization
+  - Owner: Planner
+  - Group: Retrieval Lifecycle And Source-Rollout Closure
+  - Depends on: PRJ-503
   - Priority: P1
   - Why now:
-    - runtime and health posture are aligned, so the lane now needs canonical
-      docs/context closure before retrieval lifecycle work starts
+    - connector expansion lane is closed, so the next remaining runtime gap is
+      retrieval lifecycle closure around refresh, source rollout, and fallback
+      retirement posture
   - Done when:
-    - contracts, runtime reality, ops notes, and planning/context truth all
-      describe the same expanded connector execution boundary
+    - one explicit contract records the steady-state owner for refresh,
+      source-family rollout completion, and fallback retirement posture
   - Validation:
-    - doc-and-context sync across architecture, implementation, ops, testing, and context
+    - retrieval architecture/planning cross-review
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -142,6 +143,21 @@ Last updated: 2026-04-22
       connector families without reading action code
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+
+- [x] PRJ-503 Sync docs/context for connector read posture and provider expansion baseline
+  - Owner: Product Docs
+  - Group: Connector Read Posture And Provider Expansion Baseline
+  - Depends on: PRJ-502
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - contracts, runtime reality, ops notes, testing guidance, and
+      planning/context truth now describe the same expanded task-system
+      baseline with ClickUp create plus list support
+    - Group 72 is now complete and the next active lane is retrieval lifecycle
+      and source-rollout closure
+  - Validation:
+    - doc-and-context sync across architecture, implementation, ops, testing, and context
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder

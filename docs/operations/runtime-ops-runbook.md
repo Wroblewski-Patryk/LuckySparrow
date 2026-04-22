@@ -812,13 +812,21 @@ Important health surfaces for current release checks:
 - `connectors`
   - connector authorization matrix
   - capability-proposal posture for not-yet-authorized expansion
-  - `execution_baseline` shows whether the only current live provider-backed
-    path (`task_system.clickup_create_task`) is configured
+  - `execution_baseline` shows whether the current live provider-backed
+    task-system paths are configured
   - `task_system.clickup_create_task.state=credentials_missing` means the repo
     is still in policy-only posture for task creation at runtime
   - `task_system.clickup_create_task.state=provider_backed_ready` means action
     may execute ClickUp task creation after expression when the plan emits the
     matching typed intent
+  - `task_system.clickup_list_tasks.state=credentials_missing` means the repo
+    is still policy-only for provider-backed task reads at runtime
+  - `task_system.clickup_list_tasks.state=provider_backed_ready` means action
+    may execute a bounded ClickUp task read from explicit `read_only` typed
+    intents without widening planning or context ownership
+  - `task_system.read_capable_live_paths` versus
+    `task_system.mutation_live_paths` shows which live surfaces already exist
+    under the task-system family
 - `identity.adaptive_governance`
   - bounded authority model for role horizon, affective rollout,
     preferences, theta, and multilingual/profile posture

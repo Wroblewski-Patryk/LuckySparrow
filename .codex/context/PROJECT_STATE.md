@@ -2007,8 +2007,13 @@ Last updated: 2026-04-22
   now distinguishes ClickUp mutation and read-capable live paths from the
   remaining policy-only connector families through one shared execution
   baseline surface.
-- 2026-04-22: `PRJ-503` is now the next `READY` task, focused on docs/context
-  sync for the connector read posture and provider expansion lane.
+- 2026-04-22: `PRJ-503` is complete: contracts, runtime reality, ops notes,
+  testing guidance, and planning/context truth now describe the same expanded
+  ClickUp task-system baseline for both create and list execution.
+- 2026-04-22: Group 72 (`PRJ-500..PRJ-503`) is now complete.
+- 2026-04-22: `PRJ-504` is now the next `READY` task, focused on defining the
+  production retrieval lifecycle baseline beyond current provider-owned
+  materialization.
 
 ## Working Agreements
 

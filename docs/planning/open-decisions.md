@@ -231,6 +231,13 @@ The current repo already works as an MVP slice, but several architecture-level d
     as `task_system:list_tasks` for ClickUp
   - calendar and cloud-drive reads remain policy-only until their read-scope
     and safe-output boundaries are narrowed further
+- `PRJ-501..PRJ-503` are now complete:
+  - ClickUp now has both the first live provider-backed mutation path
+    (`task_system:create_task`) and the first live provider-backed read path
+    (`task_system:list_tasks`)
+  - `/health.connectors.execution_baseline` now distinguishes mutation and
+    read-capable task-system paths from remaining policy-only connector
+    families
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

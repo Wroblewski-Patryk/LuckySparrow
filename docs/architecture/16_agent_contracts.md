@@ -468,8 +468,13 @@ Rules:
    - other `task_system` operations remain policy-only until pre-action read
      paths and additional provider adapters are introduced
 7. `/health.connectors.execution_baseline` must expose whether the selected
-   live path is configured and whether all other connector families remain in
+   live paths are configured and whether all other connector families remain in
    policy-only posture by design
+8. current read-capable expansion baseline is intentionally still narrow:
+   - `task_system:list_tasks` with `provider_hint=clickup` is the first live
+     provider-backed read path under the same task-system family
+   - its output remains action-owned execution evidence, not a new pre-planning
+     memory or context read surface
 
 ---
 

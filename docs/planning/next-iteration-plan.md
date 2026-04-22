@@ -593,6 +593,10 @@ Completed on 2026-04-22:
 - `PRJ-502` is complete: `/health.connectors.execution_baseline` now
   distinguishes ClickUp mutation and read-capable live paths from the
   remaining policy-only families in one machine-visible baseline.
+- `PRJ-503` is complete: contracts, runtime reality, ops notes, testing
+  guidance, and planning/context truth now describe the same expanded
+  task-system baseline (`clickup_create_task` plus `clickup_list_tasks`) while
+  calendar and cloud-drive remain policy-only.
 
 - `PRJ-501` Implement the selected read-capable connector adapter behind existing permission gates.
   - Result:
