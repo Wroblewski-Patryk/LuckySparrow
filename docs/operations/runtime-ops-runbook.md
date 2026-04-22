@@ -538,6 +538,17 @@ Required for the first live provider-backed connector path:
 - `CLICKUP_API_TOKEN`
 - `CLICKUP_LIST_ID`
 
+Next bounded connector-read baseline selected for implementation:
+
+- `calendar:read_availability`
+- provider hint target: `google_calendar`
+- expected operator posture after implementation:
+  - `policy_only` when no adapter is present yet
+  - `credentials_missing` when adapter lands without provider credentials
+  - `provider_backed_ready` when the selected provider path is configured
+- safe output contract stays bounded to availability evidence, not raw event
+  payloads
+
 Recommended when Telegram webhooks are enabled:
 
 - `TELEGRAM_WEBHOOK_SECRET`

@@ -256,11 +256,18 @@ Last updated: 2026-04-22
   - Group: Calendar Read Connector Baseline
   - Depends on: PRJ-523
   - Priority: P2
-  - Status: READY
+  - Status: DONE
   - Done when:
     - one explicit contract defines the first provider-backed calendar read
       slice, its safe output shape, and its read-only permission posture
       without widening planning or context ownership
+  - Result:
+    - the first provider-backed calendar read slice is now explicitly frozen as
+      `calendar:read_availability` with `provider_hint=google_calendar`
+    - the safe output contract is bounded to action-owned availability evidence
+      only: normalized window/timezone posture, bounded free/busy summary, and
+      top candidate free-slot preview without raw event titles or attendee
+      payloads
   - Validation:
     - connector policy, architecture, and ops cross-review
 
@@ -269,7 +276,7 @@ Last updated: 2026-04-22
   - Group: Calendar Read Connector Baseline
   - Depends on: PRJ-524
   - Priority: P2
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - the selected calendar read path executes from explicit read-only typed
       intents and returns bounded execution notes through action

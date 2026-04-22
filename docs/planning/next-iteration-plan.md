@@ -284,6 +284,14 @@ Completed on 2026-04-22:
 This group widens live connector coverage through one bounded read-only
 calendar slice instead of broad connector-family expansion.
 
+Completed on 2026-04-22:
+
+- `PRJ-524` is complete: the first bounded calendar live-read contract is now
+  frozen as `calendar:read_availability` with `provider_hint=google_calendar`,
+  read-only opt-in posture, and an action-owned safe output shape limited to
+  normalized availability evidence rather than raw calendar event payloads.
+- the next active slice in this lane is `PRJ-525`.
+
 - `PRJ-524` Define the first bounded calendar read baseline.
   - Result:
     - one explicit contract defines the first provider-backed calendar read

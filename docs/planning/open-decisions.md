@@ -357,7 +357,12 @@ The current repo already works as an MVP slice, but several architecture-level d
   - canonical docs, runtime reality, testing guidance, ops notes, and context
     truth now all describe debug retirement proof through incident-evidence
     posture plus `/health.runtime_policy`
-  - the next active slice in this lane is `PRJ-524`
+- `PRJ-524` is now complete:
+  - the first bounded calendar read slice is frozen as
+    `calendar:read_availability` with `provider_hint=google_calendar`
+  - safe output posture is limited to action-owned availability evidence
+    rather than raw event titles, attendees, or descriptions
+  - the next active slice in this lane is `PRJ-525`
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

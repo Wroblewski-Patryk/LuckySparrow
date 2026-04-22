@@ -58,9 +58,13 @@ Last updated: 2026-04-22
   guidance, ops notes, and context truth now all describe dedicated-admin
   debug retirement proof through incident-evidence posture as well as
   `/health.runtime_policy`.
-- 2026-04-22: `PRJ-524` is now the first `READY` task; the next slice should
-  define the first bounded provider-backed calendar read contract, safe output
-  shape, and read-only permission posture.
+- 2026-04-22: `PRJ-524` is complete: the first bounded calendar live-read
+  contract is now frozen as `calendar:read_availability` with
+  `provider_hint=google_calendar`, read-only opt-in posture, and an
+  action-owned safe output shape limited to normalized availability evidence.
+- 2026-04-22: `PRJ-525` is now the first `READY` task; the next slice should
+  implement that bounded calendar read adapter behind the existing connector
+  policy and action guardrails.
 - 2026-04-22: Group 76 (`PRJ-516..PRJ-519`) is now complete, and the next
   `READY` task is `PRJ-520` for dedicated debug-ingress compatibility
   retirement.

@@ -491,6 +491,19 @@ Rules:
      provider-backed read path under the same task-system family
    - its output remains action-owned execution evidence, not a new pre-planning
      memory or context read surface
+9. the next bounded calendar-read baseline is frozen before implementation:
+   - selected operation: `calendar:read_availability`
+   - selected provider hint: `google_calendar`
+   - permission posture remains `read_only` with explicit user opt-in and
+     without mutation confirmation
+   - safe output shape must stay action-owned and bounded to availability
+     evidence only:
+     - requested time hint or normalized window
+     - timezone or provider default timezone note
+     - bounded free/busy summary
+     - bounded free-slot preview count and top candidate slots
+   - provider-backed execution must not expose raw event titles, attendee
+     lists, descriptions, or become a new background/context ingestion path
 
 ---
 
