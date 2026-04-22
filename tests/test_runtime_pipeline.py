@@ -5073,7 +5073,13 @@ async def test_runtime_pipeline_executes_provider_backed_browser_page_read_path(
     assert "Browser page read returned: Release notes [text/html] https://example.com/release-notes." in result.action_result.notes
 
 
-def _build_behavior_runtime(memory_repository: FakeMemoryRepository) -> RuntimeOrchestrator:
+def _build_behavior_runtime(
+    memory_repository: FakeMemoryRepository,
+    *,
+    clickup_task_client: FakeClickUpTaskClient | None = None,
+    knowledge_search_client: FakeDuckDuckGoSearchClient | None = None,
+    web_browser_client: FakeGenericHttpPageClient | None = None,
+) -> RuntimeOrchestrator:
     return RuntimeOrchestrator(
         perception_agent=PerceptionAgent(),
         context_agent=ContextAgent(),
@@ -5081,7 +5087,13 @@ def _build_behavior_runtime(memory_repository: FakeMemoryRepository) -> RuntimeO
         role_agent=RoleAgent(),
         planning_agent=PlanningAgent(),
         expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
-        action_executor=ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient()),
+        action_executor=ActionExecutor(
+            memory_repository=memory_repository,
+            telegram_client=FakeTelegramClient(),
+            clickup_task_client=clickup_task_client,
+            knowledge_search_client=knowledge_search_client,
+            web_browser_client=web_browser_client,
+        ),
         memory_repository=memory_repository,
         reflection_worker=FakeReflectionWorker(),
     )
@@ -5827,6 +5839,127 @@ async def test_runtime_behavior_role_skill_connector_and_deferred_reflection_sce
             BehaviorScenarioDefinition(test_id="T6.1", run=role_skill_boundary_scenario),
             BehaviorScenarioDefinition(test_id="T7.1", run=connector_posture_scenario),
             BehaviorScenarioDefinition(test_id="T9.1", run=deferred_reflection_scenario),
+        ]
+    )
+    assert len(results) == 3
+    assert {result.status for result in results} == {"pass"}
+
+
+async def test_runtime_behavior_role_governed_tool_usage_scenarios() -> None:
+    async def analyst_web_search_scenario() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(recent_memory=[])
+        runtime = _build_behavior_runtime(
+            memory,
+            knowledge_search_client=FakeDuckDuckGoSearchClient(),
+        )
+        result = await runtime.run(
+            _behavior_event(
+                event_id="evt-tool-search-1",
+                trace_id="t-tool-search-1",
+                text="Analyze the latest release notes and search the web for deployment risks.",
+            )
+        )
+        intent_types = [intent.intent_type for intent in result.plan.domain_intents]
+        selected_skill_ids = [skill.skill_id for skill in result.role.selected_skills]
+        policy = result.system_debug.adaptive_state["role_skill_policy"] if result.system_debug else {}
+        passed = (
+            result.role.selected == "analyst"
+            and "knowledge_search_intent" in intent_types
+            and "duckduckgo_search_web" in result.action_result.actions
+            and "structured_reasoning" in selected_skill_ids
+            and policy.get("action_skill_execution_allowed") is False
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="analyst_web_search_via_action_boundary" if passed else "analyst_web_search_regression",
+            trace_id=result.event.meta.trace_id,
+            notes=(
+                f"role={result.role.selected};"
+                f"intents={','.join(intent_types)};"
+                f"actions={','.join(result.action_result.actions)};"
+                f"skills={','.join(selected_skill_ids)}"
+            ),
+        )
+
+    async def analyst_browser_review_scenario() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(recent_memory=[])
+        runtime = _build_behavior_runtime(
+            memory,
+            web_browser_client=FakeGenericHttpPageClient(),
+        )
+        result = await runtime.run(
+            _behavior_event(
+                event_id="evt-tool-browser-1",
+                trace_id="t-tool-browser-1",
+                text="Read page https://example.com/release-notes and explain the important changes.",
+            )
+        )
+        intent_types = [intent.intent_type for intent in result.plan.domain_intents]
+        selected_skill_ids = [skill.skill_id for skill in result.role.selected_skills]
+        policy = result.system_debug.adaptive_state["role_skill_policy"] if result.system_debug else {}
+        passed = (
+            result.role.selected == "analyst"
+            and "web_browser_access_intent" in intent_types
+            and "generic_http_read_page" in result.action_result.actions
+            and "structured_reasoning" in selected_skill_ids
+            and policy.get("action_skill_execution_allowed") is False
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="analyst_browser_review_via_action_boundary" if passed else "analyst_browser_review_regression",
+            trace_id=result.event.meta.trace_id,
+            notes=(
+                f"role={result.role.selected};"
+                f"intents={','.join(intent_types)};"
+                f"actions={','.join(result.action_result.actions)};"
+                f"skills={','.join(selected_skill_ids)}"
+            ),
+        )
+
+    async def executor_clickup_update_scenario() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(recent_memory=[])
+        memory.user_preferences["preferred_role"] = "executor"
+        memory.user_preferences["preferred_role_confidence"] = 0.94
+        runtime = _build_behavior_runtime(
+            memory,
+            clickup_task_client=FakeClickUpTaskClient(),
+        )
+        result = await runtime.run(
+            _behavior_event(
+                event_id="evt-tool-clickup-1",
+                trace_id="t-tool-clickup-1",
+                text="Can you mark the Release checklist task as done in ClickUp?",
+            )
+        )
+        intent_types = [intent.intent_type for intent in result.plan.domain_intents]
+        selected_skill_ids = [skill.skill_id for skill in result.role.selected_skills]
+        payload = result.memory_record.payload if result.memory_record else {}
+        passed = (
+            result.role.selected == "executor"
+            and "external_task_sync_intent" in intent_types
+            and "clickup_update_task" in result.action_result.actions
+            and "execution_planning" in selected_skill_ids
+            and "connector_boundary_review" in selected_skill_ids
+            and payload.get("task_connector_update") == "update_task:mutate_with_confirmation:clickup"
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="executor_clickup_update_via_action_boundary" if passed else "executor_clickup_update_regression",
+            trace_id=result.event.meta.trace_id,
+            notes=(
+                f"role={result.role.selected};"
+                f"intents={','.join(intent_types)};"
+                f"actions={','.join(result.action_result.actions)};"
+                f"skills={','.join(selected_skill_ids)};"
+                f"task_connector={payload.get('task_connector_update', '')}"
+            ),
+        )
+
+    results = await execute_behavior_scenarios(
+        [
+            BehaviorScenarioDefinition(test_id="T14.1", run=analyst_web_search_scenario),
+            BehaviorScenarioDefinition(test_id="T14.2", run=analyst_browser_review_scenario),
+            BehaviorScenarioDefinition(test_id="T14.3", run=executor_clickup_update_scenario),
         ]
     )
     assert len(results) == 3

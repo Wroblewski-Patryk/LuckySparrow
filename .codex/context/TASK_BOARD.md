@@ -370,14 +370,26 @@ Last updated: 2026-04-22
   - Group: Search, Browser, And Organization Tool Expansion
   - Depends on: PRJ-557
   - Priority: P2
-  - Status: READY
+  - Status: DONE
+  - Result:
+    - behavior-validation scenarios now prove that life-organization and work
+      turns can use the new bounded tool slices only through the existing
+      role, planning, permission-gate, and action boundary
+    - scenario-level coverage now pins:
+      - analyst-driven DuckDuckGo web search
+      - analyst-driven bounded browser page read
+      - executor-aligned ClickUp task update with connector guardrail
+    - the shared behavior-validation artifact and CI gate now include this
+      tool-usage proof instead of relying only on unit and integration tests
+  - Validation:
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 
 - [ ] PRJ-559 Sync docs/context for bounded search, browser, and organization tooling
   - Owner: Product Docs
   - Group: Search, Browser, And Organization Tool Expansion
   - Depends on: PRJ-558
   - Priority: P2
-  - Status: BACKLOG
+  - Status: READY
 
 - [ ] PRJ-560 Freeze the backend work-partner role baseline
   - Owner: Planner

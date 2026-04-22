@@ -185,6 +185,15 @@ Last updated: 2026-04-22
   prove that these new tool paths stay role-governed and bounded through
   behavior-level validation instead of relying only on unit and integration
   regressions.
+- 2026-04-22: `PRJ-558` is complete: behavior-validation now proves that
+  analyst turns can use bounded DuckDuckGo search and generic HTTP page reads,
+  while executor-aligned organization turns can update ClickUp tasks through
+  the existing permission-gate and action boundary instead of bypassing role,
+  planning, or connector guardrails.
+- 2026-04-22: `PRJ-559` is now the first `READY` task; the next slice should
+  synchronize contracts, runtime reality, testing guidance, ops notes, and
+  planning/context truth around the approved bounded search, browser, and
+  organization tool slices plus their new behavior-level proof.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence
