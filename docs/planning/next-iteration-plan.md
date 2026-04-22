@@ -231,6 +231,21 @@ Completed on 2026-04-22:
 
 ## Group 65 - Connector Execution Productionization
 
+Completed on 2026-04-22:
+
+- `PRJ-472` fixed the MVP boundary explicitly: the first live provider-backed
+  connector path is ClickUp task creation, while calendar, cloud-drive, and
+  remaining task-system operations stay policy-only on purpose.
+- `PRJ-473` implemented that path through a dedicated ClickUp task adapter and
+  action-side execution behind the existing connector policy and action
+  envelope guardrails.
+- `PRJ-474` exposed machine-visible readiness posture through
+  `/health.connectors.execution_baseline`, including configured vs
+  credentials-missing state for the ClickUp path.
+- `PRJ-475` synchronized contracts, runtime-reality, config, ops, testing, and
+  planning/context truth around that narrow live baseline so the next lane can
+  move on to retrieval-provider completion.
+
 - `PRJ-472` Decide the MVP production boundary for connector execution adapters.
   - Result:
     - the repo explicitly records which connector families will gain real

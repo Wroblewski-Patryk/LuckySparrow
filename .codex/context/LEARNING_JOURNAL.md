@@ -25,6 +25,33 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-22 - Connector-action tests must carry the same delivery envelope as the plan
+- Context:
+  - adding provider-backed connector execution to `ActionExecutor` while the
+    runtime already enforced `ActionDelivery.execution_envelope` parity.
+- Symptom:
+  - new connector execution tests failed with generic action `fail` posture
+    before the provider client was even exercised.
+- Root cause:
+  - the tests reused `_delivery()` defaults with an empty envelope, but
+    connector-aware plans now require the matching bounded envelope built from
+    planning output.
+- Guardrail:
+  - whenever action tests exercise connector intents, build the delivery
+    envelope from the same `PlanOutput` using
+    `build_action_delivery_execution_envelope(plan)`.
+- Preferred pattern:
+  - create the plan once
+  - derive the delivery envelope from that exact plan
+  - assert provider-backed execution behavior only after envelope parity is
+    satisfied
+- Avoid:
+  - treating empty delivery envelopes as valid defaults for connector-aware
+    action tests
+- Evidence:
+  - `PRJ-472..PRJ-475`
+  - `tests/test_action_executor.py`
+
 ### 2026-04-22 - Runtime table additions must ship with Alembic parity proof
 - Context:
   - post-convergence slices had already introduced durable attention and

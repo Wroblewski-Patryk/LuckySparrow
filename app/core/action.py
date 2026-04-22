@@ -31,6 +31,7 @@ from app.core.connector_policy import (
     connector_intent_policy_violation,
 )
 from app.integrations.delivery_router import DeliveryRouter
+from app.integrations.task_system.clickup_client import ClickUpTaskClient
 from app.integrations.telegram.client import TelegramClient
 from app.memory.embeddings import (
     deterministic_embedding,
@@ -57,6 +58,7 @@ class ActionExecutor:
         embedding_dimensions: int = 32,
         embedding_source_kinds: tuple[str, ...] | None = None,
         embedding_refresh_mode: str = "on_write",
+        clickup_task_client: ClickUpTaskClient | None = None,
     ):
         self.memory_repository = memory_repository
         self.delivery_router = DeliveryRouter(telegram_client=telegram_client)
@@ -71,6 +73,7 @@ class ActionExecutor:
             provider=embedding_provider,
             model=embedding_model,
         )
+        self.clickup_task_client = clickup_task_client
 
     async def execute(self, plan: PlanOutput, delivery: ActionDelivery) -> ActionResult:
         proactive_delivery_guard = plan.proactive_delivery_guard
@@ -99,9 +102,20 @@ class ActionExecutor:
                 actions=[],
                 notes="Action delivery envelope drift detected between planning and action.",
             )
+        connector_execution_result = await self._execute_provider_backed_connector_intents(plan)
+        if connector_execution_result is not None and connector_execution_result.status == "fail":
+            return connector_execution_result
         if not plan.needs_response:
+            if connector_execution_result is not None:
+                return connector_execution_result
             return ActionResult(status="noop", actions=[], notes="No response required.")
-        return await self.delivery_router.deliver(delivery)
+        delivery_result = await self.delivery_router.deliver(delivery)
+        if connector_execution_result is None:
+            return delivery_result
+        return self._merge_connector_execution_with_delivery(
+            connector_execution_result=connector_execution_result,
+            delivery_result=delivery_result,
+        )
 
     async def persist_episode(
         self,
@@ -238,6 +252,67 @@ class ActionExecutor:
             payload=stored.get("payload", {}),
             importance=stored["importance"],
         )
+
+    async def _execute_provider_backed_connector_intents(self, plan: PlanOutput) -> ActionResult | None:
+        if self.clickup_task_client is None or not getattr(self.clickup_task_client, "ready", False):
+            return None
+
+        executed_actions: list[str] = []
+        notes: list[str] = []
+
+        for intent in plan.domain_intents:
+            if not isinstance(intent, ExternalTaskSyncDomainIntent):
+                continue
+            if intent.provider_hint != "clickup" or intent.operation != "create_task":
+                continue
+
+            task_name = self._connector_task_name(intent.task_hint)
+            try:
+                result = await self.clickup_task_client.create_task(
+                    name=task_name,
+                    description=f"Created by AION connector execution from intent: {intent.task_hint}",
+                )
+            except Exception as exc:
+                return ActionResult(
+                    status="fail",
+                    actions=["clickup_create_task"],
+                    notes=f"ClickUp task execution failed: {type(exc).__name__}: {exc}",
+                )
+
+            executed_actions.append("clickup_create_task")
+            task_id = str(result.get("id", "unknown"))
+            notes.append(f"ClickUp task created ({task_id}) for '{task_name}'.")
+
+        if not executed_actions:
+            return None
+
+        return ActionResult(
+            status="success",
+            actions=executed_actions,
+            notes=" ".join(notes),
+        )
+
+    def _merge_connector_execution_with_delivery(
+        self,
+        *,
+        connector_execution_result: ActionResult,
+        delivery_result: ActionResult,
+    ) -> ActionResult:
+        status = delivery_result.status
+        if connector_execution_result.status == "success" and delivery_result.status == "fail":
+            status = "partial"
+        notes = f"{connector_execution_result.notes} {delivery_result.notes}".strip()
+        return ActionResult(
+            status=status,
+            actions=[*connector_execution_result.actions, *delivery_result.actions],
+            notes=notes,
+        )
+
+    def _connector_task_name(self, task_hint: str) -> str:
+        normalized = " ".join(str(task_hint or "").split())
+        if not normalized:
+            return "AION follow-up"
+        return normalized[:120]
 
     async def _apply_domain_intents(self, *, event: Event, plan: PlanOutput) -> dict[str, object]:
         preference_update = ""

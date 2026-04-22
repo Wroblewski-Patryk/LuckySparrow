@@ -155,6 +155,22 @@ Controls when the latest compat-route attempt should be treated as stale in
 
 Default: `86400` (must be at least `1`).
 
+`CLICKUP_API_TOKEN`
+
+Optional provider credential for the first live connector execution path.
+
+When both `CLICKUP_API_TOKEN` and `CLICKUP_LIST_ID` are configured, action may
+execute `task_system:create_task` for `provider_hint=clickup` through the
+provider-backed ClickUp adapter.
+
+`CLICKUP_LIST_ID`
+
+Optional ClickUp list target for the first live connector execution path.
+
+Without both ClickUp fields present, `/health.connectors.execution_baseline`
+must remain in `credentials_missing` posture and task-system execution stays
+policy-only at runtime.
+
 `SEMANTIC_VECTOR_ENABLED`
 
 Controls whether semantic retrieval and embedding persistence use vector

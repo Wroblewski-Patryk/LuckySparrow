@@ -790,6 +790,17 @@ What is already live:
 - action now fails fast on connector intent mode mismatch before delivery side
   effects and persists connector guardrail posture alongside connector intent
   updates for runtime-visible triage
+- `/health.connectors.execution_baseline` now exposes the first live
+  provider-backed connector path:
+  `task_system.clickup_create_task` becomes `provider_backed_ready` only when
+  both `CLICKUP_API_TOKEN` and `CLICKUP_LIST_ID` are configured
+- `ActionExecutor` can now execute the first provider-backed connector action
+  path for `ExternalTaskSyncDomainIntent(operation="create_task",
+  provider_hint="clickup")` through `app/integrations/task_system/`
+  before normal delivery continues
+- `calendar`, `cloud_drive`, and all non-ClickUp task-system operations remain
+  policy-only by design until pre-action read paths and more provider adapters
+  are introduced
 - `/health.runtime_topology` now exposes the reflection/attention switch policy
   and fixed graph/proposal baseline, while `/health.planning_governance`
   exposes bounded inferred goal/task growth and fixed proposal decisions

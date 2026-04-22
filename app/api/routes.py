@@ -24,6 +24,7 @@ from app.core.connector_policy import (
     connector_authorization_matrix_snapshot,
     connector_capability_proposal_snapshot,
 )
+from app.core.connector_execution import connector_execution_baseline_snapshot
 from app.core.deployment_policy import deployment_policy_snapshot
 from app.core.planning_governance import planning_governance_snapshot
 from app.core.runtime_policy import (
@@ -432,6 +433,7 @@ async def health(request: Request) -> dict[str, Any]:
         "connectors": {
             **connector_authorization_matrix_snapshot(),
             "capability_proposal": connector_capability_proposal_snapshot(),
+            "execution_baseline": connector_execution_baseline_snapshot(settings),
         },
         "deployment": deployment_policy_snapshot(),
         "scheduler": {

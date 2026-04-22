@@ -1593,7 +1593,30 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     )
     assert body["identity"]["adaptive_governance"]["theta_authority"] == "foreground_tie_break_only"
     assert body["connectors"]["capability_proposal"]["self_authorization_allowed"] is False
+    assert body["connectors"]["execution_baseline"]["mvp_boundary"] == "clickup_task_create_first_live_path"
+    assert body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["ready"] is False
+    assert (
+        body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["state"]
+        == "credentials_missing"
+    )
     assert body["deployment"]["hosting_baseline"] == "coolify_medium_term_standard"
+
+
+def test_health_endpoint_exposes_provider_backed_clickup_connector_readiness_when_configured() -> None:
+    client, _, _ = _client()
+    client.app.state.settings.clickup_api_token = "clickup-token"
+    client.app.state.settings.clickup_list_id = "list-123"
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    baseline = body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]
+    assert baseline["provider"] == "clickup"
+    assert baseline["execution_mode"] == "provider_backed_when_configured"
+    assert baseline["ready"] is True
+    assert baseline["state"] == "provider_backed_ready"
+    assert baseline["hint"] == "clickup_create_task_live"
 
 
 def test_health_endpoint_exposes_local_hybrid_embedding_provider_as_ready_owner() -> None:

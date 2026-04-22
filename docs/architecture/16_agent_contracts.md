@@ -411,6 +411,17 @@ Rules:
    posture for `calendar`, `task_system`, and `cloud_drive`
 5. action must validate connector intent posture against that shared policy
    before any delivery or external execution path continues
+6. current MVP execution baseline is intentionally narrow:
+   - `task_system:create_task` with `provider_hint=clickup` is the first live
+     provider-backed action path when both `CLICKUP_API_TOKEN` and
+     `CLICKUP_LIST_ID` are configured
+   - `calendar` and `cloud_drive` remain permission-gated planning surfaces
+     without provider adapters
+   - other `task_system` operations remain policy-only until pre-action read
+     paths and additional provider adapters are introduced
+7. `/health.connectors.execution_baseline` must expose whether the selected
+   live path is configured and whether all other connector families remain in
+   policy-only posture by design
 
 ---
 

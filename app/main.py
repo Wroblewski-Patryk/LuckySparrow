@@ -25,6 +25,7 @@ from app.core.runtime_policy import (
 from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.integrations.openai.client import OpenAIClient
+from app.integrations.task_system.clickup_client import ClickUpTaskClient
 from app.integrations.telegram.client import TelegramClient
 from app.memory.embeddings import embedding_strategy_snapshot, normalize_embedding_source_kinds
 from app.memory.repository import MemoryRepository
@@ -416,6 +417,10 @@ async def lifespan(app: FastAPI):
         embedding_dimensions=int(getattr(settings, "embedding_dimensions", 32)),
         embedding_source_kinds=tuple(getattr(settings, "get_embedding_source_kinds", lambda: ("episodic", "semantic", "affective"))()),
         embedding_refresh_mode=str(getattr(settings, "embedding_refresh_mode", "on_write")),
+        clickup_task_client=ClickUpTaskClient(
+            api_token=getattr(settings, "clickup_api_token", None),
+            list_id=getattr(settings, "clickup_list_id", None),
+        ),
     )
     reflection_worker = ReflectionWorker(memory_repository=memory_repository)
     scheduler_worker = SchedulerWorker(

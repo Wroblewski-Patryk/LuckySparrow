@@ -1830,6 +1830,25 @@ Last updated: 2026-04-22
   `16_agent_contracts.md` as the canonical ordering/ownership set.
 - 2026-04-22: the next `READY` lane is Group 65 (`PRJ-472..PRJ-475`),
   focused on connector execution productionization.
+- 2026-04-22: `PRJ-472..PRJ-475` are complete: the first live provider-backed
+  connector path is now explicit and implemented through ClickUp task
+  creation, while calendar, cloud-drive, and remaining task-system operations
+  stay policy-only on purpose.
+- 2026-04-22: action now executes
+  `ExternalTaskSyncDomainIntent(operation="create_task", provider_hint="clickup")`
+  through a dedicated provider adapter when `CLICKUP_API_TOKEN` and
+  `CLICKUP_LIST_ID` are configured, without relaxing the existing
+  `planning -> expression -> action` boundary or shared connector policy.
+- 2026-04-22: `/health.connectors.execution_baseline` now exposes one machine-
+  visible connector execution owner plus readiness posture for the selected
+  ClickUp live path (`provider_backed_ready|credentials_missing`).
+- 2026-04-22: Group 65 validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+  passed with `181 passed`, and
+  `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+  passed with `184 passed`.
+- 2026-04-22: the next `READY` lane is Group 66 (`PRJ-476..PRJ-479`),
+  focused on retrieval provider completion.
 
 ## Working Agreements
 

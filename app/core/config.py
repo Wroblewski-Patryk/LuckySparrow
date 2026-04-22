@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     telegram_bot_token: str | None = None
     telegram_webhook_secret: str | None = None
     database_url: str | None = None
+    clickup_api_token: str | None = None
+    clickup_list_id: str | None = None
     app_env: str = "development"
     app_port: int = 8000
     log_level: str = "INFO"

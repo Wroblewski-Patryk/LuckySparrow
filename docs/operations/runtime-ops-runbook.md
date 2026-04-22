@@ -438,6 +438,11 @@ Production-only required in practice:
 - `OPENAI_API_KEY`
 - `TELEGRAM_BOT_TOKEN`
 
+Required for the first live provider-backed connector path:
+
+- `CLICKUP_API_TOKEN`
+- `CLICKUP_LIST_ID`
+
 Recommended when Telegram webhooks are enabled:
 
 - `TELEGRAM_WEBHOOK_SECRET`
@@ -715,6 +720,13 @@ Important health surfaces for current release checks:
 - `connectors`
   - connector authorization matrix
   - capability-proposal posture for not-yet-authorized expansion
+  - `execution_baseline` shows whether the only current live provider-backed
+    path (`task_system.clickup_create_task`) is configured
+  - `task_system.clickup_create_task.state=credentials_missing` means the repo
+    is still in policy-only posture for task creation at runtime
+  - `task_system.clickup_create_task.state=provider_backed_ready` means action
+    may execute ClickUp task creation after expression when the plan emits the
+    matching typed intent
 - `identity.adaptive_governance`
   - bounded authority model for role horizon, affective rollout,
     preferences, theta, and multilingual/profile posture

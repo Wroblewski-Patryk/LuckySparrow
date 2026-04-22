@@ -141,6 +141,16 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `docs/README.md` and `docs/overview.md` now explicitly direct readers to
     `02/15/16` as the canonical contract set
   - the next active lane is connector execution productionization
+- `PRJ-472..PRJ-475` are now complete:
+  - the first live provider-backed connector path is now explicit and narrow:
+    `task_system:create_task` for ClickUp when both `CLICKUP_API_TOKEN` and
+    `CLICKUP_LIST_ID` are configured
+  - `calendar`, `cloud_drive`, and other task-system operations remain
+    policy-only on purpose until the architecture grows a bounded pre-action
+    read posture and more provider adapters
+  - `/health.connectors.execution_baseline` now exposes whether the selected
+    live connector path is configured or still in `credentials_missing` posture
+  - the next active lane is retrieval provider completion
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
@@ -1081,10 +1091,15 @@ The current repo already works as an MVP slice, but several architecture-level d
   - connector authorization matrix is now explicit for read, suggestion, and
     mutate-with-confirmation posture, and new connector capabilities remain
     proposal-only until explicit user authorization exists.
-- Planned implementation lane:
-  - current implementation baseline for this decision is complete through
-    `PRJ-366` (shared policy owner, permission-gate/action adoption,
-    regressions, and docs/context sync).
+- Follow-up implementation (resolved in `PRJ-472..PRJ-475`, 2026-04-22):
+  - the first live provider-backed connector path is now
+    `task_system:create_task` for `provider_hint=clickup`, executed only from
+    explicit typed intents and only when ClickUp credentials are configured
+  - `/health.connectors.execution_baseline` now exposes the selected live path
+    and its readiness posture
+  - `calendar`, `cloud_drive`, and remaining task-system operations stay
+    policy-only until pre-action read semantics and additional providers are
+    explicitly designed
 
 ### 13. Runtime Behavior Validation Surface
 

@@ -52,23 +52,23 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-472 Decide the MVP production boundary for connector execution adapters
+- [ ] PRJ-476 Define the target provider-owned retrieval baseline beyond deterministic fallback
   - Owner: Planner
-  - Group: Connector Execution Productionization
-  - Depends on: PRJ-471
+  - Group: Retrieval Provider Completion
+  - Depends on: PRJ-475
   - Priority: P1
   - Why now:
-    - schema truth and canonical-doc consistency are now aligned, so the next
-      live architecture gap is connector runtime behavior that is still mostly
-      policy-only rather than provider-backed
+    - connector execution now has one narrow live provider-backed path, so the
+      next remaining productionization gap is retrieval, where provider-owned
+      posture is still only partially realized
   - Done when:
-    - the repo records which connector families stay proposal-only and which
-      one will gain the first provider-backed execution path
-    - action/policy/docs can move forward without ambiguous connector scope
+    - the repo records which provider-owned retrieval path is the intended
+      production baseline beyond deterministic fallback
+    - runtime policy, health posture, and future implementation can proceed
+      without ambiguity about provider ownership or fallback expectations
   - Validation:
-    - cross-review across `docs/planning/open-decisions.md`,
-      `docs/architecture/16_agent_contracts.md`, and
-      `docs/operations/runtime-ops-runbook.md`
+    - cross-review across retrieval docs, env/config guidance, and
+      `docs/planning/open-decisions.md`
 
 ## BACKLOG
 
@@ -91,6 +91,72 @@ Last updated: 2026-04-22
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-475 Sync docs/context for connector execution productionization
+  - Status: DONE
+  - Group: Connector Execution Productionization
+  - Owner: Product Docs
+  - Depends on: PRJ-474
+  - Priority: P1
+  - Result:
+    - canonical contracts, runtime reality, env/config guidance, ops notes,
+      testing guidance, and planning/context truth now describe one narrow
+      connector execution baseline
+    - the selected live path is explicit: ClickUp task creation is
+      provider-backed when configured, while calendar, drive, and remaining
+      task-system operations stay policy-only on purpose
+  - Validation:
+    - doc-and-context sync across canonical docs, implementation docs,
+      ops/config guidance, and planning surfaces
+
+- [x] PRJ-474 Add health/debug visibility and failure posture for provider-backed connector execution
+  - Status: DONE
+  - Group: Connector Execution Productionization
+  - Owner: Ops/Release
+  - Depends on: PRJ-473
+  - Priority: P1
+  - Result:
+    - `/health.connectors.execution_baseline` now exposes one explicit
+      execution owner, the selected MVP boundary, and ClickUp readiness/failure
+      posture
+    - operator triage can now distinguish policy-only connector families from
+      the one configured provider-backed path without reading action code
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+
+- [x] PRJ-473 Implement the first provider-backed connector execution path behind existing policy gates
+  - Status: DONE
+  - Group: Connector Execution Productionization
+  - Owner: Backend Builder
+  - Depends on: PRJ-472
+  - Priority: P1
+  - Result:
+    - action can now execute `task_system:create_task` for
+      `provider_hint=clickup` through a dedicated provider adapter when ClickUp
+      credentials are configured
+    - the new path stays inside the existing `planning -> expression -> action`
+      boundary and remains guarded by shared connector policy plus delivery
+      envelope parity
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+
+- [x] PRJ-472 Decide the MVP production boundary for connector execution adapters
+  - Status: DONE
+  - Group: Connector Execution Productionization
+  - Owner: Planner
+  - Depends on: PRJ-471
+  - Priority: P1
+  - Result:
+    - the repo now records one explicit MVP execution boundary:
+      `task_system:create_task` for ClickUp is the first live provider-backed
+      path
+    - `calendar`, `cloud_drive`, and other task-system operations remain
+      policy-only until pre-action read posture and more provider adapters
+      exist
+  - Validation:
+    - cross-review across `docs/planning/open-decisions.md`,
+      `docs/architecture/16_agent_contracts.md`, and
+      `docs/operations/runtime-ops-runbook.md`
 
 - [x] PRJ-471 Sync planning/context for canonical docs consistency
   - Status: DONE

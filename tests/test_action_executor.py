@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from app.core.action import ActionExecutor
+from app.core.action_delivery import build_action_delivery_execution_envelope
 from app.core.contracts import (
     ActionDelivery,
     ActionDeliveryConnectorIntent,
@@ -112,6 +113,19 @@ class FakeTelegramClient:
         if self.error is not None:
             raise self.error
         return {"ok": True}
+
+
+class FakeClickUpTaskClient:
+    def __init__(self, *, ready: bool = True, error: Exception | None = None):
+        self.ready = ready
+        self.error = error
+        self.calls: list[dict[str, str]] = []
+
+    async def create_task(self, *, name: str, description: str = "") -> dict:
+        self.calls.append({"name": name, "description": description})
+        if self.error is not None:
+            raise self.error
+        return {"id": "clk_123", "name": name}
 
 
 def _event(text: str) -> Event:
@@ -237,6 +251,82 @@ async def test_execute_handles_telegram_delivery_exception_as_fail_result() -> N
     assert "TimeoutError" in result.notes
     assert "upstream timeout" in result.notes
     assert telegram_client.calls == [{"chat_id": 123456, "text": "hello"}]
+
+
+async def test_execute_runs_provider_backed_clickup_task_creation_before_delivery() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    clickup_client = FakeClickUpTaskClient()
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=telegram_client,
+        clickup_task_client=clickup_client,
+    )
+
+    plan = _plan(
+        domain_intents=[
+            ExternalTaskSyncDomainIntent(
+                operation="create_task",
+                provider_hint="clickup",
+                mode="mutate_with_confirmation",
+                task_hint="Create launch checklist in ClickUp",
+            )
+        ]
+    )
+
+    result = await executor.execute(
+        plan,
+        _delivery(
+            channel="api",
+            execution_envelope=build_action_delivery_execution_envelope(plan),
+        ),
+    )
+
+    assert result.status == "success"
+    assert result.actions == ["clickup_create_task", "api_response"]
+    assert "ClickUp task created (clk_123)" in result.notes
+    assert clickup_client.calls == [
+        {
+            "name": "Create launch checklist in ClickUp",
+            "description": "Created by AION connector execution from intent: Create launch checklist in ClickUp",
+        }
+    ]
+
+
+async def test_execute_fails_when_provider_backed_clickup_execution_errors() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    clickup_client = FakeClickUpTaskClient(error=RuntimeError("clickup unavailable"))
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=telegram_client,
+        clickup_task_client=clickup_client,
+    )
+
+    plan = _plan(
+        domain_intents=[
+            ExternalTaskSyncDomainIntent(
+                operation="create_task",
+                provider_hint="clickup",
+                mode="mutate_with_confirmation",
+                task_hint="Create launch checklist in ClickUp",
+            )
+        ]
+    )
+
+    result = await executor.execute(
+        plan,
+        _delivery(
+            channel="telegram",
+            chat_id=123456,
+            execution_envelope=build_action_delivery_execution_envelope(plan),
+        ),
+    )
+
+    assert result.status == "fail"
+    assert result.actions == ["clickup_create_task"]
+    assert "clickup unavailable" in result.notes
+    assert telegram_client.calls == []
 
 
 async def test_execute_blocks_connector_intent_when_mode_violates_shared_policy() -> None:
