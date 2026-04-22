@@ -411,7 +411,13 @@ The current repo already works as an MVP slice, but several architecture-level d
     proactive run-evidence posture plus bounded duplicate-protection evidence
   - external cadence target-mode selection is now distinct from proven cutover
     readiness through `cutover_proof_ready`
-  - the next active slice is `PRJ-534` for smoke and behavior evidence
+- `PRJ-534` is now complete:
+  - release smoke validates the new external cadence proof fields directly
+    from `/health.scheduler.external_owner_policy`
+  - behavior-validation gate logic validates the same proof surface from
+    exported incident evidence and now fails on incomplete scheduler cutover
+    payloads
+  - the next active slice is `PRJ-535` for docs/context sync
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

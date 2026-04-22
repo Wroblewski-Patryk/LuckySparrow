@@ -732,6 +732,43 @@ if (-not (Has-Property -Object $externalSchedulerPolicy -Name "proactive_entrypo
 if (-not (Has-Property -Object $externalSchedulerPolicy -Name "production_baseline_ready")) {
     throw "Health check failed: scheduler.external_owner_policy is missing production_baseline_ready."
 }
+if (-not (Has-Property -Object $externalSchedulerPolicy -Name "cutover_proof_owner")) {
+    throw "Health check failed: scheduler.external_owner_policy is missing cutover_proof_owner."
+}
+if (-not (Has-Property -Object $externalSchedulerPolicy -Name "cutover_proof_ready")) {
+    throw "Health check failed: scheduler.external_owner_policy is missing cutover_proof_ready."
+}
+if (-not (Has-Property -Object $externalSchedulerPolicy -Name "maintenance_run_evidence")) {
+    throw "Health check failed: scheduler.external_owner_policy is missing maintenance_run_evidence."
+}
+if (-not (Has-Property -Object $externalSchedulerPolicy -Name "proactive_run_evidence")) {
+    throw "Health check failed: scheduler.external_owner_policy is missing proactive_run_evidence."
+}
+if (-not (Has-Property -Object $externalSchedulerPolicy -Name "duplicate_protection_posture")) {
+    throw "Health check failed: scheduler.external_owner_policy is missing duplicate_protection_posture."
+}
+$validExternalCadenceEvidenceStates = @(
+    "missing_external_run_evidence",
+    "stale_external_run_evidence",
+    "recent_external_run_evidence",
+    "recent_external_run_non_success"
+)
+$validDuplicateProtectionStates = @(
+    "single_owner_boundary_clear",
+    "app_local_conflict_detected"
+)
+if ([string]$externalSchedulerPolicy.cutover_proof_owner -ne "external_scheduler_cutover_proof_policy") {
+    throw "Health check failed: unexpected scheduler cutover proof owner '$($externalSchedulerPolicy.cutover_proof_owner)'."
+}
+if ($validExternalCadenceEvidenceStates -notcontains [string]$externalSchedulerPolicy.maintenance_run_evidence.evidence_state) {
+    throw "Health check failed: unexpected maintenance_run_evidence state '$($externalSchedulerPolicy.maintenance_run_evidence.evidence_state)'."
+}
+if ($validExternalCadenceEvidenceStates -notcontains [string]$externalSchedulerPolicy.proactive_run_evidence.evidence_state) {
+    throw "Health check failed: unexpected proactive_run_evidence state '$($externalSchedulerPolicy.proactive_run_evidence.evidence_state)'."
+}
+if ($validDuplicateProtectionStates -notcontains [string]$externalSchedulerPolicy.duplicate_protection_posture.state) {
+    throw "Health check failed: unexpected duplicate_protection_posture state '$($externalSchedulerPolicy.duplicate_protection_posture.state)'."
+}
 $memoryRetrieval = $health.memory_retrieval
 if ($null -eq $memoryRetrieval) {
     throw "Health check failed: response is missing memory_retrieval."
@@ -875,10 +912,15 @@ $summary = @{
     deployment_hosting_baseline = [string]$deployment.hosting_baseline
     deployment_manual_fallback_exception_rate_percent = [double]$deployment.deployment_trigger_slo.manual_redeploy_exception_rate_percent
     scheduler_external_policy_owner = [string]$externalSchedulerPolicy.policy_owner
+    scheduler_external_cutover_proof_owner = [string]$externalSchedulerPolicy.cutover_proof_owner
     scheduler_external_maintenance_entrypoint = [string]$externalSchedulerPolicy.maintenance_entrypoint_path
     scheduler_external_proactive_entrypoint = [string]$externalSchedulerPolicy.proactive_entrypoint_path
     scheduler_external_baseline_ready = [bool]$externalSchedulerPolicy.production_baseline_ready
     scheduler_external_baseline_state = [string]$externalSchedulerPolicy.production_baseline_state
+    scheduler_external_cutover_proof_ready = [bool]$externalSchedulerPolicy.cutover_proof_ready
+    scheduler_external_maintenance_evidence_state = [string]$externalSchedulerPolicy.maintenance_run_evidence.evidence_state
+    scheduler_external_proactive_evidence_state = [string]$externalSchedulerPolicy.proactive_run_evidence.evidence_state
+    scheduler_external_duplicate_protection_state = [string]$externalSchedulerPolicy.duplicate_protection_posture.state
     retrieval_lifecycle_policy_owner = [string]$memoryRetrieval.retrieval_lifecycle_policy_owner
     retrieval_lifecycle_provider_drift_state = [string]$memoryRetrieval.retrieval_lifecycle_provider_drift_state
     retrieval_lifecycle_alignment_state = [string]$memoryRetrieval.retrieval_lifecycle_alignment_state

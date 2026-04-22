@@ -39,6 +39,7 @@ GATE_REASON_INCIDENT_EVIDENCE_SCHEMA_MAJOR_VERSION_MISMATCH = "incident_evidence
 GATE_REASON_INCIDENT_EVIDENCE_POLICY_SURFACE_INCOMPLETE = "incident_evidence_policy_surface_incomplete"
 GATE_REASON_INCIDENT_EVIDENCE_DEBUG_POSTURE_INVALID = "incident_evidence_debug_posture_invalid"
 GATE_REASON_INCIDENT_EVIDENCE_DEBUG_EXCEPTION_STATE_INVALID = "incident_evidence_debug_exception_state_invalid"
+GATE_REASON_INCIDENT_EVIDENCE_EXTERNAL_CADENCE_PROOF_INVALID = "incident_evidence_external_cadence_proof_invalid"
 
 
 @dataclass(frozen=True)
@@ -303,6 +304,12 @@ def _evaluate_incident_evidence_input(
         "incident_evidence_debug_sunset_ready": None,
         "incident_evidence_debug_exception_reason": None,
         "incident_evidence_debug_exception_state": None,
+        "incident_evidence_scheduler_cutover_proof_owner": None,
+        "incident_evidence_scheduler_cutover_proof_ready": None,
+        "incident_evidence_scheduler_cutover_proof_state": None,
+        "incident_evidence_scheduler_maintenance_evidence_state": None,
+        "incident_evidence_scheduler_proactive_evidence_state": None,
+        "incident_evidence_scheduler_duplicate_protection_state": None,
     }
     violations: list[str] = []
 
@@ -368,6 +375,51 @@ def _evaluate_incident_evidence_input(
         )
     else:
         violations.append(GATE_REASON_INCIDENT_EVIDENCE_DEBUG_EXCEPTION_STATE_INVALID)
+
+    scheduler_policy = {}
+    if isinstance(policy_posture, dict):
+        candidate_scheduler_policy = policy_posture.get("scheduler.external_owner_policy")
+        if isinstance(candidate_scheduler_policy, dict):
+            scheduler_policy = candidate_scheduler_policy
+
+    maintenance_evidence = scheduler_policy.get("maintenance_run_evidence")
+    proactive_evidence = scheduler_policy.get("proactive_run_evidence")
+    duplicate_protection = scheduler_policy.get("duplicate_protection_posture")
+    context["incident_evidence_scheduler_cutover_proof_owner"] = scheduler_policy.get("cutover_proof_owner")
+    context["incident_evidence_scheduler_cutover_proof_ready"] = scheduler_policy.get("cutover_proof_ready")
+    context["incident_evidence_scheduler_cutover_proof_state"] = scheduler_policy.get("cutover_proof_state")
+    if isinstance(maintenance_evidence, dict):
+        context["incident_evidence_scheduler_maintenance_evidence_state"] = maintenance_evidence.get(
+            "evidence_state"
+        )
+    if isinstance(proactive_evidence, dict):
+        context["incident_evidence_scheduler_proactive_evidence_state"] = proactive_evidence.get(
+            "evidence_state"
+        )
+    if isinstance(duplicate_protection, dict):
+        context["incident_evidence_scheduler_duplicate_protection_state"] = duplicate_protection.get("state")
+
+    valid_external_cadence_states = {
+        "missing_external_run_evidence",
+        "stale_external_run_evidence",
+        "recent_external_run_evidence",
+        "recent_external_run_non_success",
+    }
+    valid_duplicate_protection_states = {
+        "single_owner_boundary_clear",
+        "app_local_conflict_detected",
+    }
+    external_cadence_proof_valid = (
+        scheduler_policy.get("policy_owner") == "external_scheduler_cadence_policy"
+        and scheduler_policy.get("cutover_proof_owner") == "external_scheduler_cutover_proof_policy"
+        and isinstance(scheduler_policy.get("cutover_proof_ready"), bool)
+        and isinstance(scheduler_policy.get("cutover_proof_state"), str)
+        and context["incident_evidence_scheduler_maintenance_evidence_state"] in valid_external_cadence_states
+        and context["incident_evidence_scheduler_proactive_evidence_state"] in valid_external_cadence_states
+        and context["incident_evidence_scheduler_duplicate_protection_state"] in valid_duplicate_protection_states
+    )
+    if not external_cadence_proof_valid:
+        violations.append(GATE_REASON_INCIDENT_EVIDENCE_EXTERNAL_CADENCE_PROOF_INVALID)
 
     return violations, context
 
@@ -483,6 +535,7 @@ def main() -> int:
         "policy_surface_complete": None,
         "stage_count": None,
         "debug_exception_state": None,
+        "scheduler_cutover_proof_state": None,
     }
     if incident_evidence_input_path is not None:
         incident_payload, incident_read_violations = _load_incident_evidence_payload(
@@ -502,6 +555,9 @@ def main() -> int:
                 "policy_surface_complete": incident_context.get("incident_evidence_policy_surface_complete"),
                 "stage_count": incident_context.get("incident_evidence_stage_count"),
                 "debug_exception_state": incident_context.get("incident_evidence_debug_exception_state"),
+                "scheduler_cutover_proof_state": incident_context.get(
+                    "incident_evidence_scheduler_cutover_proof_state"
+                ),
             }
         else:
             incident_evidence_summary = {
@@ -512,6 +568,7 @@ def main() -> int:
                 "policy_surface_complete": False,
                 "stage_count": 0,
                 "debug_exception_state": None,
+                "scheduler_cutover_proof_state": None,
             }
         if incident_read_violations or incident_violations:
             gate_status = "fail"

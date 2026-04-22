@@ -147,10 +147,21 @@ def stub_aion_server() -> _StubAionServer:
             "healthy": True,
             "external_owner_policy": {
                 "policy_owner": "external_scheduler_cadence_policy",
+                "cutover_proof_owner": "external_scheduler_cutover_proof_policy",
                 "maintenance_entrypoint_path": "scripts/run_maintenance_tick_once.py",
                 "proactive_entrypoint_path": "scripts/run_proactive_tick_once.py",
+                "maintenance_run_evidence": {
+                    "evidence_state": "missing_external_run_evidence",
+                },
+                "proactive_run_evidence": {
+                    "evidence_state": "missing_external_run_evidence",
+                },
+                "duplicate_protection_posture": {
+                    "state": "single_owner_boundary_clear",
+                },
+                "cutover_proof_ready": False,
                 "production_baseline_ready": False,
-                "production_baseline_state": "in_process_scheduler_transitional_fallback",
+                "production_baseline_state": "external_scheduler_target_without_cutover_proof",
             },
         },
         "reflection": {
@@ -230,6 +241,18 @@ def stub_aion_server() -> _StubAionServer:
                 },
                 "scheduler.external_owner_policy": {
                     "policy_owner": "external_scheduler_cadence_policy",
+                    "cutover_proof_owner": "external_scheduler_cutover_proof_policy",
+                    "maintenance_run_evidence": {
+                        "evidence_state": "missing_external_run_evidence",
+                    },
+                    "proactive_run_evidence": {
+                        "evidence_state": "missing_external_run_evidence",
+                    },
+                    "duplicate_protection_posture": {
+                        "state": "single_owner_boundary_clear",
+                    },
+                    "cutover_proof_ready": False,
+                    "cutover_proof_state": "external_scheduler_target_only",
                 },
                 "reflection.supervision": {
                     "policy_owner": "deferred_reflection_supervision_policy",
@@ -344,6 +367,18 @@ def _write_incident_bundle(
                 },
             "scheduler.external_owner_policy": {
                 "policy_owner": "external_scheduler_cadence_policy",
+                "cutover_proof_owner": "external_scheduler_cutover_proof_policy",
+                "maintenance_run_evidence": {
+                    "evidence_state": "missing_external_run_evidence",
+                },
+                "proactive_run_evidence": {
+                    "evidence_state": "missing_external_run_evidence",
+                },
+                "duplicate_protection_posture": {
+                    "state": "single_owner_boundary_clear",
+                },
+                "cutover_proof_ready": False,
+                "cutover_proof_state": "external_scheduler_target_only",
             },
             "reflection.supervision": {
                 "policy_owner": "deferred_reflection_supervision_policy",
@@ -476,7 +511,7 @@ def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
     assert summary["scheduler_external_maintenance_entrypoint"] == "scripts/run_maintenance_tick_once.py"
     assert summary["scheduler_external_proactive_entrypoint"] == "scripts/run_proactive_tick_once.py"
     assert summary["scheduler_external_baseline_ready"] is False
-    assert summary["scheduler_external_baseline_state"] == "in_process_scheduler_transitional_fallback"
+    assert summary["scheduler_external_baseline_state"] == "external_scheduler_target_without_cutover_proof"
     assert summary["retrieval_lifecycle_policy_owner"] == "retrieval_lifecycle_policy"
     assert summary["retrieval_lifecycle_provider_drift_state"] == "compatibility_fallback_active"
     assert summary["retrieval_lifecycle_alignment_state"] == "lifecycle_gaps_present"
@@ -541,6 +576,11 @@ def test_release_smoke_validates_exported_incident_evidence_when_debug_mode_is_r
     assert summary["incident_evidence_policy_surface_complete"] is True
     assert summary["incident_evidence_debug_posture_state"] == "dedicated_admin_only"
     assert summary["incident_evidence_debug_exception_state"] == "shared_debug_break_glass_only"
+    assert summary["scheduler_external_cutover_proof_owner"] == "external_scheduler_cutover_proof_policy"
+    assert summary["scheduler_external_cutover_proof_ready"] is False
+    assert summary["scheduler_external_maintenance_evidence_state"] == "missing_external_run_evidence"
+    assert summary["scheduler_external_proactive_evidence_state"] == "missing_external_run_evidence"
+    assert summary["scheduler_external_duplicate_protection_state"] == "single_owner_boundary_clear"
 
 
 def test_release_smoke_verifies_incident_evidence_bundle_when_bundle_path_is_provided(
@@ -683,3 +723,19 @@ def test_release_smoke_fails_when_compatibility_sunset_evidence_is_missing(
     assert result.returncode != 0
     combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
     assert "runtime_policy is missing compatibility_sunset_ready" in combined_output
+
+
+def test_release_smoke_fails_when_external_cadence_cutover_fields_are_missing(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    scheduler = dict(_StubAionHandler.health_payload["scheduler"])
+    external_owner_policy = dict(scheduler["external_owner_policy"])
+    external_owner_policy.pop("cutover_proof_owner", None)
+    scheduler["external_owner_policy"] = external_owner_policy
+    _StubAionHandler.health_payload["scheduler"] = scheduler
+
+    result = _run_release_smoke("-BaseUrl", stub_aion_server.base_url, cwd=ROOT)
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "scheduler.external_owner_policy is missing cutover_proof_owner" in combined_output

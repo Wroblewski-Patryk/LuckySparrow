@@ -105,9 +105,13 @@ Last updated: 2026-04-22
   proactive external run evidence, bounded duplicate-protection posture, and
   `cutover_proof_ready` so proven cutover is distinct from target-mode
   selection.
-- 2026-04-22: `PRJ-534` is now the first `READY` task; the next slice should
-  add release-smoke and behavior evidence for the new external cadence
-  cutover fields.
+- 2026-04-22: `PRJ-534` is complete: release smoke and behavior-validation
+  gate logic now validate the external cadence cutover proof surface, so
+  missing proof owner, invalid evidence states, and incomplete duplicate-
+  protection posture are caught as explicit failures.
+- 2026-04-22: `PRJ-535` is now the first `READY` task; the next slice should
+  synchronize runtime reality, testing guidance, ops notes, and context truth
+  for the new external cadence cutover evidence baseline.
 - 2026-04-22: Group 76 (`PRJ-516..PRJ-519`) is now complete, and the next
   `READY` task is `PRJ-520` for dedicated debug-ingress compatibility
   retirement.

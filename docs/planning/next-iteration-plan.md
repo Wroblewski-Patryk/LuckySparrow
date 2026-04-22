@@ -402,7 +402,11 @@ duplicate-protection posture.
   exposes per-cadence external run evidence plus bounded duplicate-protection
   posture and `cutover_proof_ready`, so selected target mode is distinct from
   proven external cutover readiness.
-- the next active slice in this lane is `PRJ-534`.
+- `PRJ-534` is complete: release smoke and behavior-validation gates now
+  validate the external cadence cutover proof surface, including proof owner,
+  per-cadence evidence states, duplicate-protection posture, and missing-field
+  failures from exported incident evidence.
+- the next active slice in this lane is `PRJ-535`.
 
 - `PRJ-532` Define the external cadence cutover proof baseline.
   - Result:

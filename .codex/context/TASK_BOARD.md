@@ -481,24 +481,32 @@ Last updated: 2026-04-22
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 
-- [ ] PRJ-534 Add smoke and behavior evidence for external cadence cutover readiness
+- [x] PRJ-534 Add smoke and behavior evidence for external cadence cutover readiness
   - Owner: QA/Test
   - Group: External Cadence Cutover Proof
   - Depends on: PRJ-533
   - Priority: P1
-  - Status: READY
+  - Status: DONE
   - Done when:
     - release and behavior evidence can prove external cadence ownership
       posture through the agreed cutover fields and failure cases
+  - Result:
+    - `run_release_smoke.ps1` now validates external cadence cutover proof
+      owner, per-cadence evidence states, duplicate-protection posture, and
+      missing-field failures through `/health.scheduler.external_owner_policy`
+    - `run_behavior_validation.py` now validates the same external cadence
+      proof surface from exported `incident_evidence`, so CI gate artifacts
+      fail on incomplete scheduler cutover payloads instead of only recording
+      debug-posture evidence
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_scheduler_worker.py tests/test_runtime_pipeline.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
 
 - [ ] PRJ-535 Sync docs/context for external cadence cutover proof
   - Owner: Product Docs
   - Group: External Cadence Cutover Proof
   - Depends on: PRJ-534
   - Priority: P1
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - implementation reality, ops guidance, testing guidance, planning, and
       context truth all describe the same external cadence cutover evidence
