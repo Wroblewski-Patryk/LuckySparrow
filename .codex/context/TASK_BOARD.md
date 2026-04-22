@@ -175,13 +175,17 @@ Last updated: 2026-04-22
     `PRJ-525`.
 
 - Group 78 note:
-  - `PRJ-524..PRJ-525` are now complete.
+  - `PRJ-524..PRJ-526` are now complete.
   - the bounded calendar read lane now has one explicit provider
     (`google_calendar`), one provider-backed action adapter, and one bounded
     output shape limited to normalized availability evidence instead of raw
     event payloads.
-  - `PRJ-526` is the next active slice for operator-visible readiness and
-    failure posture through `/health.connectors`.
+  - `/health.connectors.execution_baseline` now distinguishes calendar
+    `policy_only` remainder from bounded `google_calendar_read_availability`
+    posture through machine-visible `credentials_missing` vs
+    `provider_backed_ready` states.
+  - `PRJ-527` is the next active slice for docs/context sync of the bounded
+    calendar read baseline.
 
 - [x] PRJ-520 Freeze the shared debug compatibility retirement gate
   - Owner: Planner
@@ -301,16 +305,22 @@ Last updated: 2026-04-22
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
-- [ ] PRJ-526 Expose calendar-read readiness and failure posture through `/health.connectors`
+- [x] PRJ-526 Expose calendar-read readiness and failure posture through `/health.connectors`
   - Owner: Ops/Release
   - Group: Calendar Read Connector Baseline
   - Depends on: PRJ-525
   - Priority: P2
-  - Status: READY
+  - Status: DONE
   - Done when:
     - operators can distinguish policy-only, credentials-missing, and
       provider-backed-ready calendar read posture through the existing health
       contract
+  - Result:
+    - `/health.connectors.execution_baseline` now exposes bounded calendar
+      read posture under `calendar.google_calendar_read_availability` with one
+      shared `provider_backed_when_configured` contract
+    - operators can now distinguish configured live-read posture from missing
+      credentials through machine-visible `ready`, `state`, and `hint` fields
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
@@ -319,7 +329,7 @@ Last updated: 2026-04-22
   - Group: Calendar Read Connector Baseline
   - Depends on: PRJ-526
   - Priority: P2
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - canonical contracts, runtime reality, ops notes, testing guidance, and
       context truth all describe the same bounded calendar read baseline

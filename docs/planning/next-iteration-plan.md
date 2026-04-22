@@ -294,7 +294,11 @@ Completed on 2026-04-22:
   with `provider_hint=google_calendar`, and action executes it through a
   dedicated Google Calendar availability adapter that returns only normalized
   availability evidence, busy-window counts, and top free-slot previews.
-- the next active slice in this lane is `PRJ-526`.
+- `PRJ-526` is complete: `/health.connectors.execution_baseline` now exposes
+  `calendar.google_calendar_read_availability` with machine-visible
+  `credentials_missing|provider_backed_ready` posture and one bounded
+  `provider_backed_when_configured` readiness contract for operators.
+- the next active slice in this lane is `PRJ-527`.
 
 - `PRJ-524` Define the first bounded calendar read baseline.
   - Result:

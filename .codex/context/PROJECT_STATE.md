@@ -68,9 +68,14 @@ Last updated: 2026-04-22
   Calendar availability adapter that returns normalized window evidence,
   busy-window count, and free-slot preview without raw calendar event
   payloads.
-- 2026-04-22: `PRJ-526` is now the first `READY` task; the next slice should
-  expose calendar-read readiness and failure posture through
-  `/health.connectors`.
+- 2026-04-22: `PRJ-526` is complete: `/health.connectors.execution_baseline`
+  now exposes `calendar.google_calendar_read_availability` with one shared
+  `provider_backed_when_configured` contract and machine-visible
+  `credentials_missing|provider_backed_ready` posture for the bounded calendar
+  live-read path.
+- 2026-04-22: `PRJ-527` is now the first `READY` task; the next slice should
+  synchronize contracts, runtime reality, ops notes, testing guidance, and
+  context truth for the bounded calendar read baseline.
 - 2026-04-22: Group 76 (`PRJ-516..PRJ-519`) is now complete, and the next
   `READY` task is `PRJ-520` for dedicated debug-ingress compatibility
   retirement.

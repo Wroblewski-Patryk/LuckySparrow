@@ -368,7 +368,13 @@ The current repo already works as an MVP slice, but several architecture-level d
   - action executes that intent through a bounded Google Calendar availability
     adapter and returns only normalized window evidence, busy-window counts,
     and free-slot preview notes
-  - the next active slice in this lane is `PRJ-526`
+- `PRJ-526` is now complete:
+  - `/health.connectors.execution_baseline` exposes
+    `calendar.google_calendar_read_availability` as the bounded live-read
+    posture for operators
+  - readiness is now machine-visible as `credentials_missing` or
+    `provider_backed_ready` without widening the existing connector boundary
+  - the next active slice in this lane is `PRJ-527`
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

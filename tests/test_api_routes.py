@@ -1724,7 +1724,10 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     )
     assert body["identity"]["adaptive_governance"]["theta_authority"] == "foreground_tie_break_only"
     assert body["connectors"]["capability_proposal"]["self_authorization_allowed"] is False
-    assert body["connectors"]["execution_baseline"]["mvp_boundary"] == "clickup_task_create_and_list_first_live_paths"
+    assert (
+        body["connectors"]["execution_baseline"]["mvp_boundary"]
+        == "clickup_task_create_and_list_plus_google_calendar_read_availability_first_live_paths"
+    )
     assert body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["ready"] is False
     assert (
         body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["state"]
@@ -1734,6 +1737,13 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     assert (
         body["connectors"]["execution_baseline"]["task_system"]["clickup_list_tasks"]["state"]
         == "credentials_missing"
+    )
+    calendar_baseline = body["connectors"]["execution_baseline"]["calendar"]["google_calendar_read_availability"]
+    assert calendar_baseline["ready"] is False
+    assert calendar_baseline["state"] == "credentials_missing"
+    assert (
+        calendar_baseline["hint"]
+        == "configure_google_calendar_access_token_and_google_calendar_calendar_id_for_live_read_execution"
     )
     assert body["deployment"]["hosting_baseline"] == "coolify_medium_term_standard"
 
@@ -1759,6 +1769,23 @@ def test_health_endpoint_exposes_provider_backed_clickup_connector_readiness_whe
     assert read_baseline["ready"] is True
     assert read_baseline["state"] == "provider_backed_ready"
     assert read_baseline["hint"] == "clickup_list_tasks_live"
+
+
+def test_health_endpoint_exposes_provider_backed_google_calendar_readiness_when_configured() -> None:
+    client, _, _ = _client()
+    client.app.state.settings.google_calendar_access_token = "google-calendar-token"
+    client.app.state.settings.google_calendar_calendar_id = "primary"
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    read_baseline = body["connectors"]["execution_baseline"]["calendar"]["google_calendar_read_availability"]
+    assert read_baseline["provider"] == "google_calendar"
+    assert read_baseline["execution_mode"] == "provider_backed_when_configured"
+    assert read_baseline["ready"] is True
+    assert read_baseline["state"] == "provider_backed_ready"
+    assert read_baseline["hint"] == "google_calendar_read_availability_live"
 
 
 def test_health_endpoint_exposes_local_hybrid_embedding_provider_as_ready_owner() -> None:
