@@ -213,6 +213,13 @@ Last updated: 2026-04-22
   - Group: Learned-State And Skill Introspection
   - Depends on: PRJ-547
   - Priority: P1
+  - Status: DONE
+
+- [ ] PRJ-549 Expose backend inspection surfaces for learned state and planning state
+  - Owner: Backend Builder
+  - Group: Learned-State And Skill Introspection
+  - Depends on: PRJ-548
+  - Priority: P1
   - Status: READY
 
 - [ ] PRJ-552 Define the architecture baseline for web search and browser tool families

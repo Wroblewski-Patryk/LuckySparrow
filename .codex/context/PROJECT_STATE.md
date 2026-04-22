@@ -100,6 +100,15 @@ Last updated: 2026-04-22
   freeze the learned-state introspection baseline for roles, skills, learned
   preferences, and other operator-visible growth surfaces needed before `v2`
   UI/API work.
+- 2026-04-22: `PRJ-548` is complete: the canonical contract now separates
+  learned knowledge, learned preferences, selected role, selected skill
+  metadata, planning state, and adaptive-versus-identity ownership, while also
+  freezing a truthfulness rule that `v1` may expose selected skill metadata but
+  must not pretend to have self-modifying executable skill learning.
+- 2026-04-22: `PRJ-549` is now the first `READY` task; the next slice should
+  expose backend-owned inspection surfaces for learned state and planning state
+  so future UI can read real runtime truth instead of reconstructing it
+  client-side.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence

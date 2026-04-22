@@ -597,6 +597,52 @@ Bounded reminder-preference contract:
 4. richer scheduling semantics such as calendar-grade due dates, recurrence
    editing, or UI-managed reminder controls remain outside the `v1` baseline
 
+## Learned-State Introspection Baseline
+
+Future UI or admin surfaces must distinguish backend-owned state families
+instead of flattening them into one generic "personality memory" view.
+
+Canonical learned-state families:
+
+1. learned knowledge
+   - semantic conclusions
+   - affective conclusions
+   - relation records
+   - reflection-derived adaptive outputs such as theta or support patterns
+2. learned preferences
+   - profile-owned identity continuity such as `preferred_language`
+   - conclusion-owned preferences such as `response_style`,
+     `collaboration_preference`, `preferred_role`, and `proactive_opt_in`
+3. selected role and selected skill metadata
+   - current-turn role selection remains contextual runtime state
+   - selected skills remain metadata-only capability hints, not executable
+     authorities and not proof of self-modifying skill acquisition
+4. planning and active-work state
+   - active goals, tasks, milestones, current plan steps, and pending
+     subconscious proposals
+5. adaptive state versus identity state
+   - adaptive state may change through memory, reflection, relations, and
+     policy-owned diagnostics
+   - stable identity remains bounded by profile language continuity plus
+     conclusion-owned preferences; adaptive state must not silently rewrite the
+     identity contract
+
+Truthfulness rule for "learned skills":
+
+1. the repo may expose registry-defined skill metadata selected for the current
+   turn or current plan
+2. the repo may expose learned knowledge that influences skill selection
+3. the repo must not claim that the personality learned a new executable skill
+   unless an approved architecture change adds a persistent skill-learning
+   system
+4. therefore `v1` introspection may truthfully show:
+   - what the personality learned
+   - which stable preferences it now carries
+   - which role it selected
+   - which skill metadata it selected
+   - what it is actively planning or tracking
+   but not arbitrary self-authored tool logic or code-level skill mutation
+
 ---
 
 ## Relation Retrieval Completion Baseline
