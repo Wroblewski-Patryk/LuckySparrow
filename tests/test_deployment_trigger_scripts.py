@@ -132,6 +132,12 @@ def stub_aion_server() -> _StubAionServer:
                 "evidence_owner": "coolify_webhook_plus_release_smoke",
             },
         },
+        "memory_retrieval": {
+            "retrieval_lifecycle_policy_owner": "retrieval_lifecycle_policy",
+            "retrieval_lifecycle_provider_drift_state": "compatibility_fallback_active",
+            "retrieval_lifecycle_alignment_state": "lifecycle_gaps_present",
+            "retrieval_lifecycle_pending_gaps": ["provider_baseline_not_aligned"],
+        },
         "scheduler": {
             "healthy": True,
             "external_owner_policy": {
@@ -319,6 +325,10 @@ def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
     assert summary["scheduler_external_proactive_entrypoint"] == "scripts/run_proactive_tick_once.py"
     assert summary["scheduler_external_baseline_ready"] is False
     assert summary["scheduler_external_baseline_state"] == "in_process_scheduler_transitional_fallback"
+    assert summary["retrieval_lifecycle_policy_owner"] == "retrieval_lifecycle_policy"
+    assert summary["retrieval_lifecycle_provider_drift_state"] == "compatibility_fallback_active"
+    assert summary["retrieval_lifecycle_alignment_state"] == "lifecycle_gaps_present"
+    assert summary["retrieval_lifecycle_pending_gaps"] == ["provider_baseline_not_aligned"]
     assert summary["reflection_external_driver_policy_owner"] == "deferred_reflection_external_worker"
     assert summary["reflection_external_driver_entrypoint_path"] == "scripts/run_reflection_queue_once.py"
     assert summary["reflection_external_driver_baseline_ready"] is False

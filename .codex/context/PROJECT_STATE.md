@@ -2017,8 +2017,12 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-505` is complete: `/health.memory_retrieval` now exposes
   one retrieval lifecycle owner plus provider drift posture, pending lifecycle
   gaps, and baseline alignment state.
-- 2026-04-22: `PRJ-506` is now the next `READY` task, focused on adding
-  behavior and release evidence for retrieval lifecycle alignment.
+- 2026-04-22: `PRJ-506` is complete: release smoke now validates retrieval
+  lifecycle owner and drift/alignment posture from `/health.memory_retrieval`,
+  and runtime regression coverage now pins that the local-hybrid transition
+  owner still exercises the active hybrid retrieval path.
+- 2026-04-22: `PRJ-507` is now the next `READY` task, focused on docs/context
+  sync for retrieval lifecycle and source-rollout closure.
 
 ## Working Agreements
 

@@ -548,6 +548,22 @@ if (-not (Has-Property -Object $externalSchedulerPolicy -Name "proactive_entrypo
 if (-not (Has-Property -Object $externalSchedulerPolicy -Name "production_baseline_ready")) {
     throw "Health check failed: scheduler.external_owner_policy is missing production_baseline_ready."
 }
+$memoryRetrieval = $health.memory_retrieval
+if ($null -eq $memoryRetrieval) {
+    throw "Health check failed: response is missing memory_retrieval."
+}
+if (-not (Has-Property -Object $memoryRetrieval -Name "retrieval_lifecycle_policy_owner")) {
+    throw "Health check failed: memory_retrieval is missing retrieval_lifecycle_policy_owner."
+}
+if (-not (Has-Property -Object $memoryRetrieval -Name "retrieval_lifecycle_provider_drift_state")) {
+    throw "Health check failed: memory_retrieval is missing retrieval_lifecycle_provider_drift_state."
+}
+if (-not (Has-Property -Object $memoryRetrieval -Name "retrieval_lifecycle_alignment_state")) {
+    throw "Health check failed: memory_retrieval is missing retrieval_lifecycle_alignment_state."
+}
+if (-not (Has-Property -Object $memoryRetrieval -Name "retrieval_lifecycle_pending_gaps")) {
+    throw "Health check failed: memory_retrieval is missing retrieval_lifecycle_pending_gaps."
+}
 
 $response = Invoke-JsonUtf8 -Method POST -Uri $eventUrl -BodyBytes $bodyBytes
 
@@ -611,6 +627,10 @@ $summary = @{
     scheduler_external_proactive_entrypoint = [string]$externalSchedulerPolicy.proactive_entrypoint_path
     scheduler_external_baseline_ready = [bool]$externalSchedulerPolicy.production_baseline_ready
     scheduler_external_baseline_state = [string]$externalSchedulerPolicy.production_baseline_state
+    retrieval_lifecycle_policy_owner = [string]$memoryRetrieval.retrieval_lifecycle_policy_owner
+    retrieval_lifecycle_provider_drift_state = [string]$memoryRetrieval.retrieval_lifecycle_provider_drift_state
+    retrieval_lifecycle_alignment_state = [string]$memoryRetrieval.retrieval_lifecycle_alignment_state
+    retrieval_lifecycle_pending_gaps = @($memoryRetrieval.retrieval_lifecycle_pending_gaps)
     debug_included       = [bool]$response.debug
     deployment_evidence_checked = [bool]$deploymentEvidenceCheck.checked
     deployment_evidence_path = [string]$deploymentEvidenceCheck.path

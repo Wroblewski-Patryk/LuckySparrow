@@ -54,21 +54,19 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-506 Add behavior and release evidence for retrieval lifecycle alignment
-  - Owner: QA/Test
+- [ ] PRJ-507 Sync docs/context for retrieval lifecycle and source-rollout closure
+  - Owner: Product Docs
   - Group: Retrieval Lifecycle And Source-Rollout Closure
-  - Depends on: PRJ-505
+  - Depends on: PRJ-506
   - Priority: P1
   - Why now:
-    - lifecycle posture is now visible in `/health`, so the next step is to pin
-      it in behavior or release evidence instead of leaving it as operator-only
-      inspection
+    - runtime posture and release evidence are aligned, so the retrieval lane
+      now needs canonical docs/context closure before reflection supervision
   - Done when:
-    - behavior validation or smoke evidence can prove retrieval lifecycle
-      alignment rather than only provider selection
+    - planning, implementation, ops, and testing surfaces all describe the same
+      retrieval steady-state lifecycle baseline
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
-    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_runtime_pipeline.py`
+    - doc-and-context sync across implementation, ops, testing, planning, and context
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -190,6 +188,21 @@ Last updated: 2026-04-22
       reconstructing it from multiple embedding rollout fields
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_runtime_policy.py tests/test_api_routes.py`
+
+- [x] PRJ-506 Add behavior and release evidence for retrieval lifecycle alignment
+  - Owner: QA/Test
+  - Group: Retrieval Lifecycle And Source-Rollout Closure
+  - Depends on: PRJ-505
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - release smoke now verifies retrieval lifecycle policy ownership plus
+      drift/alignment posture from `/health.memory_retrieval`
+    - runtime regression coverage now pins that the local-hybrid transition
+      owner still exercises the active hybrid retrieval path under the defined
+      lifecycle baseline
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder

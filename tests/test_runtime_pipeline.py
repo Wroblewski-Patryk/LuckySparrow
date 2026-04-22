@@ -861,6 +861,49 @@ async def test_runtime_pipeline_uses_configured_embedding_dimensions_even_when_p
     assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 24
 
 
+async def test_runtime_pipeline_keeps_transition_retrieval_lifecycle_active_for_local_hybrid_provider() -> None:
+    memory = FakeHybridMemoryRepository(recent_memory=[])
+    action = ActionExecutor(
+        memory_repository=memory,
+        telegram_client=FakeTelegramClient(),
+        embedding_provider="local_hybrid",
+        embedding_model="local-hybrid-v1",
+        embedding_dimensions=32,
+    )
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+        semantic_vector_enabled=True,
+        embedding_provider="local_hybrid",
+        embedding_model="local-hybrid-v1",
+        embedding_dimensions=32,
+    )
+
+    event = Event(
+        event_id="evt-hybrid-local-lifecycle",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "help me sequence this deploy blocker"},
+        meta=EventMeta(user_id="u-1", trace_id="t-hybrid-local-lifecycle"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.action_result.status == "success"
+    assert len(memory.hybrid_calls) == 1
+    assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 32
+    assert memory.hybrid_calls[0]["episodic_limit"] == RuntimeOrchestrator.MEMORY_LOAD_LIMIT
+    assert memory.hybrid_calls[0]["include_global"] is False
+
+
 async def test_runtime_pipeline_surfaces_relation_signals_in_context_and_planning() -> None:
     memory = FakeHybridMemoryRepository(recent_memory=[])
     memory.relations = [

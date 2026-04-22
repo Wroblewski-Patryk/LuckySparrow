@@ -630,6 +630,10 @@ Completed on 2026-04-22:
   lifecycle owner, provider drift posture, pending lifecycle gaps, and
   alignment state in one machine-visible surface instead of scattering that
   information across independent rollout hints.
+- `PRJ-506` is complete: release smoke now verifies retrieval lifecycle policy
+  owner plus alignment/drift posture from `/health.memory_retrieval`, and
+  runtime regression coverage pins that the local-hybrid transition owner
+  still exercises the active hybrid retrieval path.
 
 - `PRJ-504` Define the production retrieval lifecycle baseline beyond current provider-owned materialization.
   - Result:
