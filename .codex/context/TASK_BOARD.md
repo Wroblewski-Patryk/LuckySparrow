@@ -54,18 +54,35 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-496 Define the production external-scheduler owner baseline for maintenance and proactive cadence
+- [ ] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
+  - Owner: Backend Builder
+  - Group: External Scheduler Ownership Rollout
+  - Depends on: PRJ-496
+  - Priority: P1
+  - Why now:
+    - the production cadence owner is now defined, so the repo needs concrete
+      external-owner entrypoints instead of treating `externalized` as config
+      vocabulary only
+  - Done when:
+    - the repo provides canonical maintenance/proactive run-once entrypoints
+      for external scheduler ownership
+    - scheduler/runtime checks can distinguish external-owner execution from
+      app-local cadence fallback
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+
+- [x] PRJ-496 Define the production external-scheduler owner baseline for maintenance and proactive cadence
   - Owner: Planner
   - Group: External Scheduler Ownership Rollout
   - Depends on: PRJ-495
   - Priority: P1
-  - Why now:
-    - with debug ingress closure documented, the next highest-value
-      transitional runtime seam is app-local scheduler ownership
-  - Done when:
-    - the repo records one explicit production owner baseline for maintenance
-      and proactive cadence under `externalized` scheduler posture
-    - app-local scheduling remains explicit fallback instead of implied target
+  - Status: DONE
+  - Result:
+    - the repo now has one explicit external cadence owner policy in
+      `app/core/external_scheduler_policy.py`, with `externalized` as the
+      target production mode and app-local scheduler as explicit fallback only
+    - canonical maintenance and proactive entrypoint paths are frozen for the
+      next implementation slice
   - Validation:
     - scheduler/attention/planning cross-review across architecture, runtime reality, and ops
 

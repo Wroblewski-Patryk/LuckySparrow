@@ -1973,8 +1973,12 @@ Last updated: 2026-04-22
   describe the same dedicated-admin debug target plus shared-retirement
   blocker fields.
 - 2026-04-22: Group 70 (`PRJ-492..PRJ-495`) is now complete.
-- 2026-04-22: `PRJ-496` is now the next `READY` task, focused on freezing the
-  production external-scheduler baseline for maintenance and proactive cadence.
+- 2026-04-22: `PRJ-496` is complete: the repo now records one explicit
+  production external-scheduler policy owner in
+  `app/core/external_scheduler_policy.py`, with `externalized` as the target
+  cadence owner posture and app-local scheduler as fallback only.
+- 2026-04-22: `PRJ-497` is now the next `READY` task, focused on canonical
+  external maintenance/proactive cadence entrypoints and ownership checks.
 
 ## Working Agreements
 

@@ -3787,3 +3787,6 @@ This phase is complete when:
 - `PRJ-493..PRJ-494` are complete: runtime policy, startup logs, release smoke,
   and the ops runbook now expose the same dedicated-admin debug posture with
   machine-visible shared-retirement blockers.
+- `PRJ-496` is complete: the repo now records one explicit production cadence
+  owner baseline with `externalized` scheduler execution as the target posture
+  for maintenance and proactive ticks.

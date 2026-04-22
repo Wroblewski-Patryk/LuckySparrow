@@ -214,6 +214,11 @@ The current repo already works as an MVP slice, but several architecture-level d
     plus machine-visible retirement blockers for remaining shared compat routes
   - startup logs and release smoke now consume the same dedicated-admin debug
     policy instead of inferring posture from partial fields
+- `PRJ-496` is now complete:
+  - maintenance and proactive cadence now have one explicit policy owner for
+    the target `externalized` scheduler posture
+  - app-local scheduler ownership remains a fallback-only compatibility posture,
+    not the long-term production target
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
