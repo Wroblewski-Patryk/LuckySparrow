@@ -203,6 +203,12 @@ The current repo already works as an MVP slice, but several architecture-level d
   shared debug ingress, app-local cadence ownership, partial connector live
   coverage, incomplete retrieval lifecycle closure, lightweight reflection
   supervision, and local-only observability evidence.
+- `PRJ-492` is now complete:
+  - debug ingress has one explicit shared policy owner with
+    `/internal/event/debug` as the target dedicated-admin route
+  - `/event/debug` and `/event?debug=true` remain temporary compatibility
+    surfaces only, with retirement blockers frozen before any further runtime
+    hardening
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

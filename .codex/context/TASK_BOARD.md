@@ -54,24 +54,23 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-492 Freeze the dedicated-admin debug ingress target and compatibility-retirement checklist
-  - Owner: Planner
+- [ ] PRJ-493 Expose machine-visible admin-ingress posture and shared-ingress retirement blockers
+  - Owner: Backend Builder
   - Group: Debug Ingress Retirement And Admin Boundary Closure
-  - Depends on: PRJ-491
+  - Depends on: PRJ-492
   - Priority: P1
   - Why now:
-    - debug posture is still the clearest remaining transitional runtime
-      surface, and architecture hardening should remove shared-endpoint drift
-      before expanding more subsystem capabilities
+    - once the admin-only target is frozen, `/health` and release evidence
+      should expose the same target posture so operators can triage drift
+      without reading docs
   - Done when:
-    - the repo records one explicit target for dedicated admin-only debug
-      ingress, shared-endpoint retirement criteria, and rollback-safe
-      compatibility posture
-    - runtime, ops, and release evidence can converge on one non-transitional
-      debug boundary
+    - `/health.runtime_policy` shows the dedicated admin ingress target,
+      transitional shared-route posture, and machine-readable retirement
+      blockers from one policy owner
+    - release evidence can distinguish aligned admin-only posture from
+      rollback-safe compatibility posture
   - Validation:
-    - architecture/planning cross-review across runtime policy, ops notes, and
-      debug-surface contracts
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
 
 ## BACKLOG
 
@@ -84,6 +83,23 @@ Last updated: 2026-04-22
 ## IN_PROGRESS
 
 - [ ] (none)
+
+- [x] PRJ-492 Freeze the dedicated-admin debug ingress target and compatibility-retirement checklist
+  - Owner: Planner
+  - Group: Debug Ingress Retirement And Admin Boundary Closure
+  - Depends on: PRJ-491
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - the repo now has one shared owner for the long-term debug-ingress target
+      in `app/core/debug_ingress_policy.py`, including the dedicated internal
+      admin path, temporary compatibility paths, and the explicit retirement
+      checklist for shared ingress
+    - later runtime, ops, and release evidence work can now consume one policy
+      baseline instead of repeating local strings
+  - Validation:
+    - architecture/planning cross-review across runtime policy, ops notes, and
+      debug-surface contracts
 
 ## BLOCKED
 

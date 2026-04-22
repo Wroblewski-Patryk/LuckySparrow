@@ -3780,3 +3780,7 @@ This phase is complete when:
   and internal planning growth are all reflected in code rather than only in
   planning decisions
 - docs, code, and `.codex/context/` describe the same runtime truth
+- `PRJ-492` is complete: the repo now records one explicit debug-ingress owner
+  with the dedicated internal admin route as the target posture, shared routes
+  as temporary compatibility-only surfaces, and a fixed retirement checklist
+  for later runtime and release evidence.

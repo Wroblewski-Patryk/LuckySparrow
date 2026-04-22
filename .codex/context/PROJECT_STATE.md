@@ -1949,6 +1949,13 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-492` is now the first `READY` task, focused on freezing the
   dedicated-admin debug-ingress target and the retirement checklist for shared
   compatibility ingress before deeper runtime hardening proceeds.
+- 2026-04-22: `PRJ-492` is complete: debug ingress now has one explicit shared
+  policy owner in `app/core/debug_ingress_policy.py` that records the dedicated
+  internal admin route as the target posture, keeps `/event/debug` and
+  `/event?debug=true` as temporary compatibility surfaces only, and freezes the
+  retirement checklist for shared ingress.
+- 2026-04-22: `PRJ-493` is now the next `READY` task, focused on surfacing that
+  debug-ingress policy through runtime health and release evidence.
 
 ## Working Agreements
 
