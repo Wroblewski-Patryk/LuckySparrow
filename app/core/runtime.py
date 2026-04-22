@@ -35,6 +35,7 @@ from app.core.identity_policy import identity_policy_snapshot
 from app.core.planning_governance import planning_governance_snapshot
 from app.core.proactive_policy import proactive_runtime_policy_snapshot
 from app.core.role_skill_policy import role_skill_policy_snapshot
+from app.core.web_knowledge_policy import web_knowledge_tooling_snapshot
 from app.core.logging import RuntimeLogContext, RuntimeStageLogger, get_logger
 from app.core.retrieval_policy import (
     relation_source_policy_snapshot,
@@ -896,6 +897,7 @@ class RuntimeOrchestrator:
             ),
             "connector_authorization_matrix": connector_authorization_matrix_snapshot(),
             "connector_capability_proposal": connector_capability_proposal_snapshot(),
+            "web_knowledge_tools": web_knowledge_tooling_snapshot(),
             "runtime_topology": runtime_topology_policy_snapshot(
                 reflection_runtime_mode=self.reflection_runtime_mode,
                 reflection_readiness={

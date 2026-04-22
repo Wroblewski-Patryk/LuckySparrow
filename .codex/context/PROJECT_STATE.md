@@ -152,6 +152,14 @@ Last updated: 2026-04-22
   expose health and runtime-debug visibility for the selected web-knowledge
   tool-family posture before any provider-backed search or browser execution
   is introduced.
+- 2026-04-22: `PRJ-554` is complete: `/health.connectors` now exposes one
+  shared web-knowledge posture snapshot plus explicit policy-only execution
+  baseline entries for `knowledge_search` and `web_browser`, and runtime
+  `system_debug.adaptive_state` mirrors the same readiness, fallback, and
+  non-live provider posture for operator or future-UI inspection.
+- 2026-04-22: `PRJ-555` is now the first `READY` task; the next slice should
+  synchronize contracts, runtime reality, testing guidance, ops notes, and
+  planning/context truth around the new web-knowledge tooling baseline.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence

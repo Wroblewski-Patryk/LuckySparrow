@@ -1937,6 +1937,11 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
         body["connectors"]["execution_baseline"]["mvp_boundary"]
         == "clickup_task_create_and_list_plus_google_calendar_and_google_drive_first_live_paths"
     )
+    assert body["connectors"]["web_knowledge_tools"]["policy_owner"] == "web_knowledge_tooling_policy"
+    assert (
+        body["connectors"]["web_knowledge_tools"]["provider_execution_posture"]
+        == "policy_only_until_bounded_provider_slice_selected"
+    )
     assert body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["ready"] is False
     assert (
         body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["state"]
@@ -1961,6 +1966,14 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
         drive_baseline["hint"]
         == "configure_google_drive_access_token_for_live_metadata_read_execution"
     )
+    search_baseline = body["connectors"]["execution_baseline"]["knowledge_search"]["search_web"]
+    assert search_baseline["execution_mode"] == "policy_only"
+    assert search_baseline["ready"] is False
+    assert search_baseline["state"] == "policy_only_no_provider_slice_selected"
+    browser_baseline = body["connectors"]["execution_baseline"]["web_browser"]["read_page"]
+    assert browser_baseline["execution_mode"] == "policy_only"
+    assert browser_baseline["ready"] is False
+    assert browser_baseline["state"] == "policy_only_no_provider_slice_selected"
     assert body["deployment"]["hosting_baseline"] == "coolify_medium_term_standard"
 
 

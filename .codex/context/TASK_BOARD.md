@@ -298,14 +298,23 @@ Last updated: 2026-04-22
   - Group: Web Knowledge And Tooling Architecture
   - Depends on: PRJ-553
   - Priority: P1
-  - Status: READY
+  - Status: DONE
+  - Result:
+    - `/health.connectors` now exposes one shared web-knowledge posture
+      snapshot plus policy-only execution-baseline entries for
+      `knowledge_search` and `web_browser`
+    - runtime `system_debug.adaptive_state` now mirrors the same
+      web-knowledge tooling posture so future UI and operator triage can see
+      authorization, fallback, and non-live provider state in one place
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py`
 
 - [ ] PRJ-555 Sync docs/context for the web knowledge and tooling baseline
   - Owner: Product Docs
   - Group: Web Knowledge And Tooling Architecture
   - Depends on: PRJ-554
   - Priority: P1
-  - Status: BACKLOG
+  - Status: READY
 
 - [ ] PRJ-556 Freeze the first bounded provider-backed search, browser, and organization slices
   - Owner: Planner

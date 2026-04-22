@@ -5004,6 +5004,12 @@ async def test_runtime_pipeline_exposes_system_debug_surface_for_behavior_valida
         "metadata_only_capability_hints"
     )
     assert result.system_debug.adaptive_state["role_skill_policy"]["action_skill_execution_allowed"] is False
+    assert result.system_debug.adaptive_state["web_knowledge_tools"]["policy_owner"] == (
+        "web_knowledge_tooling_policy"
+    )
+    assert result.system_debug.adaptive_state["web_knowledge_tools"]["knowledge_search"]["state"] == (
+        "policy_only_no_provider_slice_selected"
+    )
     assert result.system_debug.adaptive_state["affective_input_policy"] == {
         "policy_owner": "perception_affective_input",
         "input_kind": "heuristic_turn_signal",

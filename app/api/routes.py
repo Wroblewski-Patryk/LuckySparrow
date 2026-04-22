@@ -41,6 +41,7 @@ from app.core.planning_governance import planning_governance_snapshot
 from app.core.proactive_policy import proactive_runtime_policy_snapshot
 from app.core.role_skill_policy import role_skill_policy_snapshot
 from app.core.skill_registry import skill_registry_snapshot
+from app.core.web_knowledge_policy import web_knowledge_tooling_snapshot
 from app.core.runtime_policy import (
     app_environment,
     event_debug_enabled,
@@ -702,6 +703,7 @@ async def health(request: Request) -> dict[str, Any]:
             **connector_authorization_matrix_snapshot(),
             "capability_proposal": connector_capability_proposal_snapshot(),
             "execution_baseline": connector_execution_baseline_snapshot(settings),
+            "web_knowledge_tools": web_knowledge_tooling_snapshot(),
         },
         "deployment": deployment_policy_snapshot(),
         "conversation_channels": {
