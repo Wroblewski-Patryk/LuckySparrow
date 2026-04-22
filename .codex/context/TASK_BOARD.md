@@ -139,14 +139,25 @@ Last updated: 2026-04-22
   - Group: Production Conversation Reliability
   - Depends on: PRJ-541
   - Priority: P0
-  - Status: READY
+  - Status: DONE
+  - Result:
+    - runtime incident evidence now treats `conversation_channels.telegram` as
+      a required policy posture surface alongside runtime policy, retrieval,
+      scheduler, reflection, and connector execution
+    - release smoke now validates Telegram conversation posture from `/health`,
+      debug-mode `incident_evidence`, and incident-evidence bundles
+    - behavior-validation gates now fail when incident evidence is missing the
+      Telegram conversation reliability posture or carries an invalid
+      round-trip baseline
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
 
 - [ ] PRJ-543 Sync docs/context for the `v1` conversation-reliability baseline
   - Owner: Product Docs
   - Group: Production Conversation Reliability
   - Depends on: PRJ-542
   - Priority: P1
-  - Status: BACKLOG
+  - Status: READY
 
 - [ ] PRJ-544 Freeze the canonical `v1` life-assistant workflow set
   - Owner: Planner

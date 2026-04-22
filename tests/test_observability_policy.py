@@ -68,6 +68,7 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
         scheduler_external_owner_policy={"policy_owner": "external_scheduler_cadence_policy"},
         reflection_supervision={"policy_owner": "deferred_reflection_supervision_policy"},
         connectors_execution_baseline={"policy_owner": "connector_execution_baseline"},
+        telegram_conversation_channel={"policy_owner": "telegram_conversation_reliability_telemetry"},
     )
 
     assert evidence["kind"] == "runtime_incident_evidence"
@@ -84,6 +85,7 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
             "scheduler.external_owner_policy",
             "reflection.supervision",
             "connectors.execution_baseline",
+            "conversation_channels.telegram",
         ],
         "missing": [],
         "complete": True,

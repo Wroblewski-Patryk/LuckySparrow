@@ -51,6 +51,14 @@ Last updated: 2026-04-22
   prove Telegram round-trip reliability through release smoke and
   incident-evidence coverage instead of relying only on route and delivery
   regressions.
+- 2026-04-22: `PRJ-542` is complete: runtime incident evidence now requires
+  Telegram conversation posture, release smoke validates
+  `/health.conversation_channels.telegram` together with debug and bundle
+  evidence, and behavior-validation gates now fail on missing or invalid
+  Telegram conversation reliability posture.
+- 2026-04-22: `PRJ-543` is now the first `READY` task; the next slice should
+  synchronize the new `v1` conversation-reliability evidence across canonical
+  docs, runtime reality, testing guidance, ops notes, and context truth.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence

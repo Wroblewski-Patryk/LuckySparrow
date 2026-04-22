@@ -2828,6 +2828,9 @@ def test_event_debug_endpoint_exposes_runtime_incident_evidence_export() -> None
     assert incident_evidence["policy_posture"]["connectors.execution_baseline"]["execution_owner"] == (
         "connector_execution_registry"
     )
+    assert incident_evidence["policy_posture"]["conversation_channels.telegram"]["policy_owner"] == (
+        "telegram_conversation_reliability_telemetry"
+    )
 
 
 def test_event_endpoint_debug_payload_pins_foreground_boundary_stage_order() -> None:
@@ -3008,6 +3011,7 @@ def test_health_endpoint_exposes_observability_export_policy_baseline() -> None:
             "scheduler.external_owner_policy",
             "reflection.supervision",
             "connectors.execution_baseline",
+            "conversation_channels.telegram",
         ],
         "local_surfaces": [
             "structured_runtime_logs",

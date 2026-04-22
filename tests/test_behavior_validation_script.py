@@ -451,6 +451,11 @@ def test_main_records_incident_evidence_summary_when_valid_input_is_provided(
                             "state": "single_owner_boundary_clear",
                         },
                     },
+                    "conversation_channels.telegram": {
+                        "policy_owner": "telegram_conversation_reliability_telemetry",
+                        "round_trip_state": "provider_backed_ready",
+                        "bot_token_configured": True,
+                    },
                 },
             }
         ),
@@ -497,6 +502,9 @@ def test_main_records_incident_evidence_summary_when_valid_input_is_provided(
     assert payload["gate"]["violation_context"]["incident_evidence_debug_exception_state"] == (
         "shared_debug_break_glass_only"
     )
+    assert payload["gate"]["violation_context"]["incident_evidence_telegram_conversation_policy_owner"] == (
+        "telegram_conversation_reliability_telemetry"
+    )
 
 
 def test_main_fails_when_incident_evidence_policy_surface_is_incomplete(
@@ -542,6 +550,11 @@ def test_main_fails_when_incident_evidence_policy_surface_is_incomplete(
                         "duplicate_protection_posture": {
                             "state": "single_owner_boundary_clear",
                         },
+                    },
+                    "conversation_channels.telegram": {
+                        "policy_owner": "telegram_conversation_reliability_telemetry",
+                        "round_trip_state": "provider_backed_ready",
+                        "bot_token_configured": True,
                     },
                 },
             }
@@ -618,6 +631,11 @@ def test_main_fails_when_incident_evidence_debug_posture_does_not_match_dedicate
                             "state": "single_owner_boundary_clear",
                         },
                     },
+                    "conversation_channels.telegram": {
+                        "policy_owner": "telegram_conversation_reliability_telemetry",
+                        "round_trip_state": "provider_backed_ready",
+                        "bot_token_configured": True,
+                    },
                 },
             }
         ),
@@ -684,6 +702,11 @@ def test_main_fails_when_incident_evidence_external_cadence_cutover_proof_is_mis
                     "scheduler.external_owner_policy": {
                         "policy_owner": "external_scheduler_cadence_policy",
                     },
+                    "conversation_channels.telegram": {
+                        "policy_owner": "telegram_conversation_reliability_telemetry",
+                        "round_trip_state": "provider_backed_ready",
+                        "bot_token_configured": True,
+                    },
                 },
             }
         ),
@@ -713,3 +736,78 @@ def test_main_fails_when_incident_evidence_external_cadence_cutover_proof_is_mis
     assert payload["gate"]["status"] == "fail"
     assert payload["gate"]["violations"] == [MODULE.GATE_REASON_INCIDENT_EVIDENCE_EXTERNAL_CADENCE_PROOF_INVALID]
     assert payload["incident_evidence"]["scheduler_cutover_proof_state"] is None
+
+
+def test_main_fails_when_incident_evidence_telegram_conversation_surface_is_missing(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    incident_evidence_path = tmp_path / "incident-evidence.json"
+    artifact_path = tmp_path / "behavior-report.json"
+    incident_evidence_path.write_text(
+        MODULE.json.dumps(
+            {
+                "kind": "runtime_incident_evidence",
+                "schema_version": "1.0.0",
+                "policy_owner": "incident_evidence_export_policy",
+                "stage_timings_ms": {
+                    "total": 9,
+                },
+                "policy_surface_coverage": {
+                    "complete": True,
+                },
+                "policy_posture": {
+                    "runtime_policy": {
+                        "event_debug_admin_policy_owner": "dedicated_admin_debug_ingress_policy",
+                        "event_debug_admin_ingress_target_path": "/internal/event/debug",
+                        "event_debug_shared_ingress_mode": "break_glass_only",
+                        "event_debug_shared_ingress_posture": "shared_route_break_glass_only",
+                        "event_debug_query_compat_enabled": False,
+                        "event_debug_shared_ingress_retirement_ready": True,
+                        "event_debug_shared_ingress_sunset_ready": True,
+                        "event_debug_shared_ingress_sunset_reason": "shared_debug_route_break_glass_only",
+                    },
+                    "scheduler.external_owner_policy": {
+                        "policy_owner": "external_scheduler_cadence_policy",
+                        "cutover_proof_owner": "external_scheduler_cutover_proof_policy",
+                        "cutover_proof_ready": False,
+                        "cutover_proof_state": "external_scheduler_target_only",
+                        "maintenance_run_evidence": {
+                            "evidence_state": "missing_external_run_evidence",
+                        },
+                        "proactive_run_evidence": {
+                            "evidence_state": "missing_external_run_evidence",
+                        },
+                        "duplicate_protection_posture": {
+                            "state": "single_owner_boundary_clear",
+                        },
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        MODULE,
+        "_parse_args",
+        lambda: Namespace(
+            python_exe="python",
+            artifact_path=str(artifact_path),
+            artifact_input_path=None,
+            incident_evidence_input_path=str(incident_evidence_path),
+            print_artifact_json=False,
+            gate_mode="ci",
+            ci_require_tests=False,
+        ),
+    )
+    monkeypatch.setattr(MODULE, "_run_behavior_pytest", lambda **_: (0, ["python", "-m", "pytest"]))
+    monkeypatch.setattr(MODULE, "_parse_junit_results", lambda **_: [])
+
+    exit_code = MODULE.main()
+
+    payload = MODULE.json.loads(artifact_path.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert payload["gate"]["status"] == "fail"
+    assert payload["gate"]["violations"] == [MODULE.GATE_REASON_INCIDENT_EVIDENCE_TELEGRAM_CONVERSATION_INVALID]
+    assert payload["gate"]["violation_context"]["incident_evidence_telegram_conversation_policy_owner"] is None

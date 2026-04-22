@@ -40,6 +40,7 @@ GATE_REASON_INCIDENT_EVIDENCE_POLICY_SURFACE_INCOMPLETE = "incident_evidence_pol
 GATE_REASON_INCIDENT_EVIDENCE_DEBUG_POSTURE_INVALID = "incident_evidence_debug_posture_invalid"
 GATE_REASON_INCIDENT_EVIDENCE_DEBUG_EXCEPTION_STATE_INVALID = "incident_evidence_debug_exception_state_invalid"
 GATE_REASON_INCIDENT_EVIDENCE_EXTERNAL_CADENCE_PROOF_INVALID = "incident_evidence_external_cadence_proof_invalid"
+GATE_REASON_INCIDENT_EVIDENCE_TELEGRAM_CONVERSATION_INVALID = "incident_evidence_telegram_conversation_invalid"
 
 
 @dataclass(frozen=True)
@@ -310,6 +311,9 @@ def _evaluate_incident_evidence_input(
         "incident_evidence_scheduler_maintenance_evidence_state": None,
         "incident_evidence_scheduler_proactive_evidence_state": None,
         "incident_evidence_scheduler_duplicate_protection_state": None,
+        "incident_evidence_telegram_conversation_policy_owner": None,
+        "incident_evidence_telegram_conversation_round_trip_state": None,
+        "incident_evidence_telegram_conversation_bot_token_configured": None,
     }
     violations: list[str] = []
 
@@ -381,6 +385,11 @@ def _evaluate_incident_evidence_input(
         candidate_scheduler_policy = policy_posture.get("scheduler.external_owner_policy")
         if isinstance(candidate_scheduler_policy, dict):
             scheduler_policy = candidate_scheduler_policy
+    telegram_conversation_policy = {}
+    if isinstance(policy_posture, dict):
+        candidate_telegram_conversation_policy = policy_posture.get("conversation_channels.telegram")
+        if isinstance(candidate_telegram_conversation_policy, dict):
+            telegram_conversation_policy = candidate_telegram_conversation_policy
 
     maintenance_evidence = scheduler_policy.get("maintenance_run_evidence")
     proactive_evidence = scheduler_policy.get("proactive_run_evidence")
@@ -420,6 +429,25 @@ def _evaluate_incident_evidence_input(
     )
     if not external_cadence_proof_valid:
         violations.append(GATE_REASON_INCIDENT_EVIDENCE_EXTERNAL_CADENCE_PROOF_INVALID)
+
+    context["incident_evidence_telegram_conversation_policy_owner"] = telegram_conversation_policy.get("policy_owner")
+    context["incident_evidence_telegram_conversation_round_trip_state"] = telegram_conversation_policy.get(
+        "round_trip_state"
+    )
+    context["incident_evidence_telegram_conversation_bot_token_configured"] = telegram_conversation_policy.get(
+        "bot_token_configured"
+    )
+    valid_telegram_round_trip_states = {
+        "provider_backed_ready",
+        "missing_bot_token",
+    }
+    telegram_conversation_valid = (
+        telegram_conversation_policy.get("policy_owner") == "telegram_conversation_reliability_telemetry"
+        and telegram_conversation_policy.get("round_trip_state") in valid_telegram_round_trip_states
+        and isinstance(telegram_conversation_policy.get("bot_token_configured"), bool)
+    )
+    if not telegram_conversation_valid:
+        violations.append(GATE_REASON_INCIDENT_EVIDENCE_TELEGRAM_CONVERSATION_INVALID)
 
     return violations, context
 

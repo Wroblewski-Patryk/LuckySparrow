@@ -147,6 +147,15 @@ def stub_aion_server() -> _StubAionServer:
             "export_artifact_available": True,
             "incident_export_ready": True,
         },
+        "conversation_channels": {
+            "telegram": {
+                "policy_owner": "telegram_conversation_reliability_telemetry",
+                "round_trip_state": "provider_backed_ready",
+                "bot_token_configured": True,
+                "delivery_attempts": 2,
+                "delivery_failures": 0,
+            },
+        },
         "scheduler": {
             "healthy": True,
             "external_owner_policy": {
@@ -225,6 +234,7 @@ def stub_aion_server() -> _StubAionServer:
                     "scheduler.external_owner_policy",
                     "reflection.supervision",
                     "connectors.execution_baseline",
+                    "conversation_channels.telegram",
                 ],
                 "missing": [],
                 "complete": True,
@@ -267,6 +277,11 @@ def stub_aion_server() -> _StubAionServer:
                 },
                 "connectors.execution_baseline": {
                     "execution_owner": "connector_execution_registry",
+                },
+                "conversation_channels.telegram": {
+                    "policy_owner": "telegram_conversation_reliability_telemetry",
+                    "round_trip_state": "provider_backed_ready",
+                    "bot_token_configured": True,
                 },
             },
         },
@@ -355,6 +370,7 @@ def _write_incident_bundle(
                 "scheduler.external_owner_policy",
                 "reflection.supervision",
                 "connectors.execution_baseline",
+                "conversation_channels.telegram",
             ],
             "missing": [],
             "complete": policy_surface_complete,
@@ -397,6 +413,11 @@ def _write_incident_bundle(
             },
             "connectors.execution_baseline": {
                 "execution_owner": "connector_execution_registry",
+            },
+            "conversation_channels.telegram": {
+                "policy_owner": "telegram_conversation_reliability_telemetry",
+                "round_trip_state": "provider_backed_ready",
+                "bot_token_configured": True,
             },
         },
     }
@@ -541,6 +562,9 @@ def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
     assert summary["reflection_supervision_state"] == "deferred_supervision_active_backlog"
     assert summary["reflection_supervision_blocking_signals"] == []
     assert summary["reflection_supervision_recovery_actions"] == []
+    assert summary["telegram_conversation_policy_owner"] == "telegram_conversation_reliability_telemetry"
+    assert summary["telegram_conversation_round_trip_state"] == "provider_backed_ready"
+    assert summary["telegram_conversation_bot_token_configured"] is True
     assert summary["deployment_evidence_checked"] is False
     assert summary["deployment_evidence_path"] == ""
     assert summary["deployment_evidence_status_code"] is None
@@ -560,6 +584,23 @@ def test_release_smoke_fails_when_relation_source_policy_evidence_is_missing(
 
     assert result.returncode != 0
     assert "retrieval_lifecycle_relation_source_policy_owner" in result.stderr
+
+
+def test_release_smoke_fails_when_telegram_conversation_health_surface_is_missing(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    original = dict(_StubAionHandler.health_payload)
+    broken = dict(original)
+    broken.pop("conversation_channels", None)
+    _StubAionHandler.health_payload = broken
+    try:
+        result = _run_release_smoke("-BaseUrl", stub_aion_server.base_url, cwd=ROOT)
+    finally:
+        _StubAionHandler.health_payload = original
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "conversation_channels" in combined_output
 
 
 def test_release_smoke_verifies_fresh_successful_deployment_evidence(
@@ -608,6 +649,10 @@ def test_release_smoke_validates_exported_incident_evidence_when_debug_mode_is_r
     assert summary["incident_evidence_policy_surface_complete"] is True
     assert summary["incident_evidence_debug_posture_state"] == "dedicated_admin_only"
     assert summary["incident_evidence_debug_exception_state"] == "shared_debug_break_glass_only"
+    assert summary["incident_evidence_telegram_conversation_policy_owner"] == (
+        "telegram_conversation_reliability_telemetry"
+    )
+    assert summary["incident_evidence_telegram_conversation_round_trip_state"] == "provider_backed_ready"
     assert summary["scheduler_external_cutover_proof_owner"] == "external_scheduler_cutover_proof_policy"
     assert summary["scheduler_external_cutover_proof_ready"] is False
     assert summary["scheduler_external_maintenance_evidence_state"] == "missing_external_run_evidence"
@@ -643,6 +688,7 @@ def test_release_smoke_verifies_incident_evidence_bundle_when_bundle_path_is_pro
     assert summary["incident_bundle_health_status"] == "ok"
     assert summary["incident_bundle_debug_posture_state"] == "dedicated_admin_only"
     assert summary["incident_bundle_debug_exception_state"] == "shared_debug_break_glass_only"
+    assert summary["incident_bundle_telegram_round_trip_state"] == "provider_backed_ready"
 
 
 def test_release_smoke_fails_when_incident_evidence_bundle_is_partial(

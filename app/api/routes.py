@@ -243,6 +243,10 @@ async def _incident_evidence_from_request(
         task_stats=reflection_stats,
     )
     connectors_execution_baseline = connector_execution_baseline_snapshot(settings)
+    telegram_conversation_channel = _telegram_telemetry_from_request(request).snapshot(
+        bot_token_configured=bool(getattr(settings, "telegram_bot_token", "")),
+        webhook_secret_configured=bool(getattr(settings, "telegram_webhook_secret", "")),
+    )
     return build_runtime_incident_evidence(
         trace_id=result.event.meta.trace_id,
         event_id=result.event.event_id,
@@ -254,6 +258,7 @@ async def _incident_evidence_from_request(
         scheduler_external_owner_policy=scheduler_external_owner_policy,
         reflection_supervision=reflection_supervision,
         connectors_execution_baseline=connectors_execution_baseline,
+        telegram_conversation_channel=telegram_conversation_channel,
     )
 
 

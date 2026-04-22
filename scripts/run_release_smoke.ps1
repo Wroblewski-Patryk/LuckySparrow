@@ -158,6 +158,7 @@ function Validate-IncidentEvidenceBundle {
         health_status            = $null
         debug_posture_state      = $null
         debug_exception_state    = $null
+        telegram_round_trip_state = $null
     }
 
     if (-not $Path) {
@@ -230,6 +231,20 @@ function Validate-IncidentEvidenceBundle {
     }
 
     $debugPosture = Assert-DedicatedAdminDebugPosture -RuntimePolicy $incidentEvidence.policy_posture.runtime_policy -FailurePrefix "Incident evidence bundle verification failed"
+    $telegramConversation = $incidentEvidence.policy_posture."conversation_channels.telegram"
+    if ($null -eq $telegramConversation) {
+        throw "Incident evidence bundle verification failed: conversation_channels.telegram posture is missing."
+    }
+    if ([string]$telegramConversation.policy_owner -ne "telegram_conversation_reliability_telemetry") {
+        throw "Incident evidence bundle verification failed: unexpected conversation_channels.telegram policy_owner '$($telegramConversation.policy_owner)'."
+    }
+    $validTelegramRoundTripStates = @(
+        "provider_backed_ready",
+        "missing_bot_token"
+    )
+    if ($validTelegramRoundTripStates -notcontains [string]$telegramConversation.round_trip_state) {
+        throw "Incident evidence bundle verification failed: unexpected conversation_channels.telegram round_trip_state '$($telegramConversation.round_trip_state)'."
+    }
 
     return @{
         checked                  = $true
@@ -243,6 +258,7 @@ function Validate-IncidentEvidenceBundle {
         health_status            = [string]$healthSnapshot.status
         debug_posture_state      = [string]$debugPosture.debug_posture_state
         debug_exception_state    = [string]$debugPosture.debug_exception_state
+        telegram_round_trip_state = [string]$telegramConversation.round_trip_state
     }
 }
 
@@ -816,6 +832,39 @@ if (-not (Has-Property -Object $observability -Name "incident_export_ready")) {
 if (-not [bool]$observability.incident_export_ready) {
     throw "Health check failed: observability incident export is not ready."
 }
+$conversationChannels = $health.conversation_channels
+if ($null -eq $conversationChannels) {
+    throw "Health check failed: response is missing conversation_channels."
+}
+$telegramConversation = $conversationChannels.telegram
+if ($null -eq $telegramConversation) {
+    throw "Health check failed: conversation_channels.telegram is missing."
+}
+if (-not (Has-Property -Object $telegramConversation -Name "policy_owner")) {
+    throw "Health check failed: conversation_channels.telegram is missing policy_owner."
+}
+if ([string]$telegramConversation.policy_owner -ne "telegram_conversation_reliability_telemetry") {
+    throw "Health check failed: unexpected conversation_channels.telegram policy_owner '$($telegramConversation.policy_owner)'."
+}
+if (-not (Has-Property -Object $telegramConversation -Name "round_trip_state")) {
+    throw "Health check failed: conversation_channels.telegram is missing round_trip_state."
+}
+$validTelegramRoundTripStates = @(
+    "provider_backed_ready",
+    "missing_bot_token"
+)
+if ($validTelegramRoundTripStates -notcontains [string]$telegramConversation.round_trip_state) {
+    throw "Health check failed: unexpected conversation_channels.telegram round_trip_state '$($telegramConversation.round_trip_state)'."
+}
+if (-not (Has-Property -Object $telegramConversation -Name "bot_token_configured")) {
+    throw "Health check failed: conversation_channels.telegram is missing bot_token_configured."
+}
+if (-not (Has-Property -Object $telegramConversation -Name "delivery_attempts")) {
+    throw "Health check failed: conversation_channels.telegram is missing delivery_attempts."
+}
+if (-not (Has-Property -Object $telegramConversation -Name "delivery_failures")) {
+    throw "Health check failed: conversation_channels.telegram is missing delivery_failures."
+}
 
 $response = Invoke-JsonUtf8 -Method POST -Uri $eventUrl -BodyBytes $bodyBytes
 
@@ -837,6 +886,7 @@ if ($IncludeDebug -and -not $response.debug) {
 
 $incidentEvidence = $null
 $incidentDebugPosture = $null
+$incidentTelegramConversation = $null
 if ($IncludeDebug) {
     if (-not (Has-Property -Object $response -Name "incident_evidence")) {
         throw "Smoke request failed: debug request is missing incident_evidence."
@@ -873,6 +923,16 @@ if ($IncludeDebug) {
     $incidentDebugPosture = Assert-DedicatedAdminDebugPosture `
         -RuntimePolicy $incidentEvidence.policy_posture.runtime_policy `
         -FailurePrefix "Smoke request failed"
+    $incidentTelegramConversation = $incidentEvidence.policy_posture."conversation_channels.telegram"
+    if ($null -eq $incidentTelegramConversation) {
+        throw "Smoke request failed: incident_evidence is missing conversation_channels.telegram posture."
+    }
+    if ([string]$incidentTelegramConversation.policy_owner -ne "telegram_conversation_reliability_telemetry") {
+        throw "Smoke request failed: unexpected incident_evidence conversation_channels.telegram policy_owner '$($incidentTelegramConversation.policy_owner)'."
+    }
+    if ($validTelegramRoundTripStates -notcontains [string]$incidentTelegramConversation.round_trip_state) {
+        throw "Smoke request failed: unexpected incident_evidence conversation_channels.telegram round_trip_state '$($incidentTelegramConversation.round_trip_state)'."
+    }
 }
 
 $summary = @{
@@ -941,6 +1001,11 @@ $summary = @{
     observability_policy_owner = [string]$observability.policy_owner
     observability_export_artifact_available = [bool]$observability.export_artifact_available
     observability_incident_export_ready = [bool]$observability.incident_export_ready
+    telegram_conversation_policy_owner = [string]$telegramConversation.policy_owner
+    telegram_conversation_round_trip_state = [string]$telegramConversation.round_trip_state
+    telegram_conversation_bot_token_configured = [bool]$telegramConversation.bot_token_configured
+    telegram_conversation_delivery_attempts = [int]$telegramConversation.delivery_attempts
+    telegram_conversation_delivery_failures = [int]$telegramConversation.delivery_failures
     debug_included       = [bool]$response.debug
     incident_evidence_policy_owner = if ($null -ne $incidentEvidence) { [string]$incidentEvidence.policy_owner } else { $null }
     incident_evidence_schema_version = if ($null -ne $incidentEvidence) { [string]$incidentEvidence.schema_version } else { $null }
@@ -949,6 +1014,8 @@ $summary = @{
     incident_evidence_policy_surface_complete = if ($null -ne $incidentEvidence) { [bool]$incidentEvidence.policy_surface_coverage.complete } else { $null }
     incident_evidence_debug_posture_state = if ($null -ne $incidentDebugPosture) { [string]$incidentDebugPosture.debug_posture_state } else { $null }
     incident_evidence_debug_exception_state = if ($null -ne $incidentDebugPosture) { [string]$incidentDebugPosture.debug_exception_state } else { $null }
+    incident_evidence_telegram_conversation_policy_owner = if ($null -ne $incidentTelegramConversation) { [string]$incidentTelegramConversation.policy_owner } else { $null }
+    incident_evidence_telegram_conversation_round_trip_state = if ($null -ne $incidentTelegramConversation) { [string]$incidentTelegramConversation.round_trip_state } else { $null }
     incident_bundle_checked = [bool]$incidentEvidenceBundleCheck.checked
     incident_bundle_path = [string]$incidentEvidenceBundleCheck.path
     incident_bundle_manifest_schema_version = $incidentEvidenceBundleCheck.manifest_schema_version
@@ -960,6 +1027,7 @@ $summary = @{
     incident_bundle_health_status = $incidentEvidenceBundleCheck.health_status
     incident_bundle_debug_posture_state = $incidentEvidenceBundleCheck.debug_posture_state
     incident_bundle_debug_exception_state = $incidentEvidenceBundleCheck.debug_exception_state
+    incident_bundle_telegram_round_trip_state = $incidentEvidenceBundleCheck.telegram_round_trip_state
     deployment_evidence_checked = [bool]$deploymentEvidenceCheck.checked
     deployment_evidence_path = [string]$deploymentEvidenceCheck.path
     deployment_evidence_age_minutes = $deploymentEvidenceCheck.age_minutes
