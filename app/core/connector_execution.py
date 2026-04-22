@@ -10,6 +10,11 @@ def google_calendar_read_ready(settings) -> bool:
     return bool(access_token and calendar_id)
 
 
+def google_drive_list_ready(settings) -> bool:
+    access_token = str(getattr(settings, "google_drive_access_token", "") or "").strip()
+    return bool(access_token)
+
+
 def connector_execution_baseline_snapshot(settings) -> dict[str, object]:
     clickup_ready = clickup_task_create_ready(settings)
     clickup_state = "provider_backed_ready" if clickup_ready else "credentials_missing"
@@ -27,9 +32,16 @@ def connector_execution_baseline_snapshot(settings) -> dict[str, object]:
         if google_calendar_ready
         else "configure_google_calendar_access_token_and_google_calendar_calendar_id_for_live_read_execution"
     )
+    google_drive_ready = google_drive_list_ready(settings)
+    google_drive_state = "provider_backed_ready" if google_drive_ready else "credentials_missing"
+    google_drive_hint = (
+        "google_drive_list_files_live"
+        if google_drive_ready
+        else "configure_google_drive_access_token_for_live_metadata_read_execution"
+    )
     return {
         "execution_owner": "connector_execution_registry",
-        "mvp_boundary": "clickup_task_create_and_list_plus_google_calendar_read_availability_first_live_paths",
+        "mvp_boundary": "clickup_task_create_and_list_plus_google_calendar_and_google_drive_first_live_paths",
         "task_system": {
             "read_capable_live_paths": ["clickup_list_tasks"],
             "mutation_live_paths": ["clickup_create_task"],
@@ -69,7 +81,16 @@ def connector_execution_baseline_snapshot(settings) -> dict[str, object]:
             "other_operations": "policy_only_until_additional_calendar_read_or_mutation_paths_exist",
         },
         "cloud_drive": {
-            "execution_mode": "policy_only",
-            "hint": "drive_execution_remains_permission_gated_without_provider_adapter",
+            "read_capable_live_paths": ["google_drive_list_files"],
+            "mutation_live_paths": [],
+            "google_drive_list_files": {
+                "operation": "list_files",
+                "provider": "google_drive",
+                "execution_mode": "provider_backed_when_configured",
+                "ready": google_drive_ready,
+                "state": google_drive_state,
+                "hint": google_drive_hint,
+            },
+            "other_operations": "policy_only_until_additional_drive_read_or_mutation_paths_exist",
         },
     }

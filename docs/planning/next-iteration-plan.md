@@ -347,7 +347,11 @@ cloud-drive reads rather than durable file or write semantics.
   path with `provider_hint=google_drive`, and action executes it through a
   dedicated Google Drive metadata adapter that returns bounded file metadata
   previews only.
-- the next active slice in this lane is `PRJ-530`.
+- `PRJ-530` is complete: `/health.connectors.execution_baseline` now exposes
+  the bounded Google Drive metadata-read path with machine-visible
+  `credentials_missing|provider_backed_ready` posture under one shared
+  `provider_backed_when_configured` contract.
+- the next active slice in this lane is `PRJ-531`.
 
 - `PRJ-528` Define the first bounded cloud-drive metadata read baseline.
   - Result:

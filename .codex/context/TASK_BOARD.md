@@ -190,15 +190,19 @@ Last updated: 2026-04-22
     metadata read contract.
 
 - Group 79 note:
-  - `PRJ-528..PRJ-529` are now complete.
+  - `PRJ-528..PRJ-530` are now complete.
   - the next bounded cloud-drive live-read path is frozen as
     `cloud_drive:list_files` with `provider_hint=google_drive`.
   - safe output is intentionally metadata-only, leaving document contents,
     downloads, and writes outside the selected baseline.
   - the provider-backed adapter now executes only bounded metadata listing
     notes before delivery and preserves the planning-to-action boundary.
-  - `PRJ-530` is the next active slice for operator-visible readiness and
-    failure posture through `/health.connectors`.
+  - `/health.connectors.execution_baseline.cloud_drive.google_drive_list_files`
+    now exposes one shared `provider_backed_when_configured` readiness
+    contract with machine-visible `credentials_missing|provider_backed_ready`
+    posture for the bounded cloud-drive metadata-read path.
+  - `PRJ-531` is the next active slice for docs/context sync of the
+    cloud-drive metadata-read baseline.
 
 - [x] PRJ-520 Freeze the shared debug compatibility retirement gate
   - Owner: Planner
@@ -392,16 +396,23 @@ Last updated: 2026-04-22
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
-- [ ] PRJ-530 Expose cloud-drive metadata-read readiness and failure posture through `/health.connectors`
+- [x] PRJ-530 Expose cloud-drive metadata-read readiness and failure posture through `/health.connectors`
   - Owner: Ops/Release
   - Group: Cloud-Drive Metadata Read Baseline
   - Depends on: PRJ-529
   - Priority: P2
-  - Status: READY
+  - Status: DONE
   - Done when:
     - `/health.connectors.execution_baseline` distinguishes the new
       cloud-drive metadata-read posture from both policy-only families and
       existing task-system live paths
+  - Result:
+    - `/health.connectors.execution_baseline.cloud_drive.google_drive_list_files`
+      now exposes the bounded cloud-drive metadata-read path through one shared
+      `provider_backed_when_configured` contract
+    - operator posture now distinguishes `credentials_missing` from
+      `provider_backed_ready` for the Google Drive metadata adapter instead of
+      leaving cloud-drive under one generic policy-only hint
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
@@ -410,7 +421,7 @@ Last updated: 2026-04-22
   - Group: Cloud-Drive Metadata Read Baseline
   - Depends on: PRJ-530
   - Priority: P2
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - canonical contracts, runtime reality, ops notes, testing guidance, and
       context truth all describe the same cloud-drive metadata-read baseline

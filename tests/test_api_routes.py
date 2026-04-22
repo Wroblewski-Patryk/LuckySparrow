@@ -291,6 +291,8 @@ class FakeSettings:
         proactive_enabled: bool = False,
         proactive_interval: int = 1800,
         attention_coordination_mode: str = "in_process",
+        google_drive_access_token: str | None = None,
+        google_drive_folder_id: str | None = None,
     ):
         self.telegram_webhook_secret = telegram_webhook_secret
         self.app_env = app_env
@@ -323,6 +325,8 @@ class FakeSettings:
         self.proactive_enabled = proactive_enabled
         self.proactive_interval = proactive_interval
         self.attention_coordination_mode = attention_coordination_mode
+        self.google_drive_access_token = google_drive_access_token
+        self.google_drive_folder_id = google_drive_folder_id
 
     def is_event_debug_enabled(self) -> bool:
         if self.event_debug_enabled is not None:
@@ -1726,7 +1730,7 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     assert body["connectors"]["capability_proposal"]["self_authorization_allowed"] is False
     assert (
         body["connectors"]["execution_baseline"]["mvp_boundary"]
-        == "clickup_task_create_and_list_plus_google_calendar_read_availability_first_live_paths"
+        == "clickup_task_create_and_list_plus_google_calendar_and_google_drive_first_live_paths"
     )
     assert body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["ready"] is False
     assert (
@@ -1744,6 +1748,13 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     assert (
         calendar_baseline["hint"]
         == "configure_google_calendar_access_token_and_google_calendar_calendar_id_for_live_read_execution"
+    )
+    drive_baseline = body["connectors"]["execution_baseline"]["cloud_drive"]["google_drive_list_files"]
+    assert drive_baseline["ready"] is False
+    assert drive_baseline["state"] == "credentials_missing"
+    assert (
+        drive_baseline["hint"]
+        == "configure_google_drive_access_token_for_live_metadata_read_execution"
     )
     assert body["deployment"]["hosting_baseline"] == "coolify_medium_term_standard"
 
@@ -1786,6 +1797,23 @@ def test_health_endpoint_exposes_provider_backed_google_calendar_readiness_when_
     assert read_baseline["ready"] is True
     assert read_baseline["state"] == "provider_backed_ready"
     assert read_baseline["hint"] == "google_calendar_read_availability_live"
+
+
+def test_health_endpoint_exposes_provider_backed_google_drive_readiness_when_configured() -> None:
+    client, _, _ = _client()
+    client.app.state.settings.google_drive_access_token = "google-drive-token"
+    client.app.state.settings.google_drive_folder_id = "folder-123"
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    read_baseline = body["connectors"]["execution_baseline"]["cloud_drive"]["google_drive_list_files"]
+    assert read_baseline["provider"] == "google_drive"
+    assert read_baseline["execution_mode"] == "provider_backed_when_configured"
+    assert read_baseline["ready"] is True
+    assert read_baseline["state"] == "provider_backed_ready"
+    assert read_baseline["hint"] == "google_drive_list_files_live"
 
 
 def test_health_endpoint_exposes_local_hybrid_embedding_provider_as_ready_owner() -> None:

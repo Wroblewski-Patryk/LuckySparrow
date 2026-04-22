@@ -388,7 +388,14 @@ The current repo already works as an MVP slice, but several architecture-level d
     as the bounded metadata-read baseline
   - action executes that intent through a bounded Google Drive metadata adapter
     and returns only file metadata previews before normal delivery
-  - the next active slice in this lane is `PRJ-530`
+- `PRJ-530` is now complete:
+  - `/health.connectors.execution_baseline.cloud_drive.google_drive_list_files`
+    exposes the bounded metadata-read path under one shared
+    `provider_backed_when_configured` contract
+  - operator posture now distinguishes `credentials_missing` from
+    `provider_backed_ready` instead of leaving cloud-drive under one generic
+    policy-only hint
+  - the next active slice in this lane is `PRJ-531`
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

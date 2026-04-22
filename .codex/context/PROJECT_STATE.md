@@ -86,9 +86,15 @@ Last updated: 2026-04-22
   executes that typed read intent through a dedicated bounded Google Drive
   metadata adapter that returns file metadata previews without exposing
   document bodies, downloads, or write semantics.
-- 2026-04-22: `PRJ-530` is now the first `READY` task; the next slice should
-  expose cloud-drive metadata-read readiness and failure posture through
-  `/health.connectors`.
+- 2026-04-22: `PRJ-530` is complete: `/health.connectors.execution_baseline`
+  now exposes `cloud_drive.google_drive_list_files` with one shared
+  `provider_backed_when_configured` contract and machine-visible
+  `credentials_missing|provider_backed_ready` posture for the bounded
+  cloud-drive metadata-read path.
+- 2026-04-22: `PRJ-531` is now the first `READY` task; the next slice should
+  synchronize the cloud-drive metadata-read baseline across canonical docs,
+  runtime reality, ops guidance, testing guidance, and planning/context
+  truth.
 - 2026-04-22: Group 76 (`PRJ-516..PRJ-519`) is now complete, and the next
   `READY` task is `PRJ-520` for dedicated debug-ingress compatibility
   retirement.
