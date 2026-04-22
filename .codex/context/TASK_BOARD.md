@@ -54,19 +54,21 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-505 Implement lifecycle visibility for refresh, pending source families, and provider fallback drift
-  - Owner: Backend Builder
+- [ ] PRJ-506 Add behavior and release evidence for retrieval lifecycle alignment
+  - Owner: QA/Test
   - Group: Retrieval Lifecycle And Source-Rollout Closure
-  - Depends on: PRJ-504
+  - Depends on: PRJ-505
   - Priority: P1
   - Why now:
-    - lifecycle policy is now explicit, so runtime and `/health` can expose the
-      remaining gaps against that steady-state baseline
+    - lifecycle posture is now visible in `/health`, so the next step is to pin
+      it in behavior or release evidence instead of leaving it as operator-only
+      inspection
   - Done when:
-    - runtime and `/health.memory_retrieval` expose the remaining lifecycle gaps
-      as first-class machine-readable posture instead of scattered hints
+    - behavior validation or smoke evidence can prove retrieval lifecycle
+      alignment rather than only provider selection
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_runtime_policy.py tests/test_api_routes.py`
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -173,6 +175,21 @@ Last updated: 2026-04-22
       baseline is stable
   - Validation:
     - retrieval architecture/planning cross-review
+
+- [x] PRJ-505 Implement lifecycle visibility for refresh, pending source families, and provider fallback drift
+  - Owner: Backend Builder
+  - Group: Retrieval Lifecycle And Source-Rollout Closure
+  - Depends on: PRJ-504
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - `/health.memory_retrieval` now exposes one retrieval lifecycle owner plus
+      provider drift posture, pending lifecycle gaps, and baseline alignment
+      state
+    - operators can now see lifecycle drift in one surface instead of
+      reconstructing it from multiple embedding rollout fields
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_runtime_policy.py tests/test_api_routes.py`
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder

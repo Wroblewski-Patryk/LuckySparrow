@@ -626,6 +626,10 @@ Completed on 2026-04-22:
   transition owner, deterministic as compatibility fallback, `on_write` as the
   steady-state refresh owner, and semantic+affective coverage as the
   foreground rollout completion baseline.
+- `PRJ-505` is complete: `/health.memory_retrieval` now exposes the retrieval
+  lifecycle owner, provider drift posture, pending lifecycle gaps, and
+  alignment state in one machine-visible surface instead of scattering that
+  information across independent rollout hints.
 
 - `PRJ-504` Define the production retrieval lifecycle baseline beyond current provider-owned materialization.
   - Result:

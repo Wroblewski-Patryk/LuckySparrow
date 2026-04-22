@@ -1737,13 +1737,30 @@ def test_health_endpoint_exposes_local_hybrid_embedding_provider_as_ready_owner(
 
     assert response.status_code == 200
     body = response.json()
-    assert body["memory_retrieval"]["semantic_embedding_provider_requested"] == "local_hybrid"
-    assert body["memory_retrieval"]["semantic_embedding_provider_effective"] == "local_hybrid"
+    assert body["memory_retrieval"]["retrieval_lifecycle_policy_owner"] == "retrieval_lifecycle_policy"
+    assert body["memory_retrieval"]["retrieval_lifecycle_provider_drift_state"] == "transition_provider_active"
+    assert body["memory_retrieval"]["retrieval_lifecycle_pending_gaps"] == ["provider_baseline_not_aligned"]
+    assert body["memory_retrieval"]["retrieval_lifecycle_alignment_state"] == "lifecycle_gaps_present"
+
+
+def test_health_endpoint_exposes_retrieval_lifecycle_gaps_for_deterministic_fallback() -> None:
+    client, _, _ = _client(embedding_provider="deterministic", embedding_model="deterministic-v1")
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["memory_retrieval"]["retrieval_lifecycle_policy_owner"] == "retrieval_lifecycle_policy"
+    assert body["memory_retrieval"]["retrieval_lifecycle_provider_drift_state"] == "compatibility_fallback_active"
+    assert body["memory_retrieval"]["retrieval_lifecycle_pending_gaps"] == ["provider_baseline_not_aligned"]
+    assert body["memory_retrieval"]["retrieval_lifecycle_alignment_state"] == "lifecycle_gaps_present"
+    assert body["memory_retrieval"]["semantic_embedding_provider_requested"] == "deterministic"
+    assert body["memory_retrieval"]["semantic_embedding_provider_effective"] == "deterministic"
     assert body["memory_retrieval"]["semantic_embedding_provider_ready"] is True
-    assert body["memory_retrieval"]["semantic_embedding_provider_hint"] == "local_provider_execution"
-    assert body["memory_retrieval"]["semantic_embedding_execution_class"] == "local_provider_owned"
+    assert body["memory_retrieval"]["semantic_embedding_provider_hint"] == "deterministic_baseline"
+    assert body["memory_retrieval"]["semantic_embedding_execution_class"] == "deterministic_baseline"
     assert body["memory_retrieval"]["semantic_embedding_production_baseline"] == "openai_api_embeddings"
-    assert body["memory_retrieval"]["semantic_embedding_production_baseline_state"] == "local_transition_provider_owned"
+    assert body["memory_retrieval"]["semantic_embedding_production_baseline_state"] == "deterministic_compatibility_baseline"
 
 
 def test_health_endpoint_exposes_openai_embedding_provider_as_ready_owner_when_api_key_is_present() -> None:

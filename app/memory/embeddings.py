@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import math
 
+from app.core.retrieval_lifecycle_policy import retrieval_lifecycle_policy_snapshot
+
 DEFAULT_EMBEDDING_PROVIDER = "deterministic"
 OPENAI_EMBEDDING_PROVIDER = "openai"
 DEFAULT_EMBEDDING_MODEL = "deterministic-v1"
@@ -89,6 +91,7 @@ def embedding_strategy_snapshot(
     source_rollout_enforcement: str | None = None,
     openai_api_key: str | None = None,
 ) -> dict[str, str | bool | int | list[str]]:
+    lifecycle_policy = retrieval_lifecycle_policy_snapshot()
     posture = resolve_embedding_posture(
         provider=provider,
         model=model,
@@ -486,7 +489,57 @@ def embedding_strategy_snapshot(
             refresh_alignment_state = "manual_override"
             refresh_alignment_hint = "ensure_manual_mode_has_operational_coverage"
 
+    pending_lifecycle_gaps: list[str] = []
+    if semantic_vector_enabled and posture["provider_effective"] != str(
+        lifecycle_policy["target_provider_baseline"].replace("_embeddings", "")
+    ).replace("openai_api", "openai"):
+        pending_lifecycle_gaps.append("provider_baseline_not_aligned")
+    if semantic_vector_enabled and source_rollout_completion_state != "baseline_complete_relation_pending":
+        if source_rollout_completion_state != "fully_enabled":
+            pending_lifecycle_gaps.append("foreground_source_rollout_incomplete")
+    if semantic_vector_enabled and normalized_refresh_mode != str(lifecycle_policy["steady_state_refresh_owner"]):
+        pending_lifecycle_gaps.append("refresh_owner_not_aligned")
+
+    if not semantic_vector_enabled:
+        lifecycle_alignment_state = "not_applicable_vectors_disabled"
+        lifecycle_alignment_hint = "enable_vectors_before_lifecycle_alignment"
+        provider_drift_state = "not_applicable_vectors_disabled"
+        provider_drift_hint = "not_applicable_vectors_disabled"
+    else:
+        if posture["provider_effective"] == OPENAI_EMBEDDING_PROVIDER:
+            provider_drift_state = "aligned_target_provider"
+            provider_drift_hint = "target_provider_baseline_active"
+        elif posture["provider_effective"] == LOCAL_HYBRID_EMBEDDING_PROVIDER:
+            provider_drift_state = "transition_provider_active"
+            provider_drift_hint = "local_transition_owner_active"
+        else:
+            provider_drift_state = "compatibility_fallback_active"
+            provider_drift_hint = "deterministic_fallback_owner_active"
+
+        if not pending_lifecycle_gaps:
+            lifecycle_alignment_state = "aligned_with_defined_lifecycle_baseline"
+            lifecycle_alignment_hint = "provider_refresh_and_source_rollout_match_defined_baseline"
+        else:
+            lifecycle_alignment_state = "lifecycle_gaps_present"
+            lifecycle_alignment_hint = ",".join(pending_lifecycle_gaps)
+
     return {
+        "retrieval_lifecycle_policy_owner": str(lifecycle_policy["policy_owner"]),
+        "retrieval_lifecycle_target_provider_baseline": str(lifecycle_policy["target_provider_baseline"]),
+        "retrieval_lifecycle_transition_provider_baseline": str(lifecycle_policy["transition_provider_baseline"]),
+        "retrieval_lifecycle_steady_state_refresh_owner": str(lifecycle_policy["steady_state_refresh_owner"]),
+        "retrieval_lifecycle_source_rollout_baseline": str(
+            lifecycle_policy["steady_state_source_rollout_completion"]
+        ),
+        "retrieval_lifecycle_relation_source_posture": str(lifecycle_policy["relation_source_posture"]),
+        "retrieval_lifecycle_fallback_retirement_posture": str(
+            lifecycle_policy["fallback_retirement_posture"]
+        ),
+        "retrieval_lifecycle_pending_gaps": list(pending_lifecycle_gaps),
+        "retrieval_lifecycle_alignment_state": lifecycle_alignment_state,
+        "retrieval_lifecycle_alignment_hint": lifecycle_alignment_hint,
+        "retrieval_lifecycle_provider_drift_state": provider_drift_state,
+        "retrieval_lifecycle_provider_drift_hint": provider_drift_hint,
         "semantic_vector_enabled": semantic_vector_enabled,
         "semantic_retrieval_mode": "hybrid_vector_lexical" if semantic_vector_enabled else "lexical_only",
         "semantic_embedding_provider_ready": provider_ready,

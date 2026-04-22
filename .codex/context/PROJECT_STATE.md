@@ -2014,9 +2014,11 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-504` is complete: retrieval lifecycle now has one explicit
   policy owner for target provider baseline, transition owner, compatibility
   fallback, steady-state refresh, and source-rollout completion posture.
-- 2026-04-22: `PRJ-505` is now the next `READY` task, focused on implementing
-  lifecycle visibility for refresh, pending source families, and provider
-  fallback drift.
+- 2026-04-22: `PRJ-505` is complete: `/health.memory_retrieval` now exposes
+  one retrieval lifecycle owner plus provider drift posture, pending lifecycle
+  gaps, and baseline alignment state.
+- 2026-04-22: `PRJ-506` is now the next `READY` task, focused on adding
+  behavior and release evidence for retrieval lifecycle alignment.
 
 ## Working Agreements
 
