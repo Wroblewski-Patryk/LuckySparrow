@@ -2,6 +2,11 @@ from collections.abc import Mapping
 from typing import Any, Literal
 
 from app.core.affective_policy import affective_assessment_policy_snapshot
+from app.core.debug_ingress_policy import (
+    debug_ingress_admin_posture_state,
+    debug_ingress_policy_snapshot,
+    debug_ingress_retirement_blockers,
+)
 
 def app_environment(settings: Any) -> str:
     return str(getattr(settings, "app_env", "")).strip().lower()
@@ -284,6 +289,8 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
     recommended_enforcement = recommended_production_policy_enforcement(settings)
     rollout_hint = strict_rollout_hint(settings)
     shared_ingress_mode = event_debug_shared_ingress_mode(settings)
+    query_compat_enabled = event_debug_query_compat_enabled(settings)
+    debug_enabled = event_debug_enabled(settings)
     schema_sunset_posture = startup_schema_compatibility_posture(settings)
     schema_sunset_ready = startup_schema_compatibility_sunset_ready(settings)
     schema_sunset_reason = startup_schema_compatibility_sunset_reason(settings)
@@ -291,24 +298,42 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
     shared_ingress_sunset_reason = event_debug_shared_ingress_sunset_reason(settings)
     sunset_blockers = compatibility_sunset_blockers(settings)
     affective_policy = affective_assessment_policy_snapshot(settings)
+    debug_policy = debug_ingress_policy_snapshot()
+    debug_retirement_blockers = debug_ingress_retirement_blockers(
+        debug_enabled=debug_enabled,
+        shared_ingress_mode=shared_ingress_mode,
+        query_compat_enabled=query_compat_enabled,
+    )
+    debug_admin_posture_state = debug_ingress_admin_posture_state(
+        debug_enabled=debug_enabled,
+        shared_ingress_mode=shared_ingress_mode,
+        query_compat_enabled=query_compat_enabled,
+    )
     return {
         **affective_policy,
         "startup_schema_mode": startup_schema_mode(settings),
         "startup_schema_compatibility_posture": schema_sunset_posture,
         "startup_schema_compatibility_sunset_ready": schema_sunset_ready,
         "startup_schema_compatibility_sunset_reason": schema_sunset_reason,
-        "event_debug_enabled": event_debug_enabled(settings),
+        "event_debug_enabled": debug_enabled,
         "event_debug_token_required": event_debug_token_required(settings),
         "production_debug_token_required": production_debug_token_required(settings),
-        "event_debug_query_compat_enabled": event_debug_query_compat_enabled(settings),
+        "event_debug_query_compat_enabled": query_compat_enabled,
         "event_debug_query_compat_source": event_debug_query_compat_source(settings),
         "event_debug_ingress_owner": "internal_route_primary_shared_route_compat",
+        "event_debug_admin_policy_owner": debug_policy["policy_owner"],
+        "event_debug_admin_ingress_target_kind": debug_policy["target_admin_ingress_kind"],
+        "event_debug_admin_ingress_target_path": debug_policy["target_admin_ingress_path"],
+        "event_debug_admin_operator_default": debug_policy["operator_default"],
+        "event_debug_admin_posture_state": debug_admin_posture_state,
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
         "event_debug_shared_ingress_mode": shared_ingress_mode,
         "event_debug_shared_ingress_mode_source": event_debug_shared_ingress_mode_source(settings),
         "event_debug_shared_ingress_break_glass_required": shared_ingress_mode == "break_glass_only",
         "event_debug_shared_ingress_posture": event_debug_shared_ingress_posture(settings),
+        "event_debug_shared_ingress_retirement_blockers": debug_retirement_blockers,
+        "event_debug_shared_ingress_retirement_ready": len(debug_retirement_blockers) == 0,
         "event_debug_shared_ingress_sunset_ready": shared_ingress_sunset_ready,
         "event_debug_shared_ingress_sunset_reason": shared_ingress_sunset_reason,
         "event_debug_shared_ingress_enforcement_window": shared_debug_ingress_enforcement_window(),

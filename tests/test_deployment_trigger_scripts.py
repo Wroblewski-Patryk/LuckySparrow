@@ -97,11 +97,16 @@ def stub_aion_server() -> _StubAionServer:
             "startup_schema_compatibility_posture": "migration_only",
             "startup_schema_compatibility_sunset_ready": True,
             "startup_schema_compatibility_sunset_reason": "migration_only_baseline_active",
+            "event_debug_admin_policy_owner": "dedicated_admin_debug_ingress_policy",
+            "event_debug_admin_ingress_target_path": "/internal/event/debug",
+            "event_debug_admin_posture_state": "debug_disabled_admin_route_primary_by_default",
             "event_debug_internal_ingress_path": "/internal/event/debug",
             "event_debug_shared_ingress_path": "/event/debug",
             "event_debug_shared_ingress_mode": "compatibility",
             "event_debug_shared_ingress_break_glass_required": False,
             "event_debug_shared_ingress_posture": "shared_route_compatibility",
+            "event_debug_shared_ingress_retirement_blockers": [],
+            "event_debug_shared_ingress_retirement_ready": True,
             "event_debug_enabled": False,
             "event_debug_shared_ingress_sunset_ready": True,
             "event_debug_shared_ingress_sunset_reason": "shared_debug_route_disabled_with_debug_payload_off",
@@ -286,8 +291,13 @@ def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
     assert summary["startup_schema_compatibility_posture"] == "migration_only"
     assert summary["startup_schema_compatibility_sunset_ready"] is True
     assert summary["startup_schema_compatibility_sunset_reason"] == "migration_only_baseline_active"
+    assert summary["debug_admin_policy_owner"] == "dedicated_admin_debug_ingress_policy"
+    assert summary["debug_admin_ingress_target_path"] == "/internal/event/debug"
+    assert summary["debug_admin_posture_state"] == "debug_disabled_admin_route_primary_by_default"
     assert summary["debug_shared_ingress_sunset_ready"] is True
     assert summary["debug_shared_ingress_sunset_reason"] == "shared_debug_route_disabled_with_debug_payload_off"
+    assert summary["debug_shared_ingress_retirement_ready"] is True
+    assert summary["debug_shared_ingress_retirement_blockers"] == []
     assert summary["compatibility_sunset_ready"] is True
     assert summary["compatibility_sunset_blockers"] == []
     assert summary["runtime_topology_owner"] == "runtime_topology_finalization"

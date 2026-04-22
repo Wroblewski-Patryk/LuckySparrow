@@ -1954,8 +1954,15 @@ Last updated: 2026-04-22
   internal admin route as the target posture, keeps `/event/debug` and
   `/event?debug=true` as temporary compatibility surfaces only, and freezes the
   retirement checklist for shared ingress.
-- 2026-04-22: `PRJ-493` is now the next `READY` task, focused on surfacing that
-  debug-ingress policy through runtime health and release evidence.
+- 2026-04-22: `PRJ-493` is complete: `/health.runtime_policy` and release smoke
+  now expose one machine-visible dedicated-admin debug posture through
+  `event_debug_admin_*` fields plus explicit shared-ingress retirement blockers
+  and readiness state.
+- 2026-04-22: `PRJ-493` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+  passed with `98 passed`.
+- 2026-04-22: `PRJ-494` is now the next `READY` task, focused on runbook/startup
+  guidance for the same dedicated-admin debug posture.
 
 ## Working Agreements
 

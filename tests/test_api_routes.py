@@ -751,6 +751,14 @@ def test_health_endpoint_returns_ok() -> None:
     assert body["runtime_policy"]["affective_classifier_available"] is False
     assert body["runtime_policy"]["affective_assessment_posture"] == "fallback_only_classifier_unavailable"
     assert body["runtime_policy"]["event_debug_shared_ingress_mode"] == "compatibility"
+    assert body["runtime_policy"]["event_debug_admin_policy_owner"] == "dedicated_admin_debug_ingress_policy"
+    assert body["runtime_policy"]["event_debug_admin_ingress_target_path"] == "/internal/event/debug"
+    assert body["runtime_policy"]["event_debug_admin_posture_state"] == "transitional_shared_compatibility_active"
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_blockers"] == [
+        "shared_debug_route_still_primary",
+        "query_debug_compatibility_still_enabled",
+    ]
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_ready"] is False
     assert body["runtime_policy"]["compatibility_sunset_ready"] is False
     assert body["runtime_policy"]["event_debug_query_compat_telemetry"]["recent_window_size"] == 20
     assert body["proactive"]["policy_owner"] == "proactive_runtime_policy"
@@ -1410,12 +1418,19 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
         "event_debug_query_compat_enabled": False,
         "event_debug_query_compat_source": "environment_default",
         "event_debug_ingress_owner": "internal_route_primary_shared_route_compat",
+        "event_debug_admin_policy_owner": "dedicated_admin_debug_ingress_policy",
+        "event_debug_admin_ingress_target_kind": "dedicated_internal_admin_route",
+        "event_debug_admin_ingress_target_path": "/internal/event/debug",
+        "event_debug_admin_operator_default": "use_dedicated_admin_ingress",
+        "event_debug_admin_posture_state": "debug_disabled_admin_route_primary_by_default",
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
         "event_debug_shared_ingress_mode": "compatibility",
         "event_debug_shared_ingress_mode_source": "explicit",
         "event_debug_shared_ingress_break_glass_required": False,
         "event_debug_shared_ingress_posture": "shared_route_compatibility",
+        "event_debug_shared_ingress_retirement_blockers": [],
+        "event_debug_shared_ingress_retirement_ready": True,
         "event_debug_shared_ingress_sunset_ready": True,
         "event_debug_shared_ingress_sunset_reason": "shared_debug_route_disabled_with_debug_payload_off",
         "event_debug_shared_ingress_enforcement_window": "after_group_51_release_evidence_green",
@@ -1474,6 +1489,11 @@ def test_health_endpoint_marks_break_glass_shared_ingress_posture_when_configure
     assert body["runtime_policy"]["event_debug_shared_ingress_mode"] == "break_glass_only"
     assert body["runtime_policy"]["event_debug_shared_ingress_break_glass_required"] is True
     assert body["runtime_policy"]["event_debug_shared_ingress_posture"] == "shared_route_break_glass_only"
+    assert body["runtime_policy"]["event_debug_admin_posture_state"] == "transitional_shared_compatibility_active"
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_blockers"] == [
+        "query_debug_compatibility_still_enabled",
+    ]
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_ready"] is False
     assert body["runtime_policy"]["event_debug_shared_ingress_sunset_ready"] is True
     assert body["runtime_policy"]["event_debug_shared_ingress_sunset_reason"] == "shared_debug_route_break_glass_only"
     assert body["runtime_policy"]["event_debug_internal_ingress_path"] == "/internal/event/debug"
@@ -1505,6 +1525,12 @@ def test_health_endpoint_marks_event_debug_source_as_environment_default_when_un
     assert body["runtime_policy"]["startup_schema_compatibility_posture"] == "migration_only"
     assert body["runtime_policy"]["startup_schema_compatibility_sunset_ready"] is True
     assert body["runtime_policy"]["startup_schema_compatibility_sunset_reason"] == "migration_only_baseline_active"
+    assert body["runtime_policy"]["event_debug_admin_posture_state"] == "transitional_shared_compatibility_active"
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_blockers"] == [
+        "shared_debug_route_still_primary",
+        "query_debug_compatibility_still_enabled",
+    ]
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_ready"] is False
     assert body["runtime_policy"]["event_debug_shared_ingress_sunset_ready"] is False
     assert (
         body["runtime_policy"]["event_debug_shared_ingress_sunset_reason"]
@@ -1558,6 +1584,11 @@ def test_health_endpoint_exposes_all_production_policy_mismatches_when_present()
     assert body["runtime_policy"]["startup_schema_compatibility_posture"] == "compatibility_create_tables"
     assert body["runtime_policy"]["startup_schema_compatibility_sunset_ready"] is False
     assert body["runtime_policy"]["startup_schema_compatibility_sunset_reason"] == "create_tables_compatibility_active"
+    assert body["runtime_policy"]["event_debug_admin_posture_state"] == "transitional_shared_compatibility_active"
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_blockers"] == [
+        "shared_debug_route_still_primary",
+    ]
+    assert body["runtime_policy"]["event_debug_shared_ingress_retirement_ready"] is False
     assert body["runtime_policy"]["event_debug_shared_ingress_sunset_ready"] is False
     assert (
         body["runtime_policy"]["event_debug_shared_ingress_sunset_reason"]

@@ -54,35 +54,36 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-493 Expose machine-visible admin-ingress posture and shared-ingress retirement blockers
+- [ ] PRJ-494 Add release-smoke and operator guidance for dedicated-admin debug posture
+  - Owner: Ops/Release
+  - Group: Debug Ingress Retirement And Admin Boundary Closure
+  - Depends on: PRJ-493
+  - Priority: P1
+  - Why now:
+    - once runtime exposes the admin ingress posture, smoke and operator
+      guidance should consume the same fields so release triage stops depending
+      on memory
+  - Done when:
+    - release smoke verifies dedicated-admin ingress posture and shared-ingress
+      retirement blockers from `/health.runtime_policy`
+    - operator guidance can point at one machine-visible debug-boundary story
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
+
+- [x] PRJ-493 Expose machine-visible admin-ingress posture and shared-ingress retirement blockers
   - Owner: Backend Builder
   - Group: Debug Ingress Retirement And Admin Boundary Closure
   - Depends on: PRJ-492
   - Priority: P1
-  - Why now:
-    - once the admin-only target is frozen, `/health` and release evidence
-      should expose the same target posture so operators can triage drift
-      without reading docs
-  - Done when:
-    - `/health.runtime_policy` shows the dedicated admin ingress target,
-      transitional shared-route posture, and machine-readable retirement
-      blockers from one policy owner
-    - release evidence can distinguish aligned admin-only posture from
-      rollback-safe compatibility posture
+  - Status: DONE
+  - Result:
+    - `runtime_policy_snapshot()` now exposes one machine-visible admin debug
+      boundary with policy owner, target ingress path, posture state, and
+      retirement blockers for shared compat ingress
+    - release smoke now verifies those fields so operator evidence and runtime
+      policy stay aligned on the same dedicated-admin target
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
-
-## BACKLOG
-
-- [ ] (none)
-
-## FUTURE
-
-- [ ] (none)
-
-## IN_PROGRESS
-
-- [ ] (none)
 
 - [x] PRJ-492 Freeze the dedicated-admin debug ingress target and compatibility-retirement checklist
   - Owner: Planner

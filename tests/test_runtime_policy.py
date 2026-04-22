@@ -49,12 +49,22 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
         "event_debug_query_compat_enabled": True,
         "event_debug_query_compat_source": "environment_default",
         "event_debug_ingress_owner": "internal_route_primary_shared_route_compat",
+        "event_debug_admin_policy_owner": "dedicated_admin_debug_ingress_policy",
+        "event_debug_admin_ingress_target_kind": "dedicated_internal_admin_route",
+        "event_debug_admin_ingress_target_path": "/internal/event/debug",
+        "event_debug_admin_operator_default": "use_dedicated_admin_ingress",
+        "event_debug_admin_posture_state": "transitional_shared_compatibility_active",
         "event_debug_internal_ingress_path": "/internal/event/debug",
         "event_debug_shared_ingress_path": "/event/debug",
         "event_debug_shared_ingress_mode": "compatibility",
         "event_debug_shared_ingress_mode_source": "environment_default",
         "event_debug_shared_ingress_break_glass_required": False,
         "event_debug_shared_ingress_posture": "shared_route_compatibility",
+        "event_debug_shared_ingress_retirement_blockers": [
+            "shared_debug_route_still_primary",
+            "query_debug_compatibility_still_enabled",
+        ],
+        "event_debug_shared_ingress_retirement_ready": False,
         "event_debug_shared_ingress_sunset_ready": False,
         "event_debug_shared_ingress_sunset_reason": "shared_debug_route_still_in_compatibility_mode",
         "event_debug_shared_ingress_enforcement_window": "after_group_51_release_evidence_green",
@@ -97,12 +107,17 @@ def test_runtime_policy_snapshot_includes_all_production_mismatches() -> None:
     assert snapshot["event_debug_query_compat_enabled"] is False
     assert snapshot["event_debug_query_compat_source"] == "environment_default"
     assert snapshot["event_debug_ingress_owner"] == "internal_route_primary_shared_route_compat"
+    assert snapshot["event_debug_admin_policy_owner"] == "dedicated_admin_debug_ingress_policy"
+    assert snapshot["event_debug_admin_ingress_target_path"] == "/internal/event/debug"
+    assert snapshot["event_debug_admin_posture_state"] == "dedicated_admin_route_primary"
     assert snapshot["event_debug_internal_ingress_path"] == "/internal/event/debug"
     assert snapshot["event_debug_shared_ingress_path"] == "/event/debug"
     assert snapshot["event_debug_shared_ingress_mode"] == "break_glass_only"
     assert snapshot["event_debug_shared_ingress_mode_source"] == "environment_default"
     assert snapshot["event_debug_shared_ingress_break_glass_required"] is True
     assert snapshot["event_debug_shared_ingress_posture"] == "shared_route_break_glass_only"
+    assert snapshot["event_debug_shared_ingress_retirement_blockers"] == []
+    assert snapshot["event_debug_shared_ingress_retirement_ready"] is True
     assert snapshot["event_debug_shared_ingress_sunset_ready"] is True
     assert snapshot["event_debug_shared_ingress_sunset_reason"] == "shared_debug_route_break_glass_only"
     assert snapshot["event_debug_shared_ingress_enforcement_window"] == "after_group_51_release_evidence_green"
@@ -310,6 +325,11 @@ def test_runtime_policy_snapshot_marks_query_compat_as_explicit_mismatch_when_en
 
     assert snapshot["event_debug_query_compat_enabled"] is True
     assert snapshot["event_debug_query_compat_source"] == "explicit"
+    assert snapshot["event_debug_admin_posture_state"] == "transitional_shared_compatibility_active"
+    assert snapshot["event_debug_shared_ingress_retirement_blockers"] == [
+        "query_debug_compatibility_still_enabled",
+    ]
+    assert snapshot["event_debug_shared_ingress_retirement_ready"] is False
     assert snapshot["production_policy_mismatches"] == [
         "event_debug_enabled=true",
         "event_debug_query_compat_enabled=true",
@@ -333,6 +353,11 @@ def test_runtime_policy_snapshot_marks_break_glass_shared_ingress_posture() -> N
     assert snapshot["event_debug_shared_ingress_mode"] == "break_glass_only"
     assert snapshot["event_debug_shared_ingress_break_glass_required"] is True
     assert snapshot["event_debug_shared_ingress_posture"] == "shared_route_break_glass_only"
+    assert snapshot["event_debug_admin_posture_state"] == "transitional_shared_compatibility_active"
+    assert snapshot["event_debug_shared_ingress_retirement_blockers"] == [
+        "query_debug_compatibility_still_enabled",
+    ]
+    assert snapshot["event_debug_shared_ingress_retirement_ready"] is False
     assert snapshot["event_debug_shared_ingress_sunset_ready"] is True
     assert snapshot["event_debug_shared_ingress_sunset_reason"] == "shared_debug_route_break_glass_only"
     assert snapshot["compatibility_sunset_ready"] is True

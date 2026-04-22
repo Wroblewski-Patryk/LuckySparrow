@@ -177,6 +177,18 @@ $expectedSharedDebugIngressPath = "/event/debug"
 if (-not (Has-Property -Object $runtimePolicy -Name "event_debug_internal_ingress_path")) {
     throw "Health check failed: runtime_policy is missing event_debug_internal_ingress_path."
 }
+if (-not (Has-Property -Object $runtimePolicy -Name "event_debug_admin_policy_owner")) {
+    throw "Health check failed: runtime_policy is missing event_debug_admin_policy_owner."
+}
+if (-not (Has-Property -Object $runtimePolicy -Name "event_debug_admin_ingress_target_path")) {
+    throw "Health check failed: runtime_policy is missing event_debug_admin_ingress_target_path."
+}
+if ([string]$runtimePolicy.event_debug_admin_ingress_target_path -ne $expectedInternalDebugIngressPath) {
+    throw "Health check failed: unexpected event_debug_admin_ingress_target_path '$($runtimePolicy.event_debug_admin_ingress_target_path)'."
+}
+if (-not (Has-Property -Object $runtimePolicy -Name "event_debug_admin_posture_state")) {
+    throw "Health check failed: runtime_policy is missing event_debug_admin_posture_state."
+}
 if ([string]$runtimePolicy.event_debug_internal_ingress_path -ne $expectedInternalDebugIngressPath) {
     throw "Health check failed: unexpected event_debug_internal_ingress_path '$($runtimePolicy.event_debug_internal_ingress_path)'."
 }
@@ -213,6 +225,28 @@ else {
 }
 if ($sharedIngressPosture -ne $expectedSharedIngressPosture) {
     throw "Health check failed: inconsistent shared ingress posture '$sharedIngressPosture'."
+}
+if (-not (Has-Property -Object $runtimePolicy -Name "event_debug_shared_ingress_retirement_blockers")) {
+    throw "Health check failed: runtime_policy is missing event_debug_shared_ingress_retirement_blockers."
+}
+$debugRetirementBlockers = @($runtimePolicy.event_debug_shared_ingress_retirement_blockers)
+$expectedDebugRetirementBlockers = @()
+if ($debugEnabledForSunset) {
+    if ($sharedIngressMode -eq "compatibility") {
+        $expectedDebugRetirementBlockers += "shared_debug_route_still_primary"
+    }
+    if ([bool]$runtimePolicy.event_debug_query_compat_enabled) {
+        $expectedDebugRetirementBlockers += "query_debug_compatibility_still_enabled"
+    }
+}
+if (($debugRetirementBlockers -join ",") -ne ($expectedDebugRetirementBlockers -join ",")) {
+    throw "Health check failed: inconsistent event_debug_shared_ingress_retirement_blockers."
+}
+if (-not (Has-Property -Object $runtimePolicy -Name "event_debug_shared_ingress_retirement_ready")) {
+    throw "Health check failed: runtime_policy is missing event_debug_shared_ingress_retirement_ready."
+}
+if ([bool]$runtimePolicy.event_debug_shared_ingress_retirement_ready -ne ($expectedDebugRetirementBlockers.Count -eq 0)) {
+    throw "Health check failed: inconsistent event_debug_shared_ingress_retirement_ready."
 }
 if (-not (Has-Property -Object $runtimePolicy -Name "startup_schema_compatibility_posture")) {
     throw "Health check failed: runtime_policy is missing startup_schema_compatibility_posture."
@@ -529,10 +563,15 @@ $summary = @{
     reflection_external_driver_entrypoint_path = if ($null -ne $reflectionExternalDriverPolicy) { [string]$reflectionExternalDriverPolicy.entrypoint_path } else { $null }
     reflection_external_driver_baseline_ready = if ($null -ne $reflectionExternalDriverPolicy) { [bool]$reflectionExternalDriverPolicy.production_baseline_ready } else { $null }
     debug_internal_ingress_path      = [string]$runtimePolicy.event_debug_internal_ingress_path
+    debug_admin_policy_owner         = [string]$runtimePolicy.event_debug_admin_policy_owner
+    debug_admin_ingress_target_path  = [string]$runtimePolicy.event_debug_admin_ingress_target_path
+    debug_admin_posture_state        = [string]$runtimePolicy.event_debug_admin_posture_state
     debug_shared_ingress_path        = [string]$runtimePolicy.event_debug_shared_ingress_path
     debug_shared_ingress_mode        = $sharedIngressMode
     debug_shared_break_glass_required = $sharedBreakGlassRequired
     debug_shared_ingress_posture     = $sharedIngressPosture
+    debug_shared_ingress_retirement_ready = [bool]$runtimePolicy.event_debug_shared_ingress_retirement_ready
+    debug_shared_ingress_retirement_blockers = @($debugRetirementBlockers)
     startup_schema_compatibility_posture = $startupSchemaCompatibilityPosture
     startup_schema_compatibility_sunset_ready = $startupSchemaCompatibilitySunsetReady
     startup_schema_compatibility_sunset_reason = $startupSchemaCompatibilitySunsetReason

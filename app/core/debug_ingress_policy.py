@@ -23,3 +23,38 @@ def debug_ingress_policy_snapshot() -> dict[str, object]:
         "operator_default": "use_dedicated_admin_ingress",
         "break_glass_header": "X-AION-Debug-Break-Glass",
     }
+
+
+def debug_ingress_retirement_blockers(
+    *,
+    debug_enabled: bool,
+    shared_ingress_mode: str,
+    query_compat_enabled: bool,
+) -> list[str]:
+    if not debug_enabled:
+        return []
+
+    blockers: list[str] = []
+    if str(shared_ingress_mode) == "compatibility":
+        blockers.append("shared_debug_route_still_primary")
+    if bool(query_compat_enabled):
+        blockers.append("query_debug_compatibility_still_enabled")
+    return blockers
+
+
+def debug_ingress_admin_posture_state(
+    *,
+    debug_enabled: bool,
+    shared_ingress_mode: str,
+    query_compat_enabled: bool,
+) -> str:
+    if not debug_enabled:
+        return "debug_disabled_admin_route_primary_by_default"
+    blockers = debug_ingress_retirement_blockers(
+        debug_enabled=debug_enabled,
+        shared_ingress_mode=shared_ingress_mode,
+        query_compat_enabled=query_compat_enabled,
+    )
+    if blockers:
+        return "transitional_shared_compatibility_active"
+    return "dedicated_admin_route_primary"
