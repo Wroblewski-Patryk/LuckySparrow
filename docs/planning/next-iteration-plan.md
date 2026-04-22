@@ -621,6 +621,12 @@ Completed on 2026-04-22:
 
 ## Group 73 - Retrieval Lifecycle And Source-Rollout Closure
 
+- `PRJ-504` is complete: the repo now has one explicit retrieval lifecycle
+  owner that freezes OpenAI as the target provider baseline, `local_hybrid` as
+  transition owner, deterministic as compatibility fallback, `on_write` as the
+  steady-state refresh owner, and semantic+affective coverage as the
+  foreground rollout completion baseline.
+
 - `PRJ-504` Define the production retrieval lifecycle baseline beyond current provider-owned materialization.
   - Result:
     - one explicit contract records the steady-state owner for refresh,

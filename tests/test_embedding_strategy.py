@@ -1,4 +1,17 @@
+from app.core.retrieval_lifecycle_policy import retrieval_lifecycle_policy_snapshot
 from app.memory.embeddings import embedding_strategy_snapshot, normalize_embedding_source_kinds
+
+
+def test_retrieval_lifecycle_policy_freezes_steady_state_owner_and_rollout_completion() -> None:
+    snapshot = retrieval_lifecycle_policy_snapshot()
+
+    assert snapshot["policy_owner"] == "retrieval_lifecycle_policy"
+    assert snapshot["target_provider_baseline"] == "openai_api_embeddings"
+    assert snapshot["transition_provider_baseline"] == "local_hybrid"
+    assert snapshot["compatibility_fallback_owner"] == "deterministic"
+    assert snapshot["steady_state_refresh_owner"] == "on_write"
+    assert snapshot["steady_state_source_rollout_completion"] == "semantic_and_affective_sources_enabled"
+    assert snapshot["relation_source_posture"] == "optional_after_foreground_baseline"
 
 
 def test_embedding_strategy_snapshot_marks_no_warning_when_deterministic_provider_is_ready() -> None:

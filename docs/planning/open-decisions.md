@@ -238,6 +238,12 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `/health.connectors.execution_baseline` now distinguishes mutation and
     read-capable task-system paths from remaining policy-only connector
     families
+- `PRJ-504` is now complete:
+  - retrieval lifecycle now has one explicit owner for provider target,
+    transition owner, compatibility fallback, steady-state refresh, and
+    rollout completion posture
+  - semantic+affective coverage is frozen as the foreground steady-state
+    baseline, while relation remains an optional follow-on source family
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

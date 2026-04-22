@@ -54,20 +54,19 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-504 Define the production retrieval lifecycle baseline beyond current provider-owned materialization
-  - Owner: Planner
+- [ ] PRJ-505 Implement lifecycle visibility for refresh, pending source families, and provider fallback drift
+  - Owner: Backend Builder
   - Group: Retrieval Lifecycle And Source-Rollout Closure
-  - Depends on: PRJ-503
+  - Depends on: PRJ-504
   - Priority: P1
   - Why now:
-    - connector expansion lane is closed, so the next remaining runtime gap is
-      retrieval lifecycle closure around refresh, source rollout, and fallback
-      retirement posture
+    - lifecycle policy is now explicit, so runtime and `/health` can expose the
+      remaining gaps against that steady-state baseline
   - Done when:
-    - one explicit contract records the steady-state owner for refresh,
-      source-family rollout completion, and fallback retirement posture
+    - runtime and `/health.memory_retrieval` expose the remaining lifecycle gaps
+      as first-class machine-readable posture instead of scattered hints
   - Validation:
-    - retrieval architecture/planning cross-review
+    - `.\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_runtime_policy.py tests/test_api_routes.py`
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -158,6 +157,22 @@ Last updated: 2026-04-22
       and source-rollout closure
   - Validation:
     - doc-and-context sync across architecture, implementation, ops, testing, and context
+
+- [x] PRJ-504 Define the production retrieval lifecycle baseline beyond current provider-owned materialization
+  - Owner: Planner
+  - Group: Retrieval Lifecycle And Source-Rollout Closure
+  - Depends on: PRJ-503
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - the repo now records one explicit retrieval lifecycle owner for provider
+      target, transition owner, compatibility fallback, steady-state refresh,
+      and source-rollout completion posture
+    - semantic plus affective sources are now frozen as the foreground
+      steady-state baseline, while relation remains optional after that
+      baseline is stable
+  - Validation:
+    - retrieval architecture/planning cross-review
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder
