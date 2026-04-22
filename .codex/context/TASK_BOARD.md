@@ -54,18 +54,33 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-495 Sync docs/context for debug ingress retirement and admin boundary closure
+- [ ] PRJ-496 Define the production external-scheduler owner baseline for maintenance and proactive cadence
+  - Owner: Planner
+  - Group: External Scheduler Ownership Rollout
+  - Depends on: PRJ-495
+  - Priority: P1
+  - Why now:
+    - with debug ingress closure documented, the next highest-value
+      transitional runtime seam is app-local scheduler ownership
+  - Done when:
+    - the repo records one explicit production owner baseline for maintenance
+      and proactive cadence under `externalized` scheduler posture
+    - app-local scheduling remains explicit fallback instead of implied target
+  - Validation:
+    - scheduler/attention/planning cross-review across architecture, runtime reality, and ops
+
+- [x] PRJ-495 Sync docs/context for debug ingress retirement and admin boundary closure
   - Owner: Product Docs
   - Group: Debug Ingress Retirement And Admin Boundary Closure
   - Depends on: PRJ-494
   - Priority: P1
-  - Why now:
-    - the runtime and smoke evidence are now aligned, so canonical docs and
-      planning/context truth should lock the same admin-only debug boundary
-  - Done when:
-    - architecture, implementation notes, ops guidance, testing guidance, and
-      planning/context truth all describe the same dedicated-admin target and
-      shared-compat retirement posture
+  - Status: DONE
+  - Result:
+    - canonical contracts, runtime-reality notes, testing guidance, ops docs,
+      and planning/context truth now describe one shared dedicated-admin debug
+      boundary with machine-visible shared-retirement blockers
+    - Group 70 is now complete and the next active lane is external scheduler
+      ownership rollout
   - Validation:
     - doc-and-context sync across planning, ops, implementation, architecture, and context
 

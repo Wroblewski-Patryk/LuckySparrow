@@ -142,6 +142,9 @@ For meaningful repo changes, leave behind:
   - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_main_runtime_policy.py tests/test_deployment_trigger_scripts.py`
 - for shared debug-ingress vocabulary convergence slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+- for dedicated-admin debug-ingress retirement slices, regression evidence from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
+  - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
 - for affective input and resolution diagnostics slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py`
 - for background adaptive-output convergence slices, regression evidence from:

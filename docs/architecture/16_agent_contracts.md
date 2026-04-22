@@ -90,6 +90,16 @@ without changing stage responsibilities.
 Internal behavior validation requires a dedicated `system_debug` surface that
 remains policy-gated and separate from default public UX payloads.
 
+Dedicated admin-debug ingress target:
+
+1. `POST /internal/event/debug` is the long-term admin/operator ingress for
+   full runtime debug payloads
+2. shared `POST /event/debug` and compatibility `POST /event?debug=true`
+   remain transitional surfaces only
+3. `/health.runtime_policy.event_debug_admin_*` and
+   `event_debug_shared_ingress_retirement_*` are the machine-visible contract
+   for dedicated-admin posture versus remaining compatibility blockers
+
 Minimum `system_debug` fields:
 
 1. normalized event metadata plus `event_id` / `trace_id`

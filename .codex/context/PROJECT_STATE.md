@@ -1968,8 +1968,13 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-494` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
   passed with `119 passed`.
-- 2026-04-22: `PRJ-495` is now the next `READY` task, focused on full
-  docs/context sync for the debug ingress retirement lane.
+- 2026-04-22: `PRJ-495` is complete: architecture contracts, runtime-reality
+  notes, testing guidance, ops guidance, and planning/context truth now
+  describe the same dedicated-admin debug target plus shared-retirement
+  blocker fields.
+- 2026-04-22: Group 70 (`PRJ-492..PRJ-495`) is now complete.
+- 2026-04-22: `PRJ-496` is now the next `READY` task, focused on freezing the
+  production external-scheduler baseline for maintenance and proactive cadence.
 
 ## Working Agreements
 

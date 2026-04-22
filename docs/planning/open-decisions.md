@@ -209,6 +209,11 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `/event/debug` and `/event?debug=true` remain temporary compatibility
     surfaces only, with retirement blockers frozen before any further runtime
     hardening
+- `PRJ-493..PRJ-494` are now complete:
+  - `/health.runtime_policy` exposes the dedicated-admin debug target posture
+    plus machine-visible retirement blockers for remaining shared compat routes
+  - startup logs and release smoke now consume the same dedicated-admin debug
+    policy instead of inferring posture from partial fields
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

@@ -3784,3 +3784,6 @@ This phase is complete when:
   with the dedicated internal admin route as the target posture, shared routes
   as temporary compatibility-only surfaces, and a fixed retirement checklist
   for later runtime and release evidence.
+- `PRJ-493..PRJ-494` are complete: runtime policy, startup logs, release smoke,
+  and the ops runbook now expose the same dedicated-admin debug posture with
+  machine-visible shared-retirement blockers.

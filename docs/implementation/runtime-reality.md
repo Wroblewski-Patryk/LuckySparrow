@@ -482,6 +482,13 @@ Health output now also exposes explicit debug-ingress ownership/posture fields:
 `event_debug_shared_ingress_path`, `event_debug_shared_ingress_mode`,
 `event_debug_shared_ingress_break_glass_required`, and
 `event_debug_shared_ingress_posture`.
+Health output now also exposes explicit dedicated-admin target posture through
+`event_debug_admin_policy_owner`, `event_debug_admin_ingress_target_kind`,
+`event_debug_admin_ingress_target_path`, `event_debug_admin_operator_default`,
+and `event_debug_admin_posture_state`, plus
+`event_debug_shared_ingress_retirement_ready` and
+`event_debug_shared_ingress_retirement_blockers` so operators can distinguish
+dedicated-admin alignment from remaining shared-compat dependencies.
 Runtime policy now also exposes explicit enforcement/removal windows through
 `startup_schema_removal_window` and
 `event_debug_shared_ingress_enforcement_window`.
