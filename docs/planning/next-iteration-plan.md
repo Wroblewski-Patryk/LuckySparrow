@@ -179,9 +179,12 @@ Completed on 2026-04-22:
   `incident_evidence.json`, `health_snapshot.json`, and optional
   `behavior_validation_report.json`, with fixed naming posture and retention
   expectations.
-- the next active task in this lane is `PRJ-517`, which should implement a
-  canonical collection or export path without creating a second evidence
-  schema.
+- `PRJ-517` is complete: the repo now implements one canonical helper at
+  `scripts/export_incident_evidence_bundle.py` that collects `/health`,
+  debug-mode `incident_evidence`, and optional behavior-validation output into
+  the frozen bundle shape without introducing a second evidence schema.
+- the next active task in this lane is `PRJ-518`, which should pin bundle
+  integrity and failure posture in smoke and regression coverage.
 
 - `PRJ-516` Define the operator-facing incident evidence bundle and retention baseline.
   - Result:

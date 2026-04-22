@@ -1,4 +1,11 @@
-from app.core.observability_policy import build_runtime_incident_evidence, observability_export_policy_snapshot
+from datetime import datetime, timezone
+
+from app.core.observability_policy import (
+    build_incident_evidence_bundle_manifest,
+    build_runtime_incident_evidence,
+    format_incident_bundle_directory_name,
+    observability_export_policy_snapshot,
+)
 
 
 def test_observability_export_policy_marks_local_only_posture_until_artifact_exists() -> None:
@@ -31,12 +38,22 @@ def test_observability_export_policy_marks_ready_when_machine_readable_export_ex
         health_surface_available=True,
         system_debug_available=True,
         export_artifact_available=True,
+        bundle_helper_available=True,
     )
 
     assert snapshot["incident_export_ready"] is True
     assert snapshot["incident_export_state"] == "machine_readable_export_available"
     assert snapshot["incident_export_hint"] == "exportable_incident_evidence_ready"
     assert snapshot["missing_export_capabilities"] == []
+    assert snapshot["incident_evidence_bundle_contract_version"] == 1
+    assert snapshot["required_bundle_files"] == [
+        "manifest.json",
+        "incident_evidence.json",
+        "health_snapshot.json",
+    ]
+    assert snapshot["optional_bundle_files"] == ["behavior_validation_report.json"]
+    assert snapshot["bundle_entrypoint_path"] == "scripts/export_incident_evidence_bundle.py"
+    assert snapshot["bundle_helper_available"] is True
 
 
 def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface_coverage() -> None:
@@ -71,3 +88,42 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
         "missing": [],
         "complete": True,
     }
+
+
+def test_build_incident_evidence_bundle_manifest_uses_fixed_file_names_and_retention_posture() -> None:
+    manifest = build_incident_evidence_bundle_manifest(
+        base_url="http://localhost:8000/",
+        capture_mode="incident",
+        trace_id="trace-123",
+        event_id="evt-123",
+        source="api",
+        captured_at=datetime(2026, 4, 22, 12, 0, tzinfo=timezone.utc),
+        attached_behavior_report=True,
+    )
+
+    assert manifest["kind"] == "incident_evidence_bundle_manifest"
+    assert manifest["schema_version"] == "1.0.0"
+    assert manifest["policy_owner"] == "incident_evidence_export_policy"
+    assert manifest["capture_mode"] == "incident"
+    assert manifest["base_url"] == "http://localhost:8000"
+    assert manifest["files"] == {
+        "manifest": "manifest.json",
+        "incident_evidence": "incident_evidence.json",
+        "health_snapshot": "health_snapshot.json",
+        "behavior_validation_report": "behavior_validation_report.json",
+    }
+    assert manifest["retention_baseline"] == {
+        "keep_latest_successful_release_bundle": True,
+        "keep_latest_failed_release_or_incident_bundle": True,
+        "keep_active_incident_bundles_until_closure": True,
+    }
+
+
+def test_format_incident_bundle_directory_name_prefers_trace_id_and_utc_timestamp() -> None:
+    directory_name = format_incident_bundle_directory_name(
+        captured_at=datetime(2026, 4, 22, 12, 34, 56, tzinfo=timezone.utc),
+        trace_id="trace:123/unsafe",
+        event_id="evt-123",
+    )
+
+    assert directory_name == "20260422T123456Z_trace_123_unsafe"

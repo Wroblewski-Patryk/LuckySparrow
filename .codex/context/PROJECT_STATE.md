@@ -24,6 +24,12 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-517` is now the first `READY` task; the next slice should
   implement a canonical helper or export path for collecting that bundle
   without changing ownership of `incident_evidence` or `/health`.
+- 2026-04-22: `PRJ-517` is complete: the repo now exposes a canonical bundle
+  helper at `scripts/export_incident_evidence_bundle.py`, and
+  `/health.observability` advertises bundle-helper availability plus the
+  helper entrypoint through the shared observability owner.
+- 2026-04-22: `PRJ-518` is now the first `READY` task; the next slice should
+  pin bundle integrity and failure posture in smoke and regression coverage.
 
 ## Product Decisions (Confirmed)
 

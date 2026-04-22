@@ -516,6 +516,7 @@ async def health(request: Request) -> dict[str, Any]:
         health_surface_available=True,
         system_debug_available=True,
         export_artifact_available=True,
+        bundle_helper_available=True,
     )
     return {
         "status": "ok",

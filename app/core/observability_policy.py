@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 OBSERVABILITY_EXPORT_POLICY_OWNER = "incident_evidence_export_policy"
 
 REQUIRED_INCIDENT_EVIDENCE_FIELDS = (
@@ -18,6 +20,16 @@ REQUIRED_POLICY_POSTURE_SURFACES = (
 )
 
 INCIDENT_EVIDENCE_SCHEMA_VERSION = "1.0.0"
+INCIDENT_EVIDENCE_BUNDLE_SCHEMA_VERSION = "1.0.0"
+INCIDENT_EVIDENCE_BUNDLE_ENTRYPOINT_PATH = "scripts/export_incident_evidence_bundle.py"
+REQUIRED_INCIDENT_EVIDENCE_BUNDLE_FILES = (
+    "manifest.json",
+    "incident_evidence.json",
+    "health_snapshot.json",
+)
+OPTIONAL_INCIDENT_EVIDENCE_BUNDLE_FILES = (
+    "behavior_validation_report.json",
+)
 
 
 def observability_export_policy_snapshot(
@@ -26,6 +38,7 @@ def observability_export_policy_snapshot(
     health_surface_available: bool,
     system_debug_available: bool,
     export_artifact_available: bool,
+    bundle_helper_available: bool = False,
 ) -> dict[str, object]:
     local_surfaces: list[str] = []
     if structured_logs_available:
@@ -50,8 +63,13 @@ def observability_export_policy_snapshot(
     return {
         "policy_owner": OBSERVABILITY_EXPORT_POLICY_OWNER,
         "incident_evidence_contract_version": 1,
+        "incident_evidence_bundle_contract_version": 1,
         "required_incident_evidence_fields": list(REQUIRED_INCIDENT_EVIDENCE_FIELDS),
         "required_policy_posture_surfaces": list(REQUIRED_POLICY_POSTURE_SURFACES),
+        "required_bundle_files": list(REQUIRED_INCIDENT_EVIDENCE_BUNDLE_FILES),
+        "optional_bundle_files": list(OPTIONAL_INCIDENT_EVIDENCE_BUNDLE_FILES),
+        "bundle_entrypoint_path": INCIDENT_EVIDENCE_BUNDLE_ENTRYPOINT_PATH,
+        "bundle_helper_available": bundle_helper_available,
         "local_surfaces": local_surfaces,
         "export_artifact_available": export_artifact_available,
         "incident_export_ready": export_artifact_available,
@@ -104,4 +122,55 @@ def build_runtime_incident_evidence(
             "complete": len(missing_surface_names) == 0,
         },
         "policy_posture": policy_posture,
+    }
+
+
+def format_incident_bundle_directory_name(
+    *,
+    captured_at: datetime,
+    trace_id: str,
+    event_id: str,
+) -> str:
+    timestamp = captured_at.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    preferred_id = str(trace_id or "").strip() or str(event_id or "").strip() or "bundle"
+    safe_id = "".join(char if char.isalnum() or char in {"-", "_"} else "_" for char in preferred_id)
+    return f"{timestamp}_{safe_id}"
+
+
+def build_incident_evidence_bundle_manifest(
+    *,
+    base_url: str,
+    capture_mode: str,
+    trace_id: str,
+    event_id: str,
+    source: str,
+    captured_at: datetime | None = None,
+    attached_behavior_report: bool = False,
+) -> dict[str, object]:
+    captured_at_utc = (captured_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    files: dict[str, str] = {
+        "manifest": "manifest.json",
+        "incident_evidence": "incident_evidence.json",
+        "health_snapshot": "health_snapshot.json",
+    }
+    if attached_behavior_report:
+        files["behavior_validation_report"] = "behavior_validation_report.json"
+    return {
+        "kind": "incident_evidence_bundle_manifest",
+        "schema_version": INCIDENT_EVIDENCE_BUNDLE_SCHEMA_VERSION,
+        "policy_owner": OBSERVABILITY_EXPORT_POLICY_OWNER,
+        "captured_at": captured_at_utc.isoformat(),
+        "capture_mode": capture_mode,
+        "base_url": base_url.rstrip("/"),
+        "trace_id": trace_id,
+        "event_id": event_id,
+        "source": source,
+        "required_bundle_files": list(REQUIRED_INCIDENT_EVIDENCE_BUNDLE_FILES),
+        "optional_bundle_files": list(OPTIONAL_INCIDENT_EVIDENCE_BUNDLE_FILES),
+        "files": files,
+        "retention_baseline": {
+            "keep_latest_successful_release_bundle": True,
+            "keep_latest_failed_release_or_incident_bundle": True,
+            "keep_active_incident_bundles_until_closure": True,
+        },
     }

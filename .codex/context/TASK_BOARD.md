@@ -99,16 +99,23 @@ Last updated: 2026-04-22
       `docs/implementation/runtime-reality.md`, and
       `docs/operations/runtime-ops-runbook.md`
 
-- [ ] PRJ-517 Implement canonical incident evidence export or bundle generation flow
+- [x] PRJ-517 Implement canonical incident evidence export or bundle generation flow
   - Owner: Backend Builder
   - Group: Incident Evidence Bundle And Retention
   - Depends on: PRJ-516
   - Priority: P1
-  - Status: READY
+  - Status: DONE
   - Done when:
     - operators can produce or collect the agreed incident-evidence bundle
       through one canonical path without ad hoc manual JSON harvesting from
       debug responses
+  - Result:
+    - the repo now exposes one canonical bundle helper at
+      `scripts/export_incident_evidence_bundle.py`, which collects
+      `/health`, debug-mode `incident_evidence`, and optional behavior
+      validation output into the frozen artifact shape
+    - `/health.observability` now exposes bundle-helper availability and the
+      canonical entrypoint path through the existing observability owner
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_api_routes.py tests/test_runtime_pipeline.py`
 
@@ -117,7 +124,7 @@ Last updated: 2026-04-22
   - Group: Incident Evidence Bundle And Retention
   - Depends on: PRJ-517
   - Priority: P1
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - release smoke and focused regression coverage verify the selected bundle
       contract, required fields, and failure posture for unreadable or partial
@@ -140,10 +147,10 @@ Last updated: 2026-04-22
       planning, and context
 
 - Group 76 note:
-  - `PRJ-516` is now complete, and `PRJ-517` is the next `READY` task.
-  - the bundle contract is frozen before implementation so the helper path can
-    reuse existing runtime ownership instead of inventing a second evidence
-    schema.
+  - `PRJ-516..PRJ-517` are now complete, and `PRJ-518` is the next `READY`
+    task.
+  - the bundle contract is now frozen and implemented through one canonical
+    helper path before smoke and failure coverage are expanded.
 
 - [ ] PRJ-520 Freeze the shared debug compatibility retirement gate
   - Owner: Planner

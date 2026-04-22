@@ -2764,12 +2764,23 @@ def test_health_endpoint_exposes_observability_export_policy_baseline() -> None:
     assert body["observability"] == {
         "policy_owner": "incident_evidence_export_policy",
         "incident_evidence_contract_version": 1,
+        "incident_evidence_bundle_contract_version": 1,
         "required_incident_evidence_fields": [
             "trace_id",
             "event_id",
             "duration_ms",
             "stage_timings_ms",
         ],
+        "required_bundle_files": [
+            "manifest.json",
+            "incident_evidence.json",
+            "health_snapshot.json",
+        ],
+        "optional_bundle_files": [
+            "behavior_validation_report.json",
+        ],
+        "bundle_entrypoint_path": "scripts/export_incident_evidence_bundle.py",
+        "bundle_helper_available": True,
         "required_policy_posture_surfaces": [
             "runtime_policy",
             "memory_retrieval",

@@ -318,7 +318,11 @@ The current repo already works as an MVP slice, but several architecture-level d
     optional `behavior_validation_report.json`
   - naming posture and retention expectations are now explicit before helper
     implementation begins
-  - `PRJ-517` is now the next active task in the lane
+- `PRJ-517` is now complete:
+  - the canonical producer path is now `scripts/export_incident_evidence_bundle.py`
+  - `/health.observability` exposes bundle-helper availability and entrypoint
+    visibility through the existing observability owner
+  - `PRJ-518` is now the next active task in the lane
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 
