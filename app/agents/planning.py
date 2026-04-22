@@ -986,6 +986,15 @@ class PlanningAgent:
                 mode=resolve_connector_operation_policy("task_system", "create_task").mode,
                 task_hint=lowered_text[:120],
             )
+        if any(keyword in lowered_text for keyword in ("update", "mark", "done", "complete", "zamknij", "oznacz")):
+            status_hint = "done" if any(keyword in lowered_text for keyword in ("done", "complete", "zamknij", "oznacz")) else "in_progress"
+            return ExternalTaskSyncDomainIntent(
+                operation="update_task",
+                provider_hint=provider,
+                mode=resolve_connector_operation_policy("task_system", "update_task").mode,
+                task_hint=lowered_text[:120],
+                status_hint=status_hint,
+            )
         if any(keyword in lowered_text for keyword in ("sync", "synchron", "export", "mirror", "link")):
             return ExternalTaskSyncDomainIntent(
                 operation="suggest_sync",
@@ -1095,13 +1104,13 @@ class PlanningAgent:
         if any(keyword in lowered_text for keyword in ("should i search", "czy warto szukac", "suggest search")):
             return KnowledgeSearchDomainIntent(
                 operation="suggest_search",
-                provider_hint="generic",
+                provider_hint="duckduckgo_html",
                 mode=resolve_connector_operation_policy("knowledge_search", "suggest_search").mode,
                 query_hint=lowered_text[:160],
             )
         return KnowledgeSearchDomainIntent(
             operation="search_web",
-            provider_hint="generic",
+            provider_hint="duckduckgo_html",
             mode=resolve_connector_operation_policy("knowledge_search", "search_web").mode,
             query_hint=lowered_text[:160],
         )
@@ -1125,13 +1134,13 @@ class PlanningAgent:
         if any(keyword in lowered_text for keyword in ("should we browse", "suggest page", "review page later")):
             return WebBrowserAccessDomainIntent(
                 operation="suggest_page_review",
-                provider_hint="generic",
+                provider_hint="generic_http",
                 mode=resolve_connector_operation_policy("web_browser", "suggest_page_review").mode,
                 page_hint=lowered_text[:160],
             )
         return WebBrowserAccessDomainIntent(
             operation="read_page",
-            provider_hint="generic",
+            provider_hint="generic_http",
             mode=resolve_connector_operation_policy("web_browser", "read_page").mode,
             page_hint=lowered_text[:160],
         )

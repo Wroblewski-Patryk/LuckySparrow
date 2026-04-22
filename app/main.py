@@ -33,10 +33,12 @@ from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.integrations.calendar.google_calendar_client import GoogleCalendarAvailabilityClient
 from app.integrations.cloud_drive.google_drive_client import GoogleDriveMetadataClient
+from app.integrations.knowledge_search.duckduckgo_client import DuckDuckGoSearchClient
 from app.integrations.openai.client import OpenAIClient
 from app.integrations.task_system.clickup_client import ClickUpTaskClient
 from app.integrations.telegram.client import TelegramClient
 from app.integrations.telegram.telemetry import TelegramChannelTelemetry
+from app.integrations.web_browser.generic_http_client import GenericHttpPageClient
 from app.memory.embeddings import embedding_strategy_snapshot, normalize_embedding_source_kinds
 from app.memory.openai_embedding_client import OpenAIEmbeddingClient
 from app.memory.repository import MemoryRepository
@@ -528,6 +530,8 @@ async def lifespan(app: FastAPI):
             access_token=getattr(settings, "google_drive_access_token", None),
             folder_id=getattr(settings, "google_drive_folder_id", None),
         ),
+        knowledge_search_client=DuckDuckGoSearchClient(),
+        web_browser_client=GenericHttpPageClient(),
         telegram_telemetry=telegram_channel_telemetry,
     )
     reflection_worker = ReflectionWorker(memory_repository=memory_repository)

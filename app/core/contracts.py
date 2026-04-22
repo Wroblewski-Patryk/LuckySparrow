@@ -314,6 +314,7 @@ class ExternalTaskSyncDomainIntent(BaseModel):
     provider_hint: str = "generic"
     mode: ConnectorOperationMode = "suggestion_only"
     task_hint: str = ""
+    status_hint: str = ""
 
 
 class ConnectedDriveAccessDomainIntent(BaseModel):

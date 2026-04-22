@@ -348,14 +348,29 @@ Last updated: 2026-04-22
   - Group: Search, Browser, And Organization Tool Expansion
   - Depends on: PRJ-556
   - Priority: P2
-  - Status: READY
+  - Status: DONE
+  - Result:
+    - planner now emits the frozen provider-backed slice set through the
+      existing action-owned boundary:
+      - `knowledge_search:search_web` via `duckduckgo_html`
+      - `web_browser:read_page` via `generic_http`
+      - `task_system:update_task` via ClickUp
+    - action now executes those typed intents through bounded provider
+      adapters, keeping output constrained to safe search-result previews,
+      bounded page-read evidence, and status-only ClickUp task updates instead
+      of raw provider payload passthrough
+    - `/health.connectors`, runtime `system_debug.adaptive_state`, and the
+      connector execution baseline now expose these slices as live first-path
+      provider-backed execution instead of policy-only placeholders
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 
 - [ ] PRJ-558 Add role-governed behavior validation for tool usage
   - Owner: QA/Test
   - Group: Search, Browser, And Organization Tool Expansion
   - Depends on: PRJ-557
   - Priority: P2
-  - Status: BACKLOG
+  - Status: READY
 
 - [ ] PRJ-559 Sync docs/context for bounded search, browser, and organization tooling
   - Owner: Product Docs

@@ -139,6 +139,12 @@ class FakeClickUpTaskClient:
             {"id": "clk_2", "name": "Docs sync"},
         ]
 
+    async def update_task(self, *, task_id: str, status: str) -> dict:
+        self.calls.append({"operation": "update_task", "task_id": task_id, "status": status})
+        if self.error is not None:
+            raise self.error
+        return {"id": task_id, "name": "Release checklist", "status": status}
+
 
 class FakeGoogleCalendarClient:
     def __init__(self, *, ready: bool = True, error: Exception | None = None):
@@ -192,6 +198,51 @@ class FakeGoogleDriveClient:
                 "modified_time": "2026-04-21T12:00:00Z",
             },
         ]
+
+
+class FakeDuckDuckGoSearchClient:
+    def __init__(self, *, ready: bool = True, error: Exception | None = None):
+        self.ready = ready
+        self.error = error
+        self.calls: list[dict[str, str]] = []
+
+    async def search_web(self, *, query: str, limit: int = 5) -> list[dict]:
+        self.calls.append({"query": query, "limit": str(limit)})
+        if self.error is not None:
+            raise self.error
+        return [
+            {
+                "title": "Release notes",
+                "url": "https://example.com/release-notes",
+                "snippet": "Changelog summary",
+                "rank": "1",
+            },
+            {
+                "title": "Deployment guide",
+                "url": "https://example.com/deploy",
+                "snippet": "Deployment details",
+                "rank": "2",
+            },
+        ]
+
+
+class FakeGenericHttpPageClient:
+    def __init__(self, *, ready: bool = True, error: Exception | None = None):
+        self.ready = ready
+        self.error = error
+        self.calls: list[dict[str, str]] = []
+
+    async def read_page(self, *, url: str, excerpt_length: int = 500) -> dict:
+        self.calls.append({"url": url, "excerpt_length": str(excerpt_length)})
+        if self.error is not None:
+            raise self.error
+        return {
+            "url": url,
+            "title": "Release notes",
+            "content_type": "text/html",
+            "excerpt": "Important changes.",
+            "truncated": "false",
+        }
 
 
 def _event(text: str) -> Event:
@@ -430,6 +481,45 @@ async def test_execute_runs_provider_backed_clickup_task_read_before_delivery() 
     assert clickup_client.calls == [{"operation": "list_tasks", "limit": "5"}]
 
 
+async def test_execute_runs_provider_backed_clickup_task_update_before_delivery() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    clickup_client = FakeClickUpTaskClient()
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=telegram_client,
+        clickup_task_client=clickup_client,
+    )
+
+    plan = _plan(
+        domain_intents=[
+            ExternalTaskSyncDomainIntent(
+                operation="update_task",
+                provider_hint="clickup",
+                mode="mutate_with_confirmation",
+                task_hint="release checklist",
+                status_hint="done",
+            )
+        ]
+    )
+
+    result = await executor.execute(
+        plan,
+        _delivery(
+            channel="api",
+            execution_envelope=build_action_delivery_execution_envelope(plan),
+        ),
+    )
+
+    assert result.status == "success"
+    assert result.actions == ["clickup_update_task", "api_response"]
+    assert "ClickUp task updated (clk_1)" in result.notes
+    assert clickup_client.calls == [
+        {"operation": "list_tasks", "limit": "10"},
+        {"operation": "update_task", "task_id": "clk_1", "status": "complete"},
+    ]
+
+
 async def test_execute_runs_provider_backed_google_calendar_read_before_delivery() -> None:
     memory_repository = FakeMemoryRepository()
     telegram_client = FakeTelegramClient()
@@ -544,6 +634,76 @@ async def test_execute_runs_provider_backed_google_drive_metadata_read_before_de
     assert "Google Drive metadata read returned:" in result.notes
     assert "Release notes [application/vnd.google-apps.document] (drv_1)" in result.notes
     assert drive_client.calls == [{"file_hint": "release notes", "limit": "5"}]
+
+
+async def test_execute_runs_provider_backed_web_search_before_delivery() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    search_client = FakeDuckDuckGoSearchClient()
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=telegram_client,
+        knowledge_search_client=search_client,
+    )
+
+    plan = _plan(
+        domain_intents=[
+            KnowledgeSearchDomainIntent(
+                operation="search_web",
+                provider_hint="duckduckgo_html",
+                mode="read_only",
+                query_hint="latest release notes",
+            )
+        ]
+    )
+
+    result = await executor.execute(
+        plan,
+        _delivery(
+            channel="api",
+            execution_envelope=build_action_delivery_execution_envelope(plan),
+        ),
+    )
+
+    assert result.status == "success"
+    assert result.actions == ["duckduckgo_search_web", "api_response"]
+    assert "Web search returned: Release notes (https://example.com/release-notes)" in result.notes
+    assert search_client.calls == [{"query": "latest release notes", "limit": "5"}]
+
+
+async def test_execute_runs_provider_backed_browser_page_read_before_delivery() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    browser_client = FakeGenericHttpPageClient()
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=telegram_client,
+        web_browser_client=browser_client,
+    )
+
+    plan = _plan(
+        domain_intents=[
+            WebBrowserAccessDomainIntent(
+                operation="read_page",
+                provider_hint="generic_http",
+                mode="read_only",
+                page_hint="Read page https://example.com/release-notes now.",
+            )
+        ]
+    )
+
+    result = await executor.execute(
+        plan,
+        _delivery(
+            channel="api",
+            execution_envelope=build_action_delivery_execution_envelope(plan),
+        ),
+    )
+
+    assert result.status == "success"
+    assert result.actions == ["generic_http_read_page", "api_response"]
+    assert "Browser page read returned: Release notes [text/html] https://example.com/release-notes." in result.notes
+    assert browser_client.calls == [{"url": "https://example.com/release-notes", "excerpt_length": "500"}]
 
 
 async def test_execute_fails_when_provider_backed_google_drive_metadata_read_errors() -> None:

@@ -36,9 +36,11 @@ from app.core.connector_policy import (
 from app.integrations.calendar.google_calendar_client import GoogleCalendarAvailabilityClient
 from app.integrations.cloud_drive.google_drive_client import GoogleDriveMetadataClient
 from app.integrations.delivery_router import DeliveryRouter
+from app.integrations.knowledge_search.duckduckgo_client import DuckDuckGoSearchClient
 from app.integrations.task_system.clickup_client import ClickUpTaskClient
 from app.integrations.telegram.client import TelegramClient
 from app.integrations.telegram.telemetry import TelegramChannelTelemetry
+from app.integrations.web_browser.generic_http_client import GenericHttpPageClient
 from app.memory.embeddings import (
     materialize_embedding,
     normalize_embedding_refresh_mode,
@@ -70,6 +72,8 @@ class ActionExecutor:
         clickup_task_client: ClickUpTaskClient | None = None,
         google_calendar_client: GoogleCalendarAvailabilityClient | None = None,
         google_drive_client: GoogleDriveMetadataClient | None = None,
+        knowledge_search_client: DuckDuckGoSearchClient | None = None,
+        web_browser_client: GenericHttpPageClient | None = None,
         telegram_telemetry: TelegramChannelTelemetry | None = None,
     ):
         self.memory_repository = memory_repository
@@ -95,6 +99,8 @@ class ActionExecutor:
         self.clickup_task_client = clickup_task_client
         self.google_calendar_client = google_calendar_client
         self.google_drive_client = google_drive_client
+        self.knowledge_search_client = knowledge_search_client
+        self.web_browser_client = web_browser_client
 
     async def execute(self, plan: PlanOutput, delivery: ActionDelivery) -> ActionResult:
         proactive_delivery_guard = plan.proactive_delivery_guard
@@ -335,6 +341,51 @@ class ActionExecutor:
                         notes.append("ClickUp task read returned no visible tasks.")
                     continue
 
+                if intent.operation == "update_task":
+                    try:
+                        tasks = await self.clickup_task_client.list_tasks(limit=10)
+                    except Exception as exc:
+                        return ActionResult(
+                            status="fail",
+                            actions=["clickup_update_task"],
+                            notes=f"ClickUp task lookup failed before update: {type(exc).__name__}: {exc}",
+                        )
+
+                    matched_task = self._match_clickup_task(intent.task_hint, tasks)
+                    if matched_task is None:
+                        return ActionResult(
+                            status="fail",
+                            actions=["clickup_update_task"],
+                            notes="ClickUp task update failed: no bounded task match found for the requested hint.",
+                        )
+                    task_id = str(matched_task.get("id", "") or "").strip()
+                    if not task_id:
+                        return ActionResult(
+                            status="fail",
+                            actions=["clickup_update_task"],
+                            notes="ClickUp task update failed: matched task is missing an id.",
+                        )
+                    status_hint = self._normalize_clickup_status(intent.status_hint)
+                    try:
+                        updated = await self.clickup_task_client.update_task(
+                            task_id=task_id,
+                            status=status_hint,
+                        )
+                    except Exception as exc:
+                        return ActionResult(
+                            status="fail",
+                            actions=["clickup_update_task"],
+                            notes=f"ClickUp task update failed: {type(exc).__name__}: {exc}",
+                        )
+
+                    executed_actions.append("clickup_update_task")
+                    updated_name = self._connector_task_name(str(updated.get("name", matched_task.get("name", ""))))
+                    updated_status = str(updated.get("status", status_hint) or status_hint)
+                    notes.append(
+                        f"ClickUp task updated ({task_id}) for '{updated_name}' with status '{updated_status}'."
+                    )
+                    continue
+
                 continue
 
             if isinstance(intent, CalendarSchedulingIntentDomainIntent):
@@ -406,6 +457,64 @@ class ActionExecutor:
                     notes.append("Google Drive metadata read returned no visible files.")
                 continue
 
+            if isinstance(intent, KnowledgeSearchDomainIntent):
+                if (
+                    self.knowledge_search_client is None
+                    or not getattr(self.knowledge_search_client, "ready", False)
+                    or intent.provider_hint != "duckduckgo_html"
+                    or intent.operation != "search_web"
+                ):
+                    continue
+                try:
+                    results = await self.knowledge_search_client.search_web(
+                        query=intent.query_hint,
+                        limit=5,
+                    )
+                except Exception as exc:
+                    return ActionResult(
+                        status="fail",
+                        actions=["duckduckgo_search_web"],
+                        notes=f"Web search failed: {type(exc).__name__}: {exc}",
+                    )
+                executed_actions.append("duckduckgo_search_web")
+                if results:
+                    preview = [self._search_result_preview(item) for item in results[:3]]
+                    notes.append("Web search returned: " + "; ".join(preview) + ".")
+                else:
+                    notes.append("Web search returned no bounded results.")
+                continue
+
+            if isinstance(intent, WebBrowserAccessDomainIntent):
+                if (
+                    self.web_browser_client is None
+                    or not getattr(self.web_browser_client, "ready", False)
+                    or intent.provider_hint != "generic_http"
+                    or intent.operation != "read_page"
+                ):
+                    continue
+                target_url = self._extract_url(intent.page_hint)
+                if not target_url:
+                    return ActionResult(
+                        status="fail",
+                        actions=["generic_http_read_page"],
+                        notes="Browser page read failed: no bounded URL was provided.",
+                    )
+                try:
+                    page = await self.web_browser_client.read_page(url=target_url, excerpt_length=500)
+                except Exception as exc:
+                    return ActionResult(
+                        status="fail",
+                        actions=["generic_http_read_page"],
+                        notes=f"Browser page read failed: {type(exc).__name__}: {exc}",
+                    )
+                executed_actions.append("generic_http_read_page")
+                notes.append(
+                    "Browser page read returned: "
+                    f"{page.get('title') or 'untitled'} [{page.get('content_type')}] "
+                    f"{str(page.get('url', ''))[:120]}."
+                )
+                continue
+
         if not executed_actions:
             return None
 
@@ -442,6 +551,38 @@ class ActionExecutor:
         mime_type = str(item.get("mime_type", "") or "").strip() or "unknown"
         item_id = str(item.get("id", "") or "").strip() or "unknown"
         return f"{name} [{mime_type}] ({item_id})"
+
+    def _search_result_preview(self, item: dict[str, str]) -> str:
+        title = " ".join(str(item.get("title", "") or "").split())[:80] or "untitled"
+        url = str(item.get("url", "") or "").strip()[:120] or "unknown"
+        return f"{title} ({url})"
+
+    def _extract_url(self, value: str) -> str:
+        for token in str(value or "").split():
+            token = token.strip("()[]<>,.;'\"")
+            if token.startswith(("http://", "https://")):
+                return token[:500]
+        return ""
+
+    def _match_clickup_task(self, task_hint: str, tasks: list[dict]) -> dict | None:
+        hint_tokens = self._text_tokens(task_hint)
+        best_task: dict | None = None
+        best_score = 0
+        for task in tasks:
+            task_tokens = self._text_tokens(str(task.get("name", "")) + " " + str(task.get("description", "")))
+            overlap = len(hint_tokens.intersection(task_tokens))
+            if overlap > best_score:
+                best_score = overlap
+                best_task = task
+        return best_task if best_score > 0 else None
+
+    def _normalize_clickup_status(self, status_hint: str) -> str:
+        lowered = str(status_hint or "").strip().lower()
+        if lowered in {"done", "complete", "closed"}:
+            return "complete"
+        if lowered in {"in_progress", "progress", "doing"}:
+            return "in progress"
+        return "to do"
 
     async def _apply_domain_intents(self, *, event: Event, plan: PlanOutput) -> dict[str, object]:
         preference_update = ""

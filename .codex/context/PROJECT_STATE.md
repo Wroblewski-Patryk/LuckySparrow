@@ -176,6 +176,15 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-557` is now the first `READY` task; the next slice should
   implement those bounded search, browser, and ClickUp operations through the
   existing planning-to-action boundary.
+- 2026-04-22: `PRJ-557` is complete: planner now emits the frozen bounded
+  provider-backed slice set, action executes it through dedicated DuckDuckGo,
+  generic HTTP, and ClickUp adapters, and `/health.connectors` plus runtime
+  `system_debug.adaptive_state["web_knowledge_tools"]` now expose these paths
+  as live first-slice execution instead of policy-only placeholders.
+- 2026-04-22: `PRJ-558` is now the first `READY` task; the next slice should
+  prove that these new tool paths stay role-governed and bounded through
+  behavior-level validation instead of relying only on unit and integration
+  regressions.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence

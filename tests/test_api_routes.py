@@ -1935,12 +1935,12 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     assert body["connectors"]["capability_proposal"]["self_authorization_allowed"] is False
     assert (
         body["connectors"]["execution_baseline"]["mvp_boundary"]
-        == "clickup_task_create_and_list_plus_google_calendar_and_google_drive_first_live_paths"
+        == "clickup_task_create_list_update_plus_google_calendar_google_drive_duckduckgo_and_generic_http_first_live_paths"
     )
     assert body["connectors"]["web_knowledge_tools"]["policy_owner"] == "web_knowledge_tooling_policy"
     assert (
         body["connectors"]["web_knowledge_tools"]["provider_execution_posture"]
-        == "policy_only_until_bounded_provider_slice_selected"
+        == "first_bounded_provider_slices_selected"
     )
     assert body["connectors"]["execution_baseline"]["task_system"]["clickup_create_task"]["ready"] is False
     assert (
@@ -1966,14 +1966,15 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
         drive_baseline["hint"]
         == "configure_google_drive_access_token_for_live_metadata_read_execution"
     )
+    assert body["connectors"]["execution_baseline"]["task_system"]["clickup_update_task"]["ready"] is False
     search_baseline = body["connectors"]["execution_baseline"]["knowledge_search"]["search_web"]
-    assert search_baseline["execution_mode"] == "policy_only"
-    assert search_baseline["ready"] is False
-    assert search_baseline["state"] == "policy_only_no_provider_slice_selected"
+    assert search_baseline["execution_mode"] == "provider_backed_without_credentials"
+    assert search_baseline["ready"] is True
+    assert search_baseline["state"] == "provider_backed_ready"
     browser_baseline = body["connectors"]["execution_baseline"]["web_browser"]["read_page"]
-    assert browser_baseline["execution_mode"] == "policy_only"
-    assert browser_baseline["ready"] is False
-    assert browser_baseline["state"] == "policy_only_no_provider_slice_selected"
+    assert browser_baseline["execution_mode"] == "provider_backed_without_credentials"
+    assert browser_baseline["ready"] is True
+    assert browser_baseline["state"] == "provider_backed_ready"
     assert body["deployment"]["hosting_baseline"] == "coolify_medium_term_standard"
 
 

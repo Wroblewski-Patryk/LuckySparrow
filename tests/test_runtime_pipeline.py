@@ -337,6 +337,12 @@ class FakeClickUpTaskClient:
             {"id": "clk_2", "name": "Docs sync"},
         ]
 
+    async def update_task(self, *, task_id: str, status: str) -> dict:
+        self.calls.append({"operation": "update_task", "task_id": task_id, "status": status})
+        if self.error is not None:
+            raise self.error
+        return {"id": task_id, "name": "Release checklist", "status": status}
+
 
 class FakeGoogleCalendarClient:
     def __init__(self, *, ready: bool = True, error: Exception | None = None):
@@ -390,6 +396,45 @@ class FakeGoogleDriveClient:
                 "modified_time": "2026-04-21T12:00:00Z",
             },
         ]
+
+
+class FakeDuckDuckGoSearchClient:
+    def __init__(self, *, ready: bool = True, error: Exception | None = None):
+        self.ready = ready
+        self.error = error
+        self.calls: list[dict[str, str]] = []
+
+    async def search_web(self, *, query: str, limit: int = 5) -> list[dict]:
+        self.calls.append({"query": query, "limit": str(limit)})
+        if self.error is not None:
+            raise self.error
+        return [
+            {
+                "title": "Release notes",
+                "url": "https://example.com/release-notes",
+                "snippet": "Changelog summary",
+                "rank": "1",
+            }
+        ]
+
+
+class FakeGenericHttpPageClient:
+    def __init__(self, *, ready: bool = True, error: Exception | None = None):
+        self.ready = ready
+        self.error = error
+        self.calls: list[dict[str, str]] = []
+
+    async def read_page(self, *, url: str, excerpt_length: int = 500) -> dict:
+        self.calls.append({"url": url, "excerpt_length": str(excerpt_length)})
+        if self.error is not None:
+            raise self.error
+        return {
+            "url": url,
+            "title": "Release notes",
+            "content_type": "text/html",
+            "excerpt": "Important changes.",
+            "truncated": "false",
+        }
 
 
 class FakeHybridMemoryRepository(FakeMemoryRepository):
@@ -4863,6 +4908,39 @@ async def test_runtime_pipeline_executes_provider_backed_clickup_task_read_path(
     assert "ClickUp task read returned: Release checklist, Docs sync." in result.action_result.notes
 
 
+async def test_runtime_pipeline_executes_provider_backed_clickup_task_update_path() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=ActionExecutor(
+            memory_repository=memory,
+            telegram_client=FakeTelegramClient(),
+            clickup_task_client=FakeClickUpTaskClient(),
+        ),
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+    event = Event(
+        event_id="evt-clickup-update",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Mark the Release checklist task as done in ClickUp."},
+        meta=EventMeta(user_id="u-1", trace_id="t-clickup-update"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.action_result.status == "success"
+    assert "clickup_update_task" in result.action_result.actions
+    assert "ClickUp task updated (clk_1)" in result.action_result.notes
+
+
 async def test_runtime_pipeline_executes_provider_backed_google_calendar_read_path() -> None:
     memory = FakeMemoryRepository(recent_memory=[])
     runtime = RuntimeOrchestrator(
@@ -4927,6 +5005,72 @@ async def test_runtime_pipeline_executes_provider_backed_google_drive_metadata_r
     assert result.action_result.status == "success"
     assert "google_drive_list_files" in result.action_result.actions
     assert "Google Drive metadata read returned:" in result.action_result.notes
+
+
+async def test_runtime_pipeline_executes_provider_backed_web_search_path() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=ActionExecutor(
+            memory_repository=memory,
+            telegram_client=FakeTelegramClient(),
+            knowledge_search_client=FakeDuckDuckGoSearchClient(),
+        ),
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+    event = Event(
+        event_id="evt-web-search",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Please search the web for the latest release notes."},
+        meta=EventMeta(user_id="u-1", trace_id="t-web-search"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.action_result.status == "success"
+    assert "duckduckgo_search_web" in result.action_result.actions
+    assert "Web search returned: Release notes (https://example.com/release-notes)." in result.action_result.notes
+
+
+async def test_runtime_pipeline_executes_provider_backed_browser_page_read_path() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=ActionExecutor(
+            memory_repository=memory,
+            telegram_client=FakeTelegramClient(),
+            web_browser_client=FakeGenericHttpPageClient(),
+        ),
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+    event = Event(
+        event_id="evt-browser-read",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Read page https://example.com/release-notes in the browser."},
+        meta=EventMeta(user_id="u-1", trace_id="t-browser-read"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.action_result.status == "success"
+    assert "generic_http_read_page" in result.action_result.actions
+    assert "Browser page read returned: Release notes [text/html] https://example.com/release-notes." in result.action_result.notes
 
 
 def _build_behavior_runtime(memory_repository: FakeMemoryRepository) -> RuntimeOrchestrator:
@@ -5008,7 +5152,7 @@ async def test_runtime_pipeline_exposes_system_debug_surface_for_behavior_valida
         "web_knowledge_tooling_policy"
     )
     assert result.system_debug.adaptive_state["web_knowledge_tools"]["knowledge_search"]["state"] == (
-        "policy_only_no_provider_slice_selected"
+        "provider_backed_ready"
     )
     assert result.system_debug.adaptive_state["affective_input_policy"] == {
         "policy_owner": "perception_affective_input",

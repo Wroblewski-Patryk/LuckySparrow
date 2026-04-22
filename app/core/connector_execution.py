@@ -41,10 +41,10 @@ def connector_execution_baseline_snapshot(settings) -> dict[str, object]:
     )
     return {
         "execution_owner": "connector_execution_registry",
-        "mvp_boundary": "clickup_task_create_and_list_plus_google_calendar_and_google_drive_first_live_paths",
+        "mvp_boundary": "clickup_task_create_list_update_plus_google_calendar_google_drive_duckduckgo_and_generic_http_first_live_paths",
         "task_system": {
             "read_capable_live_paths": ["clickup_list_tasks"],
-            "mutation_live_paths": ["clickup_create_task"],
+            "mutation_live_paths": ["clickup_create_task", "clickup_update_task"],
             "clickup_create_task": {
                 "operation": "create_task",
                 "provider": "clickup",
@@ -65,7 +65,19 @@ def connector_execution_baseline_snapshot(settings) -> dict[str, object]:
                     else "configure_clickup_api_token_and_clickup_list_id_for_live_read_execution"
                 ),
             },
-            "other_operations": "policy_only_until_pre_action_read_and_additional_provider_paths_exist",
+            "clickup_update_task": {
+                "operation": "update_task",
+                "provider": "clickup",
+                "execution_mode": "provider_backed_when_configured",
+                "ready": clickup_ready,
+                "state": clickup_state,
+                "hint": (
+                    "clickup_update_task_live"
+                    if clickup_ready
+                    else "configure_clickup_api_token_and_clickup_list_id_for_live_update_execution"
+                ),
+            },
+            "other_operations": "policy_only_until_additional_task_system_provider_paths_exist",
         },
         "calendar": {
             "read_capable_live_paths": ["google_calendar_read_availability"],
@@ -94,45 +106,45 @@ def connector_execution_baseline_snapshot(settings) -> dict[str, object]:
             "other_operations": "policy_only_until_additional_drive_read_or_mutation_paths_exist",
         },
         "knowledge_search": {
-            "read_capable_live_paths": [],
+            "read_capable_live_paths": ["duckduckgo_search_web"],
             "mutation_live_paths": [],
             "search_web": {
                 "operation": "search_web",
-                "provider": "generic",
-                "execution_mode": "policy_only",
-                "ready": False,
-                "state": "policy_only_no_provider_slice_selected",
-                "hint": "freeze_first_provider_backed_search_slice_before_live_execution",
+                "provider": "duckduckgo_html",
+                "execution_mode": "provider_backed_without_credentials",
+                "ready": True,
+                "state": "provider_backed_ready",
+                "hint": "duckduckgo_html_search_live",
             },
             "suggest_search": {
                 "operation": "suggest_search",
-                "provider": "generic",
+                "provider": "duckduckgo_html",
                 "execution_mode": "policy_only",
                 "ready": True,
                 "state": "planning_only_allowed",
                 "hint": "search_recommendation_can_be_explained_without_live_provider_execution",
             },
-            "other_operations": "policy_only_until_first_bounded_search_provider_path_is_approved",
+            "other_operations": "policy_only_until_additional_search_provider_paths_are_approved",
         },
         "web_browser": {
-            "read_capable_live_paths": [],
+            "read_capable_live_paths": ["generic_http_read_page"],
             "mutation_live_paths": [],
             "read_page": {
                 "operation": "read_page",
-                "provider": "generic",
-                "execution_mode": "policy_only",
-                "ready": False,
-                "state": "policy_only_no_provider_slice_selected",
-                "hint": "freeze_first_provider_backed_browser_slice_before_live_execution",
+                "provider": "generic_http",
+                "execution_mode": "provider_backed_without_credentials",
+                "ready": True,
+                "state": "provider_backed_ready",
+                "hint": "generic_http_read_page_live",
             },
             "suggest_page_review": {
                 "operation": "suggest_page_review",
-                "provider": "generic",
+                "provider": "generic_http",
                 "execution_mode": "policy_only",
                 "ready": True,
                 "state": "planning_only_allowed",
                 "hint": "page_review_recommendation_can_be_explained_without_live_provider_execution",
             },
-            "other_operations": "policy_only_until_first_bounded_browser_provider_path_is_approved",
+            "other_operations": "policy_only_until_additional_browser_provider_paths_are_approved",
         },
     }

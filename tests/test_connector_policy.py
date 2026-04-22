@@ -232,6 +232,7 @@ def test_planning_agent_uses_shared_connector_policy_for_non_mutating_intents() 
         if isinstance(intent, KnowledgeSearchDomainIntent)
     )
     assert search_intent.operation == "search_web"
+    assert search_intent.provider_hint == "duckduckgo_html"
     assert search_intent.mode == resolve_connector_operation_policy(
         "knowledge_search",
         "search_web",
@@ -249,7 +250,23 @@ def test_planning_agent_uses_shared_connector_policy_for_non_mutating_intents() 
         if isinstance(intent, WebBrowserAccessDomainIntent)
     )
     assert browser_intent.operation == "read_page"
+    assert browser_intent.provider_hint == "generic_http"
     assert browser_intent.mode == resolve_connector_operation_policy(
         "web_browser",
         "read_page",
     ).mode
+
+    update_result = planner.run(
+        event=_event("Mark the Release checklist task as done in ClickUp."),
+        context=_context(),
+        motivation=motivation,
+        role=role,
+    )
+    update_intent = next(
+        intent
+        for intent in update_result.domain_intents
+        if isinstance(intent, ExternalTaskSyncDomainIntent)
+    )
+    assert update_intent.operation == "update_task"
+    assert update_intent.provider_hint == "clickup"
+    assert update_intent.status_hint == "done"
