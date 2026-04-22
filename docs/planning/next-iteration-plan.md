@@ -448,6 +448,12 @@ This group resolves the last open retrieval-family question: whether relation
 embeddings remain an optional follow-on source or become part of the steady
 state.
 
+- `PRJ-536` is complete: semantic+affective are now explicitly frozen as the
+  steady-state retrieval completion baseline, while relation embeddings remain
+  an optional follow-on source family and relation records continue to inform
+  adaptive foreground behavior outside that completion condition.
+- the next active slice in this lane is `PRJ-537`.
+
 - `PRJ-536` Decide the relation-source retrieval completion posture.
   - Result:
     - the repo explicitly records whether relation embeddings stay optional

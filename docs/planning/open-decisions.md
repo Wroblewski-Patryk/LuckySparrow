@@ -422,6 +422,12 @@ The current repo already works as an MVP slice, but several architecture-level d
     all describe the same external cadence cutover proof surface
   - Group 80 is complete and the next active slice is `PRJ-536` for relation
     retrieval source completion
+- `PRJ-536` is now complete:
+  - semantic plus affective are frozen as the steady-state retrieval
+    completion baseline
+  - relation embeddings remain an explicit optional follow-on source family,
+    while relation records stay live adaptive inputs for foreground behavior
+  - the next active slice is `PRJ-537` for code and health-surface alignment
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

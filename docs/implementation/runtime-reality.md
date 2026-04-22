@@ -306,6 +306,10 @@ Retrieval lifecycle interpretation (`PRJ-504..PRJ-507`):
 - semantic plus affective sources are treated as the foreground rollout
   completion baseline; relation stays an explicit optional follow-on source
   family after that baseline is stable
+- relation retrieval completion is now explicitly frozen as optional rather
+  than pending:
+  relation records remain live adaptive inputs for context/role/planning, but
+  relation embeddings do not define steady-state retrieval completion
 - `retrieval_lifecycle_provider_drift_state` distinguishes whether runtime is
   aligned with the target owner, still on the local transition owner, or still
   on compatibility fallback

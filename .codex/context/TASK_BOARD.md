@@ -524,15 +524,23 @@ Last updated: 2026-04-22
       context
 
 - [ ] PRJ-536 Decide the relation-source retrieval completion posture
+- [x] PRJ-536 Decide the relation-source retrieval completion posture
   - Owner: Planner
   - Group: Relation Retrieval Source Completion
   - Depends on: PRJ-535
   - Priority: P2
-  - Status: READY
+  - Status: DONE
   - Done when:
     - the repo explicitly records whether relation embeddings stay optional
       long-term or become part of the steady-state retrieval rollout, together
       with influence and refresh boundaries
+  - Result:
+    - canonical contracts now freeze semantic+affective as the steady-state
+      retrieval completion baseline, while relation remains an explicit
+      optional follow-on embedding family
+    - runtime reality and ops guidance now explicitly say that relation
+      records remain live adaptive inputs, but relation embeddings do not count
+      as a required steady-state retrieval completion condition
   - Validation:
     - retrieval architecture, runtime reality, and ops cross-review
 
@@ -541,7 +549,7 @@ Last updated: 2026-04-22
   - Group: Relation Retrieval Source Completion
   - Depends on: PRJ-536
   - Priority: P2
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - retrieval code and health surfaces reflect the selected relation-source
       posture instead of keeping it as a silent optional family

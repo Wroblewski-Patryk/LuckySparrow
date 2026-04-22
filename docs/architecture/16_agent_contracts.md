@@ -558,6 +558,33 @@ Rules:
 
 ---
 
+## Relation Retrieval Completion Baseline
+
+Relation memory remains a first-class adaptive influence family, but relation
+embeddings do not become part of the default steady-state retrieval completion
+baseline.
+
+1. steady-state retrieval completion remains `semantic + affective` for the
+   foreground memory-retrieval baseline.
+2. `relation` stays an explicit optional follow-on source family rather than a
+   required completion condition for rollout readiness.
+3. relation cues may still influence foreground behavior through
+   relation-record reads and adaptive tie-break logic without promoting
+   relation embeddings to default vector-retrieval coverage.
+4. if `relation` embeddings are enabled, they remain governed by explicit
+   source-rollout posture and must not silently redefine the steady-state
+   retrieval baseline.
+5. refresh ownership and provider ownership for relation embeddings inherit the
+   same bounded embedding policy surfaces as other source families, but health
+   and rollout guidance must continue to distinguish:
+   - steady-state retrieval baseline
+   - optional relation-source expansion posture
+6. future promotion of relation embeddings into the steady-state baseline
+   requires a separate approved contract slice plus matching health, smoke, and
+   behavior evidence.
+
+---
+
 ## Perception Agent
 
 ### Purpose

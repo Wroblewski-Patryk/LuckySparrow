@@ -245,6 +245,8 @@ Operator interpretation for retrieval lifecycle closure:
   means semantic plus affective families are the foreground rollout completion
   baseline; relation remains an explicit optional follow-on family reflected by
   `retrieval_lifecycle_relation_source_posture`
+- treat `retrieval_lifecycle_relation_source_posture=optional_follow_on_family`
+  as the intended steady-state posture, not as a rollout gap by itself
 - `retrieval_lifecycle_provider_drift_state=aligned_target_provider` means the
   effective provider owner matches the selected steady-state lifecycle target
 - `retrieval_lifecycle_provider_drift_state=transition_provider_active` means

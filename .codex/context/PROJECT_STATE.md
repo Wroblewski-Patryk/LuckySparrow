@@ -113,9 +113,13 @@ Last updated: 2026-04-22
   notes, and context truth now describe the same external cadence cutover
   proof surface and the distinction between target owner selection and proven
   cutover readiness.
-- 2026-04-22: `PRJ-536` is now the first `READY` task; the next slice should
-  decide the relation-source retrieval completion posture before any more
-  retrieval rollout work continues.
+- 2026-04-22: `PRJ-536` is complete: semantic+affective are now frozen as the
+  steady-state retrieval completion baseline, while relation embeddings remain
+  an explicit optional follow-on family and relation records stay live
+  adaptive inputs outside that completion condition.
+- 2026-04-22: `PRJ-537` is now the first `READY` task; the next slice should
+  implement the selected relation-source rollout or governance boundary in
+  code and health surfaces.
 - 2026-04-22: Group 76 (`PRJ-516..PRJ-519`) is now complete, and the next
   `READY` task is `PRJ-520` for dedicated debug-ingress compatibility
   retirement.
