@@ -64,6 +64,12 @@ Used for Telegram integration.
 
 Used for PostgreSQL connection.
 
+For repository-driven Coolify production deploys, the PostgreSQL service image
+must remain compatible with the semantic-vector migration contract. When
+semantic vectors are enabled and Alembic `head` includes `CREATE EXTENSION
+vector`, the Coolify compose stack must use a pgvector-capable PostgreSQL image
+for the same major version instead of plain `postgres`.
+
 `APP_ENV`
 
 Defines runtime environment:

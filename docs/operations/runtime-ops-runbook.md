@@ -18,6 +18,10 @@ This runbook covers the currently implemented AION MVP service, not the full lon
 - App health endpoint:
   - `GET /health`
 - Docker compose stack includes health checks for Postgres and, in the Coolify variant, the app container.
+- Repository-driven Coolify production deploys must keep the `db` service on a
+  pgvector-capable PostgreSQL image once semantic-vector migrations are part of
+  Alembic `head`; a plain `postgres` image can boot but will fail migration and
+  foreground turn handling later.
 
 `GET /health` now includes a `runtime_policy` object with non-secret active
 runtime flags (for example `startup_schema_mode`, `event_debug_enabled`, and

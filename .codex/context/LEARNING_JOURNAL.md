@@ -25,6 +25,36 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-23 - Coolify production Postgres must ship pgvector before migration-first deploys
+- Context:
+  - production Telegram traffic reached the service, but full Alembic repair on
+    Coolify failed after baseline stamping because the production database image
+    was still plain `postgres:15`.
+- Symptom:
+  - `alembic upgrade head` stopped on `CREATE EXTENSION IF NOT EXISTS vector`
+    even though the application image and migration chain were otherwise ready.
+- Root cause:
+  - the repo-driven `docker-compose.coolify.yml` pinned the production `db`
+    service to a vanilla PostgreSQL image that cannot satisfy the approved
+    semantic-vector migration baseline.
+- Guardrail:
+  - when production PostgreSQL deploys use migration-first bootstrap and
+    semantic vectors are enabled, the Coolify compose file must use a
+    pgvector-capable image for the same PostgreSQL major version.
+- Preferred pattern:
+  - keep the production database image aligned with the semantic migration
+    contract in repository-owned compose
+  - verify both Python `pgvector` and PostgreSQL `vector` extension readiness
+    before calling production healthy
+- Avoid:
+  - assuming a plain PostgreSQL image can remain valid once Alembic `head`
+    includes `vector` extension setup
+- Evidence:
+  - `PRJ-570`
+  - `docker-compose.coolify.yml`
+  - production Coolify deployment logs on 2026-04-23
+  - migration `20260419_0004_add_pgvector_semantic_embedding_scaffold.py`
+
 ### 2026-04-23 - PostgreSQL vector deploys must validate Python pgvector parity before startup
 - Context:
   - production Telegram webhook traffic reached the service, but every

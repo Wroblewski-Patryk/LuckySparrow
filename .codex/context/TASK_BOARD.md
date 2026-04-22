@@ -96,6 +96,10 @@ Last updated: 2026-04-23
   Python `pgvector` package as a normal runtime dependency, and app startup
   blocks before database initialization when semantic vectors are enabled on
   PostgreSQL without that binding.
+- `PRJ-570` is in progress: repository-driven Coolify production must switch
+  its `db` service from plain `postgres:15` to a pgvector-capable PostgreSQL 15
+  image so migration-first deploys can reach Alembic `head` and restore
+  Telegram/API foreground turns without a compatibility bypass.
 - no seeded execution queue is currently active; the next task should be
   derived from the next fresh production or architecture gap.
 
