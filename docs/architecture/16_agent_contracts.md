@@ -568,6 +568,31 @@ Rules:
 16. until an explicit provider-backed slice is approved, web knowledge tools
     remain policy-only or suggestion-only surfaces and must not bypass the
     action boundary through direct model-side browsing claims
+17. the first bounded provider-backed web-knowledge and organization slices are
+    now frozen as:
+    - `knowledge_search:search_web` with `provider_hint=duckduckgo_html`
+    - `web_browser:read_page` with `provider_hint=generic_http`
+    - `task_system:update_task` with `provider_hint=clickup`
+18. safe output boundaries for those slices must stay action-owned:
+    - search returns bounded result evidence only:
+      - title
+      - canonical url
+      - snippet preview
+      - rank
+      - truncation note
+    - browser returns bounded page-read evidence only:
+      - final url
+      - page title
+      - content type
+      - bounded text excerpt
+      - truncation note
+    - ClickUp update returns bounded mutation evidence only:
+      - task id
+      - task name preview
+      - updated status or field summary
+19. these slices must not execute JavaScript, submit forms, follow login flows,
+    widen memory retrieval ownership, or expose raw provider payloads beyond
+    the bounded evidence contract
 
 ---
 

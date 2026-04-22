@@ -332,7 +332,37 @@ Last updated: 2026-04-22
   - Group: Search, Browser, And Organization Tool Expansion
   - Depends on: PRJ-555
   - Priority: P2
+  - Status: DONE
+  - Result:
+    - the first provider-backed expansion set is now frozen as:
+      - `knowledge_search:search_web` with `provider_hint=duckduckgo_html`
+      - `web_browser:read_page` with `provider_hint=generic_http`
+      - `task_system:update_task` with `provider_hint=clickup`
+    - each slice now has an explicit bounded evidence contract instead of raw
+      provider payload ambitions
+  - Validation:
+    - connector or tool policy cross-review across architecture and ops docs
+
+- [ ] PRJ-557 Implement the selected bounded search, browser, and ClickUp slices
+  - Owner: Backend Builder
+  - Group: Search, Browser, And Organization Tool Expansion
+  - Depends on: PRJ-556
+  - Priority: P2
   - Status: READY
+
+- [ ] PRJ-558 Add role-governed behavior validation for tool usage
+  - Owner: QA/Test
+  - Group: Search, Browser, And Organization Tool Expansion
+  - Depends on: PRJ-557
+  - Priority: P2
+  - Status: BACKLOG
+
+- [ ] PRJ-559 Sync docs/context for bounded search, browser, and organization tooling
+  - Owner: Product Docs
+  - Group: Search, Browser, And Organization Tool Expansion
+  - Depends on: PRJ-558
+  - Priority: P2
+  - Status: BACKLOG
 
 - [ ] PRJ-560 Freeze the backend work-partner role baseline
   - Owner: Planner
