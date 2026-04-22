@@ -231,6 +231,13 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-564` is now the first `READY` task; the next slice should
   freeze one explicit no-UI `v1` release gate and operator acceptance bundle
   before more UI-readiness work lands.
+- 2026-04-22: `PRJ-564` is complete: one explicit no-UI `v1` release gate is
+  now frozen across conversation reliability, life-assistant behavior proof,
+  learned-state inspection readiness, and approved tooling plus work-partner
+  posture.
+- 2026-04-22: `PRJ-565` is now the first `READY` task; the next slice should
+  make that release gate machine-visible through `/health`, incident evidence,
+  release smoke, and behavior-validation tooling.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence

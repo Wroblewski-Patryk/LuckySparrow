@@ -74,6 +74,13 @@ The current repo already works as an MVP slice, but several architecture-level d
     policy posture
   - behavior validation proves work-partner organization and decision support
     through `T15.1..T15.2`
+- `PRJ-564` now freezes the no-UI `v1` release gate:
+  - conversation reliability
+  - life-assistant workflow proof
+  - learned-state inspection readiness
+  - approved tooling and work-partner posture
+  must be readable from one backend-facing acceptance bundle before `v1` is
+  treated as closed
 - the next execution queue therefore prioritizes:
   - production conversation reliability
   - life-assistant workflow activation

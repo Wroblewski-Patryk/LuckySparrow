@@ -473,7 +473,38 @@ Last updated: 2026-04-22
   - Group: V1 Release Closure And V2 API Readiness
   - Depends on: PRJ-563
   - Priority: P1
+  - Status: DONE
+  - Result:
+    - one explicit no-UI `v1` release contract is now frozen across:
+      - conversation reliability
+      - life-assistant workflow proof
+      - learned-state inspection readiness
+      - approved tooling and work-partner posture
+    - the production acceptance bundle is now explicitly backend-facing rather
+      than UI-dependent
+  - Validation:
+    - ops, testing, and architecture cross-review
+
+- [ ] PRJ-565 Implement missing release and operator evidence for the `v1` gate
+  - Owner: Backend Builder
+  - Group: V1 Release Closure And V2 API Readiness
+  - Depends on: PRJ-564
+  - Priority: P1
   - Status: READY
+
+- [ ] PRJ-566 Expose stable backend API-readiness surfaces for future `v2` UI
+  - Owner: Backend Builder
+  - Group: V1 Release Closure And V2 API Readiness
+  - Depends on: PRJ-565
+  - Priority: P1
+  - Status: BACKLOG
+
+- [ ] PRJ-567 Sync docs/context for `v1` closure and `v2` API readiness
+  - Owner: Product Docs
+  - Group: V1 Release Closure And V2 API Readiness
+  - Depends on: PRJ-566
+  - Priority: P1
+  - Status: BACKLOG
 
 - [x] PRJ-516 Define the operator-facing incident evidence bundle and retention baseline
   - Owner: Planner

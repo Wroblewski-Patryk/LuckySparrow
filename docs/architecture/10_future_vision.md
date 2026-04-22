@@ -130,6 +130,25 @@ life-assistant workflows end to end through the existing runtime:
 dedicated reminder UI. Those richer surfaces belong to later tool-expansion or
 `v2` work.
 
+#### v1 release gate
+
+No-UI `v1` is release-ready only when one explicit backend acceptance bundle is
+green across:
+
+1. conversation reliability
+   - Telegram or API runtime posture must be operator-visible
+2. life-assistant behavior
+   - bounded reminder/planning/follow-up workflow proof must remain green
+3. learned-state inspection
+   - backend inspection surfaces must expose what the personality learned,
+     selected, and planned
+4. approved tooling posture
+   - bounded search, browser, organization tools, and work-partner posture
+     must remain machine-visible and behavior-validated
+
+That acceptance bundle belongs to backend runtime truth, incident evidence,
+release smoke, and behavior validation. It does not require a dedicated UI.
+
 ---
 
 ### v2 – UI And Work / Business Partner Surface

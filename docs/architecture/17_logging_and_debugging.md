@@ -220,6 +220,28 @@ You should be able to answer:
 
 ---
 
+## V1 Release Evidence
+
+No-UI `v1` acceptance should be readable from one backend-facing evidence
+bundle, not inferred manually from unrelated logs.
+
+Minimum `v1` release evidence categories:
+
+1. conversation reliability posture
+2. life-assistant workflow behavior proof
+3. learned-state inspection readiness
+4. approved tooling and work-partner posture
+
+Canonical evidence surfaces for that bundle may include:
+
+- `/health.v1_readiness`
+- `/health.conversation_channels.telegram`
+- `/health.learned_state`
+- debug/exported `incident_evidence.policy_posture["v1_readiness"]`
+- behavior-validation scenario anchors for the current `v1` baseline
+
+---
+
 ## Tools
 
 Basic:
