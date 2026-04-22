@@ -555,6 +555,19 @@ Rules:
     - `state=credentials_missing|provider_backed_ready`
     - all other cloud-drive operations remain policy-only until separately
       approved through their own contract slices
+13. web search and browser access now extend the same action-owned capability
+    family instead of creating a skill-owned execution subsystem:
+    - `knowledge_search`
+    - `web_browser`
+14. they stay on the same planning -> permission-gate -> action validation
+    path as the existing connector families, so provider access remains
+    explicit and reviewable
+15. selected skills may explain why planning can consider those tool families,
+    but skills must not execute, authorize, or self-install provider access on
+    their own
+16. until an explicit provider-backed slice is approved, web knowledge tools
+    remain policy-only or suggestion-only surfaces and must not bypass the
+    action boundary through direct model-side browsing claims
 
 ---
 

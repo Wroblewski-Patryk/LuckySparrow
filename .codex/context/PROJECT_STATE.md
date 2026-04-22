@@ -134,6 +134,14 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-552` is now the first `READY` task; the next slice should
   freeze the architecture baseline for web-search and browser tool families
   before any provider-backed search or browsing adapter is added.
+- 2026-04-22: `PRJ-552` is complete: web search and browser access are now
+  frozen as action-owned external capability kinds under the same planning,
+  permission-gate, and action validation boundary as existing connectors;
+  they are explicitly not self-executing skills or a second browsing
+  subsystem outside the action layer.
+- 2026-04-22: `PRJ-553` is now the first `READY` task; the next slice should
+  implement one shared capability and permission-gate owner for web knowledge
+  tools before health visibility or provider-backed slices are widened.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence

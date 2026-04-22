@@ -40,6 +40,13 @@ The current repo already works as an MVP slice, but several architecture-level d
     inspection surface for future UI or admin callers
   - exported `incident_evidence.policy_posture["learned_state"]` now carries
     the same owner and internal-path contract for release or incident review
+- `PRJ-552` now freezes the architecture choice for web knowledge tools:
+  - web search and browser access extend the existing action-owned external
+    capability family
+  - they are not "skills that execute tools" and not a second browsing
+    subsystem outside planning/action validation
+  - the next implementation slices should therefore reuse shared
+    permission-gate and health/debug visibility patterns
 - the next execution queue therefore prioritizes:
   - production conversation reliability
   - life-assistant workflow activation

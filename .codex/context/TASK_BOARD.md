@@ -265,7 +265,38 @@ Last updated: 2026-04-22
   - Group: Web Knowledge And Tooling Architecture
   - Depends on: PRJ-551
   - Priority: P1
+  - Status: DONE
+  - Result:
+    - canonical architecture now records web search and browser access as new
+      action-owned external capability kinds (`knowledge_search`,
+      `web_browser`) under the same planning, permission-gate, and action
+      validation boundary as existing connectors
+    - the repo now explicitly rejects treating search or browsing as
+      self-executing skills or as a second execution subsystem outside the
+      action layer
+  - Validation:
+    - architecture and planning cross-review with explicit boundary note
+
+- [ ] PRJ-553 Implement shared capability and permission-gate policy for web knowledge tools
+  - Owner: Backend Builder
+  - Group: Web Knowledge And Tooling Architecture
+  - Depends on: PRJ-552
+  - Priority: P1
   - Status: READY
+
+- [ ] PRJ-554 Expose readiness and debug visibility for the selected tool-family posture
+  - Owner: Backend Builder
+  - Group: Web Knowledge And Tooling Architecture
+  - Depends on: PRJ-553
+  - Priority: P1
+  - Status: BACKLOG
+
+- [ ] PRJ-555 Sync docs/context for the web knowledge and tooling baseline
+  - Owner: Product Docs
+  - Group: Web Knowledge And Tooling Architecture
+  - Depends on: PRJ-554
+  - Priority: P1
+  - Status: BACKLOG
 
 - [ ] PRJ-556 Freeze the first bounded provider-backed search, browser, and organization slices
   - Owner: Planner
