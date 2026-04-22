@@ -89,6 +89,9 @@ Last updated: 2026-04-22
 - no seeded `READY`, `BACKLOG`, or `FUTURE` queue remains after the no-UI `v1`
   closure lane; the next task should be derived from fresh production/runtime
   analysis
+- a new production hotfix slice is now in progress through `PRJ-568`, focused
+  on restoring Telegram replies when production selects
+  `ATTENTION_COORDINATION_MODE=durable_inbox`
 
 ## READY
 
@@ -538,6 +541,31 @@ Last updated: 2026-04-22
   - Validation:
     - doc-and-context sync across architecture, implementation, ops, testing,
       planning, and context
+
+- [ ] PRJ-568 Repair durable attention wiring for production Telegram ingress
+  - Owner: Backend Builder
+  - Group: Production Telegram Hotfix
+  - Depends on: PRJ-567
+  - Priority: P0
+  - Status: DONE
+  - Why now:
+    - production Telegram stopped replying after recent changes
+    - startup wiring can differ from route-level tests when production-only
+      `durable_inbox` attention mode is enabled
+  - Done when:
+    - app startup wires the durable attention coordinator to the shared memory
+      repository when `ATTENTION_COORDINATION_MODE=durable_inbox`
+    - regression coverage pins the startup wiring path so production attention
+      mode cannot silently fall back away from the repository-backed store
+  - Result:
+    - `app.main` now wires `memory_repository` into
+      `AttentionTurnCoordinator`, so production `durable_inbox` mode can use
+      the repository-backed turn store instead of silently degrading away from
+      it
+    - lifespan-level regression coverage now pins this startup dependency path
+      directly, which route-level attention tests did not cover before
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_main_lifespan_policy.py tests/test_api_routes.py`
 
 - [x] PRJ-516 Define the operator-facing incident evidence bundle and retention baseline
   - Owner: Planner

@@ -369,6 +369,29 @@ fixes for this repository.
   - keep validation and context sync work moving in the same cycle
 - Avoid:
   - repeatedly retrying blocked `rg` commands
+
+### 2026-04-23 - Startup wiring can drift from route-level durable inbox tests
+- Context:
+  - production Telegram reply handling depended on `ATTENTION_COORDINATION_MODE=durable_inbox`
+    while route-level tests already injected a repository-backed attention
+    coordinator manually.
+- Symptom:
+  - Telegram messages reached production, but no reply was observed after a
+    recent change set even though route-level durable inbox tests still passed.
+- Root cause:
+  - app startup instantiated `AttentionTurnCoordinator` without the shared
+    `memory_repository`, so the production coordinator could not activate the
+    repository-backed durable inbox path even when the mode was configured.
+- Guardrail:
+  - add lifespan-level regression coverage for any production-only startup
+    wiring that differs from route test harness setup.
+- Preferred pattern:
+  - when runtime state depends on a repository-backed coordinator or worker,
+    assert that `app.state` wiring in `app.main` carries the same dependency as
+    route-level test factories.
+- Avoid:
+  - assuming route tests that build app state manually also prove main-lifespan
+    wiring for the same feature flags.
   - treating tool unavailability as a reason to skip validation or docs sync
 - Evidence:
   - `PRJ-055` execution logs in this workspace showed `rg.exe` access denied

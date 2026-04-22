@@ -626,6 +626,7 @@ async def lifespan(app: FastAPI):
         answered_ttl_seconds=settings.attention_answered_ttl_seconds,
         stale_turn_seconds=settings.attention_stale_turn_seconds,
         coordination_mode=settings.attention_coordination_mode,
+        memory_repository=memory_repository,
     )
 
     app.state.settings = settings

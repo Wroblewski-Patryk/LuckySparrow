@@ -261,6 +261,15 @@ Last updated: 2026-04-22
 - 2026-04-22: the seeded `v1` queue is complete through `PRJ-567`; no seeded
   `READY` task remains and the next lane should be derived from fresh
   production/runtime analysis.
+- 2026-04-23: user-reported production Telegram silence is now being triaged as
+  `PRJ-568`; the strongest candidate root cause is startup wiring drift for
+  `ATTENTION_COORDINATION_MODE=durable_inbox`, where the main-app attention
+  coordinator was instantiated without the shared memory repository even though
+  route-level tests used repository-backed durable inbox state.
+- 2026-04-23: `PRJ-568` is complete: app lifespan now wires the shared
+  `memory_repository` into `AttentionTurnCoordinator`, and a lifespan-level
+  regression guards the repository-backed `durable_inbox` startup path that
+  was previously untested.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence
