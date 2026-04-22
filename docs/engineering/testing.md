@@ -174,6 +174,10 @@ For meaningful repo changes, leave behind:
 - for connector read-posture expansion slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+  - coverage should pin both:
+    - bounded provider-backed execution notes for the selected read path
+    - `/health.connectors.execution_baseline` readiness posture
+      (`credentials_missing|provider_backed_ready`) for the same path
 - for external-scheduler ownership slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py`

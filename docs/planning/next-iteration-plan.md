@@ -298,7 +298,11 @@ Completed on 2026-04-22:
   `calendar.google_calendar_read_availability` with machine-visible
   `credentials_missing|provider_backed_ready` posture and one bounded
   `provider_backed_when_configured` readiness contract for operators.
-- the next active slice in this lane is `PRJ-527`.
+- `PRJ-527` is complete: canonical contracts, runtime reality, testing
+  guidance, ops notes, and context truth now describe the same bounded Google
+  Calendar live-read baseline and `/health.connectors.execution_baseline`
+  posture.
+- the next active slice in this lane is `PRJ-528`.
 
 - `PRJ-524` Define the first bounded calendar read baseline.
   - Result:

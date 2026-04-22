@@ -73,9 +73,13 @@ Last updated: 2026-04-22
   `provider_backed_when_configured` contract and machine-visible
   `credentials_missing|provider_backed_ready` posture for the bounded calendar
   live-read path.
-- 2026-04-22: `PRJ-527` is now the first `READY` task; the next slice should
-  synchronize contracts, runtime reality, ops notes, testing guidance, and
-  context truth for the bounded calendar read baseline.
+- 2026-04-22: `PRJ-527` is complete: canonical contracts, runtime reality,
+  testing guidance, ops notes, and context truth now describe the same bounded
+  Google Calendar live-read baseline plus `/health.connectors.execution_baseline`
+  readiness posture.
+- 2026-04-22: `PRJ-528` is now the first `READY` task; the next slice should
+  freeze the first bounded cloud-drive metadata read baseline before another
+  provider-backed connector adapter is added.
 - 2026-04-22: Group 76 (`PRJ-516..PRJ-519`) is now complete, and the next
   `READY` task is `PRJ-520` for dedicated debug-ingress compatibility
   retirement.

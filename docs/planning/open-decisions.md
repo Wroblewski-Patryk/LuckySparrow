@@ -374,7 +374,11 @@ The current repo already works as an MVP slice, but several architecture-level d
     posture for operators
   - readiness is now machine-visible as `credentials_missing` or
     `provider_backed_ready` without widening the existing connector boundary
-  - the next active slice in this lane is `PRJ-527`
+- `PRJ-527` is now complete:
+  - canonical contracts, runtime reality, testing guidance, ops notes, and
+    context truth now describe the same bounded Google Calendar live-read
+    baseline
+  - the next active slice in this lane is `PRJ-528`
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

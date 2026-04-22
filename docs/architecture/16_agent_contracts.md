@@ -504,6 +504,13 @@ Rules:
      - bounded free-slot preview count and top candidate slots
    - provider-backed execution must not expose raw event titles, attendee
      lists, descriptions, or become a new background/context ingestion path
+10. once implemented, bounded calendar live-read posture must be visible in
+    `/health.connectors.execution_baseline` through one explicit provider path:
+    - `calendar.google_calendar_read_availability`
+    - `execution_mode=provider_backed_when_configured`
+    - `state=credentials_missing|provider_backed_ready`
+    - all other calendar operations remain policy-only until separately
+      approved through their own contract slices
 
 ---
 

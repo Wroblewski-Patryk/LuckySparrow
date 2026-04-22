@@ -175,7 +175,7 @@ Last updated: 2026-04-22
     `PRJ-525`.
 
 - Group 78 note:
-  - `PRJ-524..PRJ-526` are now complete.
+  - `PRJ-524..PRJ-527` are now complete.
   - the bounded calendar read lane now has one explicit provider
     (`google_calendar`), one provider-backed action adapter, and one bounded
     output shape limited to normalized availability evidence instead of raw
@@ -184,8 +184,10 @@ Last updated: 2026-04-22
     `policy_only` remainder from bounded `google_calendar_read_availability`
     posture through machine-visible `credentials_missing` vs
     `provider_backed_ready` states.
-  - `PRJ-527` is the next active slice for docs/context sync of the bounded
-    calendar read baseline.
+  - canonical contracts, runtime reality, testing guidance, ops notes, and
+    context truth now describe the same bounded calendar live-read baseline.
+  - `PRJ-528` is the next active slice for the first bounded cloud-drive
+    metadata read contract.
 
 - [x] PRJ-520 Freeze the shared debug compatibility retirement gate
   - Owner: Planner
@@ -324,15 +326,19 @@ Last updated: 2026-04-22
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
-- [ ] PRJ-527 Sync docs/context for the bounded calendar read baseline
+- [x] PRJ-527 Sync docs/context for the bounded calendar read baseline
   - Owner: Product Docs
   - Group: Calendar Read Connector Baseline
   - Depends on: PRJ-526
   - Priority: P2
-  - Status: READY
+  - Status: DONE
   - Done when:
     - canonical contracts, runtime reality, ops notes, testing guidance, and
       context truth all describe the same bounded calendar read baseline
+  - Result:
+    - canonical contracts, runtime reality, testing guidance, ops notes, and
+      context truth now align on one bounded Google Calendar live-read baseline
+      plus `/health.connectors.execution_baseline` readiness posture
   - Validation:
     - doc-and-context sync across architecture, implementation, ops, testing,
       planning, and context
@@ -342,7 +348,7 @@ Last updated: 2026-04-22
   - Group: Cloud-Drive Metadata Read Baseline
   - Depends on: PRJ-527
   - Priority: P2
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - one explicit contract defines the first provider-backed cloud-drive
       metadata read slice, safe output fields, and its read-only permission

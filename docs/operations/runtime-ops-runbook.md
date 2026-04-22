@@ -548,6 +548,14 @@ Next bounded connector-read baseline selected for implementation:
   - `provider_backed_ready` when the selected provider path is configured
 - safe output contract stays bounded to availability evidence, not raw event
   payloads
+- current live bounded path is now
+  `calendar.google_calendar_read_availability` in
+  `/health.connectors.execution_baseline`
+- treat `state=credentials_missing` as configuration drift only for the bounded
+  calendar read adapter, not as permission to widen other calendar operations
+- treat `state=provider_backed_ready` as permission for action to execute only
+  explicit `read_only` availability intents; create/update/cancel operations
+  remain policy-only unless separately approved
 
 Recommended when Telegram webhooks are enabled:
 
@@ -999,6 +1007,13 @@ Important health surfaces for current release checks:
   - `task_system.read_capable_live_paths` versus
     `task_system.mutation_live_paths` shows which live surfaces already exist
     under the task-system family
+  - `calendar.google_calendar_read_availability.state=credentials_missing`
+    means the bounded calendar live-read adapter exists but runtime lacks
+    credentials for provider-backed execution
+  - `calendar.google_calendar_read_availability.state=provider_backed_ready`
+    means action may execute only bounded `read_availability` typed intents
+    through the Google Calendar adapter
+  - `calendar.other_operations` should remain policy-only after this slice
 - `identity.adaptive_governance`
   - bounded authority model for role horizon, affective rollout,
     preferences, theta, and multilingual/profile posture

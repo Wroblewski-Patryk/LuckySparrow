@@ -905,7 +905,17 @@ What is already live:
   read path for `ExternalTaskSyncDomainIntent(operation="list_tasks",
   provider_hint="clickup", mode="read_only")` and returns bounded execution
   notes instead of widening planning/context ownership
-- `calendar`, `cloud_drive`, and all non-ClickUp task-system operations remain
+- `ActionExecutor` can now also execute the first bounded calendar live-read
+  path for `CalendarSchedulingIntentDomainIntent(operation="read_availability",
+  provider_hint="google_calendar", mode="read_only")`
+- bounded calendar execution remains action-owned and returns only normalized
+  window/timezone posture, busy-window count, and top free-slot preview
+  instead of raw event titles, attendee lists, or descriptions
+- `/health.connectors.execution_baseline` now exposes
+  `calendar.google_calendar_read_availability` with machine-visible
+  `credentials_missing|provider_backed_ready` posture for that bounded read
+  adapter
+- `cloud_drive` and all non-selected calendar or task-system operations remain
   policy-only by design until broader read-scope boundaries and more provider
   adapters are introduced
 - `/health.runtime_topology` now exposes the reflection/attention switch policy
