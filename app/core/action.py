@@ -273,25 +273,50 @@ class ActionExecutor:
         for intent in plan.domain_intents:
             if not isinstance(intent, ExternalTaskSyncDomainIntent):
                 continue
-            if intent.provider_hint != "clickup" or intent.operation != "create_task":
+            if intent.provider_hint != "clickup":
                 continue
 
-            task_name = self._connector_task_name(intent.task_hint)
-            try:
-                result = await self.clickup_task_client.create_task(
-                    name=task_name,
-                    description=f"Created by AION connector execution from intent: {intent.task_hint}",
-                )
-            except Exception as exc:
-                return ActionResult(
-                    status="fail",
-                    actions=["clickup_create_task"],
-                    notes=f"ClickUp task execution failed: {type(exc).__name__}: {exc}",
-                )
+            if intent.operation == "create_task":
+                task_name = self._connector_task_name(intent.task_hint)
+                try:
+                    result = await self.clickup_task_client.create_task(
+                        name=task_name,
+                        description=f"Created by AION connector execution from intent: {intent.task_hint}",
+                    )
+                except Exception as exc:
+                    return ActionResult(
+                        status="fail",
+                        actions=["clickup_create_task"],
+                        notes=f"ClickUp task execution failed: {type(exc).__name__}: {exc}",
+                    )
 
-            executed_actions.append("clickup_create_task")
-            task_id = str(result.get("id", "unknown"))
-            notes.append(f"ClickUp task created ({task_id}) for '{task_name}'.")
+                executed_actions.append("clickup_create_task")
+                task_id = str(result.get("id", "unknown"))
+                notes.append(f"ClickUp task created ({task_id}) for '{task_name}'.")
+                continue
+
+            if intent.operation == "list_tasks":
+                try:
+                    tasks = await self.clickup_task_client.list_tasks(limit=5)
+                except Exception as exc:
+                    return ActionResult(
+                        status="fail",
+                        actions=["clickup_list_tasks"],
+                        notes=f"ClickUp task read failed: {type(exc).__name__}: {exc}",
+                    )
+
+                executed_actions.append("clickup_list_tasks")
+                task_names = [
+                    self._connector_task_name(str(task.get("name", "")))
+                    for task in tasks
+                    if str(task.get("name", "")).strip()
+                ]
+                if task_names:
+                    notes.append(
+                        "ClickUp task read returned: " + ", ".join(task_names[:3]) + "."
+                    )
+                else:
+                    notes.append("ClickUp task read returned no visible tasks.")
 
         if not executed_actions:
             return None

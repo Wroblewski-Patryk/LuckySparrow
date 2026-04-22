@@ -586,6 +586,10 @@ Completed on 2026-04-22:
   `task_system:list_tasks` for `provider_hint=clickup`, while `calendar` and
   `cloud_drive` remain policy-only until their narrower read boundaries are
   designed explicitly.
+- `PRJ-501` is complete: the repo now executes
+  `external_task_sync_intent(operation="list_tasks", provider_hint="clickup",
+  mode="read_only")` through the existing ClickUp adapter before delivery,
+  keeping the planning and action boundary intact.
 
 - `PRJ-501` Implement the selected read-capable connector adapter behind existing permission gates.
   - Result:

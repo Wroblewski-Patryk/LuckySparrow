@@ -1999,9 +1999,13 @@ Last updated: 2026-04-22
   expansion path is now explicitly selected as `task_system:list_tasks` for
   ClickUp, while calendar and cloud-drive remain policy-only until narrower
   read-boundary contracts are designed.
-- 2026-04-22: `PRJ-501` is now the next `READY` task, focused on implementing
-  that selected read-capable connector adapter behind existing permission
-  gates.
+- 2026-04-22: `PRJ-501` is complete: ClickUp now has a provider-backed
+  read-capable execution path for `task_system:list_tasks`, executed from
+  explicit read-only typed intents before delivery while preserving the
+  planning/action boundary.
+- 2026-04-22: `PRJ-502` is now the next `READY` task, focused on exposing
+  provider-read readiness and failure posture for the expanded connector
+  baseline.
 
 ## Working Agreements
 

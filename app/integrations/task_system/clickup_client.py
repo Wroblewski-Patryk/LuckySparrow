@@ -49,3 +49,30 @@ class ClickUpTaskClient:
             response = await client.post(url, headers=headers, json=payload)
             response.raise_for_status()
             return response.json()
+
+    async def list_tasks(self, *, limit: int = 10) -> list[dict[str, Any]]:
+        if not self.ready:
+            raise RuntimeError("ClickUp task execution is not configured.")
+
+        headers = {
+            "Authorization": self.api_token,
+            "Content-Type": "application/json",
+        }
+        params = {"page": 0}
+        url = f"{self.base_url}/list/{self.list_id}/task"
+
+        if self.http_client is not None:
+            response = await self.http_client.get(url, headers=headers, params=params)
+            if hasattr(response, "raise_for_status"):
+                response.raise_for_status()
+            payload = response.json() if hasattr(response, "json") else dict(response)
+        else:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(url, headers=headers, params=params)
+                response.raise_for_status()
+                payload = response.json()
+
+        tasks = payload.get("tasks", [])
+        if not isinstance(tasks, list):
+            return []
+        return [task for task in tasks[: max(1, int(limit))] if isinstance(task, dict)]

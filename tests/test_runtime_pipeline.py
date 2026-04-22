@@ -51,6 +51,7 @@ class FakeMemoryRepository:
         self.resolved_subconscious_proposals: list[dict] = []
         self.proactive_candidates: list[dict] = []
 
+
     async def get_recent_for_user(self, user_id: str, limit: int = 5) -> list[dict]:
         self.recent_limits.append(limit)
         return self.recent_memory[:limit]
@@ -313,6 +314,22 @@ class PersistingFakeMemoryRepository(FakeMemoryRepository):
 class FailingWriteMemoryRepository(FakeMemoryRepository):
     async def write_episode(self, **kwargs) -> dict:
         raise RuntimeError("database unavailable")
+
+
+class FakeClickUpTaskClient:
+    def __init__(self, *, ready: bool = True, error: Exception | None = None):
+        self.ready = ready
+        self.error = error
+        self.calls: list[dict[str, str]] = []
+
+    async def list_tasks(self, *, limit: int = 10) -> list[dict]:
+        self.calls.append({"operation": "list_tasks", "limit": str(limit)})
+        if self.error is not None:
+            raise self.error
+        return [
+            {"id": "clk_1", "name": "Release checklist"},
+            {"id": "clk_2", "name": "Docs sync"},
+        ]
 
 
 class FakeHybridMemoryRepository(FakeMemoryRepository):
@@ -4674,6 +4691,39 @@ async def test_runtime_pipeline_emits_connector_permission_gates_and_connector_p
         result.memory_record.payload["drive_connector_guardrail"]
         == "external_mutation_requires_confirmation:blocked_until_confirmation"
     )
+
+
+async def test_runtime_pipeline_executes_provider_backed_clickup_task_read_path() -> None:
+    memory = FakeMemoryRepository(recent_memory=[])
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=FakeOpenAIClient()),
+        action_executor=ActionExecutor(
+            memory_repository=memory,
+            telegram_client=FakeTelegramClient(),
+            clickup_task_client=FakeClickUpTaskClient(),
+        ),
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+    event = Event(
+        event_id="evt-clickup-read",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "List tasks in ClickUp for the current sprint."},
+        meta=EventMeta(user_id="u-1", trace_id="t-clickup-read"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.action_result.status == "success"
+    assert "clickup_list_tasks" in result.action_result.actions
+    assert "ClickUp task read returned: Release checklist, Docs sync." in result.action_result.notes
 
 
 def _build_behavior_runtime(memory_repository: FakeMemoryRepository) -> RuntimeOrchestrator:

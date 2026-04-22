@@ -54,19 +54,19 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-501 Implement the selected read-capable connector adapter behind existing permission gates
-  - Owner: Backend Builder
+- [ ] PRJ-502 Expose provider-read readiness and failure posture for the expanded connector baseline
+  - Owner: Ops/Release
   - Group: Connector Read Posture And Provider Expansion Baseline
-  - Depends on: PRJ-500
+  - Depends on: PRJ-501
   - Priority: P1
   - Why now:
-    - the selected baseline is explicit, so the repo can add one provider-backed
-      read path without reopening broader connector policy questions
+    - the new read path exists, so operators now need machine-visible posture
+      that distinguishes read-capable baseline from remaining policy-only lanes
   - Done when:
-    - at least one connector read path is genuinely provider-backed while
-      preserving existing planning and action boundaries
+    - `/health.connectors.execution_baseline` can distinguish mutation-only,
+      read-capable, and still-policy-only connector families in one view
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -113,6 +113,21 @@ Last updated: 2026-04-22
       read-scope boundaries are designed explicitly
   - Validation:
     - connector policy and architecture cross-review
+
+- [x] PRJ-501 Implement the selected read-capable connector adapter behind existing permission gates
+  - Owner: Backend Builder
+  - Group: Connector Read Posture And Provider Expansion Baseline
+  - Depends on: PRJ-500
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - the repo now executes `task_system:list_tasks` for ClickUp through the
+      existing provider adapter when a read-only typed intent reaches action
+    - the provider-backed read path runs before delivery and leaves the
+      planning/action boundary intact by returning execution notes instead of
+      mutating expression ownership
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder

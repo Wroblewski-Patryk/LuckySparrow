@@ -127,6 +127,15 @@ class FakeClickUpTaskClient:
             raise self.error
         return {"id": "clk_123", "name": name}
 
+    async def list_tasks(self, *, limit: int = 10) -> list[dict]:
+        self.calls.append({"operation": "list_tasks", "limit": str(limit)})
+        if self.error is not None:
+            raise self.error
+        return [
+            {"id": "clk_1", "name": "Release checklist"},
+            {"id": "clk_2", "name": "Docs sync"},
+        ]
+
 
 def _event(text: str) -> Event:
     return Event(
@@ -327,6 +336,41 @@ async def test_execute_fails_when_provider_backed_clickup_execution_errors() -> 
     assert result.actions == ["clickup_create_task"]
     assert "clickup unavailable" in result.notes
     assert telegram_client.calls == []
+
+
+async def test_execute_runs_provider_backed_clickup_task_read_before_delivery() -> None:
+    memory_repository = FakeMemoryRepository()
+    telegram_client = FakeTelegramClient()
+    clickup_client = FakeClickUpTaskClient()
+    executor = ActionExecutor(
+        memory_repository=memory_repository,
+        telegram_client=telegram_client,
+        clickup_task_client=clickup_client,
+    )
+
+    plan = _plan(
+        domain_intents=[
+            ExternalTaskSyncDomainIntent(
+                operation="list_tasks",
+                provider_hint="clickup",
+                mode="read_only",
+                task_hint="current sprint",
+            )
+        ]
+    )
+
+    result = await executor.execute(
+        plan,
+        _delivery(
+            channel="api",
+            execution_envelope=build_action_delivery_execution_envelope(plan),
+        ),
+    )
+
+    assert result.status == "success"
+    assert result.actions == ["clickup_list_tasks", "api_response"]
+    assert "ClickUp task read returned: Release checklist, Docs sync." in result.notes
+    assert clickup_client.calls == [{"operation": "list_tasks", "limit": "5"}]
 
 
 async def test_execute_blocks_connector_intent_when_mode_violates_shared_policy() -> None:
@@ -584,7 +628,7 @@ async def test_persist_episode_falls_back_to_deterministic_embedding_when_non_de
     assert update["metadata"]["embedding_provider_effective"] == "deterministic"
     assert (
         update["metadata"]["embedding_provider_hint"]
-        == "provider_not_implemented_fallback_deterministic"
+        == "openai_api_key_missing_fallback_deterministic"
     )
     assert update["metadata"]["embedding_model_requested"] == "text-embedding-3-small"
     assert update["metadata"]["embedding_model_effective"] == "deterministic-v1"
