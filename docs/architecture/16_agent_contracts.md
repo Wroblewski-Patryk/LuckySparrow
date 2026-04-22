@@ -369,6 +369,22 @@ Deferred reflection external-driver baseline:
 4. `/health.reflection` should expose machine-visible external-driver posture
    before deferred reflection is treated as production baseline.
 
+Deferred reflection supervision baseline:
+
+1. one shared supervision policy owner must freeze the target runtime mode,
+   target queue-drain owner, target scheduler execution mode, and durable
+   retry owner for deferred reflection operations.
+2. supervision posture must classify queue state as one of:
+   - `steady_state_clear`
+   - `active_backlog_under_supervision`
+   - `recovery_required`
+3. stuck-processing rows, exhausted-failed rows, app-local worker conflicts,
+   or non-externalized scheduler ownership are supervision blockers until
+   explicit recovery action is taken.
+4. `/health.reflection.supervision` and release evidence should expose the same
+   blocking signals plus recovery actions, so deferred durability posture does
+   not depend on manual interpretation of raw task counts.
+
 Durable attention rollout baseline:
 
 1. owner mode may be `in_process` or `durable_inbox`

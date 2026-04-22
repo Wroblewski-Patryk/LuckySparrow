@@ -800,6 +800,17 @@ Deployment baseline update (`PRJ-480..PRJ-483`):
 - `/health.reflection.external_driver_policy` now exposes the canonical
   external-driver owner, entrypoint path, wrapper paths, and whether the
   current runtime posture is aligned with the deferred external-worker target
+- `/health.reflection.supervision` now exposes one shared supervision contract
+  owned by `deferred_reflection_supervision_policy`, including:
+  - `queue_health_state`
+  - `blocking_signals`
+  - `recovery_actions`
+  - `production_supervision_ready`
+  - `production_supervision_state`
+  - `production_supervision_hint`
+- startup logs and release smoke now consume that same supervision contract, so
+  deferred reflection backlog pressure and recovery posture are visible outside
+  ad hoc `/health` inspection
 - reflection scope governance now treats cross-goal leakage as a shared
   reader/writer contract problem, not only as a worker-local heuristic
 

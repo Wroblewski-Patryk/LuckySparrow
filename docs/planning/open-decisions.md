@@ -268,6 +268,10 @@ The current repo already works as an MVP slice, but several architecture-level d
   - startup logs and release smoke now consume the same deferred-reflection
     supervision contract, so queue-pressure and recovery posture are visible in
     both runtime-startup and operator-smoke evidence
+- `PRJ-511` is now complete:
+  - canonical contracts, runtime reality, ops guidance, testing guidance,
+    planning, and context truth now describe the same supervised deferred
+    reflection baseline
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

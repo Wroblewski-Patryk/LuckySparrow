@@ -2045,9 +2045,13 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-510` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
   passed.
-- 2026-04-22: `PRJ-511` is now the next `READY` task, focused on syncing
-  architecture notes, runtime reality, ops guidance, and planning/context
-  truth for reflection worker supervision and durability closure.
+- 2026-04-22: `PRJ-511` is complete: canonical contracts, runtime reality,
+  ops guidance, testing guidance, planning, and context truth now describe one
+  shared supervised deferred-reflection baseline with queue-health,
+  blocking-signal, and recovery-action posture.
+- 2026-04-22: Group 74 (`PRJ-508..PRJ-511`) is now complete.
+- 2026-04-22: `PRJ-512` is now the next `READY` task, focused on defining the
+  minimum exportable observability baseline beyond local logs and `/health`.
 
 ## Working Agreements
 

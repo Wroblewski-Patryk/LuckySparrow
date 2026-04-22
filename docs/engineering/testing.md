@@ -136,6 +136,15 @@ For meaningful repo changes, leave behind:
 - for background-worker externalization slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_main_runtime_policy.py tests/test_deployment_trigger_scripts.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_reflection_worker.py`
+- for reflection-supervision slices, regression and release evidence from:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_supervision_policy.py`
+  - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_api_routes.py`
+  - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
+  - coverage should pin all four surfaces:
+    - supervision baseline owner and queue-health classification
+    - `/health.reflection.supervision` posture
+    - startup log evidence for supervision posture
+    - release-smoke summary fields for supervision readiness and recovery guidance
 - for proactive-runtime activation slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
   - `.\scripts\run_behavior_validation.ps1 -GateMode operator`

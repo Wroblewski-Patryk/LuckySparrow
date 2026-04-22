@@ -658,6 +658,13 @@ Operator checks:
   - `production_baseline_ready`
   - `production_baseline_state`
   - `production_baseline_hint`
+- verify `/health.reflection.supervision`:
+  - `policy_owner=deferred_reflection_supervision_policy`
+  - `queue_health_state`
+  - `production_supervision_ready`
+  - `production_supervision_state`
+  - `blocking_signals`
+  - `recovery_actions`
 - verify `/health.scheduler` owner posture:
   - `execution_mode`
   - `maintenance_cadence_owner` / `proactive_cadence_owner`
@@ -674,6 +681,11 @@ Operator checks:
   - `external_owner_policy.production_baseline_ready`
 - treat growing pending queue in deferred mode as external-dispatch signal
   rather than foreground failure
+- treat `queue_health_state=active_backlog_under_supervision` as a recoverable
+  backlog posture, not an immediate release failure by itself
+- treat `queue_health_state=recovery_required` or any non-empty
+  `blocking_signals` as the operator signal that reflection durability needs
+  intervention before deferred mode can be treated as healthy release posture
 - use the external driver entrypoint for one-shot drain checks:
   - Windows: `.\scripts\run_reflection_queue_once.ps1 -Limit 10`
   - Debian/bash: `./scripts/run_reflection_queue_once.sh 10`
@@ -944,8 +956,9 @@ Preconditions checklist (required for reliable Telegram delivery triage):
 
 - there is no background queue or worker isolation yet
 - reflection now has an explicit external-driver queue-drain entrypoint, but
-  long-running worker/process supervision and full scheduler externalization
-  still remain operational follow-up work
+  worker supervision and recovery posture are now bounded by explicit
+  supervision policy and release evidence, while broader externalized
+  observability/export remains follow-up work
 - startup now defaults to migration-first schema ownership; `create_tables()` remains only as a compatibility path behind `STARTUP_SCHEMA_MODE=create_tables`
 - runtime logging is present, but there is no external observability stack yet
 - proactive cadence is live in-process today, while external scheduler

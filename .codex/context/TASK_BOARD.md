@@ -54,19 +54,19 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-511 Sync docs/context for reflection worker supervision and durability closure
-  - Owner: Product Docs
-  - Group: Reflection Worker Supervision And Durability Closure
-  - Depends on: PRJ-510
+- [ ] PRJ-512 Define the minimum exportable observability baseline beyond local logs and `/health`
+  - Owner: Planner
+  - Group: Observability Export And Incident-Evidence Baseline
+  - Depends on: PRJ-511
   - Priority: P1
   - Why now:
-    - runtime, startup, and smoke evidence are now aligned, so the reflection
-      supervision lane needs canonical docs/context closure before observability
+    - reflection supervision is now fully closed, so the next remaining hardening
+      lane is exportable observability and incident evidence
   - Done when:
-    - architecture notes, runtime reality, ops guidance, and planning/context
-      truth all describe the same supervised deferred reflection baseline
+    - one explicit contract records which runtime evidence must be exportable
+      for incidents and releases beyond local logs and `/health`
   - Validation:
-    - doc-and-context sync across architecture, implementation, ops, planning, and context
+    - observability cross-review across architecture, ops, and logging docs
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -266,6 +266,21 @@ Last updated: 2026-04-22
       counters
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
+
+- [x] PRJ-511 Sync docs/context for reflection worker supervision and durability closure
+  - Owner: Product Docs
+  - Group: Reflection Worker Supervision And Durability Closure
+  - Depends on: PRJ-510
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - canonical contracts, runtime reality, ops guidance, testing guidance,
+      planning, and context truth now describe one shared supervised deferred
+      reflection baseline with queue-health, blockers, and recovery actions
+    - Group 74 is now complete and the next active lane is observability export
+      and incident-evidence baseline
+  - Validation:
+    - doc-and-context sync across architecture, implementation, ops, planning, and context
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder

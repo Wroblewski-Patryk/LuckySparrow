@@ -681,6 +681,9 @@ Completed on 2026-04-22:
 - `PRJ-510` is complete: startup logs and release smoke now consume the same
   reflection supervision contract, so queue pressure and recovery posture are
   visible in both release evidence and runtime startup traces.
+- `PRJ-511` is complete: canonical contracts, runtime reality, ops guidance,
+  testing guidance, planning, and context truth now describe the same
+  supervised deferred-reflection baseline.
 
 - `PRJ-508` Define the production supervision baseline for deferred reflection workers.
   - Result:
