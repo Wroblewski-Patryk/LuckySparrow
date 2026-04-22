@@ -36,6 +36,10 @@ Last updated: 2026-04-22
   planning/context truth now consistently describe repository-backed durable
   inbox posture instead of mixing rollout-era wording with current runtime
   reality.
+- Post-convergence Group 61 is now complete through `PRJ-460`.
+- Persisted subconscious proposals and post-convergence operator health
+  surfaces are now described consistently across runtime reality, runbook, and
+  planning/context truth.
 
 ## READY
 
@@ -62,6 +66,48 @@ Last updated: 2026-04-22
 - [ ] (none)
 
 ## DONE
+
+- [x] PRJ-460 Sync planning/context for proposal inventory and operator health docs convergence
+  - Status: DONE
+  - Group: Proposal Inventory And Operator Health Docs Convergence
+  - Owner: Product Docs
+  - Depends on: PRJ-459
+  - Priority: P1
+  - Result:
+    - task board, project state, next-iteration plan, and open decisions now
+      describe one shared post-`PRJ-460` stance for persisted proposal
+      inventory and operator-health visibility convergence
+    - future post-convergence follow-up discovery no longer needs to reconcile
+      docs drift around proposal durability or health-surface expectations
+  - Validation:
+    - doc-and-context sync across `.codex/context/` and `docs/planning/`
+
+- [x] PRJ-459 Expand runbook guidance for post-convergence operator health surfaces
+  - Status: DONE
+  - Group: Proposal Inventory And Operator Health Docs Convergence
+  - Owner: Ops/Release
+  - Depends on: PRJ-458
+  - Priority: P1
+  - Result:
+    - runbook health checks now call out the concrete operator meaning of
+      `planning_governance`, `connectors`, `identity.adaptive_governance`, and
+      `deployment` instead of leaving those surfaces as bare names
+  - Validation:
+    - doc sync in `docs/operations/runtime-ops-runbook.md`
+
+- [x] PRJ-458 Record persisted subconscious proposal table in runtime reality inventory
+  - Status: DONE
+  - Group: Proposal Inventory And Operator Health Docs Convergence
+  - Owner: Product Docs
+  - Depends on: PRJ-457
+  - Priority: P1
+  - Result:
+    - implementation-reality inventory now includes
+      `aion_subconscious_proposal` as part of the live persisted schema
+    - docs no longer imply that proposal lifecycle is contract-visible but not
+      actually durably represented in the current data model
+  - Validation:
+    - doc sync in `docs/implementation/runtime-reality.md`
 
 - [x] PRJ-457 Sync planning/context for attention contract-store docs convergence
   - Status: DONE

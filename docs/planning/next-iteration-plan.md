@@ -86,6 +86,9 @@ Completed on 2026-04-22:
   documentation now converges across canonical contracts, implementation
   reality, env/config guidance, ops runbook notes, and planning/context
   surfaces.
+- `PRJ-458..PRJ-460` are complete: runtime reality and operator docs now
+  converge on persisted subconscious proposal inventory plus the concrete
+  meaning of post-convergence health surfaces used during release and triage.
 
 ## Post-Convergence Operating Mode
 

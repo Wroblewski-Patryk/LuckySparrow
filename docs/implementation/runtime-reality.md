@@ -576,6 +576,7 @@ The codebase currently persists these concrete tables:
 - `aion_goal_milestone`
 - `aion_goal_milestone_history`
 - `aion_reflection_task`
+- `aion_subconscious_proposal`
 
 These names describe implementation reality, not the canonical abstraction layer.
 

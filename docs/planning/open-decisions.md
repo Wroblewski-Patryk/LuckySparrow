@@ -93,6 +93,7 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `PRJ-448..PRJ-451`: affective diagnostics convergence (`4a`) - complete
   - `PRJ-452..PRJ-453`: embedding execution-class diagnostics (`5d`, `5e`) - complete
   - `PRJ-455..PRJ-457`: attention contract-store docs convergence (`12a`) - complete
+  - `PRJ-458..PRJ-460`: proposal inventory and operator health docs convergence (`3`, `12b`) - complete
 - post-`PRJ-453` state has no remaining seeded `READY`; the next architecture
   slice should again be derived from any newly discovered post-convergence
   follow-up instead of inventing a new queue without a concrete runtime or
@@ -107,6 +108,9 @@ The current repo already works as an MVP slice, but several architecture-level d
 - `PRJ-457` closes the remaining durable-attention docs drift so canonical
   contracts, runtime reality, ops guidance, and planning surfaces all describe
   the same repository-backed contract-store baseline.
+- `PRJ-460` closes the remaining docs drift around persisted subconscious
+  proposal inventory and the operator-facing meaning of post-convergence health
+  surfaces used in release checks and triage.
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

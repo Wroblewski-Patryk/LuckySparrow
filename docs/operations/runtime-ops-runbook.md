@@ -679,8 +679,17 @@ Important health surfaces for current release checks:
 - `runtime_policy.event_debug_shared_ingress_enforcement_window`
 - `runtime_topology`
 - `planning_governance`
+  - inferred goal/task growth posture
+  - fixed proposal-decision baseline
 - `connectors`
+  - connector authorization matrix
+  - capability-proposal posture for not-yet-authorized expansion
+- `identity.adaptive_governance`
+  - bounded authority model for role horizon, affective rollout,
+    preferences, theta, and multilingual/profile posture
 - `deployment`
+  - hosting baseline selection
+  - deployment-trigger SLO posture consumed by release smoke
 
 ### Send Manual Event
 

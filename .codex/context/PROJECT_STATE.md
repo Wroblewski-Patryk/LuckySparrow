@@ -1792,6 +1792,11 @@ Last updated: 2026-04-22
   on repository-backed `aion_attention_turn` durable inbox posture and the
   exact `/health.attention` contract-store visibility fields used for
   operator triage.
+- 2026-04-22: `PRJ-458..PRJ-460` are complete: runtime reality now includes
+  `aion_subconscious_proposal` in the live persisted schema inventory, and the
+  runbook plus planning/context surfaces now describe the concrete operator
+  meaning of post-convergence health surfaces for planning, connectors,
+  adaptive identity governance, and deployment.
 
 ## Working Agreements
 
