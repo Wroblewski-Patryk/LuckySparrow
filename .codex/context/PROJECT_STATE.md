@@ -2062,9 +2062,13 @@ Last updated: 2026-04-22
 - 2026-04-22: `/health.observability` now marks exportable incident evidence
   as ready, and release smoke can validate that exported evidence directly in
   debug-mode smoke runs.
-- 2026-04-22: `PRJ-514` is now the next `READY` task, focused on extending
-  behavior or smoke flows so they consume the exported incident-evidence
-  baseline instead of treating it as optional debug output.
+- 2026-04-22: `PRJ-514` is complete: release smoke now validates exported
+  `incident_evidence` directly in debug mode, and behavior-validation
+  artifacts can optionally ingest incident-evidence JSON through the shared
+  gate flow.
+- 2026-04-22: `PRJ-515` is now the next `READY` task, focused on the final
+  docs/context sync for the observability export and incident-evidence
+  baseline.
 
 ## Working Agreements
 

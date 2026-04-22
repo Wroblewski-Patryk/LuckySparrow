@@ -4,7 +4,8 @@ param(
     [switch]$PrintArtifactJson,
     [ValidateSet("operator", "ci")][string]$GateMode = "operator",
     [bool]$CiRequireTests = $true,
-    [string]$ArtifactInputPath = ""
+    [string]$ArtifactInputPath = "",
+    [string]$IncidentEvidenceInputPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,6 +18,9 @@ $args = @(
 )
 if ($ArtifactInputPath) {
     $args += @("--artifact-input-path", $ArtifactInputPath)
+}
+if ($IncidentEvidenceInputPath) {
+    $args += @("--incident-evidence-input-path", $IncidentEvidenceInputPath)
 }
 if ($CiRequireTests) {
     $args += "--ci-require-tests"

@@ -33,6 +33,10 @@ GATE_REASON_ARTIFACT_INPUT_UNREADABLE = "artifact_input_unreadable"
 GATE_REASON_ARTIFACT_SUMMARY_MISSING = "artifact_summary_missing"
 GATE_REASON_ARTIFACT_SUMMARY_INVALID = "artifact_summary_invalid"
 GATE_REASON_ARTIFACT_SCHEMA_MAJOR_VERSION_MISMATCH = "artifact_schema_major_version_mismatch"
+GATE_REASON_INCIDENT_EVIDENCE_INPUT_UNREADABLE = "incident_evidence_input_unreadable"
+GATE_REASON_INCIDENT_EVIDENCE_KIND_INVALID = "incident_evidence_kind_invalid"
+GATE_REASON_INCIDENT_EVIDENCE_SCHEMA_MAJOR_VERSION_MISMATCH = "incident_evidence_schema_major_version_mismatch"
+GATE_REASON_INCIDENT_EVIDENCE_POLICY_SURFACE_INCOMPLETE = "incident_evidence_policy_surface_incomplete"
 
 
 @dataclass(frozen=True)
@@ -66,6 +70,11 @@ def _parse_args() -> argparse.Namespace:
         "--print-artifact-json",
         action="store_true",
         help="Also print artifact JSON payload to stdout.",
+    )
+    parser.add_argument(
+        "--incident-evidence-input-path",
+        default=None,
+        help="Optional existing runtime incident-evidence JSON exported from debug-mode runtime surfaces.",
     )
     parser.add_argument(
         "--gate-mode",
@@ -250,6 +259,54 @@ def _schema_major(version: Any) -> int | None:
         return None
 
 
+def _load_incident_evidence_payload(*, incident_evidence_input_path: Path) -> tuple[dict[str, Any], list[str]]:
+    if not incident_evidence_input_path.exists():
+        return {}, [GATE_REASON_INCIDENT_EVIDENCE_INPUT_UNREADABLE]
+
+    try:
+        raw = json.loads(incident_evidence_input_path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}, [GATE_REASON_INCIDENT_EVIDENCE_INPUT_UNREADABLE]
+
+    if not isinstance(raw, dict):
+        return {}, [GATE_REASON_INCIDENT_EVIDENCE_INPUT_UNREADABLE]
+    return dict(raw), []
+
+
+def _evaluate_incident_evidence_input(
+    *,
+    incident_evidence_payload: dict[str, Any],
+) -> tuple[list[str], dict[str, Any]]:
+    context: dict[str, Any] = {
+        "incident_evidence_schema_version": incident_evidence_payload.get("schema_version"),
+        "incident_evidence_schema_major": _schema_major(incident_evidence_payload.get("schema_version")),
+        "expected_incident_evidence_schema_major": 1,
+        "incident_evidence_policy_owner": incident_evidence_payload.get("policy_owner"),
+        "incident_evidence_policy_surface_complete": False,
+        "incident_evidence_stage_count": 0,
+    }
+    violations: list[str] = []
+
+    if incident_evidence_payload.get("kind") != "runtime_incident_evidence":
+        violations.append(GATE_REASON_INCIDENT_EVIDENCE_KIND_INVALID)
+
+    schema_major = _schema_major(incident_evidence_payload.get("schema_version"))
+    if schema_major is not None and schema_major != 1:
+        violations.append(GATE_REASON_INCIDENT_EVIDENCE_SCHEMA_MAJOR_VERSION_MISMATCH)
+
+    policy_surface_coverage = incident_evidence_payload.get("policy_surface_coverage")
+    if isinstance(policy_surface_coverage, dict):
+        context["incident_evidence_policy_surface_complete"] = bool(policy_surface_coverage.get("complete", False))
+    if not context["incident_evidence_policy_surface_complete"]:
+        violations.append(GATE_REASON_INCIDENT_EVIDENCE_POLICY_SURFACE_INCOMPLETE)
+
+    stage_timings = incident_evidence_payload.get("stage_timings_ms")
+    if isinstance(stage_timings, dict):
+        context["incident_evidence_stage_count"] = len(stage_timings)
+
+    return violations, context
+
+
 def _evaluate_artifact_schema_compatibility(
     *,
     gate_mode: str,
@@ -276,6 +333,8 @@ def _evaluate_artifact_schema_compatibility(
 def main() -> int:
     args = _parse_args()
     artifact_input_path = Path(args.artifact_input_path) if args.artifact_input_path else None
+    incident_evidence_input_raw = getattr(args, "incident_evidence_input_path", None)
+    incident_evidence_input_path = Path(incident_evidence_input_raw) if incident_evidence_input_raw else None
     if args.artifact_path:
         artifact_path = Path(args.artifact_path)
     elif artifact_input_path is not None:
@@ -287,7 +346,7 @@ def main() -> int:
     payload: dict[str, Any]
     gate_status: str
     gate_violations: list[str]
-    gate_context: dict[str, int]
+    gate_context: dict[str, Any]
 
     if artifact_input_path is None:
         with tempfile.NamedTemporaryFile(prefix="aion_behavior_validation_", suffix=".xml", delete=False) as handle:
@@ -351,6 +410,46 @@ def main() -> int:
                 gate_status = "fail"
                 gate_violations = [*read_violations, *gate_violations]
 
+    incident_evidence_summary: dict[str, Any] = {
+        "checked": False,
+        "path": str(incident_evidence_input_path) if incident_evidence_input_path is not None else "",
+        "schema_version": None,
+        "policy_owner": None,
+        "policy_surface_complete": None,
+        "stage_count": None,
+    }
+    if incident_evidence_input_path is not None:
+        incident_payload, incident_read_violations = _load_incident_evidence_payload(
+            incident_evidence_input_path=incident_evidence_input_path
+        )
+        incident_violations: list[str] = []
+        incident_context: dict[str, Any] = {}
+        if not incident_read_violations:
+            incident_violations, incident_context = _evaluate_incident_evidence_input(
+                incident_evidence_payload=incident_payload
+            )
+            incident_evidence_summary = {
+                "checked": True,
+                "path": str(incident_evidence_input_path),
+                "schema_version": incident_context.get("incident_evidence_schema_version"),
+                "policy_owner": incident_context.get("incident_evidence_policy_owner"),
+                "policy_surface_complete": incident_context.get("incident_evidence_policy_surface_complete"),
+                "stage_count": incident_context.get("incident_evidence_stage_count"),
+            }
+        else:
+            incident_evidence_summary = {
+                "checked": True,
+                "path": str(incident_evidence_input_path),
+                "schema_version": None,
+                "policy_owner": None,
+                "policy_surface_complete": False,
+                "stage_count": 0,
+            }
+        if incident_read_violations or incident_violations:
+            gate_status = "fail"
+            gate_violations = [*incident_read_violations, *incident_violations, *gate_violations]
+        gate_context.update(incident_context)
+
     payload["gate"] = {
         "mode": str(args.gate_mode),
         "status": gate_status,
@@ -359,6 +458,7 @@ def main() -> int:
         "violation_context": gate_context,
         "ci_require_tests": bool(args.ci_require_tests),
     }
+    payload["incident_evidence"] = incident_evidence_summary
     artifact_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(

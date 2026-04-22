@@ -754,6 +754,13 @@ Completed on 2026-04-22:
     - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
     - `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py tests/test_deployment_trigger_scripts.py`
 
+Completed on 2026-04-22:
+
+- `PRJ-514` is complete: release smoke now validates exported
+  `incident_evidence` directly in debug mode, and behavior-validation
+  artifacts can optionally ingest a runtime incident-evidence file through the
+  shared gate flow instead of relying on ad hoc local inspection.
+
 - `PRJ-515` Sync docs/context for observability export and incident-evidence baseline.
   - Result:
     - planning, architecture, ops, testing guidance, and context truth all

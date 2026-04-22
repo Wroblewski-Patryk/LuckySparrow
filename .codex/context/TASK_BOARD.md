@@ -95,6 +95,22 @@ Last updated: 2026-04-22
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_observability_policy.py`
 
+- [x] PRJ-514 Extend behavior or smoke flows to consume the exported incident-evidence baseline
+  - Owner: QA/Test
+  - Group: Observability Export And Incident-Evidence Baseline
+  - Depends on: PRJ-513
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - release smoke now validates exported `incident_evidence` directly in
+      debug mode, and behavior-validation artifacts can optionally ingest a
+      runtime incident-evidence file without inventing a second ad hoc format
+    - observability export is now part of repeatable evidence flow instead of
+      remaining only a local debug convenience
+  - Validation:
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py tests/test_deployment_trigger_scripts.py`
+
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
   - Group: External Scheduler Ownership Rollout

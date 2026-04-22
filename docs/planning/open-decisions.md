@@ -284,6 +284,12 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `/health.observability` now marks incident export as ready, and release
     smoke can verify exported incident evidence directly during debug-mode
     smoke runs
+- `PRJ-514` is now complete:
+  - behavior-validation artifacts can now optionally ingest exported runtime
+    incident-evidence JSON through the same machine-readable gate flow
+  - release smoke now consumes exported `incident_evidence` directly during
+    debug-mode smoke runs, making observability evidence part of repeatable
+    done-state
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

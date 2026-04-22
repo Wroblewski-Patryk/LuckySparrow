@@ -403,3 +403,110 @@ def test_main_marks_artifact_summary_invalid_when_existing_summary_is_not_numeri
     assert exit_code == 1
     assert payload["gate"]["status"] == "fail"
     assert payload["gate"]["violations"] == [MODULE.GATE_REASON_ARTIFACT_SUMMARY_INVALID]
+
+
+def test_main_records_incident_evidence_summary_when_valid_input_is_provided(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    incident_evidence_path = tmp_path / "incident-evidence.json"
+    artifact_path = tmp_path / "behavior-report.json"
+    incident_evidence_path.write_text(
+        MODULE.json.dumps(
+            {
+                "kind": "runtime_incident_evidence",
+                "schema_version": "1.0.0",
+                "policy_owner": "incident_evidence_export_policy",
+                "stage_timings_ms": {
+                    "memory_load": 1,
+                    "perception": 2,
+                    "total": 9,
+                },
+                "policy_surface_coverage": {
+                    "complete": True,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        MODULE,
+        "_parse_args",
+        lambda: Namespace(
+            python_exe="python",
+            artifact_path=str(artifact_path),
+            artifact_input_path=None,
+            incident_evidence_input_path=str(incident_evidence_path),
+            print_artifact_json=False,
+            gate_mode="ci",
+            ci_require_tests=True,
+        ),
+    )
+    monkeypatch.setattr(MODULE, "_run_behavior_pytest", lambda **_: (0, ["python", "-m", "pytest"]))
+    monkeypatch.setattr(MODULE, "_parse_junit_results", lambda **_: [])
+
+    exit_code = MODULE.main()
+
+    payload = MODULE.json.loads(artifact_path.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert payload["gate"]["status"] == "fail"
+    assert payload["gate"]["violations"] == [MODULE.GATE_REASON_NO_BEHAVIOR_TESTS_COLLECTED]
+    assert payload["incident_evidence"] == {
+        "checked": True,
+        "path": str(incident_evidence_path),
+        "schema_version": "1.0.0",
+        "policy_owner": "incident_evidence_export_policy",
+        "policy_surface_complete": True,
+        "stage_count": 3,
+    }
+    assert payload["gate"]["violation_context"]["incident_evidence_policy_surface_complete"] is True
+    assert payload["gate"]["violation_context"]["incident_evidence_stage_count"] == 3
+
+
+def test_main_fails_when_incident_evidence_policy_surface_is_incomplete(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    incident_evidence_path = tmp_path / "incident-evidence.json"
+    artifact_path = tmp_path / "behavior-report.json"
+    incident_evidence_path.write_text(
+        MODULE.json.dumps(
+            {
+                "kind": "runtime_incident_evidence",
+                "schema_version": "1.0.0",
+                "policy_owner": "incident_evidence_export_policy",
+                "stage_timings_ms": {
+                    "total": 9,
+                },
+                "policy_surface_coverage": {
+                    "complete": False,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        MODULE,
+        "_parse_args",
+        lambda: Namespace(
+            python_exe="python",
+            artifact_path=str(artifact_path),
+            artifact_input_path=None,
+            incident_evidence_input_path=str(incident_evidence_path),
+            print_artifact_json=False,
+            gate_mode="ci",
+            ci_require_tests=False,
+        ),
+    )
+    monkeypatch.setattr(MODULE, "_run_behavior_pytest", lambda **_: (0, ["python", "-m", "pytest"]))
+    monkeypatch.setattr(MODULE, "_parse_junit_results", lambda **_: [])
+
+    exit_code = MODULE.main()
+
+    payload = MODULE.json.loads(artifact_path.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert payload["gate"]["status"] == "fail"
+    assert payload["gate"]["violations"] == [MODULE.GATE_REASON_INCIDENT_EVIDENCE_POLICY_SURFACE_INCOMPLETE]
+    assert payload["incident_evidence"]["policy_surface_complete"] is False
