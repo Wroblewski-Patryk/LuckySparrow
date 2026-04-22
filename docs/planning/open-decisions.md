@@ -226,6 +226,11 @@ The current repo already works as an MVP slice, but several architecture-level d
   - `/health.scheduler.external_owner_policy`, startup logs, and release smoke
     now expose the same target-vs-fallback posture for maintenance and
     proactive cadence ownership
+- `PRJ-500` is now complete:
+  - the next live read-capable connector expansion path is explicitly selected
+    as `task_system:list_tasks` for ClickUp
+  - calendar and cloud-drive reads remain policy-only until their read-scope
+    and safe-output boundaries are narrowed further
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

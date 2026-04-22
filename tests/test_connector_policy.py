@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from app.agents.planning import PlanningAgent
+from app.core.connector_read_policy import connector_read_baseline_snapshot
 from app.core.connector_policy import (
     build_connector_permission_gate,
     connector_guardrail_snapshot,
@@ -78,6 +79,21 @@ def test_build_connector_permission_gate_uses_shared_policy_outputs() -> None:
     assert gate.allowed is True
     assert gate.requires_confirmation is False
     assert gate.reason == "suggestion_or_read_only_allowed"
+
+
+def test_connector_read_baseline_selects_clickup_task_list_as_next_live_read_path() -> None:
+    snapshot = connector_read_baseline_snapshot()
+
+    assert snapshot["policy_owner"] == "connector_read_execution_baseline"
+    selected = snapshot["selected_live_read_path"]
+    assert selected["connector_kind"] == "task_system"
+    assert selected["provider"] == "clickup"
+    assert selected["operation"] == "list_tasks"
+    assert selected["execution_mode"] == "provider_backed_next"
+    assert (
+        snapshot["deferred_families"]["calendar"]
+        == "policy_only_until_read_posture_and_time-boundary_contracts_are_explicit"
+    )
 
 
 def test_connector_guardrail_snapshot_distinguishes_blocked_vs_allowed_posture() -> None:

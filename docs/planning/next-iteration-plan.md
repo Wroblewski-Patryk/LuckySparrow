@@ -580,6 +580,13 @@ Completed on 2026-04-22:
   - Validation:
     - connector policy and architecture cross-review
 
+Completed on 2026-04-22:
+
+- `PRJ-500` is complete: the selected next live read-capable expansion path is
+  `task_system:list_tasks` for `provider_hint=clickup`, while `calendar` and
+  `cloud_drive` remain policy-only until their narrower read boundaries are
+  designed explicitly.
+
 - `PRJ-501` Implement the selected read-capable connector adapter behind existing permission gates.
   - Result:
     - at least one connector read path becomes genuinely provider-backed while

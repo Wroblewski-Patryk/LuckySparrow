@@ -1995,8 +1995,13 @@ Last updated: 2026-04-22
   external cadence-owner baseline with canonical maintenance/proactive
   entrypoints and explicit in-process fallback posture.
 - 2026-04-22: Group 71 (`PRJ-496..PRJ-499`) is now complete.
-- 2026-04-22: `PRJ-500` is now the next `READY` task, focused on choosing the
-  first live read-capable connector baseline beyond ClickUp task creation.
+- 2026-04-22: `PRJ-500` is complete: the next live read-capable connector
+  expansion path is now explicitly selected as `task_system:list_tasks` for
+  ClickUp, while calendar and cloud-drive remain policy-only until narrower
+  read-boundary contracts are designed.
+- 2026-04-22: `PRJ-501` is now the next `READY` task, focused on implementing
+  that selected read-capable connector adapter behind existing permission
+  gates.
 
 ## Working Agreements
 

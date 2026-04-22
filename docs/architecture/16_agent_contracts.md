@@ -459,6 +459,10 @@ Rules:
    - `task_system:create_task` with `provider_hint=clickup` is the first live
      provider-backed action path when both `CLICKUP_API_TOKEN` and
      `CLICKUP_LIST_ID` are configured
+   - the next selected live read-capable expansion path is
+     `task_system:list_tasks` with `provider_hint=clickup`, so the repo can
+     widen provider-backed connector coverage without reopening calendar or
+     cloud-drive read scope first
    - `calendar` and `cloud_drive` remain permission-gated planning surfaces
      without provider adapters
    - other `task_system` operations remain policy-only until pre-action read

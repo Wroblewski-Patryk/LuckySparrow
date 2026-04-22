@@ -54,20 +54,19 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-500 Decide the first live read-capable connector baseline beyond ClickUp task creation
-  - Owner: Planner
+- [ ] PRJ-501 Implement the selected read-capable connector adapter behind existing permission gates
+  - Owner: Backend Builder
   - Group: Connector Read Posture And Provider Expansion Baseline
-  - Depends on: PRJ-499
+  - Depends on: PRJ-500
   - Priority: P1
   - Why now:
-    - cadence ownership docs and runtime evidence are aligned, so the next
-      narrow execution expansion can move to connector reads without reopening
-      scheduler topology
+    - the selected baseline is explicit, so the repo can add one provider-backed
+      read path without reopening broader connector policy questions
   - Done when:
-    - the repo records which read-oriented connector capability becomes the next
-      live provider-backed baseline and which families remain policy-only
+    - at least one connector read path is genuinely provider-backed while
+      preserving existing planning and action boundaries
   - Validation:
-    - connector policy and architecture cross-review
+    - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -99,6 +98,21 @@ Last updated: 2026-04-22
       posture and provider expansion baseline
   - Validation:
     - doc-and-context sync across planning, ops, implementation, and context
+
+- [x] PRJ-500 Decide the first live read-capable connector baseline beyond ClickUp task creation
+  - Owner: Planner
+  - Group: Connector Read Posture And Provider Expansion Baseline
+  - Depends on: PRJ-499
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - the repo now records `task_system:list_tasks` with `provider_hint=clickup`
+      as the next live read-capable expansion path behind the existing task
+      connector family
+    - calendar and cloud-drive reads remain policy-only until their narrower
+      read-scope boundaries are designed explicitly
+  - Validation:
+    - connector policy and architecture cross-review
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder
