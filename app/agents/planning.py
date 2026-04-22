@@ -19,6 +19,7 @@ from app.core.contracts import (
     RoleOutput,
     SubconsciousProposalRecord,
     UpdateProactiveStateDomainIntent,
+    UpdateProactivePreferenceDomainIntent,
     UpdateCollaborationPreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
     UpdateTaskStatusDomainIntent,
@@ -33,7 +34,11 @@ from app.core.connector_policy import (
 from app.proactive.engine import ProactiveDecisionEngine, ProactiveDeliveryGuard
 from app.utils.goal_task_signals import detect_goal_signal, detect_task_signal, detect_task_status_signal
 from app.utils.language import normalize_for_matching
-from app.utils.preferences import detect_collaboration_preference, detect_response_style_preference
+from app.utils.preferences import (
+    detect_collaboration_preference,
+    detect_proactive_preference,
+    detect_response_style_preference,
+)
 from app.utils.goal_task_selection import (
     priority_rank as shared_priority_rank,
     select_relevant_goal as shared_select_relevant_goal,
@@ -550,6 +555,15 @@ class PlanningAgent:
                 UpdateCollaborationPreferenceDomainIntent(
                     preference=collaboration_preference.preference,
                     source=collaboration_preference.source,
+                )
+            )
+
+        proactive_preference = detect_proactive_preference(event_text)
+        if proactive_preference is not None:
+            intents.append(
+                UpdateProactivePreferenceDomainIntent(
+                    opt_in=proactive_preference.opt_in,
+                    source=proactive_preference.source,
                 )
             )
 

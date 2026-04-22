@@ -1427,6 +1427,12 @@ class MemoryRepository:
                 set_preference("preferred_role", row.content, row)
             elif row.kind == "collaboration_preference":
                 set_preference("collaboration_preference", row.content, row)
+            elif row.kind == "proactive_opt_in":
+                set_preference(
+                    "proactive_opt_in",
+                    str(row.content or "").strip().lower() in self.PROACTIVE_OPT_IN_TRUTHY,
+                    row,
+                )
             elif row.kind == "affective_support_pattern":
                 set_preference("affective_support_pattern", row.content, row)
             elif row.kind == "affective_support_sensitivity":

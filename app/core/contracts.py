@@ -293,6 +293,12 @@ class UpdateCollaborationPreferenceDomainIntent(BaseModel):
     source: str = "explicit_request"
 
 
+class UpdateProactivePreferenceDomainIntent(BaseModel):
+    intent_type: Literal["update_proactive_preference"] = "update_proactive_preference"
+    opt_in: bool
+    source: str = "explicit_request"
+
+
 class CalendarSchedulingIntentDomainIntent(BaseModel):
     intent_type: Literal["calendar_scheduling_intent"] = "calendar_scheduling_intent"
     operation: Literal["read_availability", "suggest_slots", "create_event", "update_event", "cancel_event"]
@@ -372,6 +378,7 @@ DomainActionIntent = Annotated[
     | MaintainTaskStatusDomainIntent
     | UpdateResponseStyleDomainIntent
     | UpdateCollaborationPreferenceDomainIntent
+    | UpdateProactivePreferenceDomainIntent
     | CalendarSchedulingIntentDomainIntent
     | ExternalTaskSyncDomainIntent
     | ConnectedDriveAccessDomainIntent

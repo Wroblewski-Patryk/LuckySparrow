@@ -81,6 +81,10 @@ def detect_task_signal(text: str) -> TaskSignal | None:
     if not normalized:
         return None
 
+    planning_task = _planning_task_signal(normalized)
+    if planning_task is not None:
+        return planning_task
+
     prefix_patterns = (
         "i need to ",
         "next task is ",
@@ -90,6 +94,13 @@ def detect_task_signal(text: str) -> TaskSignal | None:
         "musze zrobic ",
         "mam zrobic ",
         "zadanie: ",
+        "remind me to ",
+        "remind me about ",
+        "please remind me to ",
+        "please remind me about ",
+        "przypomnij mi zeby ",
+        "przypomnij mi aby ",
+        "przypomnij mi o ",
     )
     raw = _extract_prefixed_signal_text(text=text, normalized=normalized, patterns=prefix_patterns)
     if not raw:
@@ -123,6 +134,52 @@ def detect_task_signal(text: str) -> TaskSignal | None:
                 priority=_task_priority(normalized),
                 status="blocked" if _looks_blocked(normalized) else "todo",
             )
+    return None
+
+
+def _planning_task_signal(normalized: str) -> TaskSignal | None:
+    if "plan my day" in normalized or "help me plan today" in normalized:
+        return TaskSignal(
+            name="plan today",
+            description="User-requested daily planning support for today.",
+            priority="medium",
+            status="todo",
+        )
+    if "help me plan tomorrow" in normalized or "plan tomorrow" in normalized:
+        return TaskSignal(
+            name="plan tomorrow",
+            description="User-requested daily planning support for tomorrow.",
+            priority="medium",
+            status="todo",
+        )
+    if "weekly planning" in normalized or "help me plan this week" in normalized:
+        return TaskSignal(
+            name="weekly planning review",
+            description="User-requested planning support for this week.",
+            priority="medium",
+            status="todo",
+        )
+    if "zaplanuj moj dzien" in normalized or "pomoz mi zaplanowac dzis" in normalized:
+        return TaskSignal(
+            name="plan today",
+            description="User-requested daily planning support for today.",
+            priority="medium",
+            status="todo",
+        )
+    if "pomoz mi zaplanowac jutro" in normalized or "zaplanuj jutro" in normalized:
+        return TaskSignal(
+            name="plan tomorrow",
+            description="User-requested daily planning support for tomorrow.",
+            priority="medium",
+            status="todo",
+        )
+    if "plan tygodnia" in normalized or "pomoz mi zaplanowac ten tydzien" in normalized:
+        return TaskSignal(
+            name="weekly planning review",
+            description="User-requested planning support for this week.",
+            priority="medium",
+            status="todo",
+        )
     return None
 
 

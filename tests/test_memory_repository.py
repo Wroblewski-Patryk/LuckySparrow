@@ -1687,6 +1687,35 @@ async def test_memory_repository_exposes_goal_progress_score_in_runtime_preferen
     await engine.dispose()
 
 
+async def test_memory_repository_exposes_proactive_opt_in_in_runtime_preferences(tmp_path) -> None:
+    database_path = tmp_path / "memory-proactive-opt-in.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    async with session_factory() as session:
+        session.add(
+            AionConclusion(
+                user_id="u-1",
+                kind="proactive_opt_in",
+                content="true",
+                confidence=0.95,
+                source="explicit_request",
+                supporting_event_id="evt-proactive-opt-in",
+            )
+        )
+        await session.commit()
+
+    preferences = await repository.get_user_runtime_preferences(user_id="u-1")
+
+    assert preferences["proactive_opt_in"] is True
+    assert preferences["proactive_opt_in_confidence"] == 0.95
+    assert preferences["proactive_opt_in_source"] == "explicit_request"
+
+    await engine.dispose()
+
+
 async def test_memory_repository_exposes_goal_progress_trend_in_runtime_preferences(tmp_path) -> None:
     database_path = tmp_path / "memory-goal-progress-trend.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")

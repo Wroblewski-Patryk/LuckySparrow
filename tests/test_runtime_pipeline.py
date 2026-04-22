@@ -195,6 +195,12 @@ class FakeMemoryRepository:
 
     async def upsert_conclusion(self, **kwargs) -> dict:
         self.conclusion_updates.append(kwargs)
+        kind = str(kwargs.get("kind", "")).strip().lower()
+        if kind == "proactive_opt_in":
+            value = str(kwargs.get("content", "")).strip().lower() in {"1", "true", "yes", "on"}
+            self.user_preferences["proactive_opt_in"] = value
+            self.user_preferences["proactive_opt_in_confidence"] = kwargs.get("confidence")
+            self.user_preferences["proactive_opt_in_source"] = kwargs.get("source")
         return kwargs
 
     async def upsert_relation(self, **kwargs) -> dict:
@@ -5108,6 +5114,35 @@ async def test_behavior_harness_outputs_structured_contract_results() -> None:
     assert jsonable[0]["status"] == "pass"
     assert jsonable[1]["status"] == "skip"
     assert jsonable[1]["reason"] == "feature_not_implemented"
+
+
+async def test_runtime_pipeline_captures_reminder_preference_and_daily_planning_tasks() -> None:
+    memory = PersistingFakeMemoryRepository(recent_memory=[])
+    runtime = _build_behavior_runtime(memory)
+
+    reminder_result = await runtime.run(
+        _behavior_event(
+            event_id="evt-v1-reminder-1",
+            trace_id="t-v1-reminder-1",
+            text="Remind me to send the release summary tomorrow.",
+        )
+    )
+    planning_result = await runtime.run(
+        _behavior_event(
+            event_id="evt-v1-plan-1",
+            trace_id="t-v1-plan-1",
+            text="Help me plan tomorrow.",
+        )
+    )
+
+    active_task_names = {str(task.get("name", "")) for task in memory.active_tasks}
+
+    assert reminder_result.memory_record is not None
+    assert planning_result.memory_record is not None
+    assert reminder_result.memory_record.payload["proactive_preference_update"] == "proactive_opt_in:true"
+    assert memory.user_preferences["proactive_opt_in"] is True
+    assert "send the release summary tomorrow" in active_task_names
+    assert "plan tomorrow" in active_task_names
 
 
 async def test_runtime_behavior_memory_scenarios_cover_write_retrieve_influence_and_delayed_recall() -> None:

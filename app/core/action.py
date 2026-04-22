@@ -21,6 +21,7 @@ from app.core.contracts import (
     MaintainRelationDomainIntent,
     UpdateProactiveStateDomainIntent,
     UpdateCollaborationPreferenceDomainIntent,
+    UpdateProactivePreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
     UpdateTaskStatusDomainIntent,
     UpsertGoalDomainIntent,
@@ -160,6 +161,7 @@ class ActionExecutor:
         connector_expansion_update = str(intent_updates["connector_expansion_update"])
         relation_update = str(intent_updates["relation_update"])
         proactive_state_update = str(intent_updates["proactive_state_update"])
+        proactive_preference_update = str(intent_updates["proactive_preference_update"])
         calendar_connector_guardrail = str(intent_updates["calendar_connector_guardrail"])
         task_connector_guardrail = str(intent_updates["task_connector_guardrail"])
         drive_connector_guardrail = str(intent_updates["drive_connector_guardrail"])
@@ -190,6 +192,7 @@ class ActionExecutor:
             "connector_expansion_update": connector_expansion_update,
             "relation_update": relation_update,
             "proactive_state_update": proactive_state_update,
+            "proactive_preference_update": proactive_preference_update,
             "calendar_connector_guardrail": calendar_connector_guardrail,
             "task_connector_guardrail": task_connector_guardrail,
             "drive_connector_guardrail": drive_connector_guardrail,
@@ -450,6 +453,7 @@ class ActionExecutor:
         connector_expansion_update = ""
         relation_update = ""
         proactive_state_update = ""
+        proactive_preference_update = ""
         calendar_connector_guardrail = ""
         task_connector_guardrail = ""
         drive_connector_guardrail = ""
@@ -470,6 +474,19 @@ class ActionExecutor:
 
             if isinstance(intent, UpdateCollaborationPreferenceDomainIntent):
                 collaboration_update = intent.preference
+                continue
+
+            if isinstance(intent, UpdateProactivePreferenceDomainIntent):
+                proactive_preference_update = f"proactive_opt_in:{str(intent.opt_in).lower()}"
+                if hasattr(self.memory_repository, "upsert_conclusion"):
+                    await self.memory_repository.upsert_conclusion(
+                        user_id=event.meta.user_id,
+                        kind="proactive_opt_in",
+                        content="true" if intent.opt_in else "false",
+                        confidence=0.95,
+                        source=intent.source,
+                        supporting_event_id=event.event_id,
+                    )
                 continue
 
             if isinstance(intent, UpsertGoalDomainIntent):
@@ -663,6 +680,7 @@ class ActionExecutor:
             "connector_expansion_update": connector_expansion_update,
             "relation_update": relation_update,
             "proactive_state_update": proactive_state_update,
+            "proactive_preference_update": proactive_preference_update,
             "calendar_connector_guardrail": calendar_connector_guardrail,
             "task_connector_guardrail": task_connector_guardrail,
             "drive_connector_guardrail": drive_connector_guardrail,

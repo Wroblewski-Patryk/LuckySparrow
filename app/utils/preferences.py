@@ -18,6 +18,13 @@ class CollaborationPreference:
     source: str
 
 
+@dataclass(frozen=True)
+class ProactivePreference:
+    opt_in: bool
+    confidence: float
+    source: str
+
+
 def detect_response_style_preference(text: str) -> ResponseStylePreference | None:
     normalized = normalize_for_matching(text)
     if not normalized:
@@ -98,6 +105,48 @@ def detect_collaboration_preference(text: str) -> CollaborationPreference | None
 
     if any(signal in normalized for signal in hands_on_signals):
         return CollaborationPreference(preference="hands_on", confidence=0.93, source="explicit_request")
+
+    return None
+
+
+def detect_proactive_preference(text: str) -> ProactivePreference | None:
+    normalized = normalize_for_matching(text)
+    if not normalized:
+        return None
+
+    opt_out_signals = {
+        "do not remind me",
+        "dont remind me",
+        "don't remind me",
+        "stop reminding me",
+        "no reminders",
+        "dont check in on me",
+        "don't check in on me",
+        "nie przypominaj mi",
+        "bez przypomnien",
+        "nie sprawdzaj postepow",
+    }
+    opt_in_signals = {
+        "send me reminders",
+        "feel free to remind me",
+        "feel free to check in on me",
+        "check in on me",
+        "ping me about",
+        "remind me to",
+        "remind me about",
+        "przypomnij mi zeby",
+        "przypomnij mi aby",
+        "przypomnij mi o",
+        "przypominaj mi",
+        "sprawdzaj postepy ze mna",
+        "sprawdzaj ze mna postepy",
+    }
+
+    if any(signal in normalized for signal in opt_out_signals):
+        return ProactivePreference(opt_in=False, confidence=0.95, source="explicit_request")
+
+    if any(signal in normalized for signal in opt_in_signals):
+        return ProactivePreference(opt_in=True, confidence=0.95, source="explicit_request")
 
     return None
 

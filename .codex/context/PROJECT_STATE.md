@@ -76,6 +76,14 @@ Last updated: 2026-04-22
   wire the missing bounded execution pieces for reminder opt-in/capture and
   daily-support phrasing through the existing planning, action, task, and
   proactive boundaries.
+- 2026-04-22: `PRJ-545` is complete: explicit reminder and check-in phrasing now
+  persists `proactive_opt_in` through typed planning intents, action-owned
+  conclusion writes, and runtime preferences, while reminder and daily-planning
+  phrases create bounded task anchors (`send the release summary tomorrow`,
+  `plan tomorrow`) without introducing a separate reminder subsystem.
+- 2026-04-22: `PRJ-546` is now the first `READY` task; the next slice should
+  prove the frozen `v1` workflow set with behavior-level scenarios for reminder
+  capture, continuity, and follow-up posture across turns.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence

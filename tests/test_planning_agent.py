@@ -15,6 +15,7 @@ from app.core.contracts import (
     PromoteInferredTaskDomainIntent,
     RoleOutput,
     UpdateCollaborationPreferenceDomainIntent,
+    UpdateProactivePreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
     UpdateTaskStatusDomainIntent,
     UpsertGoalDomainIntent,
@@ -473,6 +474,43 @@ def test_planning_agent_emits_preference_domain_intents_from_explicit_request() 
 
     assert any(isinstance(intent, UpdateResponseStyleDomainIntent) for intent in result.domain_intents)
     assert any(isinstance(intent, UpdateCollaborationPreferenceDomainIntent) for intent in result.domain_intents)
+
+
+def test_planning_agent_emits_reminder_task_and_proactive_preference_from_explicit_request() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Remind me to send the release summary tomorrow."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.74,
+            urgency=0.34,
+            valence=0.0,
+            arousal=0.39,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.7),
+    )
+
+    assert any(isinstance(intent, UpsertTaskDomainIntent) for intent in result.domain_intents)
+    assert any(isinstance(intent, UpdateProactivePreferenceDomainIntent) for intent in result.domain_intents)
+
+
+def test_planning_agent_emits_daily_planning_task_from_explicit_request() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Help me plan tomorrow."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.72,
+            urgency=0.27,
+            valence=0.0,
+            arousal=0.33,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.7),
+    )
+
+    task_intent = next(intent for intent in result.domain_intents if isinstance(intent, UpsertTaskDomainIntent))
+    assert task_intent.name == "plan tomorrow"
+    assert task_intent.priority == "medium"
 
 
 def test_planning_agent_emits_noop_domain_intent_when_no_domain_change_detected() -> None:

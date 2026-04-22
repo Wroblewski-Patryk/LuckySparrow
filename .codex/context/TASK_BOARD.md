@@ -170,7 +170,7 @@ Last updated: 2026-04-22
     - doc-and-context sync across architecture, implementation, ops, testing,
       planning, and context
 
-- [ ] PRJ-544 Freeze the canonical `v1` life-assistant workflow set
+- [x] PRJ-544 Freeze the canonical `v1` life-assistant workflow set
   - Owner: Planner
   - Group: Life Assistant Workflow Activation
   - Depends on: PRJ-543
@@ -187,19 +187,19 @@ Last updated: 2026-04-22
     - cross-review across `09_mvp_scope`, `10_future_vision`,
       `16_agent_contracts`, and runtime reality
 
-- [ ] PRJ-545 Implement missing bounded workflow execution for reminders and daily support
+- [x] PRJ-545 Implement missing bounded workflow execution for reminders and daily support
   - Owner: Backend Builder
   - Group: Life Assistant Workflow Activation
   - Depends on: PRJ-544
   - Priority: P1
-  - Status: READY
+  - Status: DONE
 
 - [ ] PRJ-548 Freeze the learned-state model for `v1`
   - Owner: Planner
   - Group: Learned-State And Skill Introspection
-  - Depends on: PRJ-547
+  - Depends on: PRJ-545
   - Priority: P1
-  - Status: BACKLOG
+  - Status: READY
 
 - [ ] PRJ-552 Define the architecture baseline for web search and browser tool families
   - Owner: Planner

@@ -25,6 +25,7 @@ from app.core.contracts import (
     PromoteInferredTaskDomainIntent,
     ProactiveDeliveryGuardOutput,
     RoleOutput,
+    UpdateProactivePreferenceDomainIntent,
     UpdateProactiveStateDomainIntent,
     UpdateCollaborationPreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
@@ -1388,4 +1389,40 @@ async def test_persist_episode_updates_proactive_state_from_typed_domain_intent(
             "source": "proactive_planning",
             "supporting_event_id": "evt-1",
         },
+    ]
+
+
+async def test_persist_episode_updates_proactive_preference_from_typed_domain_intent() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+
+    plan = _plan(
+        domain_intents=[
+            UpdateProactivePreferenceDomainIntent(
+                opt_in=True,
+                source="explicit_request",
+            )
+        ]
+    )
+    record = await executor.persist_episode(
+        event=_event("Remind me to send the release summary tomorrow."),
+        perception=_perception(["general", "planning"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role("advisor"),
+        plan=plan,
+        action_result=await executor.execute(plan, _delivery()),
+        expression=_expression(),
+    )
+
+    assert record.payload["proactive_preference_update"] == "proactive_opt_in:true"
+    assert memory_repository.conclusion_updates == [
+        {
+            "user_id": "u-1",
+            "kind": "proactive_opt_in",
+            "content": "true",
+            "confidence": 0.95,
+            "source": "explicit_request",
+            "supporting_event_id": "evt-1",
+        }
     ]
