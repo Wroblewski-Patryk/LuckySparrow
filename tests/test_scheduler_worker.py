@@ -278,6 +278,102 @@ async def test_scheduler_worker_maintenance_tick_skips_when_execution_mode_is_ex
     assert repository.stats_calls == []
 
 
+async def test_scheduler_worker_external_maintenance_tick_runs_when_execution_mode_is_externalized() -> None:
+    reflection_worker = FakeReflectionWorker(running=False)
+    repository = FakeMemoryRepository(
+        stats={
+            "total": 5,
+            "pending": 2,
+            "processing": 0,
+            "completed": 2,
+            "failed": 1,
+            "retryable_failed": 1,
+            "exhausted_failed": 0,
+            "stuck_processing": 0,
+        }
+    )
+    scheduler = SchedulerWorker(
+        memory_repository=repository,  # type: ignore[arg-type]
+        reflection_worker=reflection_worker,  # type: ignore[arg-type]
+        enabled=True,
+        reflection_runtime_mode="deferred",
+        reflection_interval_seconds=900,
+        maintenance_interval_seconds=3600,
+        execution_mode="externalized",
+        proactive_enabled=True,
+    )
+
+    summary = await scheduler.run_external_maintenance_tick_once(reason="external_maintenance")
+
+    assert summary == {
+        "executed": True,
+        "reason": "external_scheduler_owner",
+        "trigger": "external_maintenance",
+        "pending": 2,
+        "processing": 0,
+        "retryable_failed": 1,
+        "exhausted_failed": 0,
+        "stuck_processing": 0,
+    }
+    assert repository.stats_calls == [
+        {
+            "max_attempts": 3,
+            "stuck_after_seconds": 180,
+            "retry_backoff_seconds": (5, 30, 120),
+        }
+    ]
+
+
+async def test_scheduler_worker_external_proactive_tick_runs_when_execution_mode_is_externalized() -> None:
+    reflection_worker = FakeReflectionWorker(running=False)
+    repository = FakeMemoryRepository()
+    repository.proactive_candidates = [
+        {
+            "user_id": "123456",
+            "chat_id": 123456,
+            "trigger": "task_blocked",
+            "text": "follow up on blocked task deploy",
+            "recent_outbound_count": 0,
+            "unanswered_proactive_count": 0,
+            "recent_user_activity": "active",
+        }
+    ]
+    runtime = FakeRuntime()
+    scheduler = SchedulerWorker(
+        memory_repository=repository,  # type: ignore[arg-type]
+        reflection_worker=reflection_worker,  # type: ignore[arg-type]
+        enabled=True,
+        reflection_runtime_mode="deferred",
+        reflection_interval_seconds=900,
+        maintenance_interval_seconds=3600,
+        execution_mode="externalized",
+        proactive_enabled=True,
+        proactive_interval_seconds=1800,
+    )
+    scheduler.set_runtime(runtime)
+
+    summary = await scheduler.run_external_proactive_tick_once(reason="external_proactive")
+
+    assert summary == {
+        "executed": True,
+        "reason": "external_scheduler_owner",
+        "trigger": "external_proactive",
+        "candidates_considered": 1,
+        "events_emitted": 1,
+        "messages_delivered": 1,
+        "delivery_blocked": 0,
+        "failures": 0,
+    }
+    assert runtime.calls == [
+        {
+            "user_id": "123456",
+            "subsource": "proactive_tick",
+            "chat_id": 123456,
+            "trigger": "task_blocked",
+        }
+    ]
+
+
 async def test_scheduler_worker_snapshot_exposes_owner_aware_execution_posture() -> None:
     reflection_worker = FakeReflectionWorker(running=True)
     repository = FakeMemoryRepository()

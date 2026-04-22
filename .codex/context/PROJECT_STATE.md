@@ -1977,8 +1977,15 @@ Last updated: 2026-04-22
   production external-scheduler policy owner in
   `app/core/external_scheduler_policy.py`, with `externalized` as the target
   cadence owner posture and app-local scheduler as fallback only.
-- 2026-04-22: `PRJ-497` is now the next `READY` task, focused on canonical
-  external maintenance/proactive cadence entrypoints and ownership checks.
+- 2026-04-22: `PRJ-497` is complete: the repo now provides canonical
+  maintenance/proactive external cadence entrypoints
+  (`scripts/run_maintenance_tick_once.*`, `scripts/run_proactive_tick_once.*`)
+  and `SchedulerWorker` exposes explicit external-owner execution methods.
+- 2026-04-22: `PRJ-497` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
+  passed with `170 passed`.
+- 2026-04-22: `PRJ-498` is now the next `READY` task, focused on `/health` and
+  release evidence for external scheduler ownership posture.
 
 ## Working Agreements
 

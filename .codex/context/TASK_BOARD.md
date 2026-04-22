@@ -54,20 +54,34 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
+- [ ] PRJ-498 Add release and health evidence for external scheduler ownership posture
+  - Owner: Ops/Release
+  - Group: External Scheduler Ownership Rollout
+  - Depends on: PRJ-497
+  - Priority: P1
+  - Why now:
+    - once the entrypoints exist, operators need `/health` and smoke evidence
+      that can distinguish external-owner alignment from app-local fallback
+  - Done when:
+    - `/health.scheduler` exposes the external cadence policy owner and target
+      entrypoints
+    - release evidence can distinguish externalized baseline alignment from
+      in-process transitional fallback
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py`
+
+- [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder
   - Group: External Scheduler Ownership Rollout
   - Depends on: PRJ-496
   - Priority: P1
-  - Why now:
-    - the production cadence owner is now defined, so the repo needs concrete
-      external-owner entrypoints instead of treating `externalized` as config
-      vocabulary only
-  - Done when:
-    - the repo provides canonical maintenance/proactive run-once entrypoints
-      for external scheduler ownership
-    - scheduler/runtime checks can distinguish external-owner execution from
-      app-local cadence fallback
+  - Status: DONE
+  - Result:
+    - the repo now provides canonical external cadence entrypoints for
+      maintenance and proactive ticks, with dedicated `run_once` Python,
+      PowerShell, and shell wrappers
+    - `SchedulerWorker` now exposes explicit external-owner execution methods
+      so `externalized` cadence ownership is no longer only a config label
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 

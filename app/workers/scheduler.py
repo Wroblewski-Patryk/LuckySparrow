@@ -211,6 +211,47 @@ class SchedulerWorker:
         )
         return summary
 
+    async def run_external_maintenance_tick_once(
+        self,
+        *,
+        reason: str = "external_scheduler_tick",
+    ) -> dict[str, Any]:
+        now = self._utcnow()
+        if self.execution_mode != "externalized":
+            summary = {
+                "executed": False,
+                "reason": "external_owner_not_selected",
+                "trigger": reason,
+                "pending": 0,
+                "processing": 0,
+                "retryable_failed": 0,
+                "exhausted_failed": 0,
+                "stuck_processing": 0,
+            }
+            self._last_maintenance_tick_at = now
+            self._last_maintenance_summary = summary
+            return summary
+
+        reflection_snapshot = self.reflection_worker.snapshot()
+        reflection_stats = await self.memory_repository.get_reflection_task_stats(
+            max_attempts=int(reflection_snapshot["max_attempts"]),
+            stuck_after_seconds=int(reflection_snapshot["stuck_processing_seconds"]),
+            retry_backoff_seconds=tuple(int(value) for value in reflection_snapshot["retry_backoff_seconds"]),  # type: ignore[arg-type]
+        )
+        summary = {
+            "executed": True,
+            "reason": "external_scheduler_owner",
+            "trigger": reason,
+            "pending": int(reflection_stats["pending"]),
+            "processing": int(reflection_stats["processing"]),
+            "retryable_failed": int(reflection_stats["retryable_failed"]),
+            "exhausted_failed": int(reflection_stats["exhausted_failed"]),
+            "stuck_processing": int(reflection_stats["stuck_processing"]),
+        }
+        self._last_maintenance_tick_at = now
+        self._last_maintenance_summary = summary
+        return summary
+
     async def run_proactive_tick_once(self, *, reason: str = "cadence") -> dict[str, Any]:
         now = self._utcnow()
         should_dispatch, dispatch_reason = scheduler_cadence_dispatch_decision(
@@ -341,6 +382,112 @@ class SchedulerWorker:
             summary["delivery_blocked"],
             summary["failures"],
         )
+        return summary
+
+    async def run_external_proactive_tick_once(
+        self,
+        *,
+        reason: str = "external_scheduler_tick",
+    ) -> dict[str, Any]:
+        now = self._utcnow()
+        if self.execution_mode != "externalized":
+            summary = {
+                "executed": False,
+                "reason": "external_owner_not_selected",
+                "trigger": reason,
+                "candidates_considered": 0,
+                "events_emitted": 0,
+                "messages_delivered": 0,
+                "delivery_blocked": 0,
+                "failures": 0,
+            }
+            self._last_proactive_tick_at = now
+            self._last_proactive_summary = summary
+            return summary
+
+        if not self.proactive_enabled:
+            summary = {
+                "executed": False,
+                "reason": "proactive_disabled",
+                "trigger": reason,
+                "candidates_considered": 0,
+                "events_emitted": 0,
+                "messages_delivered": 0,
+                "delivery_blocked": 0,
+                "failures": 0,
+            }
+            self._last_proactive_tick_at = now
+            self._last_proactive_summary = summary
+            return summary
+
+        if self.runtime is None or not hasattr(self.runtime, "run"):
+            summary = {
+                "executed": False,
+                "reason": "runtime_unavailable",
+                "trigger": reason,
+                "candidates_considered": 0,
+                "events_emitted": 0,
+                "messages_delivered": 0,
+                "delivery_blocked": 0,
+                "failures": 0,
+            }
+            self._last_proactive_tick_at = now
+            self._last_proactive_summary = summary
+            return summary
+
+        candidates = []
+        if hasattr(self.memory_repository, "get_proactive_scheduler_candidates"):
+            candidates = await self.memory_repository.get_proactive_scheduler_candidates(
+                proactive_interval_seconds=self.proactive_interval_seconds,
+                limit=5,
+            )
+
+        messages_delivered = 0
+        delivery_blocked = 0
+        failures = 0
+        events_emitted = 0
+        for candidate in candidates:
+            proactive_event = build_scheduler_event(
+                subsource=SCHEDULER_PROACTIVE_TICK,
+                user_id=str(candidate["user_id"]),
+                payload={
+                    "text": str(candidate["text"]),
+                    "chat_id": candidate["chat_id"],
+                    "proactive_trigger": str(candidate["trigger"]),
+                    "user_context": {
+                        "quiet_hours": False,
+                        "focus_mode": False,
+                        "recent_user_activity": str(candidate["recent_user_activity"]),
+                        "recent_outbound_count": int(candidate["recent_outbound_count"]),
+                        "unanswered_proactive_count": int(candidate["unanswered_proactive_count"]),
+                    },
+                },
+            )
+            try:
+                result = await self.runtime.run(proactive_event)
+            except Exception:
+                failures += 1
+                continue
+            events_emitted += 1
+            if result.action_result.status == "success" and "send_telegram_message" in result.action_result.actions:
+                messages_delivered += 1
+            elif result.action_result.status in {"noop", "partial"}:
+                delivery_blocked += 1
+            elif result.action_result.status == "fail":
+                failures += 1
+
+        summary = {
+            "executed": True,
+            "reason": "external_scheduler_owner",
+            "trigger": reason,
+            "candidates_considered": len(candidates),
+            "events_emitted": events_emitted,
+            "messages_delivered": messages_delivered,
+            "delivery_blocked": delivery_blocked,
+            "failures": failures,
+        }
+        self._last_proactive_tick_at = now
+        self._last_proactive_summary = summary
         return summary
 
     def snapshot(self) -> dict[str, Any]:
