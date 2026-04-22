@@ -52,7 +52,7 @@ class GraphStageAdapters:
             recent_memory=recent_memory,
             user_profile=user_profile if isinstance(user_profile, dict) else None,
         )
-        return state.model_copy(update={"perception": perception})
+        return state.model_copy(update={"perception": perception, "affective_input": perception.affective})
 
     async def run_affective_assessment(self, state: GraphRuntimeState) -> GraphRuntimeState:
         self._require(state, "perception")
@@ -65,7 +65,13 @@ class GraphStageAdapters:
             fallback=perception.affective,
         )
         updated_perception = perception.model_copy(update={"affective": affective})
-        return state.model_copy(update={"perception": updated_perception, "affective": affective})
+        return state.model_copy(
+            update={
+                "perception": updated_perception,
+                "affective": affective,
+                "affective_input": state.affective_input or perception.affective,
+            }
+        )
 
     def run_context(self, state: GraphRuntimeState) -> GraphRuntimeState:
         self._require(state, "identity", "perception")

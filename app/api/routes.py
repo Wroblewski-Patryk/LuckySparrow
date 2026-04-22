@@ -18,6 +18,8 @@ from app.core.debug_compat import (
 from app.core.events import looks_like_telegram_update, normalize_event
 from app.core.identity_policy import identity_policy_snapshot
 from app.core.adaptive_governance import adaptive_identity_governance_snapshot
+from app.core.affective_diagnostics import affective_input_policy_snapshot
+from app.core.affective_policy import affective_assessment_policy_snapshot
 from app.core.connector_policy import (
     connector_authorization_matrix_snapshot,
     connector_capability_proposal_snapshot,
@@ -420,6 +422,10 @@ async def health(request: Request) -> dict[str, Any]:
             **identity_policy_snapshot(),
             "language_continuity": language_continuity_policy_snapshot(),
             "adaptive_governance": adaptive_identity_governance_snapshot(),
+        },
+        "affective": {
+            **affective_input_policy_snapshot(),
+            "assessment_policy": affective_assessment_policy_snapshot(settings),
         },
         "memory_retrieval": memory_retrieval_snapshot,
         "planning_governance": planning_governance_snapshot(),

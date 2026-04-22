@@ -745,6 +745,14 @@ def test_health_endpoint_returns_ok() -> None:
         ],
         "multilingual_posture": "mvp_supported_languages_only",
     }
+    assert body["affective"]["policy_owner"] == "perception_affective_input"
+    assert body["affective"]["input_kind"] == "heuristic_turn_signal"
+    assert body["affective"]["input_source_baseline"] == "deterministic_placeholder"
+    assert body["affective"]["final_assessment_owner"] == "affective_assessment_rollout_policy"
+    assert body["affective"]["fallback_resolution_posture"] == "reuse_input_when_assessment_unavailable"
+    assert body["affective"]["assessment_policy"]["affective_assessment_owner"] == (
+        "affective_assessment_rollout_policy"
+    )
     assert body["memory_retrieval"]["semantic_retrieval_mode"] == "hybrid_vector_lexical"
     assert body["memory_retrieval"]["retrieval_depth_policy"] == {
         "episodic_limit": 12,

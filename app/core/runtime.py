@@ -9,6 +9,10 @@ from app.agents.planning import PlanningAgent
 from app.agents.role import RoleAgent
 from app.core.action import ActionExecutor
 from app.core.attention_gate import evaluate_proactive_attention_gate
+from app.core.affective_diagnostics import (
+    affective_input_policy_snapshot,
+    affective_resolution_snapshot,
+)
 from app.core.background_adaptive_outputs import summarize_loaded_adaptive_state
 from app.core.adaptive_governance import adaptive_identity_governance_snapshot
 from app.core.connector_policy import (
@@ -126,6 +130,7 @@ class RuntimeOrchestrator:
         plan,
         expression,
         action_result,
+        affective_resolution: dict | None = None,
     ) -> RuntimeSystemDebugOutput:
         semantic_conclusions = [item for item in user_conclusions if item not in affective_conclusions]
         return RuntimeSystemDebugOutput(
@@ -163,6 +168,8 @@ class RuntimeOrchestrator:
                 **dict(adaptive_state),
                 "retrieval_depth_policy": dict(retrieval_depth_policy),
                 "affective_assessment_policy": dict(self.affective_assessor.snapshot()),
+                "affective_input_policy": affective_input_policy_snapshot(),
+                "affective_resolution": dict(affective_resolution or {}),
             },
         )
 
@@ -825,6 +832,7 @@ class RuntimeOrchestrator:
 
         perception = graph_state.perception
         assert perception is not None
+        affective_input = graph_state.affective_input or perception.affective
         affective = graph_state.affective or perception.affective
         context = graph_state.context
         assert context is not None
@@ -883,6 +891,10 @@ class RuntimeOrchestrator:
             "selected_skills": [skill.model_dump(mode="json") for skill in role.selected_skills],
             "planned_skills": [skill.model_dump(mode="json") for skill in plan.selected_skills],
         }
+        affective_resolution = affective_resolution_snapshot(
+            affective_input=affective_input,
+            affective_final=affective,
+        )
         system_debug = self._build_system_debug_output(
             event=event,
             perception=perception,
@@ -899,6 +911,7 @@ class RuntimeOrchestrator:
             plan=plan,
             expression=expression,
             action_result=action_result,
+            affective_resolution=affective_resolution,
         )
 
         (

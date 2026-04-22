@@ -4727,8 +4727,26 @@ async def test_runtime_pipeline_exposes_system_debug_surface_for_behavior_valida
     assert result.system_debug.adaptive_state["identity_policy"]["profile_owner_fields"] == ["preferred_language"]
     assert result.system_debug.adaptive_state["retrieval_depth_policy"]["episodic_limit"] == RuntimeOrchestrator.MEMORY_LOAD_LIMIT
     assert result.system_debug.adaptive_state["background_adaptive_outputs"]["theta_loaded"] is False
+    assert result.system_debug.adaptive_state["affective_input_policy"] == {
+        "policy_owner": "perception_affective_input",
+        "input_kind": "heuristic_turn_signal",
+        "input_source_baseline": "deterministic_placeholder",
+        "final_assessment_owner": "affective_assessment_rollout_policy",
+        "fallback_resolution_posture": "reuse_input_when_assessment_unavailable",
+    }
     assert result.system_debug.adaptive_state["affective_assessment_policy"]["affective_assessment_owner"] == (
         "affective_assessment_rollout_policy"
+    )
+    assert result.system_debug.adaptive_state["affective_resolution"]["input_source"] == (
+        "deterministic_placeholder"
+    )
+    assert result.system_debug.adaptive_state["affective_resolution"]["final_source"] in {
+        "fallback",
+        "ai_classifier",
+    }
+    assert (
+        result.system_debug.adaptive_state["affective_resolution"]["resolution_owner_chain"]
+        == "perception_affective_input_to_affective_assessment"
     )
 
 
@@ -4783,6 +4801,17 @@ async def test_runtime_pipeline_exposes_disabled_affective_policy_in_system_debu
         "affective_assessment_posture": "fallback_only_policy_disabled",
         "affective_assessment_hint": "policy_disabled_use_deterministic_affective_baseline",
         "affective_assessment_owner": "affective_assessment_rollout_policy",
+    }
+    assert result.system_debug.adaptive_state["affective_resolution"] == {
+        "input_source": "deterministic_placeholder",
+        "input_label": "support_distress",
+        "input_needs_support": True,
+        "final_source": "fallback",
+        "final_label": "support_distress",
+        "final_needs_support": True,
+        "input_reused_as_final": True,
+        "fallback_reason": "policy_disabled",
+        "resolution_owner_chain": "perception_affective_input_to_affective_assessment",
     }
 
 

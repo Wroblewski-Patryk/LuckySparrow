@@ -4,6 +4,7 @@ from typing import Any, Awaitable, Callable, TypeVar
 from langgraph.graph import END, START, StateGraph
 
 from app.core.graph_adapters import GraphStageAdapters
+from app.core.affective_diagnostics import extract_affective_fallback_reason
 from app.core.graph_state import GraphRuntimeState
 from app.core.logging import RuntimeStageLogger
 
@@ -183,13 +184,7 @@ class ForegroundLangGraphRunner:
         return summary
 
     def _affective_fallback_reason(self, affective: Any) -> str:
-        if str(getattr(affective, "source", "")).strip().lower() != "fallback":
-            return ""
-        for evidence in list(getattr(affective, "evidence", []) or []):
-            item = str(evidence).strip()
-            if item.startswith("fallback_reason:"):
-                return item.split(":", 1)[1][:64]
-        return ""
+        return extract_affective_fallback_reason(affective)
 
     def _motivation_node(self, state: dict[str, Any]) -> dict[str, Any]:
         runtime_ctx = self._runtime_ctx(state)

@@ -132,6 +132,7 @@ class GraphRuntimeState(BaseModel):
     proposal_handoffs: list[ProposalHandoffState] = Field(default_factory=list)
     connector_capabilities: list[ExternalConnectorCapabilityState] = Field(default_factory=list)
     connector_permission_gates: list[ExternalConnectorPermissionGateState] = Field(default_factory=list)
+    affective_input: AffectiveAssessmentOutput | None = None
     perception: PerceptionOutput | None = None
     affective: AffectiveAssessmentOutput | None = None
     context: ContextOutput | None = None
