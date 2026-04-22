@@ -62,6 +62,11 @@ The current repo already works as an MVP slice, but several architecture-level d
     execute through the existing planning -> permission-gate -> action path
   - behavior validation now proves the same boundary through `T14.1..T14.3`
     instead of relying only on unit or integration regressions
+- `PRJ-560` now freezes the backend work-partner baseline:
+  - work-partner is a role of the same personality, not a second persona
+  - it may combine bounded metadata-only skills with already approved tools
+  - it remains inside the same role-selection, planning, permission-gate, and
+    action boundary as every other role
 - the next execution queue therefore prioritizes:
   - production conversation reliability
   - life-assistant workflow activation

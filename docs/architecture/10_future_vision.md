@@ -145,6 +145,28 @@ Work-partner remains a role of the same personality.
 It may use bounded skills and authorized tools through the existing action boundary.  
 It is not a separate persona.  
 
+Backend work-partner baseline:
+
+1. `work_partner` is a role-level orchestration posture, not a second runtime
+   or separate identity.
+2. it may combine bounded metadata-only skills such as:
+   - structured reasoning
+   - execution planning
+   - connector boundary review
+   - memory recall when the turn explicitly asks for it
+3. it may use only already approved tool families through the existing
+   planning -> permission-gate -> action boundary:
+   - task-system connectors
+   - bounded web search
+   - bounded browser page-read
+   - bounded calendar/drive reads when those contracts are already active
+4. it must not bypass:
+   - confirmation requirements for external mutations
+   - opt-in requirements for connector families
+   - the metadata-only skill boundary
+5. its scope in `v1` is bounded to work organization and decision support,
+   not autonomous business execution.
+
 ---
 
 ### v3 – Cognitive Engine

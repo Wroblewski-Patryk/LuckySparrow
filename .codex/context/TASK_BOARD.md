@@ -409,7 +409,38 @@ Last updated: 2026-04-22
   - Group: Work-Partner Role And Capability Orchestration
   - Depends on: PRJ-559
   - Priority: P1
+  - Status: DONE
+  - Result:
+    - canonical product and contract docs now freeze `work_partner` as a role
+      of the same personality, not a second persona or separate execution
+      subsystem
+    - the role is now bounded to metadata-only skills plus already approved
+      tool families under the existing planning -> permission-gate -> action
+      boundary
+  - Validation:
+    - architecture cross-review across identity, role, skill, planning, and
+      connector contracts
+
+- [ ] PRJ-561 Implement work-partner capability orchestration and selection evidence
+  - Owner: Backend Builder
+  - Group: Work-Partner Role And Capability Orchestration
+  - Depends on: PRJ-560
+  - Priority: P1
   - Status: READY
+
+- [ ] PRJ-562 Add behavior validation for work-organization and decision-support scenarios
+  - Owner: QA/Test
+  - Group: Work-Partner Role And Capability Orchestration
+  - Depends on: PRJ-561
+  - Priority: P1
+  - Status: BACKLOG
+
+- [ ] PRJ-563 Sync docs/context for work-partner role orchestration
+  - Owner: Product Docs
+  - Group: Work-Partner Role And Capability Orchestration
+  - Depends on: PRJ-562
+  - Priority: P1
+  - Status: BACKLOG
 
 - [ ] PRJ-564 Freeze the `v1` release gate and production acceptance bundle
   - Owner: Planner

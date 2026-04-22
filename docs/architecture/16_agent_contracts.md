@@ -605,6 +605,43 @@ Rules:
 
 ---
 
+## Work-Partner Role Baseline
+
+Work-partner is a role of the same personality, not a second persona or
+separate execution subsystem.
+
+Rules:
+
+1. `work_partner` may be selected only through the same role-selection owner
+   as every other role.
+2. it may combine bounded metadata-only skills for work organization and
+   decision support, especially:
+   - structured reasoning
+   - execution planning
+   - connector boundary review
+   - memory recall when the turn explicitly asks for remembered context
+3. it may use only already approved tool families through the existing
+   planning -> permission-gate -> action boundary:
+   - `task_system`
+   - `knowledge_search`
+   - `web_browser`
+   - bounded `calendar` or `cloud_drive` reads when those contracts are active
+4. it must not bypass:
+   - connector opt-in rules
+   - confirmation requirements for external mutations
+   - the metadata-only skill boundary
+5. its `v1` scope is work organization and decision support, not autonomous
+   execution outside explicit user-facing turns or approved proactive flows.
+
+Machine-visible expectation:
+
+1. backend surfaces should make it clear when `work_partner` was selected
+2. selected skills and planned skills should remain inspectable metadata
+3. authorized tool use should stay visible through typed intents, permission
+   gates, execution envelopes, and action results
+
+---
+
 ## V1 Life-Assistant Workflow Baseline
 
 No-UI `v1` uses the existing goal/task, proactive, scheduler, and action

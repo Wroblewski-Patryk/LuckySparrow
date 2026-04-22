@@ -202,6 +202,13 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.
+- 2026-04-22: `PRJ-560` is complete: canonical product and contract docs now
+  freeze `work_partner` as a role of the same personality, bounded to
+  metadata-only skills plus already approved tools under the existing
+  planning, permission-gate, and action boundary.
+- 2026-04-22: `PRJ-561` is now the first `READY` task; the next slice should
+  make that work-partner baseline machine-visible in role selection, selected
+  skills, planning outputs, and backend inspection surfaces.
 - 2026-04-22: fresh post-`PRJ-515` analysis has now seeded a new queue through
   `PRJ-539`, focused on operator-grade incident-evidence handling, actual
   debug-compat retirement, bounded connector read expansion, external cadence
