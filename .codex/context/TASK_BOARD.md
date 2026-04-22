@@ -54,19 +54,19 @@ Last updated: 2026-04-22
 
 ## READY
 
-- [ ] PRJ-509 Implement machine-visible supervision posture for deferred reflection execution
-  - Owner: Backend Builder
+- [ ] PRJ-510 Add release evidence for deferred reflection supervision and recovery posture
+  - Owner: Ops/Release
   - Group: Reflection Worker Supervision And Durability Closure
-  - Depends on: PRJ-508
+  - Depends on: PRJ-509
   - Priority: P1
   - Why now:
-    - the supervision baseline is now frozen, so health/runtime surfaces can
-      adopt one shared owner for queue pressure and recovery posture
+    - the supervision posture is now visible in runtime health, so smoke and
+      operator evidence can start consuming the same queue-pressure contract
   - Done when:
-    - runtime health exposes supervision posture, backlog pressure, and
-      recovery guidance for deferred reflection execution from the shared owner
+    - release and operator evidence verify the shared deferred-reflection
+      supervision posture, including backlog pressure and recovery guidance
   - Validation:
-    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_api_routes.py`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py tests/test_api_routes.py`
 
 - [x] PRJ-498 Add release and health evidence for external scheduler ownership posture
   - Owner: Ops/Release
@@ -234,6 +234,22 @@ Last updated: 2026-04-22
       supervision semantics in local health logic
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_supervision_policy.py`
+
+- [x] PRJ-509 Implement machine-visible supervision posture for deferred reflection execution
+  - Owner: Backend Builder
+  - Group: Reflection Worker Supervision And Durability Closure
+  - Depends on: PRJ-508
+  - Priority: P1
+  - Status: DONE
+  - Result:
+    - `/health.reflection` now exposes one shared supervision snapshot with
+      queue-health state, blocking signals, and recovery actions from the
+      deferred reflection supervision policy owner
+    - operators can now distinguish recoverable backlog, hard recovery
+      blockers, and aligned deferred supervision posture without manually
+      combining task counters with topology fields
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_api_routes.py`
 
 - [x] PRJ-497 Implement canonical external cadence entrypoints and ownership checks
   - Owner: Backend Builder

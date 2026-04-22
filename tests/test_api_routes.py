@@ -884,6 +884,7 @@ def test_health_endpoint_allows_deferred_reflection_mode_without_running_worker(
     client, _, _ = _client(
         reflection_running=False,
         reflection_runtime_mode="deferred",
+        scheduler_execution_mode="externalized",
     )
 
     response = client.get("/health")
@@ -904,9 +905,28 @@ def test_health_endpoint_allows_deferred_reflection_mode_without_running_worker(
     assert body["reflection"]["external_driver_policy"]["baseline_runtime_mode"] == "deferred"
     assert body["reflection"]["external_driver_policy"]["entrypoint_path"] == "scripts/run_reflection_queue_once.py"
     assert body["reflection"]["external_driver_policy"]["production_baseline_ready"] is True
-    assert body["reflection"]["external_driver_policy"]["production_baseline_state"] in {
-        "external_driver_ready_scheduler_transitional",
-        "external_driver_baseline_aligned",
+    assert body["reflection"]["external_driver_policy"]["production_baseline_state"] == "external_driver_baseline_aligned"
+    assert body["reflection"]["supervision"] == {
+        "policy_owner": "deferred_reflection_supervision_policy",
+        "target_runtime_mode": "deferred",
+        "target_queue_drain_owner": "external_driver",
+        "target_scheduler_execution_mode": "externalized",
+        "retry_owner": "durable_queue",
+        "recovery_entrypoint_path": "scripts/run_reflection_queue_once.py",
+        "selected_runtime_mode": "deferred",
+        "selected_scheduler_execution_mode": "externalized",
+        "app_worker_running": False,
+        "queue_health_state": "active_backlog_under_supervision",
+        "pending_count": 1,
+        "processing_count": 1,
+        "retryable_failed_count": 1,
+        "stuck_processing_count": 0,
+        "exhausted_failed_count": 0,
+        "blocking_signals": [],
+        "recovery_actions": [],
+        "production_supervision_ready": True,
+        "production_supervision_state": "deferred_supervision_active_backlog",
+        "production_supervision_hint": "external_supervision_active_with_recoverable_backlog",
     }
     assert body["reflection"]["topology"]["runtime_enqueue_dispatch"] is False
     assert body["reflection"]["topology"]["scheduler_tick_dispatch"] is True
@@ -1928,6 +1948,12 @@ def test_health_endpoint_marks_reflection_unhealthy_when_queue_is_stuck() -> Non
     assert body["reflection"]["deployment_readiness"]["ready"] is False
     assert "reflection_stuck_processing_detected" in body["reflection"]["deployment_readiness"]["blocking_signals"]
     assert "reflection_exhausted_failures_detected" in body["reflection"]["deployment_readiness"]["blocking_signals"]
+    assert body["reflection"]["supervision"]["queue_health_state"] == "recovery_required"
+    assert body["reflection"]["supervision"]["production_supervision_ready"] is False
+    assert "stuck_processing_present" in body["reflection"]["supervision"]["blocking_signals"]
+    assert "exhausted_failures_present" in body["reflection"]["supervision"]["blocking_signals"]
+    assert "drain_or_requeue_stuck_processing_tasks" in body["reflection"]["supervision"]["recovery_actions"]
+    assert "inspect_and_recover_exhausted_failed_tasks" in body["reflection"]["supervision"]["recovery_actions"]
     assert body["reflection"]["worker"]["running"] is True
     assert body["reflection"]["tasks"]["exhausted_failed"] == 1
     assert body["reflection"]["tasks"]["stuck_processing"] == 1
@@ -1946,6 +1972,9 @@ def test_health_endpoint_marks_deferred_mode_not_ready_when_in_process_worker_is
     assert body["reflection"]["runtime_mode"] == "deferred"
     assert body["reflection"]["deployment_readiness"]["ready"] is False
     assert "deferred_in_process_worker_running" in body["reflection"]["deployment_readiness"]["blocking_signals"]
+    assert body["reflection"]["supervision"]["production_supervision_ready"] is False
+    assert "app_local_worker_still_running" in body["reflection"]["supervision"]["blocking_signals"]
+    assert "external_scheduler_owner_not_selected" in body["reflection"]["supervision"]["blocking_signals"]
 
 
 def test_event_endpoint_returns_public_response_and_normalizes_event() -> None:

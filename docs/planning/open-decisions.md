@@ -259,6 +259,11 @@ The current repo already works as an MVP slice, but several architecture-level d
     target runtime mode, queue-drain owner, durable retry owner, queue-health
     states, and recovery actions before health/export surfaces consume those
     semantics
+- `PRJ-509` is now complete:
+  - `/health.reflection` now exposes that shared supervision snapshot directly,
+    including backlog-pressure state, blocking signals, and recovery actions
+  - deferred reflection supervision is now machine-visible in one surface
+    instead of being reconstructed from task counts plus topology posture
 - Introduce new feature surface only when it advances one of those convergence
   lanes or removes a documented transitional shortcut.
 

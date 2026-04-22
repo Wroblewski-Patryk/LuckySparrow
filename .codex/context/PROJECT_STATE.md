@@ -2033,9 +2033,15 @@ Last updated: 2026-04-22
 - 2026-04-22: `PRJ-508` validation is green:
   `.\.venv\Scripts\python -m pytest -q tests/test_reflection_supervision_policy.py`
   passed.
-- 2026-04-22: `PRJ-509` is now the next `READY` task, focused on exposing the
-  new supervision baseline through machine-visible runtime health and
-  reflection execution posture.
+- 2026-04-22: `PRJ-509` is complete: `/health.reflection` now exposes one
+  shared supervision snapshot with queue-health state, blocking signals, and
+  recovery actions for deferred reflection execution.
+- 2026-04-22: `PRJ-509` validation is green:
+  `.\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_scheduler_worker.py tests/test_api_routes.py`
+  passed.
+- 2026-04-22: `PRJ-510` is now the next `READY` task, focused on extending
+  release evidence and operator flows to consume the new deferred-reflection
+  supervision posture.
 
 ## Working Agreements
 

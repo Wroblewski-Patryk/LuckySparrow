@@ -674,6 +674,10 @@ Completed on 2026-04-22:
   for deferred reflection operations, freezing target runtime mode, external
   queue-drain owner, durable retry owner, queue-health states, and recovery
   actions before those signals are surfaced through runtime health.
+- `PRJ-509` is complete: `/health.reflection` now exposes one shared
+  supervision snapshot with queue-health state, blocking signals, and recovery
+  actions, so deferred reflection backlog pressure no longer requires manual
+  interpretation across task counters and topology fields.
 
 - `PRJ-508` Define the production supervision baseline for deferred reflection workers.
   - Result:

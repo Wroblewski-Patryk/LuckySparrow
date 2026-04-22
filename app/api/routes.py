@@ -23,6 +23,9 @@ from app.core.affective_policy import affective_assessment_policy_snapshot
 from app.core.background_worker_policy import (
     reflection_external_driver_policy_snapshot,
 )
+from app.core.reflection_supervision_policy import (
+    reflection_supervision_policy_snapshot,
+)
 from app.core.connector_policy import (
     connector_authorization_matrix_snapshot,
     connector_capability_proposal_snapshot,
@@ -436,6 +439,14 @@ async def health(request: Request) -> dict[str, Any]:
             scheduler_snapshot.get("execution_mode", scheduler_execution_mode)
         ),
     )
+    reflection_supervision = reflection_supervision_policy_snapshot(
+        reflection_runtime_mode=reflection_runtime_mode,
+        scheduler_execution_mode=str(
+            scheduler_snapshot.get("execution_mode", scheduler_execution_mode)
+        ),
+        worker_running=bool(reflection_snapshot["running"]),
+        task_stats=reflection_stats,
+    )
     topology_policy = runtime_topology_policy_snapshot(
         reflection_runtime_mode=reflection_runtime_mode,
         reflection_readiness=reflection_deployment_readiness,
@@ -481,6 +492,7 @@ async def health(request: Request) -> dict[str, Any]:
             "deployment_readiness": reflection_deployment_readiness,
             "topology": reflection_topology,
             "external_driver_policy": reflection_external_driver_policy,
+            "supervision": reflection_supervision,
             "worker": reflection_snapshot,
             "adaptive_outputs": dict(reflection_snapshot.get("adaptive_output_summary", {})),
             "tasks": reflection_stats,
