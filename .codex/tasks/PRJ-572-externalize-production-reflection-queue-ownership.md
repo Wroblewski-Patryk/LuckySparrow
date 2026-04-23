@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-572
 - Title: Externalize production reflection queue ownership
-- Status: IN_PROGRESS
+- Status: DONE
 - Owner: Ops/Release
 - Depends on: PRJ-571
 - Priority: P0
@@ -26,10 +26,10 @@ worker while Telegram/API foreground turn handling remains healthy.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Coolify production compose defaults `REFLECTION_RUNTIME_MODE` to `deferred`.
-- [ ] production `/health.reflection.external_driver_policy.selected_runtime_mode`
+- [x] Coolify production compose defaults `REFLECTION_RUNTIME_MODE` to `deferred`.
+- [x] production `/health.reflection.external_driver_policy.selected_runtime_mode`
   reports `deferred`.
-- [ ] Telegram/API foreground turn handling remains healthy after deploy.
+- [x] Telegram/API foreground turn handling remains healthy after deploy.
 
 ## Forbidden
 - new systems without approval
@@ -39,9 +39,17 @@ worker while Telegram/API foreground turn handling remains healthy.
 
 ## Validation Evidence
 - Tests:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_coolify_compose.py tests/test_api_routes.py tests/test_main_lifespan_policy.py`
 - Manual checks:
+  - forced Coolify deploy `nlcp1kpmxxhvq094fssz7qfk` finished on commit `13d8972`
+  - `GET https://personality.luckysparrow.ch/health` returned `200`
+  - `/health.reflection.external_driver_policy.selected_runtime_mode` reported `deferred`
+  - `/health.conversation_channels.telegram.round_trip_ready` remained `true`
 - Screenshots/logs:
+  - Coolify app logs recorded `reflection_runtime mode=deferred action=defer_background_worker`
+  - production `/health.reflection.external_driver_policy` reported `production_baseline_ready=true`
 - High-risk checks:
+  - reflection supervision still reports scheduler ownership as transitional; left intentionally for `PRJ-573`
 
 ## Architecture Evidence (required for architecture-impacting tasks)
 - Architecture source reviewed:
@@ -55,13 +63,13 @@ worker while Telegram/API foreground turn handling remains healthy.
   - update deployment/runbook truth for current production reflection mode
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes

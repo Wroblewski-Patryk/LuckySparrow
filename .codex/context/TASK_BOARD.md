@@ -111,10 +111,16 @@ Last updated: 2026-04-23
   - scheduler cadence ownership still runs in `in_process`
   - both lanes already expose target owner policies and therefore should be
     externalized before another broad capability expansion
+- `PRJ-572` is complete: repository-driven Coolify production now defaults
+  `REFLECTION_RUNTIME_MODE` to `deferred`, forced deploy
+  `nlcp1kpmxxhvq094fssz7qfk` finished on commit `13d8972`, production
+  `/health.reflection.external_driver_policy.selected_runtime_mode` now
+  reports `deferred`, and Telegram/API foreground turn handling remained
+  healthy through the cutover.
 
 ## READY
 
-- [ ] PRJ-572 Externalize production reflection queue ownership
+- [x] PRJ-572 Externalize production reflection queue ownership
   - Owner: Ops/Release
   - Group: Post-V1 Production Hardening
   - Depends on: PRJ-571
@@ -134,7 +140,16 @@ Last updated: 2026-04-23
     - relevant pytest coverage
     - Coolify deploy
     - production `/health` and release-smoke evidence
-  - Status: IN_PROGRESS
+  - Status: DONE
+  - Result:
+    - repository-driven Coolify production now defaults
+      `REFLECTION_RUNTIME_MODE` to `deferred`
+    - forced deploy `nlcp1kpmxxhvq094fssz7qfk` finished on commit `13d8972`,
+      and production `/health.reflection.external_driver_policy` now reports
+      `selected_runtime_mode=deferred`
+    - app-local reflection worker no longer starts in production, while
+      Telegram foreground round-trip posture remained healthy through the
+      cutover
 
 - [ ] PRJ-573 Externalize maintenance and proactive cadence ownership
   - Owner: Ops/Release

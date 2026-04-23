@@ -211,10 +211,15 @@ Last updated: 2026-04-23
   - externalize reflection queue ownership in production
   - externalize maintenance and proactive cadence ownership in production
   - sync docs and release evidence once those owner cutovers are real
-- 2026-04-23: `PRJ-572` is in progress: production cutover now targets only
-  reflection queue ownership, switching Coolify to
-  `REFLECTION_RUNTIME_MODE=deferred` while leaving scheduler cadence ownership
-  for the follow-up `PRJ-573` lane.
+- 2026-04-23: `PRJ-572` is complete: repository-driven Coolify production now
+  defaults `REFLECTION_RUNTIME_MODE` to `deferred`, forced deploy
+  `nlcp1kpmxxhvq094fssz7qfk` finished on commit `13d8972`, and production
+  `/health.reflection.external_driver_policy` now reports
+  `selected_runtime_mode=deferred` with `production_baseline_ready=true` while
+  Telegram/API foreground turn handling remained healthy through the cutover.
+- 2026-04-23: `PRJ-573` is now the first `READY` task; the next slice should
+  externalize maintenance and proactive cadence ownership so reflection
+  supervision no longer reports `external_scheduler_owner_not_selected`.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.
