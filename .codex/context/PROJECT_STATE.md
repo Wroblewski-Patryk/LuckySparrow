@@ -250,12 +250,16 @@ Last updated: 2026-04-23
   surfaces (`/health.attention`, `/health.runtime_topology`,
   `/health.conversation_channels.telegram`, release smoke), and rollback
   posture back to `ATTENTION_COORDINATION_MODE=in_process`.
-- 2026-04-23: `PRJ-577` is now the first `READY` task; the next slice should
-  perform the real production switch to durable attention because the cutover
-  criteria are now frozen instead of implicit.
-- 2026-04-23: `PRJ-577` is now in progress; the deployment baseline is being
-  switched to `ATTENTION_COORDINATION_MODE=durable_inbox` with compose
-  defaults, focused regressions, and live production verification.
+- 2026-04-23: `PRJ-577` is complete: repository-driven Coolify production now
+  runs `ATTENTION_COORDINATION_MODE=durable_inbox`; deployment
+  `amz31iyapwr3t9z9tanpe2jb` imported commit `d3707a0`, public `/health`
+  reports `attention.coordination_mode=durable_inbox`,
+  `attention.contract_store_mode=repository_backed`, and Telegram round-trip
+  remained healthy through the cutover and release smoke.
+- 2026-04-23: `PRJ-578` is now the first `READY` task; the next slice should
+  convert the live durable-attention cutover into release-smoke,
+  incident-evidence, and behavior-validation proof before broader docs sync in
+  `PRJ-579`.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.

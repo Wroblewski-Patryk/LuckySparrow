@@ -149,12 +149,15 @@ Last updated: 2026-04-23
 - `PRJ-576` is complete: durable attention now has one explicit production
   cutover gate with target owner, required proof surfaces, and rollback
   posture frozen before the runtime switch.
-- `PRJ-577` is now the first `READY` slice because the cutover criteria are
-  frozen and the next smallest useful step is the real production switch to
-  `ATTENTION_COORDINATION_MODE=durable_inbox`.
-- `PRJ-577` is now in progress: the deployment baseline is being switched to
-  durable attention, with compose defaults and focused regressions updated
-  before the production deploy and smoke verification.
+- `PRJ-577` is complete: repository-driven Coolify production now runs
+  `ATTENTION_COORDINATION_MODE=durable_inbox`, deployment
+  `amz31iyapwr3t9z9tanpe2jb` finished on commit `d3707a0`, public `/health`
+  reports `attention.coordination_mode=durable_inbox`,
+  `contract_store_mode=repository_backed`, and Telegram round-trip remained
+  healthy through release smoke.
+- `PRJ-578` is now the first `READY` slice because the production owner switch
+  is complete and the next smallest useful step is to turn that live cutover
+  into release, incident-evidence, and behavior-validation proof.
 
 ## READY
 
@@ -210,28 +213,37 @@ Last updated: 2026-04-23
     - rollback posture is now explicitly `ATTENTION_COORDINATION_MODE=in_process`
       until burst claim, cleanup, and reply-order semantics are proven stable
 
-- [ ] PRJ-577 Switch production attention ownership to durable inbox
+- [x] PRJ-577 Switch production attention ownership to durable inbox
   - Owner: Backend Builder
   - Group: Durable Attention Production Cutover
   - Depends on: PRJ-576
   - Priority: P0
-  - Status: IN_PROGRESS
+  - Status: DONE
   - Done when:
     - production uses `ATTENTION_COORDINATION_MODE=durable_inbox`
     - Telegram burst coalescing and reply delivery remain healthy after deploy
     - `/health.attention` shows the durable contract-store baseline instead of
       `in_process_only`
+  - Result:
+    - the production attention owner is now `durable_inbox`
+    - repository-backed contract-store posture is now live in public `/health`
+    - the live cutover required selecting the correct Coolify team scope,
+      then force-starting the queued deployment from the canonical
+      application page
   - Validation:
-    - relevant pytest coverage
-    - release smoke
-    - production `/health.attention`
+    - `.\.venv\Scripts\python -m pytest -q tests/test_coolify_compose.py tests/test_api_routes.py tests/test_main_lifespan_policy.py` -> `93 passed`
+    - `docker compose -f docker-compose.coolify.yml config` -> OK
+    - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'` -> passed
+    - production deployment `amz31iyapwr3t9z9tanpe2jb` imported commit `d3707a0`
+    - production `/health.attention.coordination_mode=durable_inbox`
+    - production `/health.conversation_channels.telegram.round_trip_ready=true`
 
 - [ ] PRJ-578 Add durable-attention release and behavior evidence
   - Owner: QA/Test
   - Group: Durable Attention Production Cutover
   - Depends on: PRJ-577
   - Priority: P1
-  - Status: BACKLOG
+  - Status: READY
   - Done when:
     - release smoke, incident evidence, and behavior validation all prove the
       durable-attention production baseline

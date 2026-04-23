@@ -25,6 +25,36 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-23 - Coolify production checks can silently target the wrong team scope
+- Context:
+  - production attention cutover verification needed direct Coolify UI
+    interaction after the repo commit was already pushed to `main`.
+- Symptom:
+  - the panel showed an incomplete project view with empty resources, no
+    sources, and no terminal access even though the real production app and
+    public `/health` were both live.
+- Root cause:
+  - the active Coolify team scope remained on `luckysparrow's Team`, while the
+    real production app lived under `Root Team`.
+- Guardrail:
+  - when Coolify UI evidence does not match public runtime truth, verify the
+    selected team before assuming the deployment resource is gone or the panel
+    is broken.
+- Preferred pattern:
+  - open `/projects`
+  - switch to the expected team explicitly
+  - then resolve the canonical project, environment, and application URLs
+  - only after that inspect queued deployments or trigger redeploys
+- Avoid:
+  - diagnosing empty Coolify resources before checking team scope
+  - assuming the first visible project in Coolify is the active production
+    stack
+- Evidence:
+  - `PRJ-577`
+  - production app
+    `project/icmgqml9uw3slzch9m9ok23z/environment/qxooi9coxat272krzjx221fv/application/jr1oehwlzl8tcn3h8gh2vvih`
+  - deployment `amz31iyapwr3t9z9tanpe2jb`
+
 ### 2026-04-23 - External cadence sidecars must not sleep the full interval after migration-race failures
 - Context:
   - Coolify production externalized maintenance and proactive cadence into
