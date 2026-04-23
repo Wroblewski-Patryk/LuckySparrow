@@ -117,6 +117,14 @@ Last updated: 2026-04-23
   `/health.reflection.external_driver_policy.selected_runtime_mode` now
   reports `deferred`, and Telegram/API foreground turn handling remained
   healthy through the cutover.
+- `PRJ-573` is complete: repository-driven Coolify production now defaults
+  `SCHEDULER_EXECUTION_MODE` to `externalized`, forced deploy
+  `m8jd7i3sqiv8f8fuvlo367ki` finished on commit `2a4a573`, and production
+  `/health.scheduler.external_owner_policy` now reports
+  `selected_execution_mode=externalized`, `cutover_proof_ready=true`, and
+  `production_baseline_ready=true` with recent repository-backed maintenance
+  and proactive cadence evidence while Telegram foreground round-trip posture
+  remained healthy.
 
 ## READY
 
@@ -151,7 +159,7 @@ Last updated: 2026-04-23
       Telegram foreground round-trip posture remained healthy through the
       cutover
 
-- [ ] PRJ-573 Externalize maintenance and proactive cadence ownership
+- [x] PRJ-573 Externalize maintenance and proactive cadence ownership
   - Owner: Ops/Release
   - Group: Post-V1 Production Hardening
   - Depends on: PRJ-572
@@ -168,6 +176,22 @@ Last updated: 2026-04-23
     - relevant pytest coverage
     - release smoke
     - production `/health.scheduler`
+  - Status: DONE
+  - Result:
+    - repository-driven Coolify production now defaults
+      `SCHEDULER_EXECUTION_MODE` to `externalized`
+    - dedicated Coolify cadence services now run the canonical
+      `scripts/run_maintenance_tick_once.py` and
+      `scripts/run_proactive_tick_once.py` entrypoints with a short
+      retry-on-failure backoff so post-deploy migration races do not delay
+      cutover proof for a full cadence interval
+    - forced deploy `m8jd7i3sqiv8f8fuvlo367ki` finished on commit `2a4a573`,
+      and production `/health.scheduler.external_owner_policy` now reports
+      `selected_execution_mode=externalized`, `cutover_proof_ready=true`, and
+      `production_baseline_ready=true`
+    - production `/health.reflection.supervision.blocking_signals` is empty
+      and Telegram/API foreground round-trip posture remained healthy through
+      the cutover
 
 - [ ] PRJ-574 Sync post-v1 production-hardening docs and release evidence
   - Owner: Product Docs

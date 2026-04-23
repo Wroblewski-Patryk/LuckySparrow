@@ -217,9 +217,17 @@ Last updated: 2026-04-23
   `/health.reflection.external_driver_policy` now reports
   `selected_runtime_mode=deferred` with `production_baseline_ready=true` while
   Telegram/API foreground turn handling remained healthy through the cutover.
-- 2026-04-23: `PRJ-573` is now the first `READY` task; the next slice should
-  externalize maintenance and proactive cadence ownership so reflection
-  supervision no longer reports `external_scheduler_owner_not_selected`.
+- 2026-04-23: `PRJ-573` is complete: repository-driven Coolify production now
+  defaults `SCHEDULER_EXECUTION_MODE` to `externalized`, forced deploy
+  `m8jd7i3sqiv8f8fuvlo367ki` finished on commit `2a4a573`, production
+  `/health.scheduler.external_owner_policy` now reports
+  `selected_execution_mode=externalized`, `cutover_proof_ready=true`, and
+  `production_baseline_ready=true`, and Telegram/API foreground turn handling
+  remained healthy through the cutover.
+- 2026-04-23: `PRJ-574` is now the first `READY` task; the next slice should
+  sync docs, runbook truth, testing guidance, planning surfaces, and release
+  evidence around the now-externalized production reflection and cadence
+  ownership baseline.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.

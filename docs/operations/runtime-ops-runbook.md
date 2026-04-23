@@ -80,6 +80,10 @@ compat dependency.
 (`execution_mode`, cadence owners, dispatch/readiness posture, interval
 settings), latest reflection/maintenance tick summaries, and
 `external_owner_policy` for the target external cadence baseline.
+In the current Coolify production baseline, cadence ownership is already
+externalized; use `/health.scheduler.external_owner_policy` as the source of
+truth instead of inferring ownership from whether the app container itself is
+running.
 
 `GET /health` now also includes a `proactive` object with live proactive
 cadence posture:
@@ -891,6 +895,10 @@ Interpretation:
   cutover readiness
 - `cutover_proof_ready=true` means recent run evidence and bounded
   duplicate-protection posture are both present for the current cadence
+- on Coolify, cadence sidecars must retry quickly after non-zero startup exits
+  because `python -m alembic upgrade head` still runs after containers start;
+  otherwise a migration-race failure can delay fresh cadence evidence by the
+  full normal interval
   baseline
 - release smoke now validates that those proof fields exist and use recognized
   states
@@ -1278,9 +1286,9 @@ Preconditions checklist (required for reliable Telegram delivery triage):
 - runtime now has exportable JSON incident evidence plus a canonical bundle
   helper, but there is still no external observability stack with dashboards
   or centralized trace storage
-- proactive cadence is live in-process today, while external scheduler
-  ownership is now the explicit target posture with machine-visible fallback
-  evidence
+- proactive cadence ownership is externalized in production today, but
+  proactive outreach itself remains disabled by policy until a future product
+  decision enables scheduler-owned outreach
 
 ## Incident Triage Shortlist
 

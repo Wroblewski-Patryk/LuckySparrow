@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-573
 - Title: Externalize maintenance and proactive cadence ownership
-- Status: IN_PROGRESS
+- Status: DONE
 - Owner: Ops/Release
 - Depends on: PRJ-572
 - Priority: P0
@@ -29,16 +29,16 @@ externalized baseline without regressing Telegram foreground handling.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Coolify production compose defaults `SCHEDULER_EXECUTION_MODE` to
+- [x] Coolify production compose defaults `SCHEDULER_EXECUTION_MODE` to
       `externalized`.
-- [ ] repository-driven Coolify production includes dedicated cadence services
+- [x] repository-driven Coolify production includes dedicated cadence services
       that run the canonical `run_maintenance_tick_once.py` and
       `run_proactive_tick_once.py` entrypoints.
-- [ ] production `/health.scheduler.external_owner_policy` reports
+- [x] production `/health.scheduler.external_owner_policy` reports
       `selected_execution_mode=externalized`.
-- [ ] production reflection supervision no longer reports
+- [x] production reflection supervision no longer reports
       `external_scheduler_owner_not_selected`.
-- [ ] Telegram/API foreground turn handling remains healthy after deploy.
+- [x] Telegram/API foreground turn handling remains healthy after deploy.
 
 ## Forbidden
 - new systems without approval
@@ -48,9 +48,29 @@ externalized baseline without regressing Telegram foreground handling.
 
 ## Validation Evidence
 - Tests:
+  - `.\.venv\Scripts\python -m pytest -q tests/test_coolify_compose.py tests/test_scheduler_worker.py tests/test_api_routes.py` -> `102 passed`
+  - `docker compose -f docker-compose.coolify.yml config` -> OK
+  - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'` -> passed
 - Manual checks:
+  - Coolify deploy `wjcj54cm9boemh851cy8o8if` on commit `8a839f2` switched production
+    to `SCHEDULER_EXECUTION_MODE=externalized`
+  - Coolify deploy `rbcv9u835f1d72w8z4pw0trc` on commit `31cf351` added the shared
+    cadence-evidence table in production
+  - Coolify deploy `m8jd7i3sqiv8f8fuvlo367ki` on commit `2a4a573` added short
+    failure-backoff retries for cadence sidecars after migration-race failures
+  - production `/health.scheduler.external_owner_policy.selected_execution_mode=externalized`
+  - production `/health.scheduler.external_owner_policy.cutover_proof_ready=true`
+  - production `/health.reflection.supervision.blocking_signals=[]`
+  - production `/health.conversation_channels.telegram.round_trip_ready=true`
 - Screenshots/logs:
+  - production `/health.scheduler.external_owner_policy.maintenance_run_evidence.last_run_at`
+    is now populated from the shared cadence-evidence store
+  - production `/health.scheduler.external_owner_policy.proactive_run_evidence.last_run_at`
+    is now populated and reports `recent_external_run_non_success` while proactive
+    remains disabled by policy
 - High-risk checks:
+  - external cadence sidecars now retry quickly after pre-migration failures
+    instead of sleeping for the full cadence interval
 
 ## Architecture Evidence (required for architecture-impacting tasks)
 - Architecture source reviewed:
@@ -64,14 +84,14 @@ externalized baseline without regressing Telegram foreground handling.
   - update deployment/runbook truth for external cadence ownership baseline
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This slice intentionally externalizes cadence ownership only. Broader doc sync
