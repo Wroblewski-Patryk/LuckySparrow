@@ -65,6 +65,16 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
         stage_timings_ms={"perception": 4, "action": 8, "total": 42},
         runtime_policy={"event_debug_admin_policy_owner": "dedicated_admin_debug_ingress_policy"},
         memory_retrieval={"retrieval_lifecycle_policy_owner": "retrieval_lifecycle_policy"},
+        learned_state={"policy_owner": "learned_state_inspection_policy"},
+        v1_readiness={"policy_owner": "v1_release_readiness_policy"},
+        attention={
+            "attention_policy_owner": "durable_attention_inbox_policy",
+            "coordination_mode": "durable_inbox",
+        },
+        runtime_topology_attention_switch={
+            "policy_owner": "runtime_topology_finalization",
+            "selected_mode": "durable_inbox",
+        },
         scheduler_external_owner_policy={"policy_owner": "external_scheduler_cadence_policy"},
         reflection_supervision={"policy_owner": "deferred_reflection_supervision_policy"},
         connectors_execution_baseline={"policy_owner": "connector_execution_baseline"},
@@ -82,6 +92,10 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
         "present": [
             "runtime_policy",
             "memory_retrieval",
+            "learned_state",
+            "v1_readiness",
+            "attention",
+            "runtime_topology.attention_switch",
             "scheduler.external_owner_policy",
             "reflection.supervision",
             "connectors.execution_baseline",

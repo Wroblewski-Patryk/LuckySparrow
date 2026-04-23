@@ -159,6 +159,9 @@ function Validate-IncidentEvidenceBundle {
         debug_posture_state      = $null
         debug_exception_state    = $null
         telegram_round_trip_state = $null
+        attention_coordination_mode = $null
+        attention_contract_store_state = $null
+        attention_runtime_topology_selected_mode = $null
     }
 
     if (-not $Path) {
@@ -245,6 +248,41 @@ function Validate-IncidentEvidenceBundle {
     if ($validTelegramRoundTripStates -notcontains [string]$telegramConversation.round_trip_state) {
         throw "Incident evidence bundle verification failed: unexpected conversation_channels.telegram round_trip_state '$($telegramConversation.round_trip_state)'."
     }
+    $attention = $incidentEvidence.policy_posture.attention
+    if ($null -eq $attention) {
+        throw "Incident evidence bundle verification failed: attention posture is missing."
+    }
+    if ([string]$attention.attention_policy_owner -ne "durable_attention_inbox_policy") {
+        throw "Incident evidence bundle verification failed: unexpected attention policy owner '$($attention.attention_policy_owner)'."
+    }
+    if ([string]$attention.coordination_mode -ne "durable_inbox") {
+        throw "Incident evidence bundle verification failed: unexpected attention coordination mode '$($attention.coordination_mode)'."
+    }
+    if ($null -eq $attention.deployment_readiness) {
+        throw "Incident evidence bundle verification failed: attention deployment_readiness is missing."
+    }
+    if ([string]$attention.deployment_readiness.selected_coordination_mode -ne "durable_inbox") {
+        throw "Incident evidence bundle verification failed: unexpected attention deployment_readiness.selected_coordination_mode '$($attention.deployment_readiness.selected_coordination_mode)'."
+    }
+    if ([string]$attention.deployment_readiness.contract_store_state -ne "repository_backed_contract_store_active") {
+        throw "Incident evidence bundle verification failed: unexpected attention contract_store_state '$($attention.deployment_readiness.contract_store_state)'."
+    }
+    if (-not [bool]$attention.deployment_readiness.store_available) {
+        throw "Incident evidence bundle verification failed: attention durable store is not available."
+    }
+    $runtimeTopologyAttention = $incidentEvidence.policy_posture."runtime_topology.attention_switch"
+    if ($null -eq $runtimeTopologyAttention) {
+        throw "Incident evidence bundle verification failed: runtime_topology.attention_switch posture is missing."
+    }
+    if ([string]$runtimeTopologyAttention.policy_owner -ne "runtime_topology_finalization") {
+        throw "Incident evidence bundle verification failed: unexpected runtime_topology.attention_switch policy_owner '$($runtimeTopologyAttention.policy_owner)'."
+    }
+    if ([string]$runtimeTopologyAttention.selected_mode -ne "durable_inbox") {
+        throw "Incident evidence bundle verification failed: unexpected runtime_topology.attention_switch selected_mode '$($runtimeTopologyAttention.selected_mode)'."
+    }
+    if (-not [bool]$runtimeTopologyAttention.production_default_change_ready) {
+        throw "Incident evidence bundle verification failed: runtime_topology.attention_switch production_default_change_ready is not true."
+    }
     $learnedState = $incidentEvidence.policy_posture.learned_state
     if ($null -eq $learnedState) {
         throw "Incident evidence bundle verification failed: learned_state posture is missing."
@@ -285,6 +323,9 @@ function Validate-IncidentEvidenceBundle {
         debug_posture_state      = [string]$debugPosture.debug_posture_state
         debug_exception_state    = [string]$debugPosture.debug_exception_state
         telegram_round_trip_state = [string]$telegramConversation.round_trip_state
+        attention_coordination_mode = [string]$attention.coordination_mode
+        attention_contract_store_state = [string]$attention.deployment_readiness.contract_store_state
+        attention_runtime_topology_selected_mode = [string]$runtimeTopologyAttention.selected_mode
     }
 }
 
@@ -741,6 +782,46 @@ if (-not (Has-Property -Object $runtimeTopology -Name "policy_owner")) {
 if ([string]$runtimeTopology.policy_owner -ne "runtime_topology_finalization") {
     throw "Health check failed: unexpected runtime_topology.policy_owner '$($runtimeTopology.policy_owner)'."
 }
+$attention = $health.attention
+if ($null -eq $attention) {
+    throw "Health check failed: response is missing attention."
+}
+if (-not (Has-Property -Object $attention -Name "attention_policy_owner")) {
+    throw "Health check failed: attention is missing attention_policy_owner."
+}
+if ([string]$attention.attention_policy_owner -ne "durable_attention_inbox_policy") {
+    throw "Health check failed: unexpected attention.attention_policy_owner '$($attention.attention_policy_owner)'."
+}
+if ([string]$attention.coordination_mode -ne "durable_inbox") {
+    throw "Health check failed: unexpected attention.coordination_mode '$($attention.coordination_mode)'."
+}
+if ([string]$attention.contract_store_mode -ne "repository_backed") {
+    throw "Health check failed: unexpected attention.contract_store_mode '$($attention.contract_store_mode)'."
+}
+if ($null -eq $attention.deployment_readiness) {
+    throw "Health check failed: attention is missing deployment_readiness."
+}
+if ([string]$attention.deployment_readiness.selected_coordination_mode -ne "durable_inbox") {
+    throw "Health check failed: unexpected attention.deployment_readiness.selected_coordination_mode '$($attention.deployment_readiness.selected_coordination_mode)'."
+}
+if ([string]$attention.deployment_readiness.contract_store_state -ne "repository_backed_contract_store_active") {
+    throw "Health check failed: unexpected attention.deployment_readiness.contract_store_state '$($attention.deployment_readiness.contract_store_state)'."
+}
+if (-not [bool]$attention.deployment_readiness.store_available) {
+    throw "Health check failed: attention.deployment_readiness.store_available is not true."
+}
+if (-not (Has-Property -Object $runtimeTopology -Name "attention_switch")) {
+    throw "Health check failed: runtime_topology is missing attention_switch."
+}
+if ([string]$runtimeTopology.attention_switch.policy_owner -ne "runtime_topology_finalization") {
+    throw "Health check failed: unexpected runtime_topology.attention_switch.policy_owner '$($runtimeTopology.attention_switch.policy_owner)'."
+}
+if ([string]$runtimeTopology.attention_switch.selected_mode -ne "durable_inbox") {
+    throw "Health check failed: unexpected runtime_topology.attention_switch.selected_mode '$($runtimeTopology.attention_switch.selected_mode)'."
+}
+if (-not [bool]$runtimeTopology.attention_switch.production_default_change_ready) {
+    throw "Health check failed: runtime_topology.attention_switch.production_default_change_ready is not true."
+}
 $deployment = $health.deployment
 if ($null -eq $deployment) {
     throw "Health check failed: response is missing deployment."
@@ -969,6 +1050,8 @@ if ($IncludeDebug -and -not $response.debug) {
 $incidentEvidence = $null
 $incidentDebugPosture = $null
 $incidentTelegramConversation = $null
+$incidentAttention = $null
+$incidentTopologyAttention = $null
 if ($IncludeDebug) {
     if (-not (Has-Property -Object $response -Name "incident_evidence")) {
         throw "Smoke request failed: debug request is missing incident_evidence."
@@ -1014,6 +1097,38 @@ if ($IncludeDebug) {
     }
     if ($validTelegramRoundTripStates -notcontains [string]$incidentTelegramConversation.round_trip_state) {
         throw "Smoke request failed: unexpected incident_evidence conversation_channels.telegram round_trip_state '$($incidentTelegramConversation.round_trip_state)'."
+    }
+    $incidentAttention = $incidentEvidence.policy_posture.attention
+    if ($null -eq $incidentAttention) {
+        throw "Smoke request failed: incident_evidence is missing attention posture."
+    }
+    if ([string]$incidentAttention.attention_policy_owner -ne "durable_attention_inbox_policy") {
+        throw "Smoke request failed: unexpected incident_evidence attention policy_owner '$($incidentAttention.attention_policy_owner)'."
+    }
+    if ([string]$incidentAttention.coordination_mode -ne "durable_inbox") {
+        throw "Smoke request failed: unexpected incident_evidence attention coordination_mode '$($incidentAttention.coordination_mode)'."
+    }
+    if ([string]$incidentAttention.deployment_readiness.selected_coordination_mode -ne "durable_inbox") {
+        throw "Smoke request failed: unexpected incident_evidence attention selected_coordination_mode '$($incidentAttention.deployment_readiness.selected_coordination_mode)'."
+    }
+    if ([string]$incidentAttention.deployment_readiness.contract_store_state -ne "repository_backed_contract_store_active") {
+        throw "Smoke request failed: unexpected incident_evidence attention contract_store_state '$($incidentAttention.deployment_readiness.contract_store_state)'."
+    }
+    if (-not [bool]$incidentAttention.deployment_readiness.store_available) {
+        throw "Smoke request failed: incident_evidence attention store_available is not true."
+    }
+    $incidentTopologyAttention = $incidentEvidence.policy_posture."runtime_topology.attention_switch"
+    if ($null -eq $incidentTopologyAttention) {
+        throw "Smoke request failed: incident_evidence is missing runtime_topology.attention_switch posture."
+    }
+    if ([string]$incidentTopologyAttention.policy_owner -ne "runtime_topology_finalization") {
+        throw "Smoke request failed: unexpected incident_evidence runtime_topology.attention_switch policy_owner '$($incidentTopologyAttention.policy_owner)'."
+    }
+    if ([string]$incidentTopologyAttention.selected_mode -ne "durable_inbox") {
+        throw "Smoke request failed: unexpected incident_evidence runtime_topology.attention_switch selected_mode '$($incidentTopologyAttention.selected_mode)'."
+    }
+    if (-not [bool]$incidentTopologyAttention.production_default_change_ready) {
+        throw "Smoke request failed: incident_evidence runtime_topology.attention_switch production_default_change_ready is not true."
     }
     $incidentLearnedState = $incidentEvidence.policy_posture.learned_state
     if ($null -eq $incidentLearnedState) {
@@ -1086,6 +1201,14 @@ $summary = @{
     compatibility_sunset_blockers = @($compatibilitySunsetBlockers)
     runtime_topology_owner = [string]$runtimeTopology.policy_owner
     topology_release_window = [string]$runtimeTopology.release_window
+    attention_policy_owner = [string]$attention.attention_policy_owner
+    attention_coordination_mode = [string]$attention.coordination_mode
+    attention_contract_store_mode = [string]$attention.contract_store_mode
+    attention_contract_store_state = [string]$attention.deployment_readiness.contract_store_state
+    attention_store_available = [bool]$attention.deployment_readiness.store_available
+    runtime_topology_attention_policy_owner = [string]$runtimeTopology.attention_switch.policy_owner
+    runtime_topology_attention_selected_mode = [string]$runtimeTopology.attention_switch.selected_mode
+    runtime_topology_attention_ready = [bool]$runtimeTopology.attention_switch.production_default_change_ready
     deployment_hosting_baseline = [string]$deployment.hosting_baseline
     deployment_manual_fallback_exception_rate_percent = [double]$deployment.deployment_trigger_slo.manual_redeploy_exception_rate_percent
     scheduler_external_policy_owner = [string]$externalSchedulerPolicy.policy_owner
@@ -1124,6 +1247,12 @@ $summary = @{
     incident_evidence_debug_exception_state = if ($null -ne $incidentDebugPosture) { [string]$incidentDebugPosture.debug_exception_state } else { $null }
     incident_evidence_telegram_conversation_policy_owner = if ($null -ne $incidentTelegramConversation) { [string]$incidentTelegramConversation.policy_owner } else { $null }
     incident_evidence_telegram_conversation_round_trip_state = if ($null -ne $incidentTelegramConversation) { [string]$incidentTelegramConversation.round_trip_state } else { $null }
+    incident_evidence_attention_policy_owner = if ($null -ne $incidentAttention) { [string]$incidentAttention.attention_policy_owner } else { $null }
+    incident_evidence_attention_coordination_mode = if ($null -ne $incidentAttention) { [string]$incidentAttention.coordination_mode } else { $null }
+    incident_evidence_attention_contract_store_state = if ($null -ne $incidentAttention) { [string]$incidentAttention.deployment_readiness.contract_store_state } else { $null }
+    incident_evidence_attention_runtime_topology_policy_owner = if ($null -ne $incidentTopologyAttention) { [string]$incidentTopologyAttention.policy_owner } else { $null }
+    incident_evidence_attention_runtime_topology_selected_mode = if ($null -ne $incidentTopologyAttention) { [string]$incidentTopologyAttention.selected_mode } else { $null }
+    incident_evidence_attention_runtime_topology_ready = if ($null -ne $incidentTopologyAttention) { [bool]$incidentTopologyAttention.production_default_change_ready } else { $null }
     incident_bundle_checked = [bool]$incidentEvidenceBundleCheck.checked
     incident_bundle_path = [string]$incidentEvidenceBundleCheck.path
     incident_bundle_manifest_schema_version = $incidentEvidenceBundleCheck.manifest_schema_version
@@ -1136,6 +1265,9 @@ $summary = @{
     incident_bundle_debug_posture_state = $incidentEvidenceBundleCheck.debug_posture_state
     incident_bundle_debug_exception_state = $incidentEvidenceBundleCheck.debug_exception_state
     incident_bundle_telegram_round_trip_state = $incidentEvidenceBundleCheck.telegram_round_trip_state
+    incident_bundle_attention_coordination_mode = $incidentEvidenceBundleCheck.attention_coordination_mode
+    incident_bundle_attention_contract_store_state = $incidentEvidenceBundleCheck.attention_contract_store_state
+    incident_bundle_attention_runtime_topology_selected_mode = $incidentEvidenceBundleCheck.attention_runtime_topology_selected_mode
     deployment_evidence_checked = [bool]$deploymentEvidenceCheck.checked
     deployment_evidence_path = [string]$deploymentEvidenceCheck.path
     deployment_evidence_age_minutes = $deploymentEvidenceCheck.age_minutes

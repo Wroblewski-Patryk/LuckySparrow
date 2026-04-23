@@ -36,6 +36,7 @@ def runtime_topology_policy_snapshot(
             "rollback_posture": "return_to_in_process_until_external_driver_slo_is_stable",
         },
         "attention_switch": {
+            "policy_owner": "runtime_topology_finalization",
             "baseline_mode": "in_process",
             "target_mode": "durable_inbox",
             "selected_mode": str(attention_snapshot.get("coordination_mode", "in_process")),

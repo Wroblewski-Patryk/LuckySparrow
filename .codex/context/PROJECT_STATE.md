@@ -260,6 +260,16 @@ Last updated: 2026-04-23
   convert the live durable-attention cutover into release-smoke,
   incident-evidence, and behavior-validation proof before broader docs sync in
   `PRJ-579`.
+- 2026-04-23: `PRJ-578` is complete: release smoke, exported
+  `incident_evidence`, incident-evidence bundles, and CI behavior validation
+  now all require the durable-attention owner posture and
+  `runtime_topology.attention_switch` proof, while a behavior-level durable
+  burst-coalescing regression replaces manual operator inspection for this
+  seam.
+- 2026-04-23: `PRJ-579` is now the first `READY` task; the next slice should
+  synchronize architecture, runtime reality, testing guidance, ops notes, and
+  planning/context truth around the live durable-attention production baseline
+  and its new proof surfaces.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.

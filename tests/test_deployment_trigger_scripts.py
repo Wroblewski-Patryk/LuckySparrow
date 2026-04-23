@@ -142,6 +142,21 @@ def stub_aion_server() -> _StubAionServer:
         "runtime_topology": {
             "policy_owner": "runtime_topology_finalization",
             "release_window": "after_group_50_evidence_green",
+            "attention_switch": {
+                "policy_owner": "runtime_topology_finalization",
+                "selected_mode": "durable_inbox",
+                "production_default_change_ready": True,
+            },
+        },
+        "attention": {
+            "attention_policy_owner": "durable_attention_inbox_policy",
+            "coordination_mode": "durable_inbox",
+            "contract_store_mode": "repository_backed",
+            "deployment_readiness": {
+                "selected_coordination_mode": "durable_inbox",
+                "contract_store_state": "repository_backed_contract_store_active",
+                "store_available": True,
+            },
         },
         "deployment": {
             "hosting_baseline": "coolify_medium_term_standard",
@@ -251,16 +266,18 @@ def stub_aion_server() -> _StubAionServer:
                 "total": 12,
             },
             "policy_surface_coverage": {
-                "present": [
-                    "runtime_policy",
-                    "memory_retrieval",
-                    "learned_state",
-                    "v1_readiness",
-                    "scheduler.external_owner_policy",
-                    "reflection.supervision",
-                    "connectors.execution_baseline",
-                    "conversation_channels.telegram",
-                ],
+            "present": [
+                "runtime_policy",
+                "memory_retrieval",
+                "learned_state",
+                "v1_readiness",
+                "attention",
+                "runtime_topology.attention_switch",
+                "scheduler.external_owner_policy",
+                "reflection.supervision",
+                "connectors.execution_baseline",
+                "conversation_channels.telegram",
+            ],
                 "missing": [],
                 "complete": True,
             },
@@ -286,10 +303,10 @@ def stub_aion_server() -> _StubAionServer:
                     "policy_owner": "learned_state_inspection_policy",
                     "internal_inspection_path": "/internal/state/inspect",
                 },
-                "v1_readiness": {
-                    "policy_owner": "v1_release_readiness_policy",
-                    "product_stage": "v1_no_ui_life_assistant",
-                    "conversation_gate_state": "conversation_surface_ready",
+            "v1_readiness": {
+                "policy_owner": "v1_release_readiness_policy",
+                "product_stage": "v1_no_ui_life_assistant",
+                "conversation_gate_state": "conversation_surface_ready",
                     "learned_state_gate_state": "inspection_surface_ready",
                     "required_behavior_scenarios": [
                         "T13.1",
@@ -302,11 +319,25 @@ def stub_aion_server() -> _StubAionServer:
                     "approved_tool_slices": [
                         "knowledge_search.search_web",
                         "web_browser.read_page",
-                        "task_system.clickup_update_task",
-                    ],
+                    "task_system.clickup_update_task",
+                ],
+            },
+            "attention": {
+                "attention_policy_owner": "durable_attention_inbox_policy",
+                "coordination_mode": "durable_inbox",
+                "deployment_readiness": {
+                    "selected_coordination_mode": "durable_inbox",
+                    "contract_store_state": "repository_backed_contract_store_active",
+                    "store_available": True,
                 },
-                "scheduler.external_owner_policy": {
-                    "policy_owner": "external_scheduler_cadence_policy",
+            },
+            "runtime_topology.attention_switch": {
+                "policy_owner": "runtime_topology_finalization",
+                "selected_mode": "durable_inbox",
+                "production_default_change_ready": True,
+            },
+            "scheduler.external_owner_policy": {
+                "policy_owner": "external_scheduler_cadence_policy",
                     "cutover_proof_owner": "external_scheduler_cutover_proof_policy",
                     "maintenance_run_evidence": {
                         "evidence_state": "missing_external_run_evidence",
@@ -417,6 +448,8 @@ def _write_incident_bundle(
                 "memory_retrieval",
                 "learned_state",
                 "v1_readiness",
+                "attention",
+                "runtime_topology.attention_switch",
                 "scheduler.external_owner_policy",
                 "reflection.supervision",
                 "connectors.execution_baseline",
@@ -447,10 +480,10 @@ def _write_incident_bundle(
                 "policy_owner": "learned_state_inspection_policy",
                 "internal_inspection_path": "/internal/state/inspect",
             },
-            "v1_readiness": {
-                "policy_owner": "v1_release_readiness_policy",
-                "product_stage": "v1_no_ui_life_assistant",
-                "conversation_gate_state": "conversation_surface_ready",
+                "v1_readiness": {
+                    "policy_owner": "v1_release_readiness_policy",
+                    "product_stage": "v1_no_ui_life_assistant",
+                    "conversation_gate_state": "conversation_surface_ready",
                 "learned_state_gate_state": "inspection_surface_ready",
                 "required_behavior_scenarios": [
                     "T13.1",
@@ -463,11 +496,25 @@ def _write_incident_bundle(
                 "approved_tool_slices": [
                     "knowledge_search.search_web",
                     "web_browser.read_page",
-                    "task_system.clickup_update_task",
-                ],
-            },
-            "scheduler.external_owner_policy": {
-                "policy_owner": "external_scheduler_cadence_policy",
+                        "task_system.clickup_update_task",
+                    ],
+                },
+                "attention": {
+                    "attention_policy_owner": "durable_attention_inbox_policy",
+                    "coordination_mode": "durable_inbox",
+                    "deployment_readiness": {
+                        "selected_coordination_mode": "durable_inbox",
+                        "contract_store_state": "repository_backed_contract_store_active",
+                        "store_available": True,
+                    },
+                },
+                "runtime_topology.attention_switch": {
+                    "policy_owner": "runtime_topology_finalization",
+                    "selected_mode": "durable_inbox",
+                    "production_default_change_ready": True,
+                },
+                "scheduler.external_owner_policy": {
+                    "policy_owner": "external_scheduler_cadence_policy",
                 "cutover_proof_owner": "external_scheduler_cutover_proof_policy",
                 "maintenance_run_evidence": {
                     "evidence_state": "missing_external_run_evidence",
@@ -621,6 +668,14 @@ def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
     assert summary["compatibility_sunset_blockers"] == []
     assert summary["runtime_topology_owner"] == "runtime_topology_finalization"
     assert summary["topology_release_window"] == "after_group_50_evidence_green"
+    assert summary["attention_policy_owner"] == "durable_attention_inbox_policy"
+    assert summary["attention_coordination_mode"] == "durable_inbox"
+    assert summary["attention_contract_store_mode"] == "repository_backed"
+    assert summary["attention_contract_store_state"] == "repository_backed_contract_store_active"
+    assert summary["attention_store_available"] is True
+    assert summary["runtime_topology_attention_policy_owner"] == "runtime_topology_finalization"
+    assert summary["runtime_topology_attention_selected_mode"] == "durable_inbox"
+    assert summary["runtime_topology_attention_ready"] is True
     assert summary["deployment_hosting_baseline"] == "coolify_medium_term_standard"
     assert summary["deployment_manual_fallback_exception_rate_percent"] == 5.0
     assert summary["scheduler_external_policy_owner"] == "external_scheduler_cadence_policy"
@@ -686,6 +741,23 @@ def test_release_smoke_fails_when_telegram_conversation_health_surface_is_missin
     assert "conversation_channels" in combined_output
 
 
+def test_release_smoke_fails_when_attention_health_surface_is_missing(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    original = dict(_StubAionHandler.health_payload)
+    broken = dict(original)
+    broken.pop("attention", None)
+    _StubAionHandler.health_payload = broken
+    try:
+        result = _run_release_smoke("-BaseUrl", stub_aion_server.base_url, cwd=ROOT)
+    finally:
+        _StubAionHandler.health_payload = original
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "response is missing attention" in combined_output
+
+
 def test_release_smoke_verifies_fresh_successful_deployment_evidence(
     stub_aion_server: _StubAionServer,
     tmp_path: Path,
@@ -736,6 +808,14 @@ def test_release_smoke_validates_exported_incident_evidence_when_debug_mode_is_r
         "telegram_conversation_reliability_telemetry"
     )
     assert summary["incident_evidence_telegram_conversation_round_trip_state"] == "provider_backed_ready"
+    assert summary["incident_evidence_attention_policy_owner"] == "durable_attention_inbox_policy"
+    assert summary["incident_evidence_attention_coordination_mode"] == "durable_inbox"
+    assert summary["incident_evidence_attention_contract_store_state"] == (
+        "repository_backed_contract_store_active"
+    )
+    assert summary["incident_evidence_attention_runtime_topology_policy_owner"] == "runtime_topology_finalization"
+    assert summary["incident_evidence_attention_runtime_topology_selected_mode"] == "durable_inbox"
+    assert summary["incident_evidence_attention_runtime_topology_ready"] is True
     assert summary["scheduler_external_cutover_proof_owner"] == "external_scheduler_cutover_proof_policy"
     assert summary["scheduler_external_cutover_proof_ready"] is False
     assert summary["scheduler_external_maintenance_evidence_state"] == "missing_external_run_evidence"
@@ -772,6 +852,9 @@ def test_release_smoke_verifies_incident_evidence_bundle_when_bundle_path_is_pro
     assert summary["incident_bundle_debug_posture_state"] == "dedicated_admin_only"
     assert summary["incident_bundle_debug_exception_state"] == "shared_debug_break_glass_only"
     assert summary["incident_bundle_telegram_round_trip_state"] == "provider_backed_ready"
+    assert summary["incident_bundle_attention_coordination_mode"] == "durable_inbox"
+    assert summary["incident_bundle_attention_contract_store_state"] == "repository_backed_contract_store_active"
+    assert summary["incident_bundle_attention_runtime_topology_selected_mode"] == "durable_inbox"
 
 
 def test_release_smoke_fails_when_incident_evidence_bundle_is_partial(

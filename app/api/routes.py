@@ -161,6 +161,7 @@ async def _attention_snapshot_from_request(request: Request) -> dict[str, Any]:
         stale_turn_seconds=stale_turn_seconds,
     )
     return {
+        "attention_policy_owner": "durable_attention_inbox_policy",
         "healthy": bool(readiness["ready"]),
         "coordination_mode": str(readiness["selected_coordination_mode"]),
         "turn_state_owner": str(readiness["turn_state_owner"]),
@@ -233,6 +234,7 @@ async def _incident_evidence_from_request(
     memory_repository = _memory_repository_from_request(request)
     runtime_policy = runtime_policy_snapshot(settings)
     memory_retrieval = _memory_retrieval_snapshot_from_settings(settings)
+    attention_snapshot = await _attention_snapshot_from_request(request)
     scheduler_execution_mode = normalize_scheduler_execution_mode(
         str(getattr(settings, "scheduler_execution_mode", "in_process") or "in_process")
     )
@@ -271,6 +273,21 @@ async def _incident_evidence_from_request(
         worker_running=bool(reflection_snapshot["running"]),
         task_stats=reflection_stats,
     )
+    reflection_topology = reflection_topology_handoff_posture(
+        runtime_mode=str(getattr(settings, "reflection_runtime_mode", "in_process") or "in_process"),
+        worker_running=bool(reflection_snapshot["running"]),
+    )
+    reflection_readiness = reflection_deployment_readiness_snapshot(
+        runtime_mode=str(getattr(settings, "reflection_runtime_mode", "in_process") or "in_process"),
+        topology=reflection_topology,
+        worker_running=bool(reflection_snapshot["running"]),
+        task_stats=reflection_stats,
+    )
+    runtime_topology = runtime_topology_policy_snapshot(
+        reflection_runtime_mode=str(getattr(settings, "reflection_runtime_mode", "in_process") or "in_process"),
+        reflection_readiness=reflection_readiness,
+        attention_snapshot=attention_snapshot,
+    )
     connectors_execution_baseline = connector_execution_baseline_snapshot(settings)
     telegram_conversation_channel = _telegram_telemetry_from_request(request).snapshot(
         bot_token_configured=bool(getattr(settings, "telegram_bot_token", "")),
@@ -292,6 +309,8 @@ async def _incident_evidence_from_request(
             learned_state=learned_state,
             role_skill_policy=role_skill_policy,
         ),
+        attention=attention_snapshot,
+        runtime_topology_attention_switch=dict(runtime_topology.get("attention_switch", {})),
         scheduler_external_owner_policy=scheduler_external_owner_policy,
         reflection_supervision=reflection_supervision,
         connectors_execution_baseline=connectors_execution_baseline,

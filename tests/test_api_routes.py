@@ -3010,7 +3010,7 @@ def test_event_debug_endpoint_exposes_system_debug_behavior_contract() -> None:
 
 
 def test_event_debug_endpoint_exposes_runtime_incident_evidence_export() -> None:
-    client, _, _ = _client()
+    client, _, _ = _client(attention_coordination_mode="durable_inbox")
 
     debug_response = client.post("/internal/event/debug", json={"text": "incident evidence contract"})
 
@@ -3045,6 +3045,19 @@ def test_event_debug_endpoint_exposes_runtime_incident_evidence_export() -> None
     )
     assert incident_evidence["policy_posture"]["memory_retrieval"]["retrieval_lifecycle_policy_owner"] == (
         "retrieval_lifecycle_policy"
+    )
+    assert incident_evidence["policy_posture"]["attention"]["attention_policy_owner"] == (
+        "durable_attention_inbox_policy"
+    )
+    assert incident_evidence["policy_posture"]["attention"]["coordination_mode"] == "durable_inbox"
+    assert incident_evidence["policy_posture"]["attention"]["deployment_readiness"]["contract_store_state"] == (
+        "repository_backed_contract_store_active"
+    )
+    assert incident_evidence["policy_posture"]["runtime_topology.attention_switch"]["policy_owner"] == (
+        "runtime_topology_finalization"
+    )
+    assert incident_evidence["policy_posture"]["runtime_topology.attention_switch"]["selected_mode"] == (
+        "durable_inbox"
     )
     assert incident_evidence["policy_posture"]["scheduler.external_owner_policy"]["policy_owner"] == (
         "external_scheduler_cadence_policy"
@@ -3157,6 +3170,38 @@ def test_event_endpoint_preserves_attention_parity_in_durable_inbox_mode() -> No
     assert runtime.events[0].payload["text"] == "durable first burst\ndurable second burst"
 
 
+def test_runtime_behavior_durable_attention_burst_coalescing_stays_repository_backed() -> None:
+    client, runtime, _ = _client(
+        attention_burst_window_ms=160,
+        attention_coordination_mode="durable_inbox",
+    )
+    first_response: dict[str, object] = {}
+
+    def _first_call() -> None:
+        first_response["value"] = client.post("/event", json=_telegram_update(4101, "durable burst first"))
+
+    thread = Thread(target=_first_call)
+    thread.start()
+    sleep(0.05)
+    second = client.post("/event", json=_telegram_update(4102, "durable burst second"))
+    thread.join(timeout=2.0)
+
+    assert "value" in first_response
+    assert second.status_code == 200
+    assert second.json()["queue"]["reason"] == "coalesced_into_pending_turn"
+    assert len(runtime.events) == 1
+    assert runtime.events[0].payload["text"] == "durable burst first\ndurable burst second"
+
+    health = client.get("/health")
+    assert health.status_code == 200
+    attention = health.json()["attention"]
+    assert attention["coordination_mode"] == "durable_inbox"
+    assert attention["contract_store_mode"] == "repository_backed"
+    assert attention["deployment_readiness"]["contract_store_state"] == (
+        "repository_backed_contract_store_active"
+    )
+
+
 def test_health_endpoint_exposes_repository_backed_attention_cleanup_candidates() -> None:
     client, _, _ = _client(
         attention_coordination_mode="durable_inbox",
@@ -3237,6 +3282,8 @@ def test_health_endpoint_exposes_observability_export_policy_baseline() -> None:
                 "memory_retrieval",
                 "learned_state",
                 "v1_readiness",
+                "attention",
+                "runtime_topology.attention_switch",
                 "scheduler.external_owner_policy",
                 "reflection.supervision",
                 "connectors.execution_baseline",

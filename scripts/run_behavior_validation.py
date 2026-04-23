@@ -42,6 +42,7 @@ GATE_REASON_INCIDENT_EVIDENCE_DEBUG_EXCEPTION_STATE_INVALID = "incident_evidence
 GATE_REASON_INCIDENT_EVIDENCE_EXTERNAL_CADENCE_PROOF_INVALID = "incident_evidence_external_cadence_proof_invalid"
 GATE_REASON_INCIDENT_EVIDENCE_TELEGRAM_CONVERSATION_INVALID = "incident_evidence_telegram_conversation_invalid"
 GATE_REASON_INCIDENT_EVIDENCE_V1_READINESS_INVALID = "incident_evidence_v1_readiness_invalid"
+GATE_REASON_INCIDENT_EVIDENCE_DURABLE_ATTENTION_INVALID = "incident_evidence_durable_attention_invalid"
 
 
 @dataclass(frozen=True)
@@ -319,6 +320,13 @@ def _evaluate_incident_evidence_input(
         "incident_evidence_v1_readiness_product_stage": None,
         "incident_evidence_v1_readiness_conversation_gate_state": None,
         "incident_evidence_v1_readiness_learned_state_gate_state": None,
+        "incident_evidence_attention_policy_owner": None,
+        "incident_evidence_attention_selected_coordination_mode": None,
+        "incident_evidence_attention_contract_store_state": None,
+        "incident_evidence_attention_store_available": None,
+        "incident_evidence_attention_runtime_topology_policy_owner": None,
+        "incident_evidence_attention_runtime_topology_selected_mode": None,
+        "incident_evidence_attention_runtime_topology_ready": None,
     }
     violations: list[str] = []
 
@@ -400,6 +408,16 @@ def _evaluate_incident_evidence_input(
         candidate_v1_readiness_policy = policy_posture.get("v1_readiness")
         if isinstance(candidate_v1_readiness_policy, dict):
             v1_readiness_policy = candidate_v1_readiness_policy
+    attention_policy = {}
+    if isinstance(policy_posture, dict):
+        candidate_attention_policy = policy_posture.get("attention")
+        if isinstance(candidate_attention_policy, dict):
+            attention_policy = candidate_attention_policy
+    topology_attention_policy = {}
+    if isinstance(policy_posture, dict):
+        candidate_topology_attention_policy = policy_posture.get("runtime_topology.attention_switch")
+        if isinstance(candidate_topology_attention_policy, dict):
+            topology_attention_policy = candidate_topology_attention_policy
 
     maintenance_evidence = scheduler_policy.get("maintenance_run_evidence")
     proactive_evidence = scheduler_policy.get("proactive_run_evidence")
@@ -483,6 +501,37 @@ def _evaluate_incident_evidence_input(
     )
     if not v1_readiness_valid:
         violations.append(GATE_REASON_INCIDENT_EVIDENCE_V1_READINESS_INVALID)
+
+    attention_deployment_readiness = attention_policy.get("deployment_readiness")
+    if not isinstance(attention_deployment_readiness, dict):
+        attention_deployment_readiness = {}
+    context["incident_evidence_attention_policy_owner"] = attention_policy.get("attention_policy_owner")
+    context["incident_evidence_attention_selected_coordination_mode"] = attention_policy.get("coordination_mode")
+    context["incident_evidence_attention_contract_store_state"] = attention_deployment_readiness.get(
+        "contract_store_state"
+    )
+    context["incident_evidence_attention_store_available"] = attention_deployment_readiness.get("store_available")
+    context["incident_evidence_attention_runtime_topology_policy_owner"] = topology_attention_policy.get(
+        "policy_owner"
+    )
+    context["incident_evidence_attention_runtime_topology_selected_mode"] = topology_attention_policy.get(
+        "selected_mode"
+    )
+    context["incident_evidence_attention_runtime_topology_ready"] = topology_attention_policy.get(
+        "production_default_change_ready"
+    )
+    durable_attention_valid = (
+        attention_policy.get("attention_policy_owner") == "durable_attention_inbox_policy"
+        and attention_policy.get("coordination_mode") == "durable_inbox"
+        and attention_deployment_readiness.get("selected_coordination_mode") == "durable_inbox"
+        and attention_deployment_readiness.get("contract_store_state") == "repository_backed_contract_store_active"
+        and attention_deployment_readiness.get("store_available") is True
+        and topology_attention_policy.get("policy_owner") == "runtime_topology_finalization"
+        and topology_attention_policy.get("selected_mode") == "durable_inbox"
+        and topology_attention_policy.get("production_default_change_ready") is True
+    )
+    if not durable_attention_valid:
+        violations.append(GATE_REASON_INCIDENT_EVIDENCE_DURABLE_ATTENTION_INVALID)
 
     return violations, context
 

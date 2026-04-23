@@ -238,19 +238,22 @@ Last updated: 2026-04-23
     - production `/health.attention.coordination_mode=durable_inbox`
     - production `/health.conversation_channels.telegram.round_trip_ready=true`
 
-- [ ] PRJ-578 Add durable-attention release and behavior evidence
+- [x] PRJ-578 Add durable-attention release and behavior evidence
   - Owner: QA/Test
   - Group: Durable Attention Production Cutover
   - Depends on: PRJ-577
   - Priority: P1
-  - Status: READY
+  - Status: DONE
   - Done when:
     - release smoke, incident evidence, and behavior validation all prove the
       durable-attention production baseline
     - burst-message coalescing no longer depends on manual operator inspection
   - Validation:
-    - targeted pytest coverage
-    - behavior-validation and smoke evidence
+    - `.\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py` -> `124 passed`
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json` -> `12 passed`
+  - Result:
+    - release smoke, debug `incident_evidence`, and incident-evidence bundles now require durable-attention posture and `runtime_topology.attention_switch` proof
+    - behavior validation now includes a durable-attention burst-coalescing regression path instead of leaving burst assembly to manual operator inspection
 
 - [ ] PRJ-579 Sync docs/context for durable-attention production baseline
   - Owner: Product Docs
