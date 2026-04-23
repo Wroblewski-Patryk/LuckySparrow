@@ -48,6 +48,7 @@ class FakeMemoryRepository:
         }
         self.stats_calls: list[dict] = []
         self.proactive_candidates: list[dict] = []
+        self.cadence_evidence_writes: list[dict] = []
 
     async def get_reflection_task_stats(
         self,
@@ -73,6 +74,25 @@ class FakeMemoryRepository:
         limit: int = 8,
     ) -> list[dict]:
         return self.proactive_candidates[:limit]
+
+    async def upsert_scheduler_cadence_evidence(
+        self,
+        *,
+        cadence_kind: str,
+        execution_owner: str,
+        execution_mode: str,
+        summary: dict,
+        last_run_at,
+    ) -> dict:
+        payload = {
+            "cadence_kind": cadence_kind,
+            "execution_owner": execution_owner,
+            "execution_mode": execution_mode,
+            "summary": dict(summary),
+            "last_run_at": last_run_at,
+        }
+        self.cadence_evidence_writes.append(payload)
+        return payload
 
 
 class FakeRuntime:
@@ -324,6 +344,10 @@ async def test_scheduler_worker_external_maintenance_tick_runs_when_execution_mo
             "retry_backoff_seconds": (5, 30, 120),
         }
     ]
+    assert repository.cadence_evidence_writes[-1]["cadence_kind"] == "maintenance"
+    assert repository.cadence_evidence_writes[-1]["execution_owner"] == "external_scheduler"
+    assert repository.cadence_evidence_writes[-1]["execution_mode"] == "externalized"
+    assert repository.cadence_evidence_writes[-1]["summary"]["reason"] == "external_scheduler_owner"
 
 
 async def test_scheduler_worker_external_proactive_tick_runs_when_execution_mode_is_externalized() -> None:
@@ -376,6 +400,10 @@ async def test_scheduler_worker_external_proactive_tick_runs_when_execution_mode
             "trigger": "task_blocked",
         }
     ]
+    assert repository.cadence_evidence_writes[-1]["cadence_kind"] == "proactive"
+    assert repository.cadence_evidence_writes[-1]["execution_owner"] == "external_scheduler"
+    assert repository.cadence_evidence_writes[-1]["execution_mode"] == "externalized"
+    assert repository.cadence_evidence_writes[-1]["summary"]["reason"] == "external_scheduler_owner"
 
 
 async def test_scheduler_worker_snapshot_exposes_owner_aware_execution_posture() -> None:

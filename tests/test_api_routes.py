@@ -391,6 +391,7 @@ class FakeMemoryRepository:
             {"proposal_id": 5, "proposal_type": "ask_user", "summary": "Clarify blocker scope.", "status": "pending"}
         ]
         self.user_theta = {"orientation": "support"}
+        self.scheduler_cadence_evidence: dict[str, dict] = {}
 
     async def get_reflection_task_stats(
         self,
@@ -533,6 +534,10 @@ class FakeMemoryRepository:
         for key in stale_keys:
             self.attention_turns.pop(key, None)
         return {"deleted_answered": deleted_answered, "deleted_stale": deleted_stale}
+
+    async def get_scheduler_cadence_evidence(self, *, cadence_kind: str) -> dict | None:
+        row = self.scheduler_cadence_evidence.get(str(cadence_kind).strip().lower())
+        return dict(row) if row is not None else None
 
 
 class FakeReflectionWorker:
@@ -743,6 +748,30 @@ def _client(
     )
     telegram_client = FakeTelegramClient()
     memory_repository = FakeMemoryRepository(stats=reflection_stats)
+    if scheduler_last_maintenance_tick_at is not None or scheduler_last_maintenance_summary is not None:
+        memory_repository.scheduler_cadence_evidence["maintenance"] = {
+            "cadence_kind": "maintenance",
+            "execution_owner": (
+                "external_scheduler"
+                if scheduler_execution_mode == "externalized"
+                else "in_process_scheduler"
+            ),
+            "execution_mode": scheduler_execution_mode,
+            "summary": dict(scheduler_last_maintenance_summary or {}),
+            "last_run_at": scheduler_last_maintenance_tick_at,
+        }
+    if scheduler_last_proactive_tick_at is not None or scheduler_last_proactive_summary is not None:
+        memory_repository.scheduler_cadence_evidence["proactive"] = {
+            "cadence_kind": "proactive",
+            "execution_owner": (
+                "external_scheduler"
+                if scheduler_execution_mode == "externalized"
+                else "in_process_scheduler"
+            ),
+            "execution_mode": scheduler_execution_mode,
+            "summary": dict(scheduler_last_proactive_summary or {}),
+            "last_run_at": scheduler_last_proactive_tick_at,
+        }
     reflection_worker = FakeReflectionWorker(running=reflection_running)
     scheduler_worker = FakeSchedulerWorker(
         enabled=scheduler_enabled,
@@ -1569,6 +1598,39 @@ def test_health_endpoint_exposes_external_scheduler_cutover_proof_when_recent_ru
         policy["duplicate_protection_posture"]["maintenance_entrypoint_idempotency_baseline"]
         == "single_tick_summary_per_invocation"
     )
+
+
+def test_health_endpoint_prefers_repository_backed_scheduler_cadence_evidence() -> None:
+    client, _, _ = _client(
+        scheduler_enabled=False,
+        scheduler_running=False,
+        scheduler_execution_mode="externalized",
+        proactive_enabled=False,
+    )
+    recent_maintenance = datetime.now(timezone.utc).isoformat()
+    client.app.state.memory_repository.scheduler_cadence_evidence["maintenance"] = {
+        "cadence_kind": "maintenance",
+        "execution_owner": "external_scheduler",
+        "execution_mode": "externalized",
+        "summary": {
+            "executed": True,
+            "reason": "external_scheduler_owner",
+            "trigger": "external_maintenance",
+            "entrypoint_owner": "external_scheduler",
+            "idempotency_baseline": "single_tick_summary_per_invocation",
+        },
+        "last_run_at": recent_maintenance,
+    }
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    policy = body["scheduler"]["external_owner_policy"]
+    assert body["scheduler"]["last_maintenance_tick_at"] == recent_maintenance
+    assert body["scheduler"]["last_maintenance_summary"]["reason"] == "external_scheduler_owner"
+    assert policy["cutover_proof_ready"] is True
+    assert policy["maintenance_run_evidence"]["evidence_state"] == "recent_external_run_evidence"
     assert (
         policy["duplicate_protection_posture"]["proactive_entrypoint_idempotency_baseline"]
         == "single_tick_candidate_evaluation_per_invocation"

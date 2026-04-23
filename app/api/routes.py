@@ -176,6 +176,22 @@ async def _attention_snapshot_from_request(request: Request) -> dict[str, Any]:
     }
 
 
+async def _scheduler_cadence_evidence_from_request(request: Request) -> dict[str, dict[str, Any]]:
+    memory_repository = _memory_repository_from_request(request)
+    loader = getattr(memory_repository, "get_scheduler_cadence_evidence", None)
+    if not callable(loader):
+        return {}
+
+    maintenance = await loader(cadence_kind="maintenance")
+    proactive = await loader(cadence_kind="proactive")
+    snapshot: dict[str, dict[str, Any]] = {}
+    if isinstance(maintenance, dict):
+        snapshot["maintenance"] = maintenance
+    if isinstance(proactive, dict):
+        snapshot["proactive"] = proactive
+    return snapshot
+
+
 def _memory_retrieval_snapshot_from_settings(settings) -> dict[str, Any]:
     snapshot = embedding_strategy_snapshot(
         semantic_vector_enabled=bool(getattr(settings, "semantic_vector_enabled", True)),
@@ -221,17 +237,24 @@ async def _incident_evidence_from_request(
         str(getattr(settings, "scheduler_execution_mode", "in_process") or "in_process")
     )
     scheduler_snapshot = scheduler_worker.snapshot() if scheduler_worker is not None else {}
+    cadence_evidence = await _scheduler_cadence_evidence_from_request(request)
+    maintenance_evidence = cadence_evidence.get("maintenance", {})
+    proactive_evidence = cadence_evidence.get("proactive", {})
     scheduler_external_owner_policy = external_scheduler_policy_snapshot(
         scheduler_execution_mode=str(
             scheduler_snapshot.get("execution_mode", scheduler_execution_mode)
         ),
         scheduler_running=bool(scheduler_snapshot.get("running", False)),
-        maintenance_last_run_at=scheduler_snapshot.get("last_maintenance_tick_at"),
-        maintenance_last_summary=scheduler_snapshot.get("last_maintenance_summary", {}),
+        maintenance_last_run_at=maintenance_evidence.get("last_run_at")
+        or scheduler_snapshot.get("last_maintenance_tick_at"),
+        maintenance_last_summary=maintenance_evidence.get("summary")
+        or scheduler_snapshot.get("last_maintenance_summary", {}),
         maintenance_interval_seconds=int(scheduler_snapshot.get("maintenance_interval_seconds", 3600)),
         proactive_enabled=bool(scheduler_snapshot.get("proactive_enabled", False)),
-        proactive_last_run_at=scheduler_snapshot.get("last_proactive_tick_at"),
-        proactive_last_summary=scheduler_snapshot.get("last_proactive_summary", {}),
+        proactive_last_run_at=proactive_evidence.get("last_run_at")
+        or scheduler_snapshot.get("last_proactive_tick_at"),
+        proactive_last_summary=proactive_evidence.get("summary")
+        or scheduler_snapshot.get("last_proactive_summary", {}),
         proactive_interval_seconds=int(scheduler_snapshot.get("proactive_interval_seconds", 1800)),
     )
     reflection_snapshot = reflection_worker.snapshot()
@@ -616,6 +639,9 @@ async def health(request: Request) -> dict[str, Any]:
     )
     proactive_enabled = bool(getattr(settings, "proactive_enabled", False))
     scheduler_snapshot = scheduler_worker.snapshot() if scheduler_worker is not None else {}
+    cadence_evidence = await _scheduler_cadence_evidence_from_request(request)
+    maintenance_evidence = cadence_evidence.get("maintenance", {})
+    proactive_evidence = cadence_evidence.get("proactive", {})
     scheduler_running = bool(scheduler_snapshot.get("running", False))
     scheduler_enabled = bool(scheduler_snapshot.get("enabled", False))
     scheduler_execution = scheduler_cadence_execution_snapshot(
@@ -631,6 +657,14 @@ async def health(request: Request) -> dict[str, Any]:
         "enabled": scheduler_enabled,
         "running": scheduler_running,
         "proactive_enabled": bool(scheduler_snapshot.get("proactive_enabled", proactive_enabled)),
+        "last_maintenance_tick_at": maintenance_evidence.get("last_run_at")
+        or scheduler_snapshot.get("last_maintenance_tick_at"),
+        "last_proactive_tick_at": proactive_evidence.get("last_run_at")
+        or scheduler_snapshot.get("last_proactive_tick_at"),
+        "last_maintenance_summary": maintenance_evidence.get("summary")
+        or scheduler_snapshot.get("last_maintenance_summary", {}),
+        "last_proactive_summary": proactive_evidence.get("summary")
+        or scheduler_snapshot.get("last_proactive_summary", {}),
         "maintenance_cadence_owner": scheduler_execution["maintenance_cadence_owner"],
         "proactive_cadence_owner": scheduler_execution["proactive_cadence_owner"],
         "cadence_execution": scheduler_execution,
@@ -639,12 +673,16 @@ async def health(request: Request) -> dict[str, Any]:
                 scheduler_snapshot.get("execution_mode", scheduler_execution_mode)
             ),
             scheduler_running=scheduler_running,
-            maintenance_last_run_at=scheduler_snapshot.get("last_maintenance_tick_at"),
-            maintenance_last_summary=scheduler_snapshot.get("last_maintenance_summary", {}),
+            maintenance_last_run_at=maintenance_evidence.get("last_run_at")
+            or scheduler_snapshot.get("last_maintenance_tick_at"),
+            maintenance_last_summary=maintenance_evidence.get("summary")
+            or scheduler_snapshot.get("last_maintenance_summary", {}),
             maintenance_interval_seconds=int(scheduler_snapshot.get("maintenance_interval_seconds", 3600)),
             proactive_enabled=bool(scheduler_snapshot.get("proactive_enabled", proactive_enabled)),
-            proactive_last_run_at=scheduler_snapshot.get("last_proactive_tick_at"),
-            proactive_last_summary=scheduler_snapshot.get("last_proactive_summary", {}),
+            proactive_last_run_at=proactive_evidence.get("last_run_at")
+            or scheduler_snapshot.get("last_proactive_tick_at"),
+            proactive_last_summary=proactive_evidence.get("summary")
+            or scheduler_snapshot.get("last_proactive_summary", {}),
             proactive_interval_seconds=int(scheduler_snapshot.get("proactive_interval_seconds", 1800)),
         ),
     }

@@ -32,6 +32,7 @@ from app.memory.models import (
     AionProfile,
     AionRelation,
     AionReflectionTask,
+    AionSchedulerCadenceEvidence,
     AionSemanticEmbedding,
     AionSubconsciousProposal,
     AionTask,
@@ -1749,6 +1750,74 @@ class MemoryRepository:
             "updated_at": row.updated_at,
         }
 
+    async def upsert_scheduler_cadence_evidence(
+        self,
+        *,
+        cadence_kind: str,
+        execution_owner: str,
+        execution_mode: str,
+        summary: dict | None,
+        last_run_at: datetime | None = None,
+    ) -> dict:
+        normalized_cadence_kind = str(cadence_kind).strip().lower()[:24]
+        if normalized_cadence_kind not in {"maintenance", "proactive"}:
+            raise ValueError("cadence_kind must be one of: maintenance, proactive")
+        normalized_execution_owner = str(execution_owner).strip().lower()[:32] or "unknown_owner"
+        normalized_execution_mode = str(execution_mode).strip().lower()[:24] or "unknown_mode"
+        normalized_summary = dict(summary or {})
+        normalized_last_run_at = self._coerce_datetime(last_run_at) or datetime.now(timezone.utc)
+
+        async with self.session_factory() as session:
+            statement = (
+                select(AionSchedulerCadenceEvidence)
+                .where(AionSchedulerCadenceEvidence.cadence_kind == normalized_cadence_kind)
+                .limit(1)
+            )
+            result = await session.execute(statement)
+            row = result.scalar_one_or_none()
+
+            if row is None:
+                row = AionSchedulerCadenceEvidence(
+                    cadence_kind=normalized_cadence_kind,
+                    execution_owner=normalized_execution_owner,
+                    execution_mode=normalized_execution_mode,
+                    summary_json=normalized_summary,
+                    last_run_at=normalized_last_run_at,
+                )
+                session.add(row)
+            else:
+                row.execution_owner = normalized_execution_owner
+                row.execution_mode = normalized_execution_mode
+                row.summary_json = normalized_summary
+                row.last_run_at = normalized_last_run_at
+
+            await session.commit()
+            await session.refresh(row)
+
+        return self._serialize_scheduler_cadence_evidence(row)
+
+    async def get_scheduler_cadence_evidence(
+        self,
+        *,
+        cadence_kind: str,
+    ) -> dict | None:
+        normalized_cadence_kind = str(cadence_kind).strip().lower()[:24]
+        if normalized_cadence_kind not in {"maintenance", "proactive"}:
+            return None
+
+        async with self.session_factory() as session:
+            statement = (
+                select(AionSchedulerCadenceEvidence)
+                .where(AionSchedulerCadenceEvidence.cadence_kind == normalized_cadence_kind)
+                .limit(1)
+            )
+            result = await session.execute(statement)
+            row = result.scalar_one_or_none()
+
+        if row is None:
+            return None
+        return self._serialize_scheduler_cadence_evidence(row)
+
     async def enqueue_reflection_task(self, user_id: str, event_id: str) -> dict:
         async with self.session_factory() as session:
             statement = (
@@ -2081,6 +2150,18 @@ class MemoryRepository:
             "status": row.status,
             "attempts": row.attempts,
             "last_error": row.last_error,
+            "updated_at": row.updated_at,
+            "created_at": row.created_at,
+        }
+
+    def _serialize_scheduler_cadence_evidence(self, row: AionSchedulerCadenceEvidence) -> dict:
+        return {
+            "id": row.id,
+            "cadence_kind": row.cadence_kind,
+            "execution_owner": row.execution_owner,
+            "execution_mode": row.execution_mode,
+            "summary": dict(row.summary_json or {}),
+            "last_run_at": row.last_run_at,
             "updated_at": row.updated_at,
             "created_at": row.created_at,
         }

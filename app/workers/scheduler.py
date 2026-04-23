@@ -146,6 +146,25 @@ class SchedulerWorker:
         )
         return summary
 
+    async def _record_cadence_evidence(
+        self,
+        *,
+        cadence_kind: str,
+        execution_owner: str,
+        summary: dict[str, Any],
+        now: datetime,
+    ) -> None:
+        recorder = getattr(self.memory_repository, "upsert_scheduler_cadence_evidence", None)
+        if not callable(recorder):
+            return
+        await recorder(
+            cadence_kind=cadence_kind,
+            execution_owner=execution_owner,
+            execution_mode=self.execution_mode,
+            summary=summary,
+            last_run_at=now,
+        )
+
     async def run_maintenance_tick_once(self, *, reason: str = "cadence") -> dict[str, Any]:
         now = self._utcnow()
         should_dispatch, dispatch_reason = scheduler_cadence_dispatch_decision(
@@ -166,6 +185,12 @@ class SchedulerWorker:
             }
             self._last_maintenance_tick_at = now
             self._last_maintenance_summary = summary
+            await self._record_cadence_evidence(
+                cadence_kind="maintenance",
+                execution_owner="external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler",
+                summary=summary,
+                now=now,
+            )
             self.logger.info(
                 "scheduler_maintenance_tick executed=%s reason=%s trigger=%s execution_mode=%s maintenance_owner=%s proactive_owner=%s",
                 summary["executed"],
@@ -195,6 +220,12 @@ class SchedulerWorker:
         }
         self._last_maintenance_tick_at = now
         self._last_maintenance_summary = summary
+        await self._record_cadence_evidence(
+            cadence_kind="maintenance",
+            execution_owner="in_process_scheduler",
+            summary=summary,
+            now=now,
+        )
         log_level = self.logger.warning if summary["stuck_processing"] > 0 or summary["exhausted_failed"] > 0 else self.logger.info
         log_level(
             "scheduler_maintenance_tick executed=%s reason=%s trigger=%s pending=%s processing=%s retryable_failed=%s exhausted_failed=%s stuck_processing=%s maintenance_owner=%s proactive_owner=%s",
@@ -230,6 +261,12 @@ class SchedulerWorker:
             }
             self._last_maintenance_tick_at = now
             self._last_maintenance_summary = summary
+            await self._record_cadence_evidence(
+                cadence_kind="maintenance",
+                execution_owner="in_process_scheduler",
+                summary=summary,
+                now=now,
+            )
             return summary
 
         reflection_snapshot = self.reflection_worker.snapshot()
@@ -252,6 +289,12 @@ class SchedulerWorker:
         }
         self._last_maintenance_tick_at = now
         self._last_maintenance_summary = summary
+        await self._record_cadence_evidence(
+            cadence_kind="maintenance",
+            execution_owner="external_scheduler",
+            summary=summary,
+            now=now,
+        )
         return summary
 
     async def run_proactive_tick_once(self, *, reason: str = "cadence") -> dict[str, Any]:
@@ -274,6 +317,12 @@ class SchedulerWorker:
             }
             self._last_proactive_tick_at = now
             self._last_proactive_summary = summary
+            await self._record_cadence_evidence(
+                cadence_kind="proactive",
+                execution_owner="external_scheduler" if self.execution_mode == "externalized" else "in_process_scheduler",
+                summary=summary,
+                now=now,
+            )
             self.logger.info(
                 "scheduler_proactive_tick executed=%s reason=%s trigger=%s execution_mode=%s proactive_owner=%s candidates_considered=%s events_emitted=%s delivered=%s blocked=%s failures=%s",
                 summary["executed"],
@@ -302,6 +351,12 @@ class SchedulerWorker:
             }
             self._last_proactive_tick_at = now
             self._last_proactive_summary = summary
+            await self._record_cadence_evidence(
+                cadence_kind="proactive",
+                execution_owner="in_process_scheduler",
+                summary=summary,
+                now=now,
+            )
             self.logger.warning(
                 "scheduler_proactive_tick executed=%s reason=%s trigger=%s execution_mode=%s proactive_owner=%s candidates_considered=%s events_emitted=%s delivered=%s blocked=%s failures=%s",
                 summary["executed"],
@@ -370,6 +425,12 @@ class SchedulerWorker:
         }
         self._last_proactive_tick_at = now
         self._last_proactive_summary = summary
+        await self._record_cadence_evidence(
+            cadence_kind="proactive",
+            execution_owner="in_process_scheduler",
+            summary=summary,
+            now=now,
+        )
         log_method = self.logger.warning if failures > 0 else self.logger.info
         log_method(
             "scheduler_proactive_tick executed=%s reason=%s trigger=%s execution_mode=%s proactive_owner=%s candidates_considered=%s events_emitted=%s delivered=%s blocked=%s failures=%s",
@@ -405,6 +466,12 @@ class SchedulerWorker:
             }
             self._last_proactive_tick_at = now
             self._last_proactive_summary = summary
+            await self._record_cadence_evidence(
+                cadence_kind="proactive",
+                execution_owner="in_process_scheduler",
+                summary=summary,
+                now=now,
+            )
             return summary
 
         if not self.proactive_enabled:
@@ -420,6 +487,12 @@ class SchedulerWorker:
             }
             self._last_proactive_tick_at = now
             self._last_proactive_summary = summary
+            await self._record_cadence_evidence(
+                cadence_kind="proactive",
+                execution_owner="external_scheduler",
+                summary=summary,
+                now=now,
+            )
             return summary
 
         if self.runtime is None or not hasattr(self.runtime, "run"):
@@ -435,6 +508,12 @@ class SchedulerWorker:
             }
             self._last_proactive_tick_at = now
             self._last_proactive_summary = summary
+            await self._record_cadence_evidence(
+                cadence_kind="proactive",
+                execution_owner="external_scheduler",
+                summary=summary,
+                now=now,
+            )
             return summary
 
         candidates = []
@@ -492,6 +571,12 @@ class SchedulerWorker:
         }
         self._last_proactive_tick_at = now
         self._last_proactive_summary = summary
+        await self._record_cadence_evidence(
+            cadence_kind="proactive",
+            execution_owner="external_scheduler",
+            summary=summary,
+            now=now,
+        )
         return summary
 
     def snapshot(self) -> dict[str, Any]:

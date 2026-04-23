@@ -323,6 +323,31 @@ class AionReflectionTask(Base):
     )
 
 
+class AionSchedulerCadenceEvidence(Base):
+    __tablename__ = "aion_scheduler_cadence_evidence"
+    __table_args__ = (
+        UniqueConstraint("cadence_kind", name="uq_aion_scheduler_cadence_evidence_kind"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    cadence_kind: Mapped[str] = mapped_column(String(24), nullable=False, index=True)
+    execution_owner: Mapped[str] = mapped_column(String(32), nullable=False)
+    execution_mode: Mapped[str] = mapped_column(String(24), nullable=False)
+    summary_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    last_run_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+
 class AionSubconsciousProposal(Base):
     __tablename__ = "aion_subconscious_proposal"
 

@@ -13,6 +13,7 @@ from app.memory.models import (
     AionMemory,
     AionRelation,
     AionReflectionTask,
+    AionSchedulerCadenceEvidence,
     AionSemanticEmbedding,
     AionSubconsciousProposal,
     AionTask,
@@ -179,6 +180,43 @@ async def test_memory_repository_persists_attention_turn_contract_store_and_clea
     assert stale_stats["answered_cleanup_candidates"] == 1
     assert cleanup == {"deleted_answered": 1, "deleted_stale": 0}
     assert after_cleanup is None
+
+    await engine.dispose()
+
+
+async def test_memory_repository_persists_scheduler_cadence_evidence_contract_store(tmp_path) -> None:
+    database_path = tmp_path / "memory-scheduler-cadence-evidence.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    stored = await repository.upsert_scheduler_cadence_evidence(
+        cadence_kind="maintenance",
+        execution_owner="external_scheduler",
+        execution_mode="externalized",
+        summary={
+            "executed": True,
+            "reason": "external_scheduler_owner",
+            "entrypoint_owner": "external_scheduler",
+            "idempotency_baseline": "single_tick_summary_per_invocation",
+        },
+    )
+    loaded = await repository.get_scheduler_cadence_evidence(cadence_kind="maintenance")
+
+    assert stored["cadence_kind"] == "maintenance"
+    assert stored["execution_owner"] == "external_scheduler"
+    assert stored["execution_mode"] == "externalized"
+    assert loaded is not None
+    assert loaded["summary"]["reason"] == "external_scheduler_owner"
+    assert loaded["summary"]["idempotency_baseline"] == "single_tick_summary_per_invocation"
+
+    async with session_factory() as session:
+        row = await session.get(AionSchedulerCadenceEvidence, int(stored["id"]))
+
+    assert row is not None
+    assert row.cadence_kind == "maintenance"
+    assert row.execution_owner == "external_scheduler"
 
     await engine.dispose()
 
