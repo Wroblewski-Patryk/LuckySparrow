@@ -125,6 +125,13 @@ Last updated: 2026-04-23
   `production_baseline_ready=true` with recent repository-backed maintenance
   and proactive cadence evidence while Telegram foreground round-trip posture
   remained healthy.
+- `PRJ-574` is complete: runtime reality, testing guidance, planning docs,
+  runbook, and repository context now describe the same post-v1 production
+  owner baseline where reflection runs with deferred external-driver
+  ownership, cadence runs with external scheduler ownership, and release smoke
+  plus production `/health` are the canonical proof surfaces.
+- the post-v1 production-hardening queue seeded by `PRJ-571` is now complete
+  through `PRJ-574`; no seeded `READY` slice remains in this lane.
 
 ## READY
 
@@ -193,7 +200,7 @@ Last updated: 2026-04-23
       and Telegram/API foreground round-trip posture remained healthy through
       the cutover
 
-- [ ] PRJ-574 Sync post-v1 production-hardening docs and release evidence
+- [x] PRJ-574 Sync post-v1 production-hardening docs and release evidence
   - Owner: Product Docs
   - Group: Post-V1 Production Hardening
   - Depends on: PRJ-573
@@ -208,6 +215,15 @@ Last updated: 2026-04-23
   - Validation:
     - doc-and-context sync across architecture, implementation, ops, testing,
       planning, and context
+  - Status: DONE
+  - Result:
+    - runtime reality, testing guidance, planning docs, ops guidance, and
+      repository context now describe the same externalized production-owner
+      baseline
+    - the post-v1 production-hardening queue is now complete through
+      `PRJ-574`
+    - release smoke plus production `/health` remain the canonical proof path
+      for both reflection and cadence owner cutovers
 
 - [ ] PRJ-540 Freeze the no-UI `v1` product contract and conversation-reliability gate
   - Owner: Planner

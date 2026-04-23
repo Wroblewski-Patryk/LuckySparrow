@@ -258,12 +258,17 @@ For meaningful repo changes, leave behind:
 - for external-scheduler ownership slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
+  - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'`
   - coverage should pin both:
     - `/health.scheduler.external_owner_policy` cutover-proof fields
       (`maintenance_run_evidence`, `proactive_run_evidence`,
       `duplicate_protection_posture`, `cutover_proof_ready`)
     - smoke and incident-evidence gate failures when that proof surface is
       incomplete
+  - current production-baseline evidence should prove:
+    - `selected_execution_mode=externalized`
+    - `cutover_proof_ready=true`
+    - `production_baseline_ready=true`
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_main_runtime_policy.py`
 - for typed future-write ownership slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_reflection_worker.py tests/test_scheduler_worker.py`

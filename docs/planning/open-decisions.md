@@ -90,11 +90,19 @@ The current repo already works as an MVP slice, but several architecture-level d
     production/runtime analysis rather than from unfinished `v1` backlog
 - `PRJ-571` now seeds that next queue from live production truth:
   - Telegram and migration-first startup are repaired
-  - the clearest remaining production drift is still operational:
-    - reflection queue drain remains `in_process`
-    - scheduler cadence ownership remains `in_process`
-  - the next execution queue should therefore externalize those owners before
+  - the clearest remaining production drift was still operational:
+    - reflection queue drain remained `in_process`
+    - scheduler cadence ownership remained `in_process`
+  - the next execution queue therefore externalized those owners before
     widening capability growth again
+- `PRJ-572..PRJ-574` are now complete:
+  - Coolify production reflection ownership is now aligned with the deferred
+    external-driver baseline
+  - Coolify production cadence ownership is now aligned with the external
+    scheduler baseline
+  - production `/health` and release smoke are now the canonical proof path
+    for both owner cutovers
+  - no seeded post-v1 production-hardening task remains open
 - the completed `v1` execution queue prioritized:
   - production conversation reliability
   - life-assistant workflow activation

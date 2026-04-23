@@ -660,13 +660,16 @@ Scheduler-facing runtime contracts are now explicit:
 
 `PRJ-308` now defines the target cadence-ownership direction:
 
-- long-term production cadence ownership for maintenance/proactive wakeups
-  should move to a dedicated external scheduler owner
-- app-local scheduler cadence remains transitional during rollout and as an
-  explicit fallback path
+- long-term production cadence ownership for maintenance/proactive wakeups now
+  runs through a dedicated external scheduler owner on Coolify production
+- app-local scheduler cadence remains fallback and local-development posture,
+  not the active production owner baseline
 - the canonical external cadence entrypoints are now frozen for operator and
   release usage: `scripts/run_maintenance_tick_once.py` and
   `scripts/run_proactive_tick_once.py`
+- production `/health.scheduler.external_owner_policy` now reports the proven
+  externalized baseline through recent repository-backed cadence evidence plus
+  bounded duplicate-protection posture
 - runtime remains the owner of scheduled-event contract normalization and
   guardrail/conscious execution boundaries regardless of cadence owner
 
@@ -875,6 +878,10 @@ Deployment baseline update (`PRJ-480..PRJ-483`):
   ad hoc `/health` inspection
 - reflection scope governance now treats cross-goal leakage as a shared
   reader/writer contract problem, not only as a worker-local heuristic
+- Coolify production now runs this lane on the externalized baseline:
+  `/health.reflection.external_driver_policy.selected_runtime_mode=deferred`,
+  `/health.reflection.supervision.production_supervision_ready=true`, and the
+  app container no longer owns the active reflection queue drain
 
 This is more advanced than a purely conceptual background loop, but still
 lighter than the long-term architecture could become.

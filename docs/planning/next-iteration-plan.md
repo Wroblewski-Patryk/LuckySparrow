@@ -74,6 +74,32 @@ Why this order:
     - doc-and-context sync across architecture, implementation, ops, testing,
       planning, and context
 
+### Queue Completion Update (2026-04-23)
+
+`PRJ-572..PRJ-574` are now complete.
+
+Verified production baseline:
+
+- Coolify production runs `REFLECTION_RUNTIME_MODE=deferred`
+- Coolify production runs `SCHEDULER_EXECUTION_MODE=externalized`
+- `/health.reflection.external_driver_policy.selected_runtime_mode=deferred`
+- `/health.reflection.supervision.production_supervision_ready=true`
+- `/health.scheduler.external_owner_policy.selected_execution_mode=externalized`
+- `/health.scheduler.external_owner_policy.cutover_proof_ready=true`
+- `/health.scheduler.external_owner_policy.production_baseline_ready=true`
+
+Release evidence baseline:
+
+- `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'`
+- production `/health`
+- Coolify deploy evidence:
+  - `nlcp1kpmxxhvq094fssz7qfk` (`PRJ-572`)
+  - `m8jd7i3sqiv8f8fuvlo367ki` (`PRJ-573`)
+
+No further `READY` slice remains inside this queue after `PRJ-574`; the next
+task should come from a fresh runtime or product gap rather than from the
+post-v1 production-hardening lane.
+
 ## Repo Analysis Snapshot
 
 Confirmed on 2026-04-19:

@@ -84,6 +84,8 @@ In the current Coolify production baseline, cadence ownership is already
 externalized; use `/health.scheduler.external_owner_policy` as the source of
 truth instead of inferring ownership from whether the app container itself is
 running.
+That same production baseline should now be treated as release truth, not as a
+remaining rollout target.
 
 `GET /health` now also includes a `proactive` object with live proactive
 cadence posture:
@@ -1289,6 +1291,9 @@ Preconditions checklist (required for reliable Telegram delivery triage):
 - proactive cadence ownership is externalized in production today, but
   proactive outreach itself remains disabled by policy until a future product
   decision enables scheduler-owned outreach
+- reflection queue drain ownership is also externalized in production today;
+  local in-process reflection and scheduler cadence are compatibility/local-dev
+  postures rather than current Coolify production truth
 
 ## Incident Triage Shortlist
 

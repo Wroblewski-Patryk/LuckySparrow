@@ -224,10 +224,13 @@ Last updated: 2026-04-23
   `selected_execution_mode=externalized`, `cutover_proof_ready=true`, and
   `production_baseline_ready=true`, and Telegram/API foreground turn handling
   remained healthy through the cutover.
-- 2026-04-23: `PRJ-574` is now the first `READY` task; the next slice should
-  sync docs, runbook truth, testing guidance, planning surfaces, and release
-  evidence around the now-externalized production reflection and cadence
-  ownership baseline.
+- 2026-04-23: `PRJ-574` is complete: runtime reality, testing guidance,
+  planning docs, runbook truth, and context now all describe the same
+  externalized post-v1 production-hardening baseline, and the queue seeded by
+  `PRJ-571` is complete through `PRJ-574`.
+- 2026-04-23: after `PRJ-574`, no seeded `READY` slice remains in the
+  post-v1 production-hardening lane; the next task should come from a fresh
+  runtime or product-gap analysis.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.
