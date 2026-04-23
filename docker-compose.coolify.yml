@@ -13,6 +13,7 @@ x-aion-runtime-env: &aion-runtime-env
   REFLECTION_INTERVAL: ${REFLECTION_INTERVAL:-900}
   MAINTENANCE_INTERVAL: ${MAINTENANCE_INTERVAL:-3600}
   PROACTIVE_INTERVAL: ${PROACTIVE_INTERVAL:-1800}
+  CADENCE_FAILURE_RETRY_SECONDS: ${CADENCE_FAILURE_RETRY_SECONDS:-30}
 
 services:
   app:
@@ -48,7 +49,7 @@ services:
       [
         "sh",
         "-lc",
-        "while true; do python scripts/run_maintenance_tick_once.py; sleep ${MAINTENANCE_INTERVAL:-3600}; done",
+        "while true; do if python scripts/run_maintenance_tick_once.py; then sleep ${MAINTENANCE_INTERVAL:-3600}; else sleep ${CADENCE_FAILURE_RETRY_SECONDS:-30}; fi; done",
       ]
 
   proactive_cadence:
@@ -63,7 +64,7 @@ services:
       [
         "sh",
         "-lc",
-        "while true; do python scripts/run_proactive_tick_once.py; sleep ${PROACTIVE_INTERVAL:-1800}; done",
+        "while true; do if python scripts/run_proactive_tick_once.py; then sleep ${PROACTIVE_INTERVAL:-1800}; else sleep ${CADENCE_FAILURE_RETRY_SECONDS:-30}; fi; done",
       ]
 
   db:

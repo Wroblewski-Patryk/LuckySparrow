@@ -25,6 +25,37 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-23 - External cadence sidecars must not sleep the full interval after migration-race failures
+- Context:
+  - Coolify production externalized maintenance and proactive cadence into
+    dedicated sidecars while the repository still runs `python -m alembic
+    upgrade head` as a post-deployment command after containers start.
+- Symptom:
+  - production `/health.scheduler.external_owner_policy` stayed on
+    `missing_external_run_evidence` even though the external cadence containers
+    were up and the selected execution mode was already `externalized`.
+- Root cause:
+  - cadence sidecars executed their first tick before the post-deploy migration
+    created the new evidence table, then the shell loop slept for the full
+    cadence interval (`3600s` or `1800s`) after that failure instead of
+    retrying quickly once migrations finished.
+- Guardrail:
+  - external cadence loops must use a short failure backoff that is distinct
+    from the normal cadence interval whenever startup ordering can race against
+    post-deploy migrations.
+- Preferred pattern:
+  - keep the canonical cadence entrypoints unchanged
+  - make the deployment loop retry quickly after a non-zero exit
+  - keep the normal cadence sleep only for successful ticks
+- Avoid:
+  - assuming a successful container start means the first cadence tick also had
+    the migrated schema available
+  - sleeping for the full cadence interval after a migration-race failure
+- Evidence:
+  - `PRJ-573`
+  - `docker-compose.coolify.yml`
+  - production Coolify deployment `rbcv9u835f1d72w8z4pw0trc`
+
 ### 2026-04-23 - Coolify production Postgres must ship pgvector before migration-first deploys
 - Context:
   - production Telegram traffic reached the service, but full Alembic repair on

@@ -35,6 +35,13 @@ def test_coolify_compose_includes_external_cadence_services() -> None:
 
     maintenance_service = compose["services"]["maintenance_cadence"]
     proactive_service = compose["services"]["proactive_cadence"]
+    app_environment = compose["services"]["app"]["environment"]
 
-    assert "python scripts/run_maintenance_tick_once.py" in maintenance_service["command"][2]
-    assert "python scripts/run_proactive_tick_once.py" in proactive_service["command"][2]
+    assert (
+        app_environment["CADENCE_FAILURE_RETRY_SECONDS"]
+        == "${CADENCE_FAILURE_RETRY_SECONDS:-30}"
+    )
+    assert "if python scripts/run_maintenance_tick_once.py;" in maintenance_service["command"][2]
+    assert "sleep ${CADENCE_FAILURE_RETRY_SECONDS:-30}" in maintenance_service["command"][2]
+    assert "if python scripts/run_proactive_tick_once.py;" in proactive_service["command"][2]
+    assert "sleep ${CADENCE_FAILURE_RETRY_SECONDS:-30}" in proactive_service["command"][2]
