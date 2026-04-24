@@ -30,6 +30,12 @@ Never hardcode:
 - tokens
 - deployment-specific flags
 
+Future per-user tool activation, durable role or skill registries, and
+tool-authorization records do not change this rule.
+Those records may control consent and availability posture, but raw provider
+secrets remain external configuration unless a later architecture change
+explicitly approves a credential-storage subsystem.
+
 ---
 
 ## Environment File

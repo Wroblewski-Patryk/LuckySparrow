@@ -127,6 +127,24 @@ Questions answered:
 - what stance best fits the situation?
 - how should identity be expressed here?
 
+Role selection may read from a durable role registry that stores approved
+role presets, prompt variants, and runtime selection hints.
+Those role records shape expression and planning posture, but they do not
+replace runtime ownership of role selection.
+
+### Skill
+
+Select reusable capability guidance for the turn.
+
+Questions answered:
+
+- which capabilities fit this situation?
+- which stored skill descriptions or usage notes should guide planning?
+- which approved tool families may be considered?
+
+Skills may evolve as durable descriptions over time, but they remain guidance
+for planning rather than direct execution authority.
+
 ### Planning
 
 Turn understanding into intended next steps.
@@ -209,6 +227,7 @@ Canonical shared runtime state can include:
   "context": {},
   "motivation": {},
   "role": {},
+  "skills": [],
   "plan": {},
   "expression": {},
   "action_result": {}
@@ -230,6 +249,9 @@ Only the Action layer may:
 - send outbound messages
 - modify system state outside the local reasoning object
 - trigger external or background execution
+
+This remains true even when roles or skills reference prompts, heuristics,
+tool families, or user-authorized providers.
 
 Reasoning stages may prepare intent, but they may not perform side effects.
 

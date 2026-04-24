@@ -280,22 +280,36 @@ themselves.
 ## Role And Skill Boundary Contract
 
 Role remains the behavior selector.
-Skills remain metadata-only capability hints unless a future contract revision
-explicitly expands their authority.
+Skills may evolve as durable capability descriptions, but they do not become
+execution owners.
 
 Contract rules:
 
 1. role selection owns the chosen behavioral stance for the turn
-2. skill selection may annotate that stance with bounded capability metadata
-3. skills may inform planning and debug visibility, but they do not execute
+2. role selection may read from a durable role registry that stores approved
+   presets, prompt-oriented definitions, selection hints, provenance, and
+   lifecycle status
+3. skill selection may annotate that stance with bounded capability metadata
+   read from a durable skill registry
+4. the skill registry may carry evolving descriptions, usage guidance,
+   limitations, linked approved tool families, provenance, and lifecycle
+   status
+5. skills may inform planning and debug visibility, but they do not execute
    tools, side effects, or connector operations on their own
-4. action must never treat selected skills as executable authority; explicit
+6. skills may reference approved tool families, but those references are
+   planning guidance only and never executable authority
+7. action must never treat selected skills as executable authority; explicit
    plan intents and action-boundary contracts remain the only execution owner
-5. `/health` and runtime debug should expose one shared role/skill policy owner
-   so metadata-only posture is machine-visible during rollout and review
+8. `/health` and runtime debug should expose one shared role/skill policy
+   owner so registry-backed posture remains machine-visible during rollout and
+   review
+9. future reflection or runtime learning may update role or skill descriptions
+   inside their registries, but those updates must remain bounded data
+   revisions rather than a second tool-execution path
 
 This preserves the canonical `role -> planning -> expression -> action`
-boundary while allowing skills to stay useful as bounded capability signals.
+boundary while allowing roles and skills to become durable, inspectable, and
+revisable runtime data.
 
 ---
 
@@ -602,6 +616,17 @@ Rules:
     - `T14.1` analyst-driven web search via `duckduckgo_html`
     - `T14.2` analyst-driven page read via `generic_http`
     - `T14.3` executor-aligned ClickUp task update through the action layer
+22. user authorization remains the owner of tool activation:
+    - a tool family or provider path may be available only when the user has
+      enabled it through the approved authorization surface
+    - `v1` may keep that activation backend-managed for the single-user
+      baseline
+    - later UI may manage the same per-user authorization records directly
+23. user authorization does not change secret ownership:
+    - raw provider credentials remain external configuration unless a later
+      credential-storage contract is approved explicitly
+    - durable authorization records exist to express consent, readiness, and
+      allowed tool posture
 
 ---
 
@@ -614,8 +639,8 @@ Rules:
 
 1. `work_partner` may be selected only through the same role-selection owner
    as every other role.
-2. it may combine bounded metadata-only skills for work organization and
-   decision support, especially:
+2. it may combine bounded, non-executable skill descriptions for work
+   organization and decision support, especially:
    - structured reasoning
    - execution planning
    - connector boundary review
@@ -629,7 +654,7 @@ Rules:
 4. it must not bypass:
    - connector opt-in rules
    - confirmation requirements for external mutations
-   - the metadata-only skill boundary
+   - the non-executable skill boundary
 5. its `v1` scope is work organization and decision support, not autonomous
    execution outside explicit user-facing turns or approved proactive flows.
 6. the first production organizer-tool stack for this role is explicitly
@@ -744,8 +769,9 @@ Canonical learned-state families:
      `collaboration_preference`, `preferred_role`, and `proactive_opt_in`
 3. selected role and selected skill metadata
    - current-turn role selection remains contextual runtime state
-   - selected skills remain metadata-only capability hints, not executable
-     authorities and not proof of self-modifying skill acquisition
+   - role and skill registries may be durable and revisable
+   - selected skills remain non-executable capability guidance and not proof
+     of a second execution subsystem
 4. planning and active-work state
    - active goals, tasks, milestones, current plan steps, and pending
      subconscious proposals
@@ -761,14 +787,18 @@ Truthfulness rule for "learned skills":
 1. the repo may expose registry-defined skill metadata selected for the current
    turn or current plan
 2. the repo may expose learned knowledge that influences skill selection
-3. the repo must not claim that the personality learned a new executable skill
-   unless an approved architecture change adds a persistent skill-learning
-   system
-4. therefore `v1` introspection may truthfully show:
+3. the repo may expose durable role presets and skill descriptions that were
+   seeded manually or revised through bounded runtime or reflection learning
+4. the repo must not claim that the personality learned a new executable skill,
+   self-installed a tool, or created a second side-effect path unless an
+   approved architecture change adds that capability explicitly
+5. therefore `v1` introspection may truthfully show:
    - what the personality learned
    - which stable preferences it now carries
    - which role it selected
+   - which role presets it has available
    - which skill metadata it selected
+   - which skill descriptions or usage guidance it has available
    - what it is actively planning or tracking
    but not arbitrary self-authored tool logic or code-level skill mutation
 
@@ -819,8 +849,8 @@ Canonical introspection surfaces for that baseline:
      not depend only on live health calls during incident review
 5. learned personality-growth introspection remains explicitly bounded:
    - it may expose learned preferences, learned knowledge summaries, bounded
-     reflection outputs, selected role metadata, selected skill metadata, and
-     planning continuity
+     reflection outputs, role registry metadata, selected role metadata,
+     skill registry metadata, selected skill metadata, and planning continuity
    - it must not imply self-modifying executable skill learning, code
      generation ownership, or a second tool-execution path outside planning and
      action
