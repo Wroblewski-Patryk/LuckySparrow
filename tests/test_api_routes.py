@@ -1020,9 +1020,35 @@ def test_health_endpoint_exposes_learned_state_introspection_posture() -> None:
         "reflection_growth_signal_kinds": [
             "semantic_conclusions",
             "affective_conclusions",
+            "tool_grounded_conclusions",
             "adaptive_outputs",
             "relations",
         ],
+        "tool_grounded_learning": {
+            "policy_owner": "tool_grounded_learning_policy",
+            "capture_owner": "action_owned_external_read_summaries_only",
+            "persistence_owner": "memory_conclusion_write_after_action",
+            "allowed_source_families": [
+                "knowledge_search",
+                "web_browser",
+                "task_system",
+                "calendar",
+                "cloud_drive",
+            ],
+            "allowed_read_operations": [
+                "knowledge_search.search_web",
+                "web_browser.read_page",
+                "task_system.list_tasks",
+                "calendar.read_availability",
+                "cloud_drive.list_files",
+            ],
+            "capture_posture": "bounded_read_summary_only",
+            "raw_payload_storage_allowed": False,
+            "memory_layer": "semantic",
+            "execution_bypass_allowed": False,
+            "self_modifying_skill_learning_allowed": False,
+            "reflection_follow_on_allowed": True,
+        },
     }
     assert body["api_readiness"] == {
         "policy_owner": "v2_backend_api_readiness_policy",
@@ -1095,6 +1121,8 @@ def test_internal_state_inspection_endpoint_exposes_learned_and_planning_state()
     assert body["learned_knowledge"]["knowledge_summary"] == {
         "semantic_conclusion_count": 1,
         "semantic_conclusion_kinds": ["custom_semantic_fact"],
+        "tool_grounded_conclusion_count": 0,
+        "tool_grounded_conclusion_kinds": [],
         "affective_conclusion_count": 1,
         "affective_conclusion_kinds": ["affective_support_pattern"],
         "relation_count": 1,
@@ -1120,6 +1148,8 @@ def test_internal_state_inspection_endpoint_exposes_learned_and_planning_state()
         ],
         "reflection_backed_semantic_growth": True,
         "reflection_backed_affective_growth": True,
+        "tool_grounded_learning_present": False,
+        "tool_grounded_conclusion_kinds": [],
         "relation_signal_types": ["collaboration_dynamic"],
     }
     assert body["role_skill_state"]["role_skill_policy"]["policy_owner"] == "role_skill_boundary_policy"

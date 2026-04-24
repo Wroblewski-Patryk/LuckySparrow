@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.core.tool_grounded_learning import tool_grounded_learning_policy_snapshot
+
 
 LEARNED_STATE_POLICY_OWNER = "learned_state_inspection_policy"
 LEARNED_STATE_INTERNAL_PATH = "/internal/state/inspect"
@@ -45,7 +47,9 @@ def learned_state_policy_snapshot() -> dict[str, Any]:
         "reflection_growth_signal_kinds": [
             "semantic_conclusions",
             "affective_conclusions",
+            "tool_grounded_conclusions",
             "adaptive_outputs",
             "relations",
         ],
+        "tool_grounded_learning": tool_grounded_learning_policy_snapshot(),
     }

@@ -251,27 +251,70 @@ Last updated: 2026-04-24
   organizer-tool activation snapshot, activation-state triage, and
   provider-specific next-action posture as the release-smoke and
   incident-evidence contract.
-- `PRJ-604` is now the first `READY` slice because organizer-tool activation
-  is now frozen, actionable, and release-proven, so the next missing lane is
-  the bounded contract for how approved external-read results become durable
-  learned knowledge.
+- `PRJ-604` is complete: canonical architecture now freezes one bounded
+  tool-grounded learning contract where approved external reads may become
+  durable learned knowledge only through action-owned summaries and
+  memory-owned persistence.
+- `PRJ-605` is complete: approved external reads now persist bounded
+  tool-grounded semantic conclusions and learned-state inspection exposes the
+  richer tool-grounded knowledge summaries instead of leaving external reads
+  purely turn-local.
+- `PRJ-606` is now the first `READY` slice because the bounded capture path is
+  now live in runtime, so the next step is to prove it through behavior and
+  release evidence rather than relying only on unit or API regressions.
 
 ## READY
 
-- [ ] PRJ-604 Freeze the bounded tool-grounded learning contract
+- [ ] PRJ-606 Add behavior and release evidence for tool-grounded learning
+  - Owner: QA/Test
+  - Group: Tool-Grounded Learning Capture
+  - Depends on: PRJ-605
+  - Priority: P1
+  - Status: READY
+  - Why now:
+    - tool-grounded learning is now live in runtime and inspection surfaces,
+      but release and behavior proof still do not pin that same bounded
+      contract
+  - Done when:
+    - behavior validation, inspection surfaces, and release evidence prove
+      that approved external reads can influence later cognition without
+      bypassing planning, action, or memory ownership
+  - Validation:
+    - targeted pytest coverage
+    - behavior-validation or smoke evidence
+
+- [x] PRJ-605 Implement bounded memory capture for approved external-read results
+  - Owner: Backend Builder
+  - Group: Tool-Grounded Learning Capture
+  - Depends on: PRJ-604
+  - Priority: P1
+  - Status: DONE
+  - Why now:
+    - the architecture now allows bounded tool-grounded learning, but approved
+      external reads still ended at turn-local notes instead of durable learned
+      knowledge
+  - Result:
+    - action now emits bounded tool-grounded learning candidates for approved
+      read operations and memory persists them as semantic conclusions
+    - learned-state inspection now distinguishes tool-grounded semantic
+      conclusions from other semantic learned knowledge
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_runtime_pipeline.py tests/test_api_routes.py` -> `228 passed`
+
+- [x] PRJ-604 Freeze the bounded tool-grounded learning contract
   - Owner: Planner
   - Group: Tool-Grounded Learning Capture
   - Depends on: PRJ-603
   - Priority: P1
-  - Status: READY
+  - Status: DONE
   - Why now:
     - external reads already exist through bounded search, browser, and
       organizer-tool operations, but the repo still lacks one explicit durable
       contract for how those reads may become learned knowledge
-  - Done when:
-    - one explicit bounded contract defines how approved external-read results
-      may become durable learned knowledge, preferences, or reflection signals
-      without creating a second execution path
+  - Result:
+    - canonical architecture now defines one bounded tool-grounded learning
+      contract with approved source families, action-owned capture,
+      memory-owned persistence, and forbidden raw-payload persistence
   - Validation:
     - architecture/product/runtime cross-review
 

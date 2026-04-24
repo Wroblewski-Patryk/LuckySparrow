@@ -423,10 +423,21 @@ class PlanOutput(BaseModel):
     selected_skills: list[SkillCapabilityOutput] = Field(default_factory=list)
 
 
+class ToolGroundedLearningCandidate(BaseModel):
+    policy_owner: Literal["tool_grounded_learning_policy"] = "tool_grounded_learning_policy"
+    source_family: Literal["knowledge_search", "web_browser", "task_system", "calendar", "cloud_drive"]
+    source_operation: str
+    conclusion_kind: str
+    content: str
+    confidence: float = 0.74
+    source_reference: str = ""
+
+
 class ActionResult(BaseModel):
     status: str
     actions: list[str] = Field(default_factory=list)
     notes: str
+    tool_learning_candidates: list[ToolGroundedLearningCandidate] = Field(default_factory=list)
 
 
 class ExpressionOutput(BaseModel):

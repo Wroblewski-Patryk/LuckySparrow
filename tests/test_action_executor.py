@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from app.core.action import ActionExecutor
 from app.core.action_delivery import build_action_delivery_execution_envelope
 from app.core.contracts import (
@@ -317,6 +319,55 @@ def _perception(topic_tags: list[str], language_source: str = "keyword_signal") 
 
 def _role(selected: str = "advisor") -> RoleOutput:
     return RoleOutput(selected=selected, confidence=0.8)
+
+
+@pytest.mark.asyncio()
+async def test_persist_episode_captures_tool_grounded_learning_from_read_results() -> None:
+    memory = FakeMemoryRepository()
+    action = ActionExecutor(
+        memory_repository=memory,
+        telegram_client=FakeTelegramClient(),
+        knowledge_search_client=FakeDuckDuckGoSearchClient(),
+        web_browser_client=FakeGenericHttpPageClient(),
+    )
+
+    plan = _plan(
+        domain_intents=[
+            KnowledgeSearchDomainIntent(
+                operation="search_web",
+                provider_hint="duckduckgo_html",
+                mode="read_only",
+                query_hint="release notes deployment risks",
+            ),
+            WebBrowserAccessDomainIntent(
+                operation="read_page",
+                provider_hint="generic_http",
+                mode="read_only",
+                page_hint="https://example.com/release-notes",
+            ),
+        ]
+    )
+    action_result = await action.execute(plan, _delivery())
+
+    await action.persist_episode(
+        _event("Search and read page"),
+        _perception(["release"]),
+        _context(),
+        _motivation(),
+        _role(),
+        plan,
+        action_result,
+        _expression(),
+    )
+
+    conclusion_kinds = [row["kind"] for row in memory.conclusion_updates]
+    assert "tool_grounded_search_knowledge" in conclusion_kinds
+    assert "tool_grounded_page_knowledge" in conclusion_kinds
+    assert any(
+        "release notes deployment risks" in str(row.get("content", ""))
+        for row in memory.conclusion_updates
+        if row["kind"] == "tool_grounded_search_knowledge"
+    )
 
 
 async def test_execute_uses_api_delivery_contract_for_api_responses() -> None:

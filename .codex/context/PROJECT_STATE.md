@@ -404,9 +404,16 @@ Last updated: 2026-04-24
   notes, planning truth, and repository context now describe the same richer
   organizer-tool activation snapshot and provider-specific next-action
   posture.
-- 2026-04-24: `PRJ-604` is now the first `READY` task; the next slice should
-  freeze the bounded contract for how approved external-read results may
-  become durable learned knowledge without creating a second execution path.
+- 2026-04-24: `PRJ-604` is complete: canonical architecture now freezes one
+  bounded tool-grounded learning contract where approved external reads may
+  become durable learned knowledge only through action-owned summaries and
+  memory-owned persistence.
+- 2026-04-24: `PRJ-605` is complete: approved external reads now persist
+  bounded tool-grounded semantic conclusions and learned-state inspection
+  exposes the richer tool-grounded knowledge summaries.
+- 2026-04-24: `PRJ-606` is now the first `READY` task; the next slice should
+  prove the live tool-grounded learning path through behavior and release
+  evidence.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.

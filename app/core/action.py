@@ -26,6 +26,7 @@ from app.core.contracts import (
     UpdateProactivePreferenceDomainIntent,
     UpdateResponseStyleDomainIntent,
     UpdateTaskStatusDomainIntent,
+    ToolGroundedLearningCandidate,
     UpsertGoalDomainIntent,
     UpsertTaskDomainIntent,
 )
@@ -50,6 +51,11 @@ from app.memory.embeddings import (
 from app.memory.episodic import build_episode_summary
 from app.memory.openai_embedding_client import OpenAIEmbeddingClient
 from app.memory.repository import MemoryRepository
+from app.core.tool_grounded_learning import (
+    TOOL_GROUNDED_LEARNING_POLICY_OWNER,
+    is_tool_grounded_conclusion_kind,
+    tool_grounded_conclusion_kind,
+)
 
 
 class ActionExecutor:
@@ -170,6 +176,10 @@ class ActionExecutor:
         relation_update = str(intent_updates["relation_update"])
         proactive_state_update = str(intent_updates["proactive_state_update"])
         proactive_preference_update = str(intent_updates["proactive_preference_update"])
+        tool_grounded_learning_update = await self._persist_tool_grounded_learning(
+            event=event,
+            action_result=action_result,
+        )
         calendar_connector_guardrail = str(intent_updates["calendar_connector_guardrail"])
         task_connector_guardrail = str(intent_updates["task_connector_guardrail"])
         drive_connector_guardrail = str(intent_updates["drive_connector_guardrail"])
@@ -201,6 +211,7 @@ class ActionExecutor:
             "relation_update": relation_update,
             "proactive_state_update": proactive_state_update,
             "proactive_preference_update": proactive_preference_update,
+            "tool_grounded_learning_update": tool_grounded_learning_update,
             "calendar_connector_guardrail": calendar_connector_guardrail,
             "task_connector_guardrail": task_connector_guardrail,
             "drive_connector_guardrail": drive_connector_guardrail,
@@ -288,6 +299,7 @@ class ActionExecutor:
     async def _execute_provider_backed_connector_intents(self, plan: PlanOutput) -> ActionResult | None:
         executed_actions: list[str] = []
         notes: list[str] = []
+        learning_candidates: list[ToolGroundedLearningCandidate] = []
 
         for intent in plan.domain_intents:
             if isinstance(intent, ExternalTaskSyncDomainIntent):
@@ -336,6 +348,14 @@ class ActionExecutor:
                     if task_names:
                         notes.append(
                             "ClickUp task read returned: " + ", ".join(task_names[:3]) + "."
+                        )
+                        learning_candidates.append(
+                            self._tool_learning_candidate(
+                                source_family="task_system",
+                                source_operation="list_tasks",
+                                content="ClickUp tasks observed: " + ", ".join(task_names[:3]),
+                                source_reference="clickup:list_tasks",
+                            )
                         )
                     else:
                         notes.append("ClickUp task read returned no visible tasks.")
@@ -412,20 +432,48 @@ class ActionExecutor:
                 executed_actions.append("google_calendar_read_availability")
                 free_slot_preview = list(availability.get("free_slot_preview", []))
                 if free_slot_preview:
+                    normalized_slots = [str(slot) for slot in free_slot_preview[:3]]
                     notes.append(
                         "Google Calendar availability read "
                         f"({availability.get('window_start')} -> {availability.get('window_end')}, "
                         f"{availability.get('time_zone')}) found "
                         f"{availability.get('busy_window_count', 0)} busy windows. "
                         "Top free slots: "
-                        + "; ".join(str(slot) for slot in free_slot_preview[:3])
+                        + "; ".join(normalized_slots)
                         + "."
+                    )
+                    learning_candidates.append(
+                        self._tool_learning_candidate(
+                            source_family="calendar",
+                            source_operation="read_availability",
+                            content=(
+                                "Calendar availability observed: "
+                                f"{availability.get('window_start')} -> {availability.get('window_end')} "
+                                f"{availability.get('time_zone')} busy={availability.get('busy_window_count', 0)} "
+                                "top_free_slots="
+                                + "; ".join(normalized_slots)
+                            ),
+                            source_reference=str(availability.get("window_start") or intent.time_hint or "calendar:read_availability"),
+                        )
                     )
                 else:
                     notes.append(
                         "Google Calendar availability read "
                         f"({availability.get('window_start')} -> {availability.get('window_end')}, "
                         f"{availability.get('time_zone')}) found no bounded free-slot preview."
+                    )
+                    learning_candidates.append(
+                        self._tool_learning_candidate(
+                            source_family="calendar",
+                            source_operation="read_availability",
+                            content=(
+                                "Calendar availability observed: "
+                                f"{availability.get('window_start')} -> {availability.get('window_end')} "
+                                f"{availability.get('time_zone')} busy={availability.get('busy_window_count', 0)} "
+                                "no_top_free_slots"
+                            ),
+                            source_reference=str(availability.get("window_start") or intent.time_hint or "calendar:read_availability"),
+                        )
                     )
                 continue
 
@@ -453,6 +501,14 @@ class ActionExecutor:
                 if files:
                     preview = [self._connector_drive_preview(item) for item in files[:3]]
                     notes.append("Google Drive metadata read returned: " + "; ".join(preview) + ".")
+                    learning_candidates.append(
+                        self._tool_learning_candidate(
+                            source_family="cloud_drive",
+                            source_operation="list_files",
+                            content="Google Drive files observed: " + "; ".join(preview),
+                            source_reference=str(intent.file_hint or "google_drive:list_files"),
+                        )
+                    )
                 else:
                     notes.append("Google Drive metadata read returned no visible files.")
                 continue
@@ -480,6 +536,14 @@ class ActionExecutor:
                 if results:
                     preview = [self._search_result_preview(item) for item in results[:3]]
                     notes.append("Web search returned: " + "; ".join(preview) + ".")
+                    learning_candidates.append(
+                        self._tool_learning_candidate(
+                            source_family="knowledge_search",
+                            source_operation="search_web",
+                            content=f"Web search for '{intent.query_hint.strip()}': " + "; ".join(preview),
+                            source_reference=intent.query_hint,
+                        )
+                    )
                 else:
                     notes.append("Web search returned no bounded results.")
                 continue
@@ -508,10 +572,22 @@ class ActionExecutor:
                         notes=f"Browser page read failed: {type(exc).__name__}: {exc}",
                     )
                 executed_actions.append("generic_http_read_page")
+                excerpt = " ".join(str(page.get("excerpt", "") or "").split())[:220]
                 notes.append(
                     "Browser page read returned: "
                     f"{page.get('title') or 'untitled'} [{page.get('content_type')}] "
                     f"{str(page.get('url', ''))[:120]}."
+                )
+                learning_candidates.append(
+                    self._tool_learning_candidate(
+                        source_family="web_browser",
+                        source_operation="read_page",
+                        content=(
+                            f"Page read {page.get('title') or 'untitled'} "
+                            f"({str(page.get('url', ''))[:120]}): {excerpt}"
+                        ).strip(),
+                        source_reference=str(page.get("url", "") or target_url),
+                    )
                 )
                 continue
 
@@ -522,6 +598,7 @@ class ActionExecutor:
             status="success",
             actions=executed_actions,
             notes=" ".join(notes),
+            tool_learning_candidates=learning_candidates,
         )
 
     def _merge_connector_execution_with_delivery(
@@ -538,6 +615,53 @@ class ActionExecutor:
             status=status,
             actions=[*connector_execution_result.actions, *delivery_result.actions],
             notes=notes,
+            tool_learning_candidates=[
+                *connector_execution_result.tool_learning_candidates,
+                *delivery_result.tool_learning_candidates,
+            ],
+        )
+
+    async def _persist_tool_grounded_learning(
+        self,
+        *,
+        event: Event,
+        action_result: ActionResult,
+    ) -> str:
+        if not hasattr(self.memory_repository, "upsert_conclusion"):
+            return ""
+
+        persisted_kinds: list[str] = []
+        for candidate in action_result.tool_learning_candidates:
+            if not is_tool_grounded_conclusion_kind(candidate.conclusion_kind):
+                continue
+            await self.memory_repository.upsert_conclusion(
+                user_id=event.meta.user_id,
+                kind=candidate.conclusion_kind,
+                content=candidate.content,
+                confidence=float(candidate.confidence),
+                source=f"{TOOL_GROUNDED_LEARNING_POLICY_OWNER}:{candidate.source_family}.{candidate.source_operation}",
+                supporting_event_id=event.event_id,
+            )
+            persisted_kinds.append(candidate.conclusion_kind)
+        return ",".join(persisted_kinds)
+
+    def _tool_learning_candidate(
+        self,
+        *,
+        source_family: str,
+        source_operation: str,
+        content: str,
+        source_reference: str,
+    ) -> ToolGroundedLearningCandidate:
+        return ToolGroundedLearningCandidate(
+            source_family=source_family,
+            source_operation=source_operation,
+            conclusion_kind=tool_grounded_conclusion_kind(
+                source_family=source_family,
+                source_operation=source_operation,
+            ),
+            content=" ".join(str(content).split())[:500],
+            source_reference=" ".join(str(source_reference).split())[:200],
         )
 
     def _connector_task_name(self, task_hint: str) -> str:

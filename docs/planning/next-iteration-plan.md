@@ -206,6 +206,17 @@ Queue update (2026-04-24):
   - Validation:
     - doc-and-context sync
 
+Queue update (2026-04-24):
+
+- `PRJ-604` is complete: canonical architecture now freezes one bounded
+  tool-grounded learning contract with approved source families, action-owned
+  capture, and memory-owned persistence.
+- `PRJ-605` is complete: approved external reads now persist bounded
+  tool-grounded semantic conclusions and learned-state inspection exposes the
+  richer tool-grounded knowledge summaries.
+- the next active slice is `PRJ-606`, which should prove that same bounded
+  contract through behavior and release evidence.
+
 ### Group 98 - Capability Catalog And Future-UI Bootstrap
 
 - `PRJ-608` Freeze the backend capability-catalog baseline.

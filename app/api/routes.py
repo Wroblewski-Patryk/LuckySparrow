@@ -20,6 +20,7 @@ from app.core.events import looks_like_telegram_update, normalize_event
 from app.core.background_adaptive_outputs import summarize_loaded_adaptive_state
 from app.core.identity_policy import identity_policy_snapshot
 from app.core.learned_state_policy import learned_state_policy_snapshot
+from app.core.tool_grounded_learning import is_tool_grounded_conclusion_kind
 from app.core.adaptive_governance import adaptive_identity_governance_snapshot
 from app.core.affective_diagnostics import affective_input_policy_snapshot
 from app.core.affective_policy import affective_assessment_policy_snapshot
@@ -412,8 +413,18 @@ async def _build_learned_state_snapshot(*, request: Request, user_id: str) -> di
         for row in conclusions
         if str(row.get("kind", "")).strip().lower() not in preference_kinds.union(affective_kinds)
     ]
+    tool_grounded_conclusions = [
+        row
+        for row in semantic_conclusions
+        if is_tool_grounded_conclusion_kind(str(row.get("kind", "")))
+    ]
     affective_conclusions = [
         row for row in conclusions if str(row.get("kind", "")).strip().lower() in affective_kinds
+    ]
+    semantic_non_tool_conclusions = [
+        row
+        for row in semantic_conclusions
+        if not is_tool_grounded_conclusion_kind(str(row.get("kind", "")))
     ]
     relation_types = sorted(
         {
@@ -425,7 +436,14 @@ async def _build_learned_state_snapshot(*, request: Request, user_id: str) -> di
     semantic_conclusion_kinds = sorted(
         {
             str(row.get("kind", "")).strip().lower()
-            for row in semantic_conclusions
+            for row in semantic_non_tool_conclusions
+            if str(row.get("kind", "")).strip()
+        }
+    )
+    tool_grounded_conclusion_kinds = sorted(
+        {
+            str(row.get("kind", "")).strip().lower()
+            for row in tool_grounded_conclusions
             if str(row.get("kind", "")).strip()
         }
     )
@@ -458,6 +476,8 @@ async def _build_learned_state_snapshot(*, request: Request, user_id: str) -> di
     learned_knowledge_summary = {
         "semantic_conclusion_count": len(semantic_conclusions),
         "semantic_conclusion_kinds": semantic_conclusion_kinds,
+        "tool_grounded_conclusion_count": len(tool_grounded_conclusions),
+        "tool_grounded_conclusion_kinds": tool_grounded_conclusion_kinds,
         "affective_conclusion_count": len(affective_conclusions),
         "affective_conclusion_kinds": affective_conclusion_kinds,
         "relation_count": len(relations),
@@ -506,6 +526,8 @@ async def _build_learned_state_snapshot(*, request: Request, user_id: str) -> di
                 "adaptive_output_keys": learned_knowledge_summary["adaptive_output_keys"],
                 "reflection_backed_semantic_growth": bool(semantic_conclusions),
                 "reflection_backed_affective_growth": bool(affective_conclusions),
+                "tool_grounded_learning_present": bool(tool_grounded_conclusions),
+                "tool_grounded_conclusion_kinds": tool_grounded_conclusion_kinds,
                 "relation_signal_types": relation_types,
             },
         },

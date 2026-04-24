@@ -174,6 +174,12 @@ Questions answered:
 - what must be written, sent, updated, or triggered?
 - did execution succeed?
 
+Approved external reads may inform later cognition only when Action reduces
+their results into bounded summaries for Memory.
+
+Raw provider payloads must not become a second memory-ingestion path outside
+the existing action -> memory boundary.
+
 ### Memory
 
 Store the finished episode for future retrieval and learning.

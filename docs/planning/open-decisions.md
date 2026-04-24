@@ -44,6 +44,9 @@ real-world tool onboarding and tool-grounded learning.
      learned knowledge without creating a second tool-execution path
    - any solution must keep learning inside memory/reflection ownership and
      must not imply self-modifying executable skill learning
+   - `PRJ-604` now freezes the bounded architecture contract for this lane
+   - `PRJ-605` now makes that contract live through action-owned capture and
+     memory-owned persistence of tool-grounded semantic conclusions
 4. capability catalog for future UI/admin work
    - not yet resolved
    - learned-state and API-readiness surfaces exist, but future UI or admin
@@ -74,8 +77,11 @@ Current execution note:
   - runtime reality, testing guidance, ops notes, planning truth, and
     repository context now describe the richer organizer-tool activation
     snapshot and provider-specific next-action posture consistently
-- `PRJ-604` is the current baseline-freezing slice for tool-grounded learning
-  capture.
+- `PRJ-604..PRJ-605` are complete:
+  - the bounded tool-grounded learning contract is frozen
+  - approved external reads now persist bounded tool-grounded semantic
+    conclusions
+- `PRJ-606` is the current evidence slice for tool-grounded learning capture.
 
 ## Post-V1 Architecture Gap Analysis (2026-04-23)
 

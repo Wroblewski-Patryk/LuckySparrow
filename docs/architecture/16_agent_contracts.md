@@ -687,6 +687,46 @@ Rules:
    - later activation surfaces may add actionable next steps, but they must
      reuse this baseline rather than invent a second readiness model
 
+---
+
+## Tool-Grounded Learning Capture Baseline
+
+Approved external reads may become durable learned knowledge only through one
+explicit bounded contract.
+
+Rules:
+
+1. eligible source families are limited to approved read operations executed
+   through the existing planning -> permission-gate -> action boundary:
+   - `knowledge_search.search_web`
+   - `web_browser.read_page`
+   - `task_system.list_tasks`
+   - `calendar.read_availability`
+   - `cloud_drive.list_files`
+2. Action owns reduction of provider results into bounded learning candidates.
+3. Memory owns persistence of those candidates after action completes, using
+   normal conclusion writes rather than a second ingestion path.
+4. persisted tool-grounded knowledge must remain bounded summary data:
+   - short evidence-oriented text
+   - source family and operation
+   - optional bounded source reference such as query, URL, or provider path
+5. raw provider payloads, full documents, attendee lists, login state, or
+   unconstrained excerpts must not be persisted as tool-grounded learned state.
+6. tool-grounded learning remains semantic knowledge, not executable skill
+   growth:
+   - it may influence later retrieval, planning, or reflection
+   - it must not imply self-modifying tools, self-installed integrations, or
+     a second execution subsystem
+7. canonical initial conclusion kinds for this lane are:
+   - `tool_grounded_search_knowledge`
+   - `tool_grounded_page_knowledge`
+   - `tool_grounded_task_snapshot`
+   - `tool_grounded_calendar_snapshot`
+   - `tool_grounded_drive_snapshot`
+8. learned-state inspection may expose these summaries as part of learned
+   knowledge, but their capture owner remains Action and their persistence
+   owner remains Memory.
+
 Machine-visible expectation:
 
 1. backend surfaces should make it clear when `work_partner` was selected
@@ -760,6 +800,7 @@ Canonical learned-state families:
 
 1. learned knowledge
    - semantic conclusions
+   - tool-grounded semantic conclusions from approved external reads
    - affective conclusions
    - relation records
    - reflection-derived adaptive outputs such as theta or support patterns
@@ -818,6 +859,8 @@ Canonical introspection surfaces for that baseline:
      - `knowledge_summary`
      - `reflection_growth_summary`
      - `planning_continuity_summary`
+   - may describe tool-grounded learning posture and tool-grounded semantic
+     conclusion families as part of `learned_knowledge`
 2. `/health.api_readiness`
    - exposes the shared backend API-readiness owner for later `v2` UI
      consumers
@@ -849,8 +892,9 @@ Canonical introspection surfaces for that baseline:
      not depend only on live health calls during incident review
 5. learned personality-growth introspection remains explicitly bounded:
    - it may expose learned preferences, learned knowledge summaries, bounded
-     reflection outputs, role registry metadata, selected role metadata,
-     skill registry metadata, selected skill metadata, and planning continuity
+     reflection outputs, tool-grounded knowledge summaries, role registry
+     metadata, selected role metadata, skill registry metadata, selected skill
+     metadata, and planning continuity
    - it must not imply self-modifying executable skill learning, code
      generation ownership, or a second tool-execution path outside planning and
      action

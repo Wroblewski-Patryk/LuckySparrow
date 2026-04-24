@@ -196,6 +196,29 @@ class FakeMemoryRepository:
     async def upsert_conclusion(self, **kwargs) -> dict:
         self.conclusion_updates.append(kwargs)
         kind = str(kwargs.get("kind", "")).strip().lower()
+        payload = {
+            "kind": kwargs.get("kind"),
+            "content": kwargs.get("content"),
+            "confidence": kwargs.get("confidence"),
+            "source": kwargs.get("source"),
+            "supporting_event_id": kwargs.get("supporting_event_id"),
+            "scope_type": kwargs.get("scope_type", "global"),
+            "scope_key": kwargs.get("scope_key", "global"),
+        }
+        existing_index = next(
+            (
+                index
+                for index, row in enumerate(self.user_conclusions)
+                if str(row.get("kind", "")).strip().lower() == kind
+                and str(row.get("scope_type", "global")) == str(payload["scope_type"])
+                and str(row.get("scope_key", "global")) == str(payload["scope_key"])
+            ),
+            None,
+        )
+        if existing_index is None:
+            self.user_conclusions.append(payload)
+        else:
+            self.user_conclusions[existing_index] = payload
         if kind == "proactive_opt_in":
             value = str(kwargs.get("content", "")).strip().lower() in {"1", "true", "yes", "on"}
             self.user_preferences["proactive_opt_in"] = value
@@ -5589,6 +5612,57 @@ async def test_runtime_behavior_failure_scenarios_cover_contradiction_missing_da
     )
     assert len(results) == 3
     assert {result.status for result in results} == {"pass"}
+
+
+@pytest.mark.asyncio()
+async def test_runtime_persists_tool_grounded_learning_from_bounded_external_reads() -> None:
+    memory = PersistingFakeMemoryRepository(recent_memory=[])
+    runtime = _build_behavior_runtime(
+        memory_repository=memory,
+        clickup_task_client=FakeClickUpTaskClient(),
+        google_calendar_client=FakeGoogleCalendarClient(),
+        google_drive_client=FakeGoogleDriveClient(),
+        knowledge_search_client=FakeDuckDuckGoSearchClient(),
+        web_browser_client=FakeGenericHttpPageClient(),
+    )
+
+    await runtime.run(
+        _behavior_event(
+            event_id="evt-tool-learning-1",
+            trace_id="t-tool-learning-1",
+            text="Search the web for deployment risks and read page https://example.com/release-notes.",
+        )
+    )
+    await runtime.run(
+        _behavior_event(
+            event_id="evt-tool-learning-2",
+            trace_id="t-tool-learning-2",
+            text="Be my work partner and list tasks in ClickUp.",
+        )
+    )
+    await runtime.run(
+        _behavior_event(
+            event_id="evt-tool-learning-3",
+            trace_id="t-tool-learning-3",
+            text="Be my work partner and check my calendar availability tomorrow.",
+        )
+    )
+    await runtime.run(
+        _behavior_event(
+            event_id="evt-tool-learning-4",
+            trace_id="t-tool-learning-4",
+            text="Be my work partner and list files in Google Drive.",
+        )
+    )
+
+    conclusion_kinds = {str(row.get("kind", "")) for row in memory.user_conclusions}
+    assert {
+        "tool_grounded_search_knowledge",
+        "tool_grounded_page_knowledge",
+        "tool_grounded_task_snapshot",
+        "tool_grounded_calendar_snapshot",
+        "tool_grounded_drive_snapshot",
+    }.issubset(conclusion_kinds)
 
 
 async def test_runtime_behavior_proactive_scenarios_cover_delivery_and_anti_spam_posture() -> None:
