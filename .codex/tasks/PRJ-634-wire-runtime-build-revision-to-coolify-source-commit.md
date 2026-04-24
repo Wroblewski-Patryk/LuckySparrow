@@ -62,3 +62,11 @@ contract so live production exposes a machine-visible commit SHA.
 Official Coolify docs state that runtime applications should expose predefined
 commit SHA through a regular environment variable value such as
 `MY_VARIABLE=$SOURCE_COMMIT`, while build-time inclusion is a separate opt-in.
+
+Implementation note:
+- `docker-compose.coolify.yml` now references the application-owned
+  `APP_BUILD_REVISION` variable instead of referencing `SOURCE_COMMIT`
+  directly.
+- The canonical Coolify app now stores `APP_BUILD_REVISION=$SOURCE_COMMIT` as
+  a runtime-only variable, and the previously shadowing `SOURCE_COMMIT=unknown`
+  variable has been removed from the application environment.
