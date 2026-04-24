@@ -9,7 +9,20 @@ Last updated: 2026-04-24
   structured pipeline, replies through API or Telegram, and learns lightweight
   user preferences over time
 - Commercial model: TBD
-- Current phase: no-UI V1 baseline achieved in repo; final operational V1-closure queue now seeded for live tool onboarding and daily-use readiness
+- Current phase: no-UI V1 baseline achieved in repo; final operational V1-closure queue now active for live tool onboarding and daily-use readiness
+- 2026-04-24: `PRJ-615` is complete: `/health.deployment`, exported incident
+  evidence, repo-driven Coolify env/build args, and release smoke now expose
+  one machine-visible repo-vs-production parity contract built around
+  `runtime_build_revision`, `runtime_trigger_mode`, and explicit provenance
+  state. Live production smoke is now failing loudly while production is still
+  behind repo truth instead of silently passing without deploy-parity proof.
+- 2026-04-24: `PRJ-614` is complete: one explicit final operational no-UI
+  `v1` closure baseline is now frozen. Daily-use `v1` requires live production
+  parity across conversation reliability, life-assistant behavior proof,
+  learned-state inspection, bounded web-knowledge posture, organizer daily-use
+  posture, and deploy provenance or parity. If any of those drift, the repo
+  falls back to "no-UI `v1` baseline achieved in repo" instead of claiming
+  final operational closure.
 - 2026-04-24: `PRJ-613` is complete: fresh analysis now reframes the remaining
   work as final operational `v1` closure rather than another generic
   post-`v1` hardening wave. The next queue is seeded through `PRJ-633` and

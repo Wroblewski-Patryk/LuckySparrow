@@ -1,7 +1,10 @@
 FROM python:3.11-slim
 
+ARG APP_BUILD_REVISION=unknown
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV APP_BUILD_REVISION=${APP_BUILD_REVISION}
 
 WORKDIR /app
 
@@ -20,4 +23,3 @@ COPY . /app
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-

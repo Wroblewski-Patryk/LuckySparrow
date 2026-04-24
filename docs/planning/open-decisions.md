@@ -133,6 +133,27 @@ Queue seeded from this analysis:
 
 Current execution note:
 
+- `PRJ-614` is complete:
+  - the repo now has one explicit final operational no-UI `v1` closure
+    baseline
+  - daily-use `v1` is defined as live production where conversation
+    reliability, bounded life-assistant behavior, truthful learned-state
+    inspection, bounded web-knowledge posture, organizer daily-use posture,
+    and deploy parity are green at the same time
+  - rollback posture is now explicit: if deploy parity drifts or live external
+    tool posture stops being production-real, the repo falls back to "no-UI
+    `v1` baseline achieved in repo" rather than claiming final operational
+    closure
+- `PRJ-615` is now complete:
+  - `/health.deployment`, exported incident evidence, repo-driven Coolify
+    env/build args, and release smoke now expose one shared repo-vs-production
+    parity contract
+  - live release smoke now fails explicitly when production is still behind
+    repo truth instead of silently passing without deploy-parity proof
+- `PRJ-616` is now the next active slice:
+  - the Coolify primary deploy path and explicit fallback workflow now need to
+    be hardened so the new parity contract can actually turn green in live
+    production
 - `PRJ-598` is complete in repo truth: deployment provenance is now
   machine-visible in `/health.deployment`, deploy webhook evidence, exported
   incident evidence, and release smoke.

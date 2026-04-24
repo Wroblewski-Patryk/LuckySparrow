@@ -296,6 +296,8 @@ class FakeSettings:
         proactive_enabled: bool = False,
         proactive_interval: int = 1800,
         attention_coordination_mode: str = "in_process",
+        app_build_revision: str = "test-build-revision",
+        deployment_trigger_mode: str = "source_automation",
         google_calendar_access_token: str | None = None,
         google_calendar_calendar_id: str | None = None,
         google_calendar_timezone: str | None = None,
@@ -334,6 +336,8 @@ class FakeSettings:
         self.proactive_enabled = proactive_enabled
         self.proactive_interval = proactive_interval
         self.attention_coordination_mode = attention_coordination_mode
+        self.app_build_revision = app_build_revision
+        self.deployment_trigger_mode = deployment_trigger_mode
         self.google_calendar_access_token = google_calendar_access_token
         self.google_calendar_calendar_id = google_calendar_calendar_id
         self.google_calendar_timezone = google_calendar_timezone
@@ -742,6 +746,8 @@ def _client(
     attention_answered_ttl_seconds: float = 0.5,
     attention_stale_turn_seconds: float = 3.0,
     attention_coordination_mode: str = "in_process",
+    app_build_revision: str = "test-build-revision",
+    deployment_trigger_mode: str = "source_automation",
 ) -> tuple[TestClient, FakeRuntime, FakeTelegramClient]:
     app = FastAPI()
     app.include_router(router)
@@ -829,6 +835,8 @@ def _client(
         proactive_enabled=proactive_enabled,
         proactive_interval=proactive_interval,
         attention_coordination_mode=attention_coordination_mode,
+        app_build_revision=app_build_revision,
+        deployment_trigger_mode=deployment_trigger_mode,
     )
     app.state.memory_repository = memory_repository
     app.state.reflection_worker = reflection_worker
@@ -2422,6 +2430,17 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
         "provenance_evidence_state": "fallback_artifact_supported_primary_history_required",
         "provenance_evidence_hint": "verify_coolify_history_and_attach_fallback_artifact_when_primary_automation_is_not_used",
     }
+    assert body["deployment"]["runtime_build_revision"] == "test-build-revision"
+    assert body["deployment"]["runtime_build_revision_state"] == "runtime_build_revision_declared"
+    assert body["deployment"]["runtime_build_revision_hint"] == (
+        "runtime_build_revision_can_be_compared_with_local_repo_head_or_deploy_evidence"
+    )
+    assert body["deployment"]["runtime_trigger_mode"] == "source_automation"
+    assert body["deployment"]["runtime_trigger_class"] == "primary_automation"
+    assert body["deployment"]["runtime_provenance_state"] == "primary_runtime_provenance_declared"
+    assert body["deployment"]["repo_to_production_parity_surface"] == (
+        "release_smoke_compares_runtime_build_revision_with_local_repo_head_and_optional_deploy_evidence"
+    )
 
 
 def test_health_endpoint_exposes_provider_backed_clickup_connector_readiness_when_configured() -> None:
@@ -3486,6 +3505,21 @@ def test_event_debug_endpoint_exposes_runtime_incident_evidence_export() -> None
         "provenance_evidence_state": "fallback_artifact_supported_primary_history_required",
         "provenance_evidence_hint": "verify_coolify_history_and_attach_fallback_artifact_when_primary_automation_is_not_used",
     }
+    assert incident_evidence["policy_posture"]["deployment"]["runtime_build_revision"] == "test-build-revision"
+    assert incident_evidence["policy_posture"]["deployment"]["runtime_build_revision_state"] == (
+        "runtime_build_revision_declared"
+    )
+    assert incident_evidence["policy_posture"]["deployment"]["runtime_build_revision_hint"] == (
+        "runtime_build_revision_can_be_compared_with_local_repo_head_or_deploy_evidence"
+    )
+    assert incident_evidence["policy_posture"]["deployment"]["runtime_trigger_mode"] == "source_automation"
+    assert incident_evidence["policy_posture"]["deployment"]["runtime_trigger_class"] == "primary_automation"
+    assert incident_evidence["policy_posture"]["deployment"]["runtime_provenance_state"] == (
+        "primary_runtime_provenance_declared"
+    )
+    assert incident_evidence["policy_posture"]["deployment"]["repo_to_production_parity_surface"] == (
+        "release_smoke_compares_runtime_build_revision_with_local_repo_head_and_optional_deploy_evidence"
+    )
     assert incident_evidence["policy_posture"]["attention"]["attention_policy_owner"] == (
         "durable_attention_inbox_policy"
     )

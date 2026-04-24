@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-615
 - Title: Add machine-visible repo-vs-production truth and deploy-parity evidence
-- Status: BACKLOG
+- Status: DONE
 - Owner: Backend Builder
 - Depends on: PRJ-614
 - Priority: P0
@@ -21,9 +21,9 @@ Expose machine-visible parity evidence for repository-intended versus live deplo
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Existing health or observability surfaces expose deploy-parity truth.
-- [ ] Release evidence consumes the same parity contract.
-- [ ] Regression coverage pins the new evidence path.
+- [x] Existing health or observability surfaces expose deploy-parity truth.
+- [x] Release evidence consumes the same parity contract.
+- [x] Regression coverage pins the new evidence path.
 
 ## Forbidden
 - new systems without approval
@@ -32,8 +32,10 @@ Expose machine-visible parity evidence for repository-intended versus live deplo
 - architecture changes without explicit approval
 
 ## Validation Evidence
-- Tests: targeted pytest coverage for health/observability/deploy scripts
-- Manual checks: live release-smoke verification after deploy
+- Tests: `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_coolify_compose.py`
+- Manual checks:
+  - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'`
+  - live smoke now fails explicitly when production is still behind repo truth instead of passing without deploy-parity evidence
 - Screenshots/logs:
 - High-risk checks: do not invent a second deployment-truth system separate from existing deployment/observability owners
 
@@ -46,14 +48,34 @@ Expose machine-visible parity evidence for repository-intended versus live deplo
 - Follow-up architecture doc updates: likely runtime reality/runbook/testing if the contract widens
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 The target is operator-readable parity evidence, not a new deployment controller.
+
+Completed in this slice:
+
+- `/health.deployment` and exported `incident_evidence.policy_posture["deployment"]`
+  now expose:
+  - `runtime_build_revision`
+  - `runtime_build_revision_state`
+  - `runtime_trigger_mode`
+  - `runtime_trigger_class`
+  - `runtime_provenance_state`
+  - `repo_to_production_parity_surface`
+- repository-driven Coolify runtime now receives `APP_BUILD_REVISION` and
+  `DEPLOYMENT_TRIGGER_MODE` through build args and runtime env
+- release smoke now compares live production `runtime_build_revision` against:
+  - local `git rev-parse HEAD`
+  - optional deployment evidence `after_sha`
+- live production smoke currently fails with:
+  - `deployment is missing deployment_automation_policy_owner`
+  which is the intended machine-visible proof that deployed truth is still
+  behind repo truth until the next deploy lands

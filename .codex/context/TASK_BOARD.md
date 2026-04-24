@@ -286,23 +286,61 @@ Last updated: 2026-04-24
 
 ## READY
 
-- [ ] PRJ-614 Freeze the final operational V1-closure baseline
+- [x] PRJ-614 Freeze the final operational V1-closure baseline
   - Owner: Planning Agent
   - Group: Production Truth And Deploy Automation Closure
   - Depends on: PRJ-613
   - Priority: P0
-  - Status: READY
+  - Status: DONE
   - Why now:
     - the repo already meets the no-UI `v1` contract on paper, but the user
       still needs one explicit final closure baseline that distinguishes
       healthy backend contracts from truly daily-usable production behavior
   - Result:
-    - one explicit `v1` operational-closure contract records what must be
+    - one explicit `v1` operational-closure contract now records what must be
       green in live production before the personality is treated as truly
       ready for daily conversation, bounded web reading, and external-tool
-      onboarding
+      onboarding, together with explicit fallback posture when live production
+      drifts from that bar
   - Validation:
     - architecture/product/ops cross-review against live production `/health`
+
+- [x] PRJ-615 Add machine-visible repo-vs-production truth and deploy-parity evidence
+  - Owner: Backend Builder
+  - Group: Production Truth And Deploy Automation Closure
+  - Depends on: PRJ-614
+  - Priority: P0
+  - Status: DONE
+  - Why now:
+    - final no-UI `v1` closure now depends explicitly on live production
+      parity, so the next slice must make repo-vs-production truth
+      machine-visible instead of leaving it as operator inference
+  - Result:
+    - production-facing surfaces and release evidence distinguish intended repo
+      baseline from last-deployed baseline and explicit fallback deploy
+      provenance
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_coolify_compose.py`
+    - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'`
+
+- [ ] PRJ-616 Harden the Coolify primary deploy path and explicit fallback workflow
+  - Owner: Ops/Release
+  - Group: Production Truth And Deploy Automation Closure
+  - Depends on: PRJ-615
+  - Priority: P0
+  - Status: READY
+  - Why now:
+    - the repo now exposes parity drift explicitly, and live production smoke
+      is failing because deployed truth is behind repo truth, so the next slice
+      must harden the primary Coolify deploy path and make fallback usage
+      explicit instead of operator-implicit
+  - Result:
+    - repo-driven deploy remains the primary path, fallback remains bounded,
+      and release evidence can prove which path actually produced the running
+      production baseline
+  - Validation:
+    - targeted pytest coverage
+    - live deploy plus release-smoke verification
 
 - [x] PRJ-611 Sync docs/context for the capability-catalog baseline
   - Owner: Product Docs Agent

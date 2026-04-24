@@ -68,6 +68,33 @@ def test_coolify_compose_defaults_embedding_model_to_openai_small() -> None:
     assert app_environment["EMBEDDING_MODEL"] == "${EMBEDDING_MODEL:-text-embedding-3-small}"
 
 
+def test_coolify_compose_defaults_app_build_revision_to_unknown() -> None:
+    compose_path = Path("docker-compose.coolify.yml")
+    compose = yaml.safe_load(compose_path.read_text(encoding="utf-8"))
+
+    app_environment = compose["services"]["app"]["environment"]
+
+    assert app_environment["APP_BUILD_REVISION"] == "${APP_BUILD_REVISION:-unknown}"
+
+
+def test_coolify_compose_defaults_deployment_trigger_mode_to_source_automation() -> None:
+    compose_path = Path("docker-compose.coolify.yml")
+    compose = yaml.safe_load(compose_path.read_text(encoding="utf-8"))
+
+    app_environment = compose["services"]["app"]["environment"]
+
+    assert app_environment["DEPLOYMENT_TRIGGER_MODE"] == "${DEPLOYMENT_TRIGGER_MODE:-source_automation}"
+
+
+def test_coolify_compose_builds_runtime_services_with_app_build_revision_arg() -> None:
+    compose_path = Path("docker-compose.coolify.yml")
+    compose = yaml.safe_load(compose_path.read_text(encoding="utf-8"))
+
+    for service_name in ("app", "maintenance_cadence", "proactive_cadence"):
+        build_args = compose["services"][service_name]["build"]["args"]
+        assert build_args["APP_BUILD_REVISION"] == "${APP_BUILD_REVISION:-unknown}"
+
+
 def test_coolify_compose_includes_external_cadence_services() -> None:
     compose_path = Path("docker-compose.coolify.yml")
     compose = yaml.safe_load(compose_path.read_text(encoding="utf-8"))

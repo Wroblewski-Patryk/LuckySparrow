@@ -77,6 +77,42 @@ Why this order:
   - Validation:
     - architecture/product/ops cross-review plus live production `/health`
 
+Queue update (2026-04-24):
+
+- `PRJ-614` is now complete.
+- final operational no-UI `v1` closure is now frozen around one explicit live
+  baseline:
+  - conversation reliability must stay green through
+    `/health.conversation_channels.telegram` and `/health.v1_readiness`
+  - life-assistant behavior must stay behavior-proven through reminder,
+    planning, follow-up, and work-partner scenarios
+  - learned-state inspection must stay truthful through `/health.learned_state`
+    and internal inspection
+  - bounded website-reading posture must be both machine-visible and
+    behavior-proven before this lane is considered closed
+  - organizer daily-use posture must stay machine-visible and production-real
+  - live production must prove deploy parity and provenance, not only repo
+    intent
+- rollback posture for this lane is now explicit:
+  - if deploy parity drifts
+  - or if bounded web/organizer tool posture stops being production-real
+  then the repo falls back to "no-UI `v1` baseline achieved in repo" instead
+  of claiming final operational closure
+- `PRJ-615` is now complete.
+- repo truth versus production truth is now machine-visible through:
+  - `/health.deployment`
+  - exported `incident_evidence.policy_posture["deployment"]`
+  - repo-driven Coolify build/runtime env for `APP_BUILD_REVISION` and
+    `DEPLOYMENT_TRIGGER_MODE`
+  - release smoke parity checks against local repo HEAD and optional deployment
+    evidence `after_sha`
+- live production smoke now fails explicitly while deployed truth is still
+  behind repo truth, which is the intended proof that parity drift is no
+  longer silent
+- the next active slice is `PRJ-616`, which should harden the Coolify primary
+  deploy path and explicit fallback workflow before broader daily-use closure
+  work continues
+
 - `PRJ-615` Add machine-visible repo-vs-production truth and deploy-parity evidence.
   - Result:
     - production-facing surfaces and release evidence distinguish

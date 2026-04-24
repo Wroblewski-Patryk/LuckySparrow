@@ -81,6 +81,7 @@ function Validate-DeploymentEvidence {
         trigger_mode = $null
         trigger_class = $null
         canonical_application_id = $null
+        after_sha = $null
     }
 
     if (-not $Path) {
@@ -176,6 +177,25 @@ function Validate-DeploymentEvidence {
         trigger_mode = $triggerMode
         trigger_class = $triggerClass
         canonical_application_id = $canonicalApplicationId
+        after_sha = [string]$evidence.after_sha
+    }
+}
+
+function Resolve-LocalRepoHeadSha {
+    $command = Get-Command git -ErrorAction SilentlyContinue
+    if ($null -eq $command) {
+        return ""
+    }
+
+    try {
+        $head = (& git rev-parse HEAD 2>$null)
+        if ($LASTEXITCODE -ne 0) {
+            return ""
+        }
+        return [string]($head | Select-Object -First 1)
+    }
+    catch {
+        return ""
     }
 }
 
@@ -205,6 +225,11 @@ function Validate-IncidentEvidenceBundle {
         proactive_production_baseline_state = $null
         deployment_automation_policy_owner = $null
         deployment_primary_trigger_mode = $null
+        deployment_runtime_trigger_mode = $null
+        deployment_runtime_trigger_class = $null
+        deployment_runtime_build_revision = $null
+        deployment_runtime_build_revision_state = $null
+        deployment_runtime_provenance_state = $null
         organizer_tool_stack_policy_owner = $null
         organizer_tool_stack_readiness_state = $null
         organizer_tool_stack_ready_operations = @()
@@ -405,6 +430,35 @@ function Validate-IncidentEvidenceBundle {
             throw "Incident evidence bundle verification failed: deployment posture is missing fallback trigger mode '$requiredFallbackMode'."
         }
     }
+    if (-not (Has-Property -Object $incidentDeployment -Name "runtime_trigger_mode")) {
+        throw "Incident evidence bundle verification failed: deployment runtime_trigger_mode is missing."
+    }
+    if (-not (Has-Property -Object $incidentDeployment -Name "runtime_trigger_class")) {
+        throw "Incident evidence bundle verification failed: deployment runtime_trigger_class is missing."
+    }
+    if (-not (Has-Property -Object $incidentDeployment -Name "runtime_build_revision")) {
+        throw "Incident evidence bundle verification failed: deployment runtime_build_revision is missing."
+    }
+    if (-not (Has-Property -Object $incidentDeployment -Name "runtime_build_revision_state")) {
+        throw "Incident evidence bundle verification failed: deployment runtime_build_revision_state is missing."
+    }
+    if (-not (Has-Property -Object $incidentDeployment -Name "runtime_provenance_state")) {
+        throw "Incident evidence bundle verification failed: deployment runtime_provenance_state is missing."
+    }
+    $validRuntimeTriggerModes = @("source_automation", "webhook_manual_fallback", "ui_manual_fallback")
+    if ($validRuntimeTriggerModes -notcontains [string]$incidentDeployment.runtime_trigger_mode) {
+        throw "Incident evidence bundle verification failed: unexpected deployment runtime_trigger_mode '$($incidentDeployment.runtime_trigger_mode)'."
+    }
+    $validRuntimeTriggerClasses = @("primary_automation", "manual_fallback")
+    if ($validRuntimeTriggerClasses -notcontains [string]$incidentDeployment.runtime_trigger_class) {
+        throw "Incident evidence bundle verification failed: unexpected deployment runtime_trigger_class '$($incidentDeployment.runtime_trigger_class)'."
+    }
+    if ([string]$incidentDeployment.runtime_build_revision_state -eq "runtime_build_revision_missing") {
+        throw "Incident evidence bundle verification failed: deployment runtime_build_revision is still missing."
+    }
+    if (-not [string]$incidentDeployment.runtime_build_revision) {
+        throw "Incident evidence bundle verification failed: deployment runtime_build_revision is empty."
+    }
     $healthConnectors = $healthSnapshot.connectors
     if ($null -eq $healthConnectors) {
         throw "Incident evidence bundle verification failed: health snapshot connectors surface is missing."
@@ -443,6 +497,11 @@ function Validate-IncidentEvidenceBundle {
         proactive_production_baseline_state = [string]$proactive.production_baseline_state
         deployment_automation_policy_owner = [string]$incidentDeployment.deployment_automation_policy_owner
         deployment_primary_trigger_mode = [string]$incidentDeployment.deployment_automation_baseline.primary_trigger_mode
+        deployment_runtime_trigger_mode = [string]$incidentDeployment.runtime_trigger_mode
+        deployment_runtime_trigger_class = [string]$incidentDeployment.runtime_trigger_class
+        deployment_runtime_build_revision = [string]$incidentDeployment.runtime_build_revision
+        deployment_runtime_build_revision_state = [string]$incidentDeployment.runtime_build_revision_state
+        deployment_runtime_provenance_state = [string]$incidentDeployment.runtime_provenance_state
         organizer_tool_stack_policy_owner = [string]$organizerToolStackContract.policy_owner
         organizer_tool_stack_readiness_state = [string]$organizerToolStackContract.readiness_state
         organizer_tool_stack_ready_operations = @($organizerToolStackContract.ready_operations)
@@ -1447,6 +1506,21 @@ if (-not (Has-Property -Object $deployment -Name "canonical_coolify_app")) {
 if (-not (Has-Property -Object $deployment -Name "deployment_automation_baseline")) {
     throw "Health check failed: deployment is missing deployment_automation_baseline."
 }
+if (-not (Has-Property -Object $deployment -Name "runtime_build_revision")) {
+    throw "Health check failed: deployment is missing runtime_build_revision."
+}
+if (-not (Has-Property -Object $deployment -Name "runtime_build_revision_state")) {
+    throw "Health check failed: deployment is missing runtime_build_revision_state."
+}
+if (-not (Has-Property -Object $deployment -Name "runtime_trigger_mode")) {
+    throw "Health check failed: deployment is missing runtime_trigger_mode."
+}
+if (-not (Has-Property -Object $deployment -Name "runtime_trigger_class")) {
+    throw "Health check failed: deployment is missing runtime_trigger_class."
+}
+if (-not (Has-Property -Object $deployment -Name "runtime_provenance_state")) {
+    throw "Health check failed: deployment is missing runtime_provenance_state."
+}
 if ([string]$deployment.deployment_automation_policy_owner -ne "coolify_repo_deploy_automation") {
     throw "Health check failed: unexpected deployment_automation_policy_owner '$($deployment.deployment_automation_policy_owner)'."
 }
@@ -1461,6 +1535,35 @@ $fallbackModes = @($deployment.deployment_automation_baseline.fallback_trigger_m
 foreach ($requiredFallbackMode in $validDeploymentFallbackModes) {
     if ($fallbackModes -notcontains $requiredFallbackMode) {
         throw "Health check failed: deployment_automation_baseline is missing fallback trigger mode '$requiredFallbackMode'."
+    }
+}
+$validRuntimeTriggerModes = @("source_automation", "webhook_manual_fallback", "ui_manual_fallback")
+if ($validRuntimeTriggerModes -notcontains [string]$deployment.runtime_trigger_mode) {
+    throw "Health check failed: unexpected deployment runtime_trigger_mode '$($deployment.runtime_trigger_mode)'."
+}
+$validRuntimeTriggerClasses = @("primary_automation", "manual_fallback")
+if ($validRuntimeTriggerClasses -notcontains [string]$deployment.runtime_trigger_class) {
+    throw "Health check failed: unexpected deployment runtime_trigger_class '$($deployment.runtime_trigger_class)'."
+}
+if ([string]$deployment.runtime_build_revision_state -eq "runtime_build_revision_missing") {
+    throw "Health check failed: deployment runtime_build_revision is still missing."
+}
+if (-not [string]$deployment.runtime_build_revision) {
+    throw "Health check failed: deployment runtime_build_revision is empty."
+}
+$localRepoHeadSha = Resolve-LocalRepoHeadSha
+if (-not $localRepoHeadSha) {
+    throw "Health check failed: local repo HEAD could not be resolved for deploy parity."
+}
+if ([string]$deployment.runtime_build_revision -ne $localRepoHeadSha) {
+    throw "Health check failed: deployment runtime_build_revision '$($deployment.runtime_build_revision)' does not match local repo HEAD '$localRepoHeadSha'."
+}
+if ([bool]$deploymentEvidenceCheck.checked) {
+    if (-not [string]$deploymentEvidenceCheck.after_sha) {
+        throw "Health check failed: deployment evidence is missing after_sha for parity comparison."
+    }
+    if ([string]$deployment.runtime_build_revision -ne [string]$deploymentEvidenceCheck.after_sha) {
+        throw "Health check failed: deployment runtime_build_revision '$($deployment.runtime_build_revision)' does not match deployment evidence after_sha '$($deploymentEvidenceCheck.after_sha)'."
     }
 }
 $scheduler = $health.scheduler
@@ -1929,6 +2032,12 @@ $summary = @{
     deployment_hosting_baseline = [string]$deployment.hosting_baseline
     deployment_automation_policy_owner = [string]$deployment.deployment_automation_policy_owner
     deployment_primary_trigger_mode = [string]$deployment.deployment_automation_baseline.primary_trigger_mode
+    deployment_runtime_trigger_mode = [string]$deployment.runtime_trigger_mode
+    deployment_runtime_trigger_class = [string]$deployment.runtime_trigger_class
+    deployment_runtime_build_revision = [string]$deployment.runtime_build_revision
+    deployment_runtime_build_revision_state = [string]$deployment.runtime_build_revision_state
+    deployment_runtime_provenance_state = [string]$deployment.runtime_provenance_state
+    deployment_local_repo_head_sha = [string]$localRepoHeadSha
     deployment_fallback_trigger_modes = @($deployment.deployment_automation_baseline.fallback_trigger_modes)
     deployment_canonical_application_id = [string]$deployment.canonical_coolify_app.application_id
     deployment_manual_fallback_exception_rate_percent = [double]$deployment.deployment_trigger_slo.manual_redeploy_exception_rate_percent
@@ -2035,6 +2144,11 @@ $summary = @{
     incident_bundle_proactive_production_baseline_state = $incidentEvidenceBundleCheck.proactive_production_baseline_state
     incident_bundle_deployment_automation_policy_owner = $incidentEvidenceBundleCheck.deployment_automation_policy_owner
     incident_bundle_deployment_primary_trigger_mode = $incidentEvidenceBundleCheck.deployment_primary_trigger_mode
+    incident_bundle_deployment_runtime_trigger_mode = $incidentEvidenceBundleCheck.deployment_runtime_trigger_mode
+    incident_bundle_deployment_runtime_trigger_class = $incidentEvidenceBundleCheck.deployment_runtime_trigger_class
+    incident_bundle_deployment_runtime_build_revision = $incidentEvidenceBundleCheck.deployment_runtime_build_revision
+    incident_bundle_deployment_runtime_build_revision_state = $incidentEvidenceBundleCheck.deployment_runtime_build_revision_state
+    incident_bundle_deployment_runtime_provenance_state = $incidentEvidenceBundleCheck.deployment_runtime_provenance_state
     incident_bundle_organizer_tool_stack_policy_owner = $incidentEvidenceBundleCheck.organizer_tool_stack_policy_owner
     incident_bundle_organizer_tool_stack_readiness_state = $incidentEvidenceBundleCheck.organizer_tool_stack_readiness_state
     incident_bundle_organizer_tool_stack_ready_operations = $incidentEvidenceBundleCheck.organizer_tool_stack_ready_operations
@@ -2068,6 +2182,7 @@ $summary = @{
     deployment_evidence_trigger_mode = [string]$deploymentEvidenceCheck.trigger_mode
     deployment_evidence_trigger_class = [string]$deploymentEvidenceCheck.trigger_class
     deployment_evidence_canonical_application_id = [string]$deploymentEvidenceCheck.canonical_application_id
+    deployment_evidence_after_sha = [string]$deploymentEvidenceCheck.after_sha
 }
 
 $summary | ConvertTo-Json -Depth 6

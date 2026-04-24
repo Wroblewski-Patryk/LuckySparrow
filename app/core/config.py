@@ -7,6 +7,12 @@ from app.memory.embeddings import normalize_embedding_source_kinds
 
 
 class Settings(BaseSettings):
+    app_build_revision: str = "unknown"
+    deployment_trigger_mode: Literal[
+        "source_automation",
+        "webhook_manual_fallback",
+        "ui_manual_fallback",
+    ] = "source_automation"
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     telegram_bot_token: str | None = None

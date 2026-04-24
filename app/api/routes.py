@@ -301,7 +301,13 @@ async def _incident_evidence_from_request(
     )
     learned_state = learned_state_policy_snapshot()
     role_skill_policy = role_skill_policy_snapshot()
-    deployment = deployment_policy_snapshot()
+    deployment = deployment_policy_snapshot(
+        runtime_build_revision=str(getattr(settings, "app_build_revision", "unknown") or "unknown"),
+        trigger_mode=str(
+            getattr(settings, "deployment_trigger_mode", "source_automation")
+            or "source_automation"
+        ),
+    )
     return build_runtime_incident_evidence(
         trace_id=result.event.meta.trace_id,
         event_id=result.event.event_id,
@@ -925,7 +931,13 @@ async def health(request: Request) -> dict[str, Any]:
         "planning_governance": planning_governance_snapshot(),
         "learned_state": learned_state,
         "connectors": connectors,
-        "deployment": deployment_policy_snapshot(),
+        "deployment": deployment_policy_snapshot(
+            runtime_build_revision=str(getattr(settings, "app_build_revision", "unknown") or "unknown"),
+            trigger_mode=str(
+                getattr(settings, "deployment_trigger_mode", "source_automation")
+                or "source_automation"
+            ),
+        ),
         "conversation_channels": {
             "telegram": telegram_channel,
         },

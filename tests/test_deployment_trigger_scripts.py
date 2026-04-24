@@ -19,6 +19,13 @@ ROOT = Path(__file__).resolve().parents[1]
 TRIGGER_SCRIPT_PATH = ROOT / "scripts" / "trigger_coolify_deploy_webhook.py"
 RELEASE_SMOKE_PS1_PATH = ROOT / "scripts" / "run_release_smoke.ps1"
 PYTHON_EXE = ROOT / ".venv" / "Scripts" / "python.exe"
+LOCAL_REPO_HEAD_SHA = subprocess.run(
+    ["git", "rev-parse", "HEAD"],
+    cwd=ROOT,
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.strip()
 
 TRIGGER_SPEC = importlib.util.spec_from_file_location("trigger_coolify_deploy_webhook_script", TRIGGER_SCRIPT_PATH)
 assert TRIGGER_SPEC is not None and TRIGGER_SPEC.loader is not None
@@ -436,6 +443,13 @@ def stub_aion_server() -> _StubAionServer:
         "deployment": {
             "deployment_automation_policy_owner": "coolify_repo_deploy_automation",
             "hosting_baseline": "coolify_medium_term_standard",
+            "runtime_build_revision": LOCAL_REPO_HEAD_SHA,
+            "runtime_build_revision_state": "runtime_build_revision_declared",
+            "runtime_build_revision_hint": "runtime_build_revision_can_be_compared_with_local_repo_head_or_deploy_evidence",
+            "runtime_trigger_mode": "source_automation",
+            "runtime_trigger_class": "primary_automation",
+            "runtime_provenance_state": "primary_runtime_provenance_declared",
+            "repo_to_production_parity_surface": "release_smoke_compares_runtime_build_revision_with_local_repo_head_and_optional_deploy_evidence",
             "canonical_coolify_app": {
                 "project_id": "icmgqml9uw3slzch9m9ok23z",
                 "environment_id": "qxooi9coxat272krzjx221fv",
@@ -656,6 +670,13 @@ def stub_aion_server() -> _StubAionServer:
                 },
             "deployment": {
                 "deployment_automation_policy_owner": "coolify_repo_deploy_automation",
+                "runtime_build_revision": LOCAL_REPO_HEAD_SHA,
+                "runtime_build_revision_state": "runtime_build_revision_declared",
+                "runtime_build_revision_hint": "runtime_build_revision_can_be_compared_with_local_repo_head_or_deploy_evidence",
+                "runtime_trigger_mode": "source_automation",
+                "runtime_trigger_class": "primary_automation",
+                "runtime_provenance_state": "primary_runtime_provenance_declared",
+                "repo_to_production_parity_surface": "release_smoke_compares_runtime_build_revision_with_local_repo_head_and_optional_deploy_evidence",
                 "canonical_coolify_app": {
                     "project_id": "icmgqml9uw3slzch9m9ok23z",
                     "environment_id": "qxooi9coxat272krzjx221fv",
@@ -762,7 +783,14 @@ def _run_release_smoke(*args: str, cwd: Path) -> subprocess.CompletedProcess[str
     )
 
 
-def _write_evidence(path: Path, *, minutes_ago: int = 0, ok: bool = True, status_code: int = 200) -> None:
+def _write_evidence(
+    path: Path,
+    *,
+    minutes_ago: int = 0,
+    ok: bool = True,
+    status_code: int = 200,
+    after_sha: str | None = None,
+) -> None:
     generated_at = datetime.now(timezone.utc) - timedelta(minutes=minutes_ago)
     payload = {
         "kind": "coolify_deploy_webhook_evidence",
@@ -783,6 +811,7 @@ def _write_evidence(path: Path, *, minutes_ago: int = 0, ok: bool = True, status
             "body": "queued",
             "error": "",
         },
+        "after_sha": after_sha or LOCAL_REPO_HEAD_SHA,
     }
     path.write_text(json.dumps(payload), encoding="utf-8")
 
@@ -889,6 +918,13 @@ def _write_incident_bundle(
             },
             "deployment": {
                 "deployment_automation_policy_owner": "coolify_repo_deploy_automation",
+                "runtime_build_revision": LOCAL_REPO_HEAD_SHA,
+                "runtime_build_revision_state": "runtime_build_revision_declared",
+                "runtime_build_revision_hint": "runtime_build_revision_can_be_compared_with_local_repo_head_or_deploy_evidence",
+                "runtime_trigger_mode": "source_automation",
+                "runtime_trigger_class": "primary_automation",
+                "runtime_provenance_state": "primary_runtime_provenance_declared",
+                "repo_to_production_parity_surface": "release_smoke_compares_runtime_build_revision_with_local_repo_head_and_optional_deploy_evidence",
                 "canonical_coolify_app": {
                     "project_id": "icmgqml9uw3slzch9m9ok23z",
                     "environment_id": "qxooi9coxat272krzjx221fv",
@@ -1157,6 +1193,12 @@ def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(
     assert summary["deployment_hosting_baseline"] == "coolify_medium_term_standard"
     assert summary["deployment_automation_policy_owner"] == "coolify_repo_deploy_automation"
     assert summary["deployment_primary_trigger_mode"] == "source_automation"
+    assert summary["deployment_runtime_trigger_mode"] == "source_automation"
+    assert summary["deployment_runtime_trigger_class"] == "primary_automation"
+    assert summary["deployment_runtime_build_revision"] == LOCAL_REPO_HEAD_SHA
+    assert summary["deployment_runtime_build_revision_state"] == "runtime_build_revision_declared"
+    assert summary["deployment_runtime_provenance_state"] == "primary_runtime_provenance_declared"
+    assert summary["deployment_local_repo_head_sha"] == LOCAL_REPO_HEAD_SHA
     assert summary["deployment_fallback_trigger_modes"] == [
         "webhook_manual_fallback",
         "ui_manual_fallback",
@@ -1340,6 +1382,7 @@ def test_release_smoke_verifies_fresh_successful_deployment_evidence(
     assert summary["deployment_evidence_trigger_mode"] == "webhook_manual_fallback"
     assert summary["deployment_evidence_trigger_class"] == "manual_fallback"
     assert summary["deployment_evidence_canonical_application_id"] == "jr1oehwlzl8tcn3h8gh2vvih"
+    assert summary["deployment_evidence_after_sha"] == LOCAL_REPO_HEAD_SHA
 
 
 def test_release_smoke_validates_exported_incident_evidence_when_debug_mode_is_requested(
@@ -1384,6 +1427,11 @@ def test_release_smoke_validates_exported_incident_evidence_when_debug_mode_is_r
         "coolify_repo_deploy_automation"
     )
     assert summary["incident_evidence_deployment_primary_trigger_mode"] == "source_automation"
+    assert summary["deployment_runtime_trigger_mode"] == "source_automation"
+    assert summary["deployment_runtime_trigger_class"] == "primary_automation"
+    assert summary["deployment_runtime_build_revision"] == LOCAL_REPO_HEAD_SHA
+    assert summary["deployment_runtime_build_revision_state"] == "runtime_build_revision_declared"
+    assert summary["deployment_runtime_provenance_state"] == "primary_runtime_provenance_declared"
     assert summary["incident_evidence_learned_state_policy_owner"] == "learned_state_inspection_policy"
     assert summary["incident_evidence_learned_state_internal_inspection_path"] == "/internal/state/inspect"
     assert summary["incident_evidence_learned_state_inspection_sections"] == LEARNED_STATE_INSPECTION_SECTIONS
@@ -1464,6 +1512,15 @@ def test_release_smoke_verifies_incident_evidence_bundle_when_bundle_path_is_pro
         "coolify_repo_deploy_automation"
     )
     assert summary["incident_bundle_deployment_primary_trigger_mode"] == "source_automation"
+    assert summary["incident_bundle_deployment_runtime_trigger_mode"] == "source_automation"
+    assert summary["incident_bundle_deployment_runtime_trigger_class"] == "primary_automation"
+    assert summary["incident_bundle_deployment_runtime_build_revision"] == LOCAL_REPO_HEAD_SHA
+    assert summary["incident_bundle_deployment_runtime_build_revision_state"] == (
+        "runtime_build_revision_declared"
+    )
+    assert summary["incident_bundle_deployment_runtime_provenance_state"] == (
+        "primary_runtime_provenance_declared"
+    )
     assert summary["incident_bundle_organizer_tool_stack_policy_owner"] == "production_organizer_tool_stack"
     assert summary["incident_bundle_organizer_tool_stack_readiness_state"] == "provider_credentials_missing"
     assert summary["incident_bundle_organizer_tool_stack_ready_operations"] == [
@@ -1818,6 +1875,66 @@ def test_release_smoke_fails_when_deployment_evidence_response_is_unsuccessful(
     combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
     assert "Deployment evidence verification failed" in combined_output
     assert "webhook response is not successful" in combined_output
+
+
+def test_release_smoke_fails_when_runtime_build_revision_is_missing(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    original = dict(_StubAionHandler.health_payload["deployment"])
+    broken = dict(original)
+    broken["runtime_build_revision"] = "unknown"
+    broken["runtime_build_revision_state"] = "runtime_build_revision_missing"
+    _StubAionHandler.health_payload["deployment"] = broken
+
+    try:
+        result = _run_release_smoke("-BaseUrl", stub_aion_server.base_url, cwd=ROOT)
+    finally:
+        _StubAionHandler.health_payload["deployment"] = original
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "deployment runtime_build_revision is still missing" in combined_output
+
+
+def test_release_smoke_fails_when_runtime_build_revision_does_not_match_local_repo_head(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    original = dict(_StubAionHandler.health_payload["deployment"])
+    broken = dict(original)
+    broken["runtime_build_revision"] = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    _StubAionHandler.health_payload["deployment"] = broken
+
+    try:
+        result = _run_release_smoke("-BaseUrl", stub_aion_server.base_url, cwd=ROOT)
+    finally:
+        _StubAionHandler.health_payload["deployment"] = original
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "does not match local repo HEAD" in combined_output
+
+
+def test_release_smoke_fails_when_deployment_evidence_after_sha_does_not_match_runtime_build_revision(
+    stub_aion_server: _StubAionServer,
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "deploy-evidence.json"
+    _write_evidence(
+        evidence_path,
+        after_sha="deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+    )
+
+    result = _run_release_smoke(
+        "-BaseUrl",
+        stub_aion_server.base_url,
+        "-DeploymentEvidencePath",
+        str(evidence_path),
+        cwd=ROOT,
+    )
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "does not match deployment evidence after_sha" in combined_output
 
 
 def test_release_smoke_fails_when_compatibility_sunset_evidence_is_missing(

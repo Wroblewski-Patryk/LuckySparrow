@@ -25,6 +25,37 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-24 - Production can be healthy while deploy parity is still behind repo truth
+- Context:
+  - the final operational `v1` closure lane needed machine-visible proof that
+    live production really matched the current repository baseline instead of
+    only returning a healthy `/health` response.
+- Symptom:
+  - live production remained generally healthy, but release smoke failed on
+    deployment parity because the deployed contract was missing the newer
+    deployment provenance fields.
+- Root cause:
+  - repo truth had advanced beyond production truth, and the previous smoke
+    path did not make that drift explicit enough.
+- Guardrail:
+  - whenever deployment or runtime-proof surfaces widen, make release smoke
+    compare live runtime build revision against local repo HEAD and optional
+    deployment evidence `after_sha`.
+- Preferred pattern:
+  - expose `runtime_build_revision`, trigger mode, and provenance state through
+    `/health.deployment`
+  - pass the same deployment posture through incident evidence
+  - let release smoke fail loudly when production is still behind the checked
+    out repo
+- Avoid:
+  - treating a healthy `/health.status=ok` as sufficient proof that production
+    matches the current repository baseline
+  - adding a second deploy-truth system outside the existing deployment and
+    observability owners
+- Evidence:
+  - `PRJ-615`
+  - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'`
+
 ### 2026-04-23 - Coolify env overrides can silently mask repo-driven defaults
 - Context:
   - production proactive was expected to follow the repo-driven Coolify compose
