@@ -540,6 +540,7 @@ async def _build_learned_state_snapshot(*, request: Request, user_id: str) -> di
         skill_registry=skill_registry,
         connectors=connectors,
         selection_visibility_summary=selection_visibility_summary,
+        authorization_subject=user_id,
     )
 
     return {

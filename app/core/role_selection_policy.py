@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from app.core.adaptive_policy import (
     ROLE_COLLABORATION_RELATION_CONFIDENCE_MIN,
@@ -52,6 +53,38 @@ WORK_PARTNER_EXPLICIT_MARKERS = {
     "partner for work",
 }
 PREFERRED_ROLES = {"friend", "analyst", "executor", "mentor", "work_partner"}
+ROLE_PRESET_CATALOG: tuple[dict[str, str], ...] = (
+    {
+        "role_name": "friend",
+        "label": "Friend",
+        "prompt_posture": "supportive_relational",
+    },
+    {
+        "role_name": "advisor",
+        "label": "Advisor",
+        "prompt_posture": "risk_aware_guidance",
+    },
+    {
+        "role_name": "analyst",
+        "label": "Analyst",
+        "prompt_posture": "structured_analysis",
+    },
+    {
+        "role_name": "executor",
+        "label": "Executor",
+        "prompt_posture": "bounded_execution",
+    },
+    {
+        "role_name": "mentor",
+        "label": "Mentor",
+        "prompt_posture": "guided_help",
+    },
+    {
+        "role_name": "work_partner",
+        "label": "Work partner",
+        "prompt_posture": "organization_and_decision_support",
+    },
+)
 
 
 @dataclass(frozen=True)
@@ -60,6 +93,29 @@ class RoleSelectionDecision:
     confidence: float
     reason: str
     evidence: list[RoleSelectionEvidenceOutput]
+
+
+def role_preset_catalog_snapshot(*, current_role_name: str = "") -> dict[str, Any]:
+    normalized_current_role = str(current_role_name or "").strip().lower()
+    return {
+        "policy_owner": "role_selection_policy",
+        "catalog": [
+            {
+                **item,
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": (
+                    "selected"
+                    if item["role_name"] == normalized_current_role and normalized_current_role
+                    else "available"
+                ),
+            }
+            for item in ROLE_PRESET_CATALOG
+        ],
+        "catalog_count": len(ROLE_PRESET_CATALOG),
+        "selectable_role_names": [item["role_name"] for item in ROLE_PRESET_CATALOG],
+        "preferred_role_eligible_names": sorted(PREFERRED_ROLES),
+    }
 
 
 def select_role(

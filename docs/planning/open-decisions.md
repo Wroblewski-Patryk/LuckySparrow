@@ -203,6 +203,16 @@ Current execution note:
 - `PRJ-623` is now the next active slice:
   - the next gap is to expose a fuller runtime-backed catalog for those
     durable records without inventing a parallel capability system
+- `PRJ-623` is now complete:
+  - `/health.capability_catalog` and internal inspection now expose a fuller
+    durable capability-record catalog that separates described role or skill
+    metadata from runtime selection surfaces and from tool authorization
+    posture
+  - authorization truth remains bound to existing connector permission gates
+    and provider-readiness posture instead of becoming a second action engine
+- `PRJ-624` is now the next active slice:
+  - the next gap is to prove that this fuller catalog stays truthful through
+    release and regression evidence
 - `PRJ-598` is complete in repo truth: deployment provenance is now
   machine-visible in `/health.deployment`, deploy webhook evidence, exported
   incident evidence, and release smoke.

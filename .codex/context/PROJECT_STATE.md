@@ -10,6 +10,11 @@ Last updated: 2026-04-24
   user preferences over time
 - Commercial model: TBD
 - Current phase: no-UI V1 baseline achieved in repo; final operational V1-closure queue now active for live tool onboarding and daily-use readiness
+- 2026-04-24: `PRJ-623` is complete: backend `capability_catalog` now exposes
+  the durable capability-record model through both `/health` and internal
+  inspection. The catalog now distinguishes described role presets, described
+  skill records, runtime selection surfaces, and authorization posture for
+  approved tool families or operations without widening execution authority.
 - 2026-04-24: `PRJ-622` is complete: canonical architecture now freezes one
   durable capability-record truth model for role presets, skill descriptions,
   and per-user tool authorization. Description, runtime selection, and

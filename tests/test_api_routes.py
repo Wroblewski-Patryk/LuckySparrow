@@ -1099,6 +1099,11 @@ def test_health_endpoint_exposes_learned_state_introspection_posture() -> None:
     assert body["capability_catalog"]["catalog_posture"] == "aggregated_backend_truth_surface"
     assert body["capability_catalog"]["execution_authority"] == "unchanged_action_boundary"
     assert body["capability_catalog"]["authorization_authority"] == "unchanged_connector_permission_gates"
+    assert body["capability_catalog"]["capability_record_truth_model"] == {
+        "description_boundary": "durable_role_and_skill_metadata_plus_tool_authorization_records",
+        "selection_boundary": "runtime_turn_selection_and_selected_skill_metadata",
+        "authorization_boundary": "connector_permission_gates_plus_provider_readiness",
+    }
     assert body["capability_catalog"]["source_surfaces"] == {
         "api_readiness": "/health.api_readiness",
         "learned_state": "/health.learned_state",
@@ -1116,11 +1121,110 @@ def test_health_endpoint_exposes_learned_state_introspection_posture() -> None:
         "work_partner_role_state": "available",
         "work_partner_scope": "work_organization_and_decision_support",
         "work_partner_mutation_boundary": "respect_existing_confirmation_and_opt_in_policies",
+        "described_role_presets": [
+            {
+                "role_name": "friend",
+                "label": "Friend",
+                "prompt_posture": "supportive_relational",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "advisor",
+                "label": "Advisor",
+                "prompt_posture": "risk_aware_guidance",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "analyst",
+                "label": "Analyst",
+                "prompt_posture": "structured_analysis",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "executor",
+                "label": "Executor",
+                "prompt_posture": "bounded_execution",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "mentor",
+                "label": "Mentor",
+                "prompt_posture": "guided_help",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "work_partner",
+                "label": "Work partner",
+                "prompt_posture": "organization_and_decision_support",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+        ],
+        "described_role_names": [
+            "friend",
+            "advisor",
+            "analyst",
+            "executor",
+            "mentor",
+            "work_partner",
+        ],
+        "selectable_role_names": [
+            "friend",
+            "advisor",
+            "analyst",
+            "executor",
+            "mentor",
+            "work_partner",
+        ],
+        "preferred_role_eligible_names": [
+            "analyst",
+            "executor",
+            "friend",
+            "mentor",
+            "work_partner",
+        ],
     }
     assert body["capability_catalog"]["skill_catalog_posture"]["selection_visibility_summary"] == {}
     assert body["capability_catalog"]["skill_catalog_posture"]["catalog_count"] == 5
+    assert body["capability_catalog"]["skill_catalog_posture"]["described_skill_ids"] == [
+        "emotional_support",
+        "structured_reasoning",
+        "execution_planning",
+        "memory_recall",
+        "connector_boundary_review",
+    ]
+    assert body["capability_catalog"]["skill_catalog_posture"]["runtime_selection_surface"] == (
+        "system_debug.adaptive_state.selected_skills"
+    )
     assert body["capability_catalog"]["skill_catalog_posture"]["learning_posture"] == "registry_metadata_only"
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorization_record_owner"] == (
+        "connector_execution_policy"
+    )
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorization_subject"] == (
+        "global_runtime_policy_posture"
+    )
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorization_record_state"] == (
+        "global_policy_and_provider_posture"
+    )
     assert body["capability_catalog"]["tool_and_connector_posture"]["approved_tool_families"] == [
+        "calendar",
+        "cloud_drive",
+        "knowledge_search",
+        "task_system",
+        "web_browser",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["selectable_tool_families"] == [
         "calendar",
         "cloud_drive",
         "knowledge_search",
@@ -1133,6 +1237,33 @@ def test_health_endpoint_exposes_learned_state_introspection_posture() -> None:
         "task_system.clickup_update_task",
         "calendar.google_calendar_read_availability",
         "cloud_drive.google_drive_list_files",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorized_without_opt_in_operations"] == [
+        "knowledge_search.search_web",
+        "knowledge_search.suggest_search",
+        "web_browser.read_page",
+        "web_browser.suggest_page_review",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorized_with_opt_in_operations"] == [
+        "calendar.read_availability",
+        "calendar.suggest_slots",
+        "cloud_drive.list_files",
+        "cloud_drive.read_document",
+        "cloud_drive.search_documents",
+        "cloud_drive.suggest_file_plan",
+        "task_system.link_internal_task",
+        "task_system.list_tasks",
+        "task_system.suggest_sync",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorized_with_confirmation_operations"] == [
+        "calendar.cancel_event",
+        "calendar.create_event",
+        "calendar.update_event",
+        "cloud_drive.delete_file",
+        "cloud_drive.update_document",
+        "cloud_drive.upload_file",
+        "task_system.create_task",
+        "task_system.update_task",
     ]
     assert body["capability_catalog"]["tool_and_connector_posture"]["ready_operations"] == []
     assert body["capability_catalog"]["tool_and_connector_posture"]["credential_gap_operations"] == [
@@ -1195,6 +1326,79 @@ def test_internal_state_inspection_endpoint_exposes_learned_and_planning_state()
         "work_partner_role_state": "available",
         "work_partner_scope": "work_organization_and_decision_support",
         "work_partner_mutation_boundary": "respect_existing_confirmation_and_opt_in_policies",
+        "described_role_presets": [
+            {
+                "role_name": "friend",
+                "label": "Friend",
+                "prompt_posture": "supportive_relational",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "advisor",
+                "label": "Advisor",
+                "prompt_posture": "risk_aware_guidance",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "analyst",
+                "label": "Analyst",
+                "prompt_posture": "structured_analysis",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "executor",
+                "label": "Executor",
+                "prompt_posture": "bounded_execution",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "mentor",
+                "label": "Mentor",
+                "prompt_posture": "guided_help",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+            {
+                "role_name": "work_partner",
+                "label": "Work partner",
+                "prompt_posture": "organization_and_decision_support",
+                "record_kind": "durable_role_preset",
+                "selection_authority": "runtime_turn_selection",
+                "selection_state": "available",
+            },
+        ],
+        "described_role_names": [
+            "friend",
+            "advisor",
+            "analyst",
+            "executor",
+            "mentor",
+            "work_partner",
+        ],
+        "selectable_role_names": [
+            "friend",
+            "advisor",
+            "analyst",
+            "executor",
+            "mentor",
+            "work_partner",
+        ],
+        "preferred_role_eligible_names": [
+            "analyst",
+            "executor",
+            "friend",
+            "mentor",
+            "work_partner",
+        ],
     }
     assert body["capability_catalog"]["skill_catalog_posture"]["selection_visibility_summary"] == {
         "current_turn_selected_role_available_via": "system_debug.role",
@@ -1210,12 +1414,63 @@ def test_internal_state_inspection_endpoint_exposes_learned_and_planning_state()
         "metadata_only_skill_boundary": True,
         "work_partner_role_available": True,
     }
+    assert body["capability_catalog"]["skill_catalog_posture"]["described_skill_ids"] == [
+        "emotional_support",
+        "structured_reasoning",
+        "execution_planning",
+        "memory_recall",
+        "connector_boundary_review",
+    ]
+    assert body["capability_catalog"]["skill_catalog_posture"]["runtime_selection_surface"] == (
+        "system_debug.adaptive_state.selected_skills"
+    )
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorization_record_owner"] == (
+        "connector_execution_policy"
+    )
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorization_subject"] == "u-1"
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorization_record_state"] == (
+        "user_scope_policy_and_provider_posture"
+    )
     assert body["capability_catalog"]["tool_and_connector_posture"]["approved_tool_families"] == [
         "calendar",
         "cloud_drive",
         "knowledge_search",
         "task_system",
         "web_browser",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["selectable_tool_families"] == [
+        "calendar",
+        "cloud_drive",
+        "knowledge_search",
+        "task_system",
+        "web_browser",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorized_without_opt_in_operations"] == [
+        "knowledge_search.search_web",
+        "knowledge_search.suggest_search",
+        "web_browser.read_page",
+        "web_browser.suggest_page_review",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorized_with_opt_in_operations"] == [
+        "calendar.read_availability",
+        "calendar.suggest_slots",
+        "cloud_drive.list_files",
+        "cloud_drive.read_document",
+        "cloud_drive.search_documents",
+        "cloud_drive.suggest_file_plan",
+        "task_system.link_internal_task",
+        "task_system.list_tasks",
+        "task_system.suggest_sync",
+    ]
+    assert body["capability_catalog"]["tool_and_connector_posture"]["authorized_with_confirmation_operations"] == [
+        "calendar.cancel_event",
+        "calendar.create_event",
+        "calendar.update_event",
+        "cloud_drive.delete_file",
+        "cloud_drive.update_document",
+        "cloud_drive.upload_file",
+        "task_system.create_task",
+        "task_system.update_task",
     ]
     assert body["capability_catalog"]["tool_and_connector_posture"]["organizer_stack_state"] == (
         "provider_credentials_missing"

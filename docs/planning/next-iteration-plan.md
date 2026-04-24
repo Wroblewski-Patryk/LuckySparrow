@@ -167,8 +167,15 @@ Queue update (2026-04-24):
     tool families or operations
 - backend callers must preserve description, selection, and authorization as
   separate truths instead of flattening them into one capability claim
-- the next active slice is `PRJ-623`, which should expose a fuller runtime
-  catalog for these durable records
+- `PRJ-623` is now complete.
+- existing `/health` and internal inspection surfaces now expose a fuller
+  runtime-backed capability catalog that distinguishes:
+  - described role presets
+  - described skill records
+  - runtime selection surfaces
+  - authorization posture for approved tool families and operations
+- the next active slice is `PRJ-624`, which should add release and behavior
+  evidence proving this catalog stays truthful
 
 - `PRJ-615` Add machine-visible repo-vs-production truth and deploy-parity evidence.
   - Result:

@@ -487,6 +487,29 @@ Last updated: 2026-04-24
       `docs/architecture/16_agent_contracts.md`, existing backend capability
       surfaces, and planning/context truth
 
+- [x] PRJ-623 Implement runtime-backed role, skill, and tool-authorization catalog surfaces
+  - Owner: Backend Builder
+  - Group: Durable Role/Skill/Tool-Authorization Catalog
+  - Depends on: PRJ-622
+  - Priority: P1
+  - Status: DONE
+  - Why now:
+    - the durable capability-record truth model is frozen, so runtime should
+      now expose that same model through existing `/health` and internal
+      inspection surfaces instead of leaving callers to reconstruct it from
+      disconnected role, skill, and connector snapshots
+  - Result:
+    - `capability_catalog` now distinguishes:
+      - described role presets
+      - described skill records
+      - runtime selection surfaces for current role and selected skills
+      - authorization posture for approved tool families and operations
+    - `/health` shows the global policy-backed capability posture, while
+      internal inspection shows the same catalog for the requested user scope
+      without inventing a parallel authorization system
+  - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py` -> `87 passed`
+
 - [x] PRJ-611 Sync docs/context for the capability-catalog baseline
   - Owner: Product Docs Agent
   - Group: Capability Catalog And Future-UI Bootstrap
