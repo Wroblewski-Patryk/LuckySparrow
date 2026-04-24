@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-616
 - Title: Harden the Coolify primary deploy path and explicit fallback workflow
-- Status: BACKLOG
+- Status: DONE
 - Owner: Ops/Release
 - Depends on: PRJ-615
 - Priority: P0
@@ -21,9 +21,9 @@ Make repo-driven deploy the explicit operational default with bounded, visible f
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Primary Coolify deploy path is explicit and machine-visible.
-- [ ] Webhook/UI fallback remains bounded and observable.
-- [ ] Live deploy plus release-smoke evidence is attached.
+- [x] Primary Coolify deploy path is explicit and machine-visible.
+- [x] Webhook/UI fallback remains bounded and observable.
+- [x] Live deploy plus release-smoke evidence is attached.
 
 ## Forbidden
 - new systems without approval
@@ -46,14 +46,21 @@ Make repo-driven deploy the explicit operational default with bounded, visible f
 - Follow-up architecture doc updates: ops/runbook and planning truth
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 The key rule is that fallback usage must stay explicit in evidence and operator guidance.
+
+## Evidence
+- Coolify canonical app `jr1oehwlzl8tcn3h8gh2vvih` was inspected from the Root Team scope and corrected from `Public GitHub` to the GitHub App source `vps-luckysparrow`.
+- The source repository drift introduced by the rename was corrected from `Wroblewski-Patryk/LuckySparrow` to `Wroblewski-Patryk/Personality` on the same canonical app.
+- Local `origin` was updated to `https://github.com/Wroblewski-Patryk/Personality.git` so repo truth and deploy source truth now match.
+- The explicit fallback posture remains unchanged: webhook helper first, then Coolify UI redeploy only when source automation proof is missing.
+- Follow-up release-smoke verification runs after the next push/deploy cycle now that the primary source wiring is corrected.

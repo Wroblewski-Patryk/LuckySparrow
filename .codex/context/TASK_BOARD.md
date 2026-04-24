@@ -213,7 +213,8 @@ Last updated: 2026-04-24
   healthy no-UI `v1` runtime and a production-ready external-tool learning
   baseline.
 - the next queue intentionally targets four live gaps:
-  - Coolify deployment automation is still not a proven repo-driven baseline
+  - Coolify deployment automation still needs explicit source-truth repair and
+    proof after the repository rename
   - the organizer-tool stack is machine-visible but still blocked by provider
     credentials in production
   - bounded search/browser/tool reads still lack an explicit durable
@@ -275,10 +276,19 @@ Last updated: 2026-04-24
   through `PRJ-611` is complete.
 - `PRJ-613` is complete: fresh analysis now seeds a final operational
   `v1`-closure queue through `PRJ-633`.
+- `PRJ-616` is complete: the canonical Coolify production app was corrected
+  from `Public GitHub` to the GitHub App source `vps-luckysparrow`, the
+  source repository path was corrected to `Wroblewski-Patryk/Personality`, and
+  local `origin` now matches the same renamed repository.
+- `PRJ-617` is complete: planning truth, runbook guidance, and repository
+  context now treat `Public GitHub` on the canonical production app as
+  deployment drift instead of an acceptable source variant.
 - the next queue intentionally targets the remaining product-to-production
   gaps that still block everyday use:
-  - repo truth versus live production truth and deploy automation
-  - bounded website/search/browser workflows as real user-facing behavior
+  - repo truth versus live production truth still needs ongoing parity proof
+    after the repaired deploy baseline
+  - bounded website/search/browser workflows must become real user-facing
+    behavior
   - durable role/skill/tool-authorization visibility for future UI/admin
   - organizer-tool provider activation for actual daily use
   - one final no-UI `v1` acceptance bundle for day-to-day conversation and
@@ -323,12 +333,12 @@ Last updated: 2026-04-24
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_coolify_compose.py`
     - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://personality.luckysparrow.ch'`
 
-- [ ] PRJ-616 Harden the Coolify primary deploy path and explicit fallback workflow
+- [x] PRJ-616 Harden the Coolify primary deploy path and explicit fallback workflow
   - Owner: Ops/Release
   - Group: Production Truth And Deploy Automation Closure
   - Depends on: PRJ-615
   - Priority: P0
-  - Status: READY
+  - Status: DONE
   - Why now:
     - the repo now exposes parity drift explicitly, and live production smoke
       is failing because deployed truth is behind repo truth, so the next slice
@@ -341,6 +351,16 @@ Last updated: 2026-04-24
   - Validation:
     - targeted pytest coverage
     - live deploy plus release-smoke verification
+  - Evidence:
+    - the canonical Coolify app `jr1oehwlzl8tcn3h8gh2vvih` was corrected from
+      `Public GitHub` to the GitHub App source `vps-luckysparrow`
+    - the source repository was corrected from the pre-rename
+      `Wroblewski-Patryk/LuckySparrow` to `Wroblewski-Patryk/Personality`
+    - local `origin` was aligned to
+      `https://github.com/Wroblewski-Patryk/Personality.git` so push target and
+      deploy source now describe the same repository
+    - the bounded fallback posture remains webhook first, then UI redeploy only
+      when source automation proof is missing
 
 - [x] PRJ-611 Sync docs/context for the capability-catalog baseline
   - Owner: Product Docs Agent

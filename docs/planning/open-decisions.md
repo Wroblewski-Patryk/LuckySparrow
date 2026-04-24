@@ -150,10 +150,19 @@ Current execution note:
     parity contract
   - live release smoke now fails explicitly when production is still behind
     repo truth instead of silently passing without deploy-parity proof
-- `PRJ-616` is now the next active slice:
-  - the Coolify primary deploy path and explicit fallback workflow now need to
-    be hardened so the new parity contract can actually turn green in live
-    production
+- `PRJ-616` is now complete:
+  - the canonical Coolify production app was corrected from `Public GitHub` to
+    the GitHub App source `vps-luckysparrow`
+  - the source repository path was corrected from the pre-rename
+    `Wroblewski-Patryk/LuckySparrow` to `Wroblewski-Patryk/Personality`
+  - local `origin` now matches the renamed repository, so repo push target and
+    deploy-source truth no longer drift
+- `PRJ-617` is now complete:
+  - planning/context and ops truth now treat `Public GitHub` on the canonical
+    production app as deployment drift instead of an acceptable source posture
+- `PRJ-618` is now the next active slice:
+  - repo-driven deployment truth is repaired, so the next gap is bounded live
+    web-knowledge workflow activation rather than deploy automation ambiguity
 - `PRJ-598` is complete in repo truth: deployment provenance is now
   machine-visible in `/health.deployment`, deploy webhook evidence, exported
   incident evidence, and release smoke.

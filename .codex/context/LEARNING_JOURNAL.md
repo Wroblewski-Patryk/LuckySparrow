@@ -25,6 +25,38 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-24 - Coolify source drift can silently break repo-driven deploy after a repository rename
+- Context:
+  - the final operational `v1` closure lane required proving that `push main`
+    reaches the canonical Coolify production app without relying on manual
+    redeploys.
+- Symptom:
+  - pushes to `main` did not trigger automatic deploys for `Personality`, even
+    though a comparable app in the same Coolify instance still auto-deployed.
+- Root cause:
+  - the canonical Coolify app had drifted onto the `Public GitHub` source and
+    still referenced the pre-rename repository path
+    `Wroblewski-Patryk/LuckySparrow`; the intended GitHub App source
+    `vps-luckysparrow` was no longer attached to the renamed
+    `Wroblewski-Patryk/Personality` repository.
+- Guardrail:
+  - when production auto-deploy stops after a repository rename, verify both
+    the local git remote and the Coolify `Source` page for the canonical app
+    before debugging webhook/runtime behavior.
+- Preferred pattern:
+  - select the correct Coolify team scope first, then keep the canonical app on
+    the GitHub App source `vps-luckysparrow` with repository
+    `Wroblewski-Patryk/Personality` and branch `main`.
+- Avoid:
+  - treating `Public GitHub` on the canonical production app as an acceptable
+    source variant
+  - debugging webhook fallbacks before checking for source-type or repository
+    drift
+- Evidence:
+  - `PRJ-616`
+  - canonical app `jr1oehwlzl8tcn3h8gh2vvih`
+  - source corrected from `Public GitHub` to `vps-luckysparrow`
+
 ### 2026-04-24 - Production can be healthy while deploy parity is still behind repo truth
 - Context:
   - the final operational `v1` closure lane needed machine-visible proof that

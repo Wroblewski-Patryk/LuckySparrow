@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-617
 - Title: Sync docs/context for production truth and deploy automation closure
-- Status: BACKLOG
+- Status: DONE
 - Owner: Product Docs Agent
 - Depends on: PRJ-616
 - Priority: P1
@@ -21,9 +21,9 @@ Synchronize planning, ops, testing, and context for the final deploy-truth basel
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Planning docs reflect the deploy-truth and parity contract.
-- [ ] Ops/testing guidance reflects the same primary/fallback deploy posture.
-- [ ] Repository context reflects the current production-truth baseline.
+- [x] Planning docs reflect the deploy-truth and parity contract.
+- [x] Ops/testing guidance reflects the same primary/fallback deploy posture.
+- [x] Repository context reflects the current production-truth baseline.
 
 ## Forbidden
 - new systems without approval
@@ -46,14 +46,19 @@ Synchronize planning, ops, testing, and context for the final deploy-truth basel
 - Follow-up architecture doc updates: runtime reality/runbook/testing/planning/context
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This slice should close the lane, not reopen deploy behavior as an open decision.
+
+## Evidence
+- Planning truth now records `PRJ-616` as the operational slice that corrected the canonical Coolify source wiring after the repository rename.
+- Ops guidance now explicitly treats `Public GitHub` on the canonical production app as drift and `vps-luckysparrow` plus `Wroblewski-Patryk/Personality` as the required source baseline.
+- Repository context now captures the recurring pitfall that team-scope selection and source-type drift can hide the real deploy failure mode even while production itself remains healthy.

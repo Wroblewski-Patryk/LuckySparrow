@@ -611,6 +611,12 @@ Repo-driven Coolify deployment-automation baseline (`PRJ-597`):
      app without requiring a manual webhook click
    - operator verifies the target commit in Coolify deployment history before
      release smoke
+   - the canonical production app must stay connected to the GitHub App source
+     `vps-luckysparrow`; `Public GitHub` on that app is deployment drift, not
+     an acceptable primary-source variant
+   - after a repository rename, verify both the local git remote and the
+     Coolify source repository path; the current canonical repository is
+     `Wroblewski-Patryk/Personality`
 3. canonical production proof path:
    - Coolify deployment history for the canonical app shows the pushed commit
    - public production `GET /health` is green
@@ -641,6 +647,8 @@ Repo-driven Coolify deployment-automation baseline (`PRJ-597`):
 
 Explicit fallback path (when automation is delayed or missing):
 
+0. if the canonical app is not visible where expected, verify the active
+   Coolify team scope before assuming deploy automation is broken
 1. trigger Coolify deploy webhook manually:
    - Windows: `.\scripts\trigger_coolify_deploy_webhook.ps1`
    - Debian/bash: `./scripts/trigger_coolify_deploy_webhook.sh`
