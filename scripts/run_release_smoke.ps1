@@ -467,6 +467,10 @@ function Validate-IncidentEvidenceBundle {
     $organizerToolStackContract = Assert-OrganizerToolStackContract `
         -OrganizerToolStack $healthOrganizerToolStack `
         -FailurePrefix "Incident evidence bundle verification failed"
+    $healthWebKnowledgeTools = $healthConnectors.web_knowledge_tools
+    $webKnowledgeWorkflowContract = Assert-WebKnowledgeWorkflowContract `
+        -WebKnowledgeTools $healthWebKnowledgeTools `
+        -FailurePrefix "Incident evidence bundle verification failed"
     $healthCapabilityCatalog = $healthSnapshot.capability_catalog
     $capabilityCatalogContract = Assert-CapabilityCatalogContract `
         -CapabilityCatalog $healthCapabilityCatalog `
@@ -474,6 +478,10 @@ function Validate-IncidentEvidenceBundle {
     $incidentOrganizerToolStack = $incidentEvidence.policy_posture."connectors.organizer_tool_stack"
     $incidentOrganizerToolStackContract = Assert-OrganizerToolStackContract `
         -OrganizerToolStack $incidentOrganizerToolStack `
+        -FailurePrefix "Incident evidence bundle verification failed"
+    $incidentWebKnowledgeTools = $incidentEvidence.policy_posture."connectors.web_knowledge_tools"
+    $incidentWebKnowledgeWorkflowContract = Assert-WebKnowledgeWorkflowContract `
+        -WebKnowledgeTools $incidentWebKnowledgeTools `
         -FailurePrefix "Incident evidence bundle verification failed"
 
     return @{
@@ -508,6 +516,17 @@ function Validate-IncidentEvidenceBundle {
         organizer_tool_stack_credential_gap_operations = @($organizerToolStackContract.credential_gap_operations)
         organizer_tool_activation_state = [string]$organizerToolStackContract.activation_state
         organizer_tool_activation_next_actions = @($organizerToolStackContract.activation_next_actions)
+        web_knowledge_policy_owner = [string]$webKnowledgeWorkflowContract.policy_owner
+        website_reading_workflow_policy_owner = [string]$webKnowledgeWorkflowContract.workflow_policy_owner
+        website_reading_workflow_state = [string]$webKnowledgeWorkflowContract.workflow_state
+        website_reading_direct_url_review_available = [bool]$webKnowledgeWorkflowContract.direct_url_review_available
+        website_reading_search_then_page_review_available = [bool]$webKnowledgeWorkflowContract.search_then_page_review_available
+        website_reading_allowed_entry_modes = @($webKnowledgeWorkflowContract.allowed_entry_modes)
+        website_reading_search_provider_hint = [string]$webKnowledgeWorkflowContract.search_provider_hint
+        website_reading_page_read_provider_hint = [string]$webKnowledgeWorkflowContract.page_read_provider_hint
+        website_reading_memory_capture_boundary = [string]$webKnowledgeWorkflowContract.memory_capture_boundary
+        incident_web_knowledge_policy_owner = [string]$incidentWebKnowledgeWorkflowContract.policy_owner
+        incident_website_reading_workflow_state = [string]$incidentWebKnowledgeWorkflowContract.workflow_state
         retrieval_policy_owner = [string]$retrievalAlignment.retrieval_policy_owner
         retrieval_provider_requested = [string]$retrievalAlignment.provider_requested
         retrieval_provider_effective = [string]$retrievalAlignment.provider_effective
@@ -892,6 +911,105 @@ function Assert-CapabilityCatalogContract {
         organizer_activation_state = [string]$CapabilityCatalog.tool_and_connector_posture.organizer_activation_state
         execution_baseline_owner = [string]$CapabilityCatalog.tool_and_connector_posture.execution_baseline_owner
         tool_grounded_learning_policy_owner = [string]$CapabilityCatalog.learned_state_linkage.tool_grounded_learning_policy_owner
+    }
+}
+
+function Assert-WebKnowledgeWorkflowContract {
+    param(
+        [object]$WebKnowledgeTools,
+        [Parameter(Mandatory = $true)][string]$FailurePrefix
+    )
+
+    if ($null -eq $WebKnowledgeTools) {
+        throw "${FailurePrefix}: web_knowledge_tools posture is missing."
+    }
+    if ([string]$WebKnowledgeTools.policy_owner -ne "web_knowledge_tooling_policy") {
+        throw "${FailurePrefix}: unexpected web_knowledge_tools policy_owner '$($WebKnowledgeTools.policy_owner)'."
+    }
+    if ([string]$WebKnowledgeTools.tool_boundary -ne "action_owned_external_capability") {
+        throw "${FailurePrefix}: unexpected web_knowledge_tools tool_boundary '$($WebKnowledgeTools.tool_boundary)'."
+    }
+    if ([string]$WebKnowledgeTools.provider_execution_posture -ne "first_bounded_provider_slices_selected") {
+        throw "${FailurePrefix}: unexpected web_knowledge_tools provider_execution_posture '$($WebKnowledgeTools.provider_execution_posture)'."
+    }
+    if ($null -eq $WebKnowledgeTools.knowledge_search) {
+        throw "${FailurePrefix}: web_knowledge_tools knowledge_search posture is missing."
+    }
+    if ($null -eq $WebKnowledgeTools.web_browser) {
+        throw "${FailurePrefix}: web_knowledge_tools web_browser posture is missing."
+    }
+    if ([string]$WebKnowledgeTools.knowledge_search.selected_provider_hint -ne "duckduckgo_html") {
+        throw "${FailurePrefix}: unexpected web_knowledge_tools knowledge_search.selected_provider_hint '$($WebKnowledgeTools.knowledge_search.selected_provider_hint)'."
+    }
+    if ([string]$WebKnowledgeTools.web_browser.selected_provider_hint -ne "generic_http") {
+        throw "${FailurePrefix}: unexpected web_knowledge_tools web_browser.selected_provider_hint '$($WebKnowledgeTools.web_browser.selected_provider_hint)'."
+    }
+    if ($null -eq $WebKnowledgeTools.website_reading_workflow) {
+        throw "${FailurePrefix}: web_knowledge_tools website_reading_workflow is missing."
+    }
+
+    $workflow = $WebKnowledgeTools.website_reading_workflow
+    if ([string]$workflow.policy_owner -ne "website_reading_workflow_policy") {
+        throw "${FailurePrefix}: unexpected website_reading_workflow policy_owner '$($workflow.policy_owner)'."
+    }
+
+    $validWorkflowStates = @(
+        "ready_for_direct_and_search_first_review",
+        "ready_for_direct_url_review_only",
+        "search_available_but_page_review_blocked",
+        "website_reading_blocked"
+    )
+    if ($validWorkflowStates -notcontains [string]$workflow.workflow_state) {
+        throw "${FailurePrefix}: unexpected website_reading_workflow workflow_state '$($workflow.workflow_state)'."
+    }
+
+    if (-not (Has-Property -Object $workflow -Name "direct_url_review_available")) {
+        throw "${FailurePrefix}: website_reading_workflow is missing direct_url_review_available."
+    }
+    if (-not (Has-Property -Object $workflow -Name "search_then_page_review_available")) {
+        throw "${FailurePrefix}: website_reading_workflow is missing search_then_page_review_available."
+    }
+
+    $allowedEntryModes = @($workflow.allowed_entry_modes)
+    $boundedReadSemantics = @($workflow.bounded_read_semantics)
+    $boundedOutputContract = @($workflow.bounded_output_contract)
+    $selectedProviderPath = $workflow.selected_provider_path
+
+    if ($null -eq $selectedProviderPath) {
+        throw "${FailurePrefix}: website_reading_workflow selected_provider_path is missing."
+    }
+    if ([string]$selectedProviderPath.search_provider_hint -ne "duckduckgo_html") {
+        throw "${FailurePrefix}: unexpected website_reading_workflow search_provider_hint '$($selectedProviderPath.search_provider_hint)'."
+    }
+    if ([string]$selectedProviderPath.page_read_provider_hint -ne "generic_http") {
+        throw "${FailurePrefix}: unexpected website_reading_workflow page_read_provider_hint '$($selectedProviderPath.page_read_provider_hint)'."
+    }
+    if ([string]$workflow.memory_capture_boundary -ne "tool_grounded_summary_only_via_action_then_memory") {
+        throw "${FailurePrefix}: unexpected website_reading_workflow memory_capture_boundary '$($workflow.memory_capture_boundary)'."
+    }
+    foreach ($requiredSemantic in @("single_page_read_only", "search_optional_before_page_read", "no_login_or_form_submission", "no_raw_full_page_dump")) {
+        if ($boundedReadSemantics -notcontains $requiredSemantic) {
+            throw "${FailurePrefix}: website_reading_workflow is missing bounded_read_semantics '$requiredSemantic'."
+        }
+    }
+    foreach ($requiredOutput in @("final_page_url", "bounded_summary", "source_note", "explicit_uncertainty_or_blocker_note")) {
+        if ($boundedOutputContract -notcontains $requiredOutput) {
+            throw "${FailurePrefix}: website_reading_workflow is missing bounded_output_contract '$requiredOutput'."
+        }
+    }
+
+    return @{
+        policy_owner = [string]$WebKnowledgeTools.policy_owner
+        workflow_policy_owner = [string]$workflow.policy_owner
+        workflow_state = [string]$workflow.workflow_state
+        direct_url_review_available = [bool]$workflow.direct_url_review_available
+        search_then_page_review_available = [bool]$workflow.search_then_page_review_available
+        allowed_entry_modes = @($allowedEntryModes)
+        search_provider_hint = [string]$selectedProviderPath.search_provider_hint
+        page_read_provider_hint = [string]$selectedProviderPath.page_read_provider_hint
+        memory_capture_boundary = [string]$workflow.memory_capture_boundary
+        blockers = @($workflow.blockers)
+        next_actions = @($workflow.next_actions)
     }
 }
 
@@ -1785,6 +1903,9 @@ if ($null -eq $connectors) {
 $organizerToolStackContract = Assert-OrganizerToolStackContract `
     -OrganizerToolStack $connectors.organizer_tool_stack `
     -FailurePrefix "Health check failed"
+$webKnowledgeWorkflowContract = Assert-WebKnowledgeWorkflowContract `
+    -WebKnowledgeTools $connectors.web_knowledge_tools `
+    -FailurePrefix "Health check failed"
 
 $response = Invoke-JsonUtf8 -Method POST -Uri $eventUrl -BodyBytes $bodyBytes
 
@@ -1974,6 +2095,9 @@ if ($IncludeDebug) {
     $incidentOrganizerToolStackContract = Assert-OrganizerToolStackContract `
         -OrganizerToolStack $incidentEvidence.policy_posture."connectors.organizer_tool_stack" `
         -FailurePrefix "Smoke request failed"
+    $incidentWebKnowledgeWorkflowContract = Assert-WebKnowledgeWorkflowContract `
+        -WebKnowledgeTools $incidentEvidence.policy_posture."connectors.web_knowledge_tools" `
+        -FailurePrefix "Smoke request failed"
 }
 
 $summary = @{
@@ -2113,10 +2237,23 @@ $summary = @{
     organizer_tool_stack_credential_gap_operations = @($organizerToolStackContract.credential_gap_operations)
     organizer_tool_activation_state = [string]$organizerToolStackContract.activation_state
     organizer_tool_activation_next_actions = @($organizerToolStackContract.activation_next_actions)
+    web_knowledge_policy_owner = [string]$webKnowledgeWorkflowContract.policy_owner
+    website_reading_workflow_policy_owner = [string]$webKnowledgeWorkflowContract.workflow_policy_owner
+    website_reading_workflow_state = [string]$webKnowledgeWorkflowContract.workflow_state
+    website_reading_direct_url_review_available = [bool]$webKnowledgeWorkflowContract.direct_url_review_available
+    website_reading_search_then_page_review_available = [bool]$webKnowledgeWorkflowContract.search_then_page_review_available
+    website_reading_allowed_entry_modes = @($webKnowledgeWorkflowContract.allowed_entry_modes)
+    website_reading_search_provider_hint = [string]$webKnowledgeWorkflowContract.search_provider_hint
+    website_reading_page_read_provider_hint = [string]$webKnowledgeWorkflowContract.page_read_provider_hint
+    website_reading_memory_capture_boundary = [string]$webKnowledgeWorkflowContract.memory_capture_boundary
+    website_reading_blockers = @($webKnowledgeWorkflowContract.blockers)
+    website_reading_next_actions = @($webKnowledgeWorkflowContract.next_actions)
     incident_evidence_organizer_tool_stack_policy_owner = if ($null -ne $incidentOrganizerToolStackContract) { [string]$incidentOrganizerToolStackContract.policy_owner } else { $null }
     incident_evidence_organizer_tool_stack_readiness_state = if ($null -ne $incidentOrganizerToolStackContract) { [string]$incidentOrganizerToolStackContract.readiness_state } else { $null }
     incident_evidence_organizer_tool_activation_state = if ($null -ne $incidentOrganizerToolStackContract) { [string]$incidentOrganizerToolStackContract.activation_state } else { $null }
     incident_evidence_organizer_tool_activation_next_actions = if ($null -ne $incidentOrganizerToolStackContract) { @($incidentOrganizerToolStackContract.activation_next_actions) } else { @() }
+    incident_evidence_web_knowledge_policy_owner = if ($null -ne $incidentWebKnowledgeWorkflowContract) { [string]$incidentWebKnowledgeWorkflowContract.policy_owner } else { $null }
+    incident_evidence_website_reading_workflow_state = if ($null -ne $incidentWebKnowledgeWorkflowContract) { [string]$incidentWebKnowledgeWorkflowContract.workflow_state } else { $null }
     incident_evidence_retrieval_policy_owner = if ($null -ne $incidentRetrievalAlignment) { [string]$incidentRetrievalAlignment.retrieval_policy_owner } else { $null }
     incident_evidence_retrieval_provider_requested = if ($null -ne $incidentRetrievalAlignment) { [string]$incidentRetrievalAlignment.provider_requested } else { $null }
     incident_evidence_retrieval_provider_effective = if ($null -ne $incidentRetrievalAlignment) { [string]$incidentRetrievalAlignment.provider_effective } else { $null }
@@ -2155,6 +2292,15 @@ $summary = @{
     incident_bundle_organizer_tool_stack_credential_gap_operations = $incidentEvidenceBundleCheck.organizer_tool_stack_credential_gap_operations
     incident_bundle_organizer_tool_activation_state = $incidentEvidenceBundleCheck.organizer_tool_activation_state
     incident_bundle_organizer_tool_activation_next_actions = $incidentEvidenceBundleCheck.organizer_tool_activation_next_actions
+    incident_bundle_web_knowledge_policy_owner = $incidentEvidenceBundleCheck.web_knowledge_policy_owner
+    incident_bundle_website_reading_workflow_policy_owner = $incidentEvidenceBundleCheck.website_reading_workflow_policy_owner
+    incident_bundle_website_reading_workflow_state = $incidentEvidenceBundleCheck.website_reading_workflow_state
+    incident_bundle_website_reading_direct_url_review_available = $incidentEvidenceBundleCheck.website_reading_direct_url_review_available
+    incident_bundle_website_reading_search_then_page_review_available = $incidentEvidenceBundleCheck.website_reading_search_then_page_review_available
+    incident_bundle_website_reading_allowed_entry_modes = $incidentEvidenceBundleCheck.website_reading_allowed_entry_modes
+    incident_bundle_website_reading_search_provider_hint = $incidentEvidenceBundleCheck.website_reading_search_provider_hint
+    incident_bundle_website_reading_page_read_provider_hint = $incidentEvidenceBundleCheck.website_reading_page_read_provider_hint
+    incident_bundle_website_reading_memory_capture_boundary = $incidentEvidenceBundleCheck.website_reading_memory_capture_boundary
     incident_bundle_learned_state_policy_owner = $incidentEvidenceBundleCheck.learned_state_policy_owner
     incident_bundle_learned_state_internal_inspection_path = $incidentEvidenceBundleCheck.learned_state_internal_inspection_path
     incident_bundle_learned_state_inspection_sections = $incidentEvidenceBundleCheck.learned_state_inspection_sections

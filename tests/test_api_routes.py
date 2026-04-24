@@ -3508,6 +3508,15 @@ def test_event_debug_endpoint_exposes_runtime_incident_evidence_export() -> None
     assert incident_evidence["policy_posture"]["learned_state"]["tool_grounded_learning"]["capture_owner"] == (
         "action_owned_external_read_summaries_only"
     )
+    assert incident_evidence["policy_posture"]["connectors.web_knowledge_tools"]["policy_owner"] == (
+        "web_knowledge_tooling_policy"
+    )
+    assert (
+        incident_evidence["policy_posture"]["connectors.web_knowledge_tools"]["website_reading_workflow"][
+            "policy_owner"
+        ]
+        == "website_reading_workflow_policy"
+    )
     assert incident_evidence["policy_posture"]["deployment"]["deployment_automation_policy_owner"] == (
         "coolify_repo_deploy_automation"
     )
@@ -3783,10 +3792,11 @@ def test_health_endpoint_exposes_observability_export_policy_baseline() -> None:
             "attention",
             "runtime_topology.attention_switch",
             "proactive",
-            "scheduler.external_owner_policy",
-            "reflection.supervision",
+                "scheduler.external_owner_policy",
+                "reflection.supervision",
                 "connectors.execution_baseline",
                 "connectors.organizer_tool_stack",
+                "connectors.web_knowledge_tools",
                 "conversation_channels.telegram",
             ],
         "local_surfaces": [

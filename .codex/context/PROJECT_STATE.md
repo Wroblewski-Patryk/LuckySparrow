@@ -10,6 +10,16 @@ Last updated: 2026-04-24
   user preferences over time
 - Commercial model: TBD
 - Current phase: no-UI V1 baseline achieved in repo; final operational V1-closure queue now active for live tool onboarding and daily-use readiness
+- 2026-04-24: `PRJ-621` is complete: runtime reality, testing guidance, ops
+  notes, and planning truth now all describe the same bounded website-reading
+  proof path across `/health.connectors.web_knowledge_tools.website_reading_workflow`,
+  debug incident evidence, incident-evidence bundle `health_snapshot.json`, and
+  bounded behavior scenarios `T14.1`, `T14.2`, and `T17.1`.
+- 2026-04-24: `PRJ-620` is complete: release-smoke and incident-evidence proof
+  now pin the same bounded website-reading workflow that health exposes. The
+  runtime exports `connectors.web_knowledge_tools` through incident evidence,
+  and release evidence now fails if website-reading guardrails drift out of
+  parity with `/health`.
 - 2026-04-24: `PRJ-619` is complete: `/health.connectors.web_knowledge_tools`
   and runtime `system_debug.adaptive_state["web_knowledge_tools"]` now expose
   one bounded `website_reading_workflow` contract with selected provider path,

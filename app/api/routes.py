@@ -295,6 +295,10 @@ async def _incident_evidence_from_request(
     )
     connectors_execution_baseline = connector_execution_baseline_snapshot(settings)
     organizer_tool_stack = organizer_tool_stack_snapshot(settings)
+    web_knowledge_tools = web_knowledge_tooling_snapshot(
+        knowledge_search=connectors_execution_baseline["knowledge_search"]["search_web"],
+        web_browser=connectors_execution_baseline["web_browser"]["read_page"],
+    )
     telegram_conversation_channel = _telegram_telemetry_from_request(request).snapshot(
         bot_token_configured=bool(getattr(settings, "telegram_bot_token", "")),
         webhook_secret_configured=bool(getattr(settings, "telegram_webhook_secret", "")),
@@ -340,6 +344,7 @@ async def _incident_evidence_from_request(
         reflection_supervision=reflection_supervision,
         connectors_execution_baseline=connectors_execution_baseline,
         connectors_organizer_tool_stack=organizer_tool_stack,
+        connectors_web_knowledge_tools=web_knowledge_tools,
         telegram_conversation_channel=telegram_conversation_channel,
     )
 

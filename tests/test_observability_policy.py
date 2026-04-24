@@ -86,6 +86,7 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
         reflection_supervision={"policy_owner": "deferred_reflection_supervision_policy"},
         connectors_execution_baseline={"policy_owner": "connector_execution_baseline"},
         connectors_organizer_tool_stack={"policy_owner": "production_organizer_tool_stack"},
+        connectors_web_knowledge_tools={"policy_owner": "web_knowledge_tooling_policy"},
         telegram_conversation_channel={"policy_owner": "telegram_conversation_reliability_telemetry"},
     )
 
@@ -110,6 +111,7 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
             "reflection.supervision",
             "connectors.execution_baseline",
             "connectors.organizer_tool_stack",
+            "connectors.web_knowledge_tools",
             "conversation_channels.telegram",
         ],
         "missing": [],

@@ -183,10 +183,17 @@ Current execution note:
   - that posture distinguishes direct URL review, search-first page review,
     selected provider path, bounded read semantics, and blockers or next
     actions without introducing a new browsing subsystem
-- `PRJ-620` is now the next active slice:
-  - the workflow is now frozen and machine-visible, so the next gap is proof:
-    behavior validation and release evidence should pin the same website-reading
-    contract instead of relying on `/health` only
+- `PRJ-620` is now complete:
+  - release smoke, debug incident evidence, and incident-evidence bundles now
+    require the same bounded website-reading contract that `/health` exposes
+  - bounded behavior proof continues to reuse `T14.1`, `T14.2`, and `T17.1`
+    instead of inventing a second acceptance harness
+- `PRJ-621` is now complete:
+  - runtime reality, testing guidance, ops notes, and planning/context now all
+    describe the same bounded website-reading proof path
+- `PRJ-622` is now the next active slice:
+  - the next gap is durable role/skill/tool-authorization catalog truth for
+    future callers and later UI/admin surfaces
 - `PRJ-598` is complete in repo truth: deployment provenance is now
   machine-visible in `/health.deployment`, deploy webhook evidence, exported
   incident evidence, and release smoke.

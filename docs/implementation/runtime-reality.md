@@ -1060,6 +1060,14 @@ What is already live:
   and the first selected provider-backed execution posture for:
   - `knowledge_search` via `duckduckgo_html`
   - `web_browser` via `generic_http`
+- that same surface now includes `website_reading_workflow`, which is the
+  bounded no-UI `v1` contract for:
+  - direct URL review
+  - search-first page review
+  - selected provider path
+  - bounded read semantics
+  - action-owned memory-capture boundary
+  - operator-visible blockers and next actions
 - `/health.connectors.execution_baseline` now also exposes:
   - `knowledge_search.search_web` as
     `provider_backed_without_credentials/provider_backed_ready`
@@ -1238,6 +1246,9 @@ Current limitation:
 - runtime `system_debug.adaptive_state["web_knowledge_tools"]` now mirrors the
   same selected provider-backed posture as `/health.connectors.web_knowledge_tools`
   for operator triage and future UI bootstrap
+- release smoke and incident-evidence bundles now validate the same
+  `website_reading_workflow` contract instead of relying only on direct
+  `/health` inspection
 - behavior validation now proves these live bounded tool slices through:
   - `T14.1` analyst-driven DuckDuckGo search
   - `T14.2` analyst-driven generic HTTP page read

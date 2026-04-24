@@ -424,22 +424,41 @@ Last updated: 2026-04-24
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py` -> `187 passed`
 
-- [ ] PRJ-620 Add behavior and release proof for live web-knowledge workflows
+- [x] PRJ-620 Add behavior and release proof for live web-knowledge workflows
   - Owner: QA/Test
   - Group: Live Web-Knowledge Workflow Activation
   - Depends on: PRJ-619
   - Priority: P0
-  - Status: READY
+  - Status: DONE
   - Why now:
     - the workflow is now frozen and machine-visible, so the next slice should
       prove the same website-reading contract through behavior-validation and
       release evidence instead of `/health` only
   - Result:
-    - behavior validation and release smoke prove search-first and direct-page
-      review without bypassing planning/action or bounded read guardrails
+    - release smoke, debug incident evidence, and incident-evidence bundles now
+      require the same bounded `website_reading_workflow` contract as `/health`
+    - bounded web-knowledge behavior proof stays anchored in the existing
+      `T14.1`, `T14.2`, and `T17.1` scenario lane instead of a parallel harness
   - Validation:
-    - targeted pytest coverage
-    - behavior-validation and release-smoke evidence
+    - `.\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py` -> `122 passed`
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json` -> `14 passed`, `gate_status=pass`
+
+- [x] PRJ-621 Sync docs/context for live web-knowledge workflows
+  - Owner: Product Docs Agent
+  - Group: Live Web-Knowledge Workflow Activation
+  - Depends on: PRJ-620
+  - Priority: P1
+  - Status: DONE
+  - Why now:
+    - behavior and release proof are now live, so runtime reality, testing
+      notes, ops guidance, and planning truth should describe the same bounded
+      website-reading contract
+  - Result:
+    - docs and source-of-truth files now describe one shared proof path across
+      `/health`, incident evidence, health snapshots, and bounded behavior
+      scenarios
+  - Validation:
+    - docs/context cross-review against `PRJ-620` runtime and test evidence
 
 - [x] PRJ-611 Sync docs/context for the capability-catalog baseline
   - Owner: Product Docs Agent

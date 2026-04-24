@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-621
 - Title: Sync docs/context for live web-knowledge workflows
-- Status: BACKLOG
+- Status: DONE
 - Owner: Product Docs Agent
 - Depends on: PRJ-620
 - Priority: P1
@@ -21,9 +21,9 @@ Synchronize runtime reality, testing, ops, and planning/context for the live web
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Canonical docs reflect the website-reading workflow baseline.
-- [ ] Runtime reality/testing/ops reflect the same proof path.
-- [ ] Repository context reflects the same lane completion state.
+- [x] Canonical docs reflect the website-reading workflow baseline.
+- [x] Runtime reality/testing/ops reflect the same proof path.
+- [x] Repository context reflects the same lane completion state.
 
 ## Forbidden
 - new systems without approval
@@ -32,8 +32,8 @@ Synchronize runtime reality, testing, ops, and planning/context for the live web
 - architecture changes without explicit approval
 
 ## Validation Evidence
-- Tests: doc-and-context sync
-- Manual checks: cross-review against runtime truth and behavior/release evidence
+- Tests: doc-and-context sync based on completed `PRJ-620` validation evidence
+- Manual checks: cross-review against runtime truth plus behavior/release proof surfaces
 - Screenshots/logs:
 - High-risk checks: avoid mixing website-reading baseline with future unrestricted browsing claims
 
@@ -46,14 +46,24 @@ Synchronize runtime reality, testing, ops, and planning/context for the live web
 - Follow-up architecture doc updates: runtime reality/testing/runbook/planning/context
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This slice should make it obvious to a later UI/admin layer what "website reading" actually means in `v1`.
+
+Completion notes:
+
+- runtime reality, testing guidance, ops notes, planning truth, and project
+  context now all describe the same bounded website-reading workflow
+- the proof path is now explicit across:
+  - `/health.connectors.web_knowledge_tools.website_reading_workflow`
+  - `incident_evidence.policy_posture["connectors.web_knowledge_tools"]`
+  - `health_snapshot.json.connectors.web_knowledge_tools`
+  - behavior-validation scenarios `T14.1`, `T14.2`, and `T17.1`

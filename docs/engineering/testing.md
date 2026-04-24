@@ -185,10 +185,15 @@ For meaningful repo changes, leave behind:
   - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py`
   - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
-  - coverage should pin:
+- coverage should pin:
     - shared typed-intent and permission-gate policy for `knowledge_search`
       and `web_browser`
     - `/health.connectors.web_knowledge_tools` readiness plus fallback posture
+    - `/health.connectors.web_knowledge_tools.website_reading_workflow` direct
+      versus search-first review contract, selected provider path, bounded read
+      semantics, and memory-capture boundary
+    - matching incident-evidence and incident-bundle proof for
+      `connectors.web_knowledge_tools.website_reading_workflow`
     - live execution-baseline entries for:
       - `knowledge_search.search_web`
       - `web_browser.read_page`

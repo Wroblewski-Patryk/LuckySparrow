@@ -148,8 +148,18 @@ Queue update (2026-04-24):
   - selected provider path
   - bounded read semantics
   - blockers and next actions
-- the next active slice is `PRJ-620`, which should prove the same contract
-  through behavior validation and release evidence
+- `PRJ-620` is now complete.
+- behavior and release proof for website reading now go through:
+  - `/health.connectors.web_knowledge_tools.website_reading_workflow`
+  - debug incident evidence `policy_posture["connectors.web_knowledge_tools"]`
+  - incident-evidence bundle `health_snapshot.json.connectors.web_knowledge_tools`
+  - existing bounded behavior scenarios `T14.1`, `T14.2`, and `T17.1`
+- `PRJ-621` is now complete.
+- runtime reality, testing guidance, ops notes, and planning/context now
+  describe the same bounded website-reading proof path instead of leaving it
+  split between architecture and smoke-only knowledge
+- the next active slice is `PRJ-622`, which should turn role/skill/tool
+  authorization metadata into a more durable catalog for future callers
 
 - `PRJ-615` Add machine-visible repo-vs-production truth and deploy-parity evidence.
   - Result:

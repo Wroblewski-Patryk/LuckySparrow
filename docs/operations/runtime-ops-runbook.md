@@ -210,6 +210,10 @@ posture:
   - `T14.1` analyst-driven DuckDuckGo search
   - `T14.2` analyst-driven generic HTTP page read
   - `T14.3` executor-aligned ClickUp task update
+  - `GET /health.connectors.web_knowledge_tools.website_reading_workflow`
+  - `incident_evidence.policy_posture["connectors.web_knowledge_tools"]`
+  - `health_snapshot.json.connectors.web_knowledge_tools` inside the exported
+    incident-evidence bundle
 - when a release or incident touches backend work-partner behavior, attach
   behavior-validation evidence for:
   - `T15.1` work-partner organization with bounded search plus ClickUp update
