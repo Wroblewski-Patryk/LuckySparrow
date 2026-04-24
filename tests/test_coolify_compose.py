@@ -74,7 +74,7 @@ def test_coolify_compose_maps_app_build_revision_to_coolify_source_commit() -> N
 
     app_environment = compose["services"]["app"]["environment"]
 
-    assert app_environment["APP_BUILD_REVISION"] == "$SOURCE_COMMIT"
+    assert app_environment["APP_BUILD_REVISION"] == "${APP_BUILD_REVISION:-unknown}"
 
 
 def test_coolify_compose_defaults_deployment_trigger_mode_to_source_automation() -> None:
@@ -92,7 +92,7 @@ def test_coolify_compose_builds_runtime_services_with_app_build_revision_arg() -
 
     for service_name in ("app", "maintenance_cadence", "proactive_cadence"):
         build_args = compose["services"][service_name]["build"]["args"]
-        assert build_args["APP_BUILD_REVISION"] == "${SOURCE_COMMIT:-unknown}"
+        assert build_args["APP_BUILD_REVISION"] == "${APP_BUILD_REVISION:-unknown}"
 
 
 def test_coolify_compose_includes_external_cadence_services() -> None:
