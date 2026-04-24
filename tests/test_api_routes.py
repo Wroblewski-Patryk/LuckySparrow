@@ -988,7 +988,7 @@ def test_health_endpoint_exposes_learned_state_introspection_posture() -> None:
         "internal_inspection_path": "/internal/state/inspect",
         "inspection_boundary": "internal_admin_debug_access_only",
         "identity_state_scope": "profile_language_plus_conclusion_preferences",
-        "learned_knowledge_scope": "semantic_affective_relations_and_reflection_outputs",
+        "learned_knowledge_scope": "semantic_affective_tool_grounded_relations_and_reflection_outputs",
         "skill_learning_posture": "selected_skill_metadata_only",
         "planning_state_scope": "active_goals_tasks_milestones_and_pending_proposals",
         "current_turn_selection_surface": "system_debug",
@@ -2164,6 +2164,8 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     assert "T13.1" in body["v1_readiness"]["required_behavior_scenarios"]
     assert "T15.2" in body["v1_readiness"]["required_behavior_scenarios"]
     assert "T16.3" in body["v1_readiness"]["required_behavior_scenarios"]
+    assert "T17.1" in body["v1_readiness"]["required_behavior_scenarios"]
+    assert "T17.2" in body["v1_readiness"]["required_behavior_scenarios"]
     assert "task_system.clickup_list_tasks" in body["v1_readiness"]["approved_tool_slices"]
     assert "task_system.clickup_update_task" in body["v1_readiness"]["approved_tool_slices"]
     assert "calendar.google_calendar_read_availability" in body["v1_readiness"]["approved_tool_slices"]
@@ -3328,6 +3330,12 @@ def test_event_debug_endpoint_exposes_runtime_incident_evidence_export() -> None
     )
     assert incident_evidence["policy_posture"]["memory_retrieval"]["retrieval_lifecycle_policy_owner"] == (
         "retrieval_lifecycle_policy"
+    )
+    assert incident_evidence["policy_posture"]["learned_state"]["tool_grounded_learning"]["policy_owner"] == (
+        "tool_grounded_learning_policy"
+    )
+    assert incident_evidence["policy_posture"]["learned_state"]["tool_grounded_learning"]["capture_owner"] == (
+        "action_owned_external_read_summaries_only"
     )
     assert incident_evidence["policy_posture"]["deployment"]["deployment_automation_policy_owner"] == (
         "coolify_repo_deploy_automation"

@@ -6283,3 +6283,122 @@ async def test_runtime_behavior_work_partner_organizer_tool_stack_scenarios() ->
     )
     assert len(results) == 3
     assert {result.status for result in results} == {"pass"}
+
+
+async def test_runtime_behavior_tool_grounded_learning_scenarios() -> None:
+    async def search_learning_recall_scenario() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(recent_memory=[])
+        runtime = _build_behavior_runtime(
+            memory,
+            knowledge_search_client=FakeDuckDuckGoSearchClient(),
+        )
+
+        research_result = await runtime.run(
+            _behavior_event(
+                event_id="evt-tool-grounded-1",
+                trace_id="t-tool-grounded-1",
+                user_id="tool-user",
+                text="Search the web for release notes.",
+            )
+        )
+        recall_result = await runtime.run(
+            _behavior_event(
+                event_id="evt-tool-grounded-2",
+                trace_id="t-tool-grounded-2",
+                user_id="tool-user",
+                text="What did you learn from the release notes you checked earlier?",
+            )
+        )
+
+        persisted_update = (
+            dict(research_result.memory_record.payload).get("tool_grounded_learning_update", {})
+            if research_result.memory_record is not None
+            else {}
+        )
+        recalled_kinds = {
+            str(item.get("kind", ""))
+            for item in (recall_result.system_debug.memory_bundle.semantic if recall_result.system_debug else [])
+        }
+        passed = (
+            "duckduckgo_search_web" in research_result.action_result.actions
+            and "generic_http_read_page" not in research_result.action_result.actions
+            and persisted_update == "tool_grounded_search_knowledge"
+            and "tool_grounded_search_knowledge" in recalled_kinds
+            and "duckduckgo_search_web" not in recall_result.action_result.actions
+            and "generic_http_read_page" not in recall_result.action_result.actions
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="tool_grounded_search_recall"
+            if passed
+            else "tool_grounded_search_recall_regression",
+            trace_id=recall_result.event.meta.trace_id,
+            notes=(
+                f"persisted={persisted_update};"
+                f"research_actions={','.join(research_result.action_result.actions)};"
+                f"recall_actions={','.join(recall_result.action_result.actions)};"
+                f"recalled={','.join(sorted(recalled_kinds))}"
+            ),
+        )
+
+    async def organizer_snapshot_learning_recall_scenario() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(recent_memory=[])
+        runtime = _build_behavior_runtime(
+            memory,
+            clickup_task_client=FakeClickUpTaskClient(),
+        )
+
+        list_result = await runtime.run(
+            _behavior_event(
+                event_id="evt-tool-grounded-3",
+                trace_id="t-tool-grounded-3",
+                user_id="tool-user",
+                text="List my ClickUp tasks for the release work.",
+            )
+        )
+        recall_result = await runtime.run(
+            _behavior_event(
+                event_id="evt-tool-grounded-4",
+                trace_id="t-tool-grounded-4",
+                user_id="tool-user",
+                text="Based on that task list, what should I focus on first?",
+            )
+        )
+
+        persisted_update = (
+            dict(list_result.memory_record.payload).get("tool_grounded_learning_update", {})
+            if list_result.memory_record is not None
+            else {}
+        )
+        recalled_kinds = {
+            str(item.get("kind", ""))
+            for item in (recall_result.system_debug.memory_bundle.semantic if recall_result.system_debug else [])
+        }
+        passed = (
+            "clickup_list_tasks" in list_result.action_result.actions
+            and persisted_update == "tool_grounded_task_snapshot"
+            and "tool_grounded_task_snapshot" in recalled_kinds
+            and "clickup_list_tasks" not in recall_result.action_result.actions
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="tool_grounded_task_snapshot_recall"
+            if passed
+            else "tool_grounded_task_snapshot_recall_regression",
+            trace_id=recall_result.event.meta.trace_id,
+            notes=(
+                f"persisted={persisted_update};"
+                f"list_actions={','.join(list_result.action_result.actions)};"
+                f"recall_actions={','.join(recall_result.action_result.actions)};"
+                f"recalled={','.join(sorted(recalled_kinds))}"
+            ),
+        )
+
+    results = await execute_behavior_scenarios(
+        [
+            BehaviorScenarioDefinition(test_id="T17.1", run=search_learning_recall_scenario),
+            BehaviorScenarioDefinition(test_id="T17.2", run=organizer_snapshot_learning_recall_scenario),
+        ]
+    )
+    assert len(results) == 2
+    assert {result.status for result in results} == {"pass"}

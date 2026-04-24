@@ -229,6 +229,35 @@ Current transition note:
   global fallback, reducing cross-goal leakage in context, motivation,
   planning, and milestone enrichment
 
+### Tool-grounded learning capture
+
+The live runtime now treats selected external reads as bounded learned-state
+inputs instead of leaving them permanently turn-local.
+
+Current implementation details:
+
+- `ActionExecutor` is the only owner that may reduce approved provider-backed
+  read results into tool-grounded learning candidates
+- approved source families are currently:
+  - `knowledge_search.search_web`
+  - `web_browser.read_page`
+  - `task_system.list_tasks`
+  - `calendar.read_availability`
+  - `cloud_drive.list_files`
+- memory persistence still happens through normal semantic conclusion writes
+  after action execution; there is no side path that writes raw provider
+  payloads directly into learned state
+- learned-state inspection now exposes tool-grounded semantic conclusions as a
+  visible subset of learned knowledge instead of mixing them silently with
+  other semantic conclusions
+
+Current evidence surfaces:
+
+- `/health.learned_state.tool_grounded_learning`
+- `incident_evidence.policy_posture["learned_state"].tool_grounded_learning`
+- internal `GET /internal/state/inspect?user_id=...` knowledge summaries
+- behavior-validation scenarios `T17.1..T17.2`
+
 ### Retrieval depth and compression
 
 The live runtime no longer depends on a strict latest-five memory fetch:

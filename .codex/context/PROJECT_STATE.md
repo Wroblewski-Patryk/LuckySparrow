@@ -411,9 +411,17 @@ Last updated: 2026-04-24
 - 2026-04-24: `PRJ-605` is complete: approved external reads now persist
   bounded tool-grounded semantic conclusions and learned-state inspection
   exposes the richer tool-grounded knowledge summaries.
-- 2026-04-24: `PRJ-606` is now the first `READY` task; the next slice should
-  prove the live tool-grounded learning path through behavior and release
-  evidence.
+- 2026-04-24: `PRJ-606` is complete: behavior validation, release smoke,
+  incident evidence, and `v1_readiness` now prove the same bounded
+  tool-grounded learning contract through `T17.1..T17.2` and
+  learned-state contract gates.
+- 2026-04-24: `PRJ-607` is complete: runtime reality, testing guidance, ops
+  notes, architecture testing docs, and planning/context truth now describe
+  the same bounded tool-grounded learning baseline and evidence path.
+- 2026-04-24: `PRJ-608` is now the first `READY` task; the next slice should
+  freeze one backend capability-catalog contract for future UI/admin work now
+  that deploy automation, organizer activation, and tool-grounded learning are
+  all machine-visible.
 - 2026-04-22: `PRJ-560` is now the first `READY` task; the next slice should
   freeze the backend work-partner role baseline so future orchestration can
   grow from one explicit role contract instead of diffuse product wording.

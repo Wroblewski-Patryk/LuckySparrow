@@ -53,9 +53,25 @@ LEARNED_STATE_PLANNING_CONTINUITY_SECTIONS = [
 LEARNED_STATE_REFLECTION_GROWTH_SIGNAL_KINDS = [
     "semantic_conclusions",
     "affective_conclusions",
+    "tool_grounded_conclusions",
     "adaptive_outputs",
     "relations",
 ]
+TOOL_GROUNDED_LEARNING_CONTRACT = {
+    "policy_owner": "tool_grounded_learning_policy",
+    "capture_owner": "action_owned_external_read_summaries_only",
+    "persistence_owner": "memory_conclusion_write_after_action",
+    "allowed_read_operations": [
+        "knowledge_search.search_web",
+        "web_browser.read_page",
+        "task_system.list_tasks",
+        "calendar.read_availability",
+        "cloud_drive.list_files",
+    ],
+    "raw_payload_storage_allowed": False,
+    "execution_bypass_allowed": False,
+    "self_modifying_skill_learning_allowed": False,
+}
 V1_REQUIRED_BEHAVIOR_SCENARIOS = [
     "T13.1",
     "T14.1",
@@ -66,6 +82,8 @@ V1_REQUIRED_BEHAVIOR_SCENARIOS = [
     "T16.1",
     "T16.2",
     "T16.3",
+    "T17.1",
+    "T17.2",
 ]
 V1_APPROVED_TOOL_SLICES = [
     "knowledge_search.search_web",
@@ -340,6 +358,7 @@ def stub_aion_server() -> _StubAionServer:
             "role_skill_metadata_sections": LEARNED_STATE_ROLE_SKILL_METADATA_SECTIONS,
             "planning_continuity_sections": LEARNED_STATE_PLANNING_CONTINUITY_SECTIONS,
             "reflection_growth_signal_kinds": LEARNED_STATE_REFLECTION_GROWTH_SIGNAL_KINDS,
+            "tool_grounded_learning": TOOL_GROUNDED_LEARNING_CONTRACT,
         },
         "connectors": {
             "organizer_tool_stack": {
@@ -497,6 +516,7 @@ def stub_aion_server() -> _StubAionServer:
                     "role_skill_metadata_sections": LEARNED_STATE_ROLE_SKILL_METADATA_SECTIONS,
                     "planning_continuity_sections": LEARNED_STATE_PLANNING_CONTINUITY_SECTIONS,
                     "reflection_growth_signal_kinds": LEARNED_STATE_REFLECTION_GROWTH_SIGNAL_KINDS,
+                    "tool_grounded_learning": TOOL_GROUNDED_LEARNING_CONTRACT,
                 },
             "v1_readiness": {
                     "policy_owner": "v1_release_readiness_policy",
@@ -729,6 +749,7 @@ def _write_incident_bundle(
                 "role_skill_metadata_sections": LEARNED_STATE_ROLE_SKILL_METADATA_SECTIONS,
                 "planning_continuity_sections": LEARNED_STATE_PLANNING_CONTINUITY_SECTIONS,
                 "reflection_growth_signal_kinds": LEARNED_STATE_REFLECTION_GROWTH_SIGNAL_KINDS,
+                "tool_grounded_learning": TOOL_GROUNDED_LEARNING_CONTRACT,
             },
             "v1_readiness": {
                 "policy_owner": "v1_release_readiness_policy",
@@ -835,6 +856,7 @@ def _write_incident_bundle(
             "role_skill_metadata_sections": LEARNED_STATE_ROLE_SKILL_METADATA_SECTIONS,
             "planning_continuity_sections": LEARNED_STATE_PLANNING_CONTINUITY_SECTIONS,
             "reflection_growth_signal_kinds": LEARNED_STATE_REFLECTION_GROWTH_SIGNAL_KINDS,
+            "tool_grounded_learning": TOOL_GROUNDED_LEARNING_CONTRACT,
         },
         "v1_readiness": {
             "policy_owner": "v1_release_readiness_policy",
@@ -1488,6 +1510,23 @@ def test_release_smoke_fails_when_incident_evidence_learned_state_contract_is_pa
     combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
     assert "Smoke request failed" in combined_output
     assert "learned_state is missing growth_summary_sections" in combined_output
+
+
+def test_release_smoke_fails_when_learned_state_tool_grounded_contract_is_missing(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    original = dict(_StubAionHandler.health_payload["learned_state"])
+    broken = dict(original)
+    broken.pop("tool_grounded_learning", None)
+    _StubAionHandler.health_payload["learned_state"] = broken
+    try:
+        result = _run_release_smoke("-BaseUrl", stub_aion_server.base_url, cwd=ROOT)
+    finally:
+        _StubAionHandler.health_payload["learned_state"] = original
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "learned_state is missing tool_grounded_learning" in combined_output
 
 
 def test_release_smoke_fails_when_incident_evidence_organizer_tool_stack_contract_is_partial(

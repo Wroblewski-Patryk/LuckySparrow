@@ -349,6 +349,13 @@ Current scenario anchors:
 - `T14.3`: executor-aligned ClickUp update via action-owned connector path
 - `T15.1`: work-partner organization via bounded search plus ClickUp update
 - `T15.2`: work-partner decision support via bounded page-read browsing
+- `T16.1`: work-partner ClickUp task listing
+- `T16.2`: work-partner Google Calendar availability reads
+- `T16.3`: work-partner Google Drive metadata listing
+- `T17.1`: bounded search knowledge recall through persisted tool-grounded
+  conclusions
+- `T17.2`: organizer-tool snapshot recall through persisted tool-grounded
+  conclusions
 - durable-attention burst-coalescing regression in API/runtime integration
   coverage, paired with:
   - `incident_evidence.policy_posture["attention"]`

@@ -14,6 +14,8 @@ V1_REQUIRED_BEHAVIOR_SCENARIOS = (
     "T16.1",
     "T16.2",
     "T16.3",
+    "T17.1",
+    "T17.2",
 )
 V1_APPROVED_TOOL_SLICES = (
     "knowledge_search.search_web",

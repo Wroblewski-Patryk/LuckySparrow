@@ -214,8 +214,16 @@ Queue update (2026-04-24):
 - `PRJ-605` is complete: approved external reads now persist bounded
   tool-grounded semantic conclusions and learned-state inspection exposes the
   richer tool-grounded knowledge summaries.
-- the next active slice is `PRJ-606`, which should prove that same bounded
-  contract through behavior and release evidence.
+- `PRJ-606` is complete: behavior validation, release smoke, and
+  incident-evidence gates now prove that approved external reads influence
+  later cognition only through the bounded tool-grounded learning contract.
+- `PRJ-607` is complete: runtime reality, testing guidance, ops notes, and
+  planning/context truth now describe the same bounded tool-grounded learning
+  baseline and evidence path.
+- the next active slice is `PRJ-608`, which should freeze one backend
+  capability-catalog contract for future UI/admin callers after deploy
+  automation, organizer activation, and tool-grounded learning all became
+  machine-visible.
 
 ### Group 98 - Capability Catalog And Future-UI Bootstrap
 

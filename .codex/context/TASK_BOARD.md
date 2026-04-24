@@ -259,27 +259,69 @@ Last updated: 2026-04-24
   tool-grounded semantic conclusions and learned-state inspection exposes the
   richer tool-grounded knowledge summaries instead of leaving external reads
   purely turn-local.
-- `PRJ-606` is now the first `READY` slice because the bounded capture path is
-  now live in runtime, so the next step is to prove it through behavior and
-  release evidence rather than relying only on unit or API regressions.
+- `PRJ-606` is complete: behavior validation, `/health`, incident evidence,
+  and release smoke now prove the same bounded tool-grounded learning
+  contract instead of leaving external-read reuse to manual debug inspection.
+- `PRJ-607` is complete: runtime reality, testing guidance, ops notes,
+  planning truth, and repository context now describe the same bounded
+  tool-grounded learning baseline and its evidence path.
+- `PRJ-608` is now the first `READY` slice because tool-grounded learning is
+  fully live and proven, so the next smallest useful step is to freeze one
+  backend capability-catalog contract for future UI/admin work.
 
 ## READY
 
-- [ ] PRJ-606 Add behavior and release evidence for tool-grounded learning
+- [ ] PRJ-608 Freeze the backend capability-catalog baseline
+  - Owner: Planner
+  - Group: Capability Catalog And Future-UI Bootstrap
+  - Depends on: PRJ-607
+  - Priority: P1
+  - Status: READY
+  - Why now:
+    - deploy automation, organizer activation, and tool-grounded learning are
+      now machine-visible, but future UI/admin work still lacks one combined
+      backend contract for capability, role, skill, and provider readiness
+  - Done when:
+    - one explicit backend contract defines how future UI/admin callers should
+      inspect tools, role posture, metadata-only skills, and provider
+      readiness without reconstructing that truth client-side
+  - Validation:
+    - architecture/product cross-review
+
+- [x] PRJ-607 Sync docs/context for tool-grounded learning capture
+  - Owner: Product Docs Agent
+  - Group: Tool-Grounded Learning Capture
+  - Depends on: PRJ-606
+  - Priority: P1
+  - Status: DONE
+  - Why now:
+    - the bounded tool-grounded learning contract and proof path are now live,
+      so runtime reality, testing guidance, ops notes, and planning truth
+      must describe the same baseline
+  - Result:
+    - runtime reality, testing guidance, ops notes, architecture testing
+      guidance, and context truth now describe one shared bounded
+      tool-grounded learning baseline and evidence path
+  - Validation:
+    - docs/context cross-review against `PRJ-606` validation outputs
+
+- [x] PRJ-606 Add behavior and release evidence for tool-grounded learning
   - Owner: QA/Test
   - Group: Tool-Grounded Learning Capture
   - Depends on: PRJ-605
   - Priority: P1
-  - Status: READY
+  - Status: DONE
   - Why now:
     - tool-grounded learning is now live in runtime and inspection surfaces,
-      but release and behavior proof still do not pin that same bounded
+      but release and behavior proof still did not pin that same bounded
       contract
-  - Done when:
-    - behavior validation, inspection surfaces, and release evidence prove
-      that approved external reads can influence later cognition without
-      bypassing planning, action, or memory ownership
+  - Result:
+    - behavior validation, release smoke, and incident-evidence gates now
+      prove that approved external reads can influence later cognition only
+      through the bounded action-owned and memory-owned learning contract
   - Validation:
+    - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py` -> `233 passed`
+    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json` -> `14 passed`, `gate_status=pass`
     - targeted pytest coverage
     - behavior-validation or smoke evidence
 

@@ -81,7 +81,13 @@ Current execution note:
   - the bounded tool-grounded learning contract is frozen
   - approved external reads now persist bounded tool-grounded semantic
     conclusions
-- `PRJ-606` is the current evidence slice for tool-grounded learning capture.
+- `PRJ-606..PRJ-607` are complete:
+  - behavior validation and release evidence now prove the same bounded
+    tool-grounded learning contract
+  - runtime reality, testing guidance, ops notes, and context truth now
+    describe that proof path consistently
+- `PRJ-608` is now the current slice and should freeze one backend
+  capability-catalog contract for future UI/admin bootstrap.
 
 ## Post-V1 Architecture Gap Analysis (2026-04-23)
 

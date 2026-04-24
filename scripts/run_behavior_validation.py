@@ -45,6 +45,13 @@ GATE_REASON_INCIDENT_EVIDENCE_V1_READINESS_INVALID = "incident_evidence_v1_readi
 GATE_REASON_INCIDENT_EVIDENCE_DURABLE_ATTENTION_INVALID = "incident_evidence_durable_attention_invalid"
 GATE_REASON_INCIDENT_EVIDENCE_PROACTIVE_INVALID = "incident_evidence_proactive_invalid"
 GATE_REASON_INCIDENT_EVIDENCE_RETRIEVAL_ALIGNMENT_INVALID = "incident_evidence_retrieval_alignment_invalid"
+EXPECTED_TOOL_GROUNDED_READ_OPERATIONS = {
+    "knowledge_search.search_web",
+    "web_browser.read_page",
+    "task_system.list_tasks",
+    "calendar.read_availability",
+    "cloud_drive.list_files",
+}
 
 
 @dataclass(frozen=True)
@@ -343,6 +350,10 @@ def _evaluate_incident_evidence_input(
         "incident_evidence_retrieval_provider_drift_state": None,
         "incident_evidence_retrieval_alignment_state": None,
         "incident_evidence_retrieval_pending_gaps": None,
+        "incident_evidence_tool_grounded_policy_owner": None,
+        "incident_evidence_tool_grounded_capture_owner": None,
+        "incident_evidence_tool_grounded_persistence_owner": None,
+        "incident_evidence_tool_grounded_allowed_read_operations": None,
     }
     violations: list[str] = []
 
@@ -511,14 +522,48 @@ def _evaluate_incident_evidence_input(
     context["incident_evidence_v1_readiness_learned_state_gate_state"] = v1_readiness_policy.get(
         "learned_state_gate_state"
     )
+    learned_state_policy = {}
+    if isinstance(policy_posture, dict):
+        candidate_learned_state_policy = policy_posture.get("learned_state")
+        if isinstance(candidate_learned_state_policy, dict):
+            learned_state_policy = candidate_learned_state_policy
+    tool_grounded_policy = learned_state_policy.get("tool_grounded_learning")
+    if not isinstance(tool_grounded_policy, dict):
+        tool_grounded_policy = {}
+    context["incident_evidence_tool_grounded_policy_owner"] = tool_grounded_policy.get("policy_owner")
+    context["incident_evidence_tool_grounded_capture_owner"] = tool_grounded_policy.get("capture_owner")
+    context["incident_evidence_tool_grounded_persistence_owner"] = tool_grounded_policy.get("persistence_owner")
+    context["incident_evidence_tool_grounded_allowed_read_operations"] = sorted(
+        set(tool_grounded_policy.get("allowed_read_operations") or [])
+    )
     required_behavior_scenarios = set(v1_readiness_policy.get("required_behavior_scenarios") or [])
     approved_tool_slices = set(v1_readiness_policy.get("approved_tool_slices") or [])
+    tool_grounded_valid = (
+        tool_grounded_policy.get("policy_owner") == "tool_grounded_learning_policy"
+        and tool_grounded_policy.get("capture_owner") == "action_owned_external_read_summaries_only"
+        and tool_grounded_policy.get("persistence_owner") == "memory_conclusion_write_after_action"
+        and set(tool_grounded_policy.get("allowed_read_operations") or []) == EXPECTED_TOOL_GROUNDED_READ_OPERATIONS
+        and tool_grounded_policy.get("execution_bypass_allowed") is False
+        and tool_grounded_policy.get("self_modifying_skill_learning_allowed") is False
+    )
     v1_readiness_valid = (
         v1_readiness_policy.get("policy_owner") == "v1_release_readiness_policy"
         and v1_readiness_policy.get("product_stage") == "v1_no_ui_life_assistant"
         and v1_readiness_policy.get("conversation_gate_state") == "conversation_surface_ready"
         and v1_readiness_policy.get("learned_state_gate_state") == "inspection_surface_ready"
-        and {"T13.1", "T14.1", "T14.2", "T14.3", "T15.1", "T15.2", "T16.1", "T16.2", "T16.3"}.issubset(required_behavior_scenarios)
+        and {
+            "T13.1",
+            "T14.1",
+            "T14.2",
+            "T14.3",
+            "T15.1",
+            "T15.2",
+            "T16.1",
+            "T16.2",
+            "T16.3",
+            "T17.1",
+            "T17.2",
+        }.issubset(required_behavior_scenarios)
         and {
             "knowledge_search.search_web",
             "web_browser.read_page",
@@ -527,6 +572,7 @@ def _evaluate_incident_evidence_input(
             "calendar.google_calendar_read_availability",
             "cloud_drive.google_drive_list_files",
         }.issubset(approved_tool_slices)
+        and tool_grounded_valid
     )
     if not v1_readiness_valid:
         violations.append(GATE_REASON_INCIDENT_EVIDENCE_V1_READINESS_INVALID)

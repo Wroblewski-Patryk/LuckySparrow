@@ -223,6 +223,25 @@ posture:
   - `incident_evidence.policy_posture["connectors.organizer_tool_stack"]`
   - `health_snapshot.json.connectors.organizer_tool_stack` inside the exported
     incident-evidence bundle
+- when a release or incident touches tool-grounded learning from external
+  reads, attach evidence for:
+  - `T17.1` bounded search knowledge recall
+  - `T17.2` organizer-tool snapshot recall
+  - `/health.learned_state.tool_grounded_learning`
+  - `incident_evidence.policy_posture["learned_state"].tool_grounded_learning`
+  - internal `GET /internal/state/inspect?user_id=...` knowledge-summary
+    fields:
+    - `tool_grounded_conclusion_count`
+    - `tool_grounded_conclusion_kinds`
+
+During triage, treat missing tool-grounded evidence as a release-surface
+regression, not as an optional operator convenience. The bounded contract is:
+
+- action owns capture from approved external reads
+- memory owns semantic persistence
+- raw provider payloads stay out of durable learned state
+- follow-up turns may reuse recalled conclusions without silently re-running
+  provider reads
 
 `GET /health` now also includes a `memory_retrieval` object with semantic
 retrieval posture:

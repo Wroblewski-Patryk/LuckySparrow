@@ -218,6 +218,8 @@ function Validate-IncidentEvidenceBundle {
         retrieval_baseline_state = $null
         retrieval_provider_drift_state = $null
         retrieval_alignment_state = $null
+        learned_state_tool_grounded_policy_owner = $null
+        learned_state_tool_grounded_allowed_read_operations = @()
     }
 
     if (-not $Path) {
@@ -446,6 +448,8 @@ function Validate-IncidentEvidenceBundle {
         learned_state_internal_inspection_path = [string]$learnedStateContract.internal_inspection_path
         learned_state_inspection_sections = @($learnedStateContract.inspection_sections)
         learned_state_growth_summary_sections = @($learnedStateContract.growth_summary_sections)
+        learned_state_tool_grounded_policy_owner = [string]$learnedStateContract.tool_grounded_policy_owner
+        learned_state_tool_grounded_allowed_read_operations = @($learnedStateContract.tool_grounded_allowed_read_operations)
         incident_organizer_tool_stack_policy_owner = [string]$incidentOrganizerToolStackContract.policy_owner
         incident_organizer_tool_stack_readiness_state = [string]$incidentOrganizerToolStackContract.readiness_state
         incident_organizer_tool_activation_state = [string]$incidentOrganizerToolStackContract.activation_state
@@ -588,8 +592,16 @@ function Assert-LearnedStateContract {
     $expectedReflectionGrowthSignalKinds = @(
         "semantic_conclusions",
         "affective_conclusions",
+        "tool_grounded_conclusions",
         "adaptive_outputs",
         "relations"
+    )
+    $expectedToolGroundedReadOperations = @(
+        "knowledge_search.search_web",
+        "web_browser.read_page",
+        "task_system.list_tasks",
+        "calendar.read_availability",
+        "cloud_drive.list_files"
     )
 
     if ($null -eq $LearnedState) {
@@ -616,12 +628,16 @@ function Assert-LearnedStateContract {
     if (-not (Has-Property -Object $LearnedState -Name "reflection_growth_signal_kinds")) {
         throw "${FailurePrefix}: learned_state is missing reflection_growth_signal_kinds."
     }
+    if (-not (Has-Property -Object $LearnedState -Name "tool_grounded_learning")) {
+        throw "${FailurePrefix}: learned_state is missing tool_grounded_learning."
+    }
 
     $inspectionSections = @($LearnedState.inspection_sections)
     $growthSummarySections = @($LearnedState.growth_summary_sections)
     $roleSkillMetadataSections = @($LearnedState.role_skill_metadata_sections)
     $planningContinuitySections = @($LearnedState.planning_continuity_sections)
     $reflectionGrowthSignalKinds = @($LearnedState.reflection_growth_signal_kinds)
+    $toolGroundedLearning = $LearnedState.tool_grounded_learning
 
     if (@(Compare-Object -ReferenceObject $expectedInspectionSections -DifferenceObject $inspectionSections).Count -ne 0) {
         throw "${FailurePrefix}: learned_state inspection_sections do not match the bounded contract."
@@ -638,6 +654,31 @@ function Assert-LearnedStateContract {
     if (@(Compare-Object -ReferenceObject $expectedReflectionGrowthSignalKinds -DifferenceObject $reflectionGrowthSignalKinds).Count -ne 0) {
         throw "${FailurePrefix}: learned_state reflection_growth_signal_kinds do not match the bounded contract."
     }
+    if ($null -eq $toolGroundedLearning) {
+        throw "${FailurePrefix}: learned_state tool_grounded_learning contract is missing."
+    }
+    if ([string]$toolGroundedLearning.policy_owner -ne "tool_grounded_learning_policy") {
+        throw "${FailurePrefix}: unexpected learned_state tool_grounded_learning policy_owner '$($toolGroundedLearning.policy_owner)'."
+    }
+    if ([string]$toolGroundedLearning.capture_owner -ne "action_owned_external_read_summaries_only") {
+        throw "${FailurePrefix}: unexpected learned_state tool_grounded_learning capture_owner '$($toolGroundedLearning.capture_owner)'."
+    }
+    if ([string]$toolGroundedLearning.persistence_owner -ne "memory_conclusion_write_after_action") {
+        throw "${FailurePrefix}: unexpected learned_state tool_grounded_learning persistence_owner '$($toolGroundedLearning.persistence_owner)'."
+    }
+    if ([bool]$toolGroundedLearning.raw_payload_storage_allowed) {
+        throw "${FailurePrefix}: learned_state tool_grounded_learning must keep raw_payload_storage_allowed false."
+    }
+    if ([bool]$toolGroundedLearning.execution_bypass_allowed) {
+        throw "${FailurePrefix}: learned_state tool_grounded_learning must keep execution_bypass_allowed false."
+    }
+    if ([bool]$toolGroundedLearning.self_modifying_skill_learning_allowed) {
+        throw "${FailurePrefix}: learned_state tool_grounded_learning must keep self_modifying_skill_learning_allowed false."
+    }
+    $toolGroundedReadOperations = @($toolGroundedLearning.allowed_read_operations)
+    if (@(Compare-Object -ReferenceObject $expectedToolGroundedReadOperations -DifferenceObject $toolGroundedReadOperations).Count -ne 0) {
+        throw "${FailurePrefix}: learned_state tool_grounded_learning allowed_read_operations do not match the bounded contract."
+    }
 
     return @{
         policy_owner = [string]$LearnedState.policy_owner
@@ -647,6 +688,8 @@ function Assert-LearnedStateContract {
         role_skill_metadata_sections = $roleSkillMetadataSections
         planning_continuity_sections = $planningContinuitySections
         reflection_growth_signal_kinds = $reflectionGrowthSignalKinds
+        tool_grounded_policy_owner = [string]$toolGroundedLearning.policy_owner
+        tool_grounded_allowed_read_operations = $toolGroundedReadOperations
     }
 }
 
@@ -1458,7 +1501,7 @@ if ([string]$v1Readiness.conversation_gate_state -ne "conversation_surface_ready
 if ([string]$v1Readiness.learned_state_gate_state -ne "inspection_surface_ready") {
     throw "Health check failed: unexpected v1_readiness.learned_state_gate_state '$($v1Readiness.learned_state_gate_state)'."
 }
-$requiredV1Scenarios = @("T13.1", "T14.1", "T14.2", "T14.3", "T15.1", "T15.2", "T16.1", "T16.2", "T16.3")
+$requiredV1Scenarios = @("T13.1", "T14.1", "T14.2", "T14.3", "T15.1", "T15.2", "T16.1", "T16.2", "T16.3", "T17.1", "T17.2")
 $actualV1Scenarios = @()
 if ($v1Readiness.PSObject.Properties.Name -contains "required_behavior_scenarios" -and $null -ne $v1Readiness.required_behavior_scenarios) {
     $actualV1Scenarios = @($v1Readiness.required_behavior_scenarios)
@@ -1651,7 +1694,7 @@ if ($IncludeDebug) {
             throw "Smoke request failed: incident_evidence deployment is missing fallback trigger mode '$requiredFallbackMode'."
         }
     }
-    $incidentRequiredV1Scenarios = @("T13.1", "T14.1", "T14.2", "T14.3", "T15.1", "T15.2", "T16.1", "T16.2", "T16.3")
+    $incidentRequiredV1Scenarios = @("T13.1", "T14.1", "T14.2", "T14.3", "T15.1", "T15.2", "T16.1", "T16.2", "T16.3", "T17.1", "T17.2")
     $incidentActualV1Scenarios = @()
     if ($incidentV1Readiness.PSObject.Properties.Name -contains "required_behavior_scenarios" -and $null -ne $incidentV1Readiness.required_behavior_scenarios) {
         $incidentActualV1Scenarios = @($incidentV1Readiness.required_behavior_scenarios)
