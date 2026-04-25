@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-678
 - Title: Harden web-shell loading, error, empty, and success states across the current routes
-- Status: IN_PROGRESS
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-677
 - Priority: P1
@@ -28,7 +28,7 @@ have coherent user-visible state handling aligned with backend truth.
 - [x] Each current route has a truthful loading, error, empty, and success
       state where applicable.
 - [x] Stale global errors do not incorrectly dominate later healthy screens.
-- [ ] The repaired shell feels coherent without inventing new product
+- [x] The repaired shell feels coherent without inventing new product
       subsystems or UI-only truth.
 
 ## Forbidden
@@ -40,11 +40,15 @@ have coherent user-visible state handling aligned with backend truth.
 ## Validation Evidence
 - Tests:
   - `Push-Location web; npm run build; Pop-Location`
+  - `Push-Location backend; ..\.venv\Scripts\python -m pytest -q tests/test_web_routes.py tests/test_deployment_trigger_scripts.py; Pop-Location`
 - Manual checks:
   - route navigation now clears stale errors and successful tool/personality
     loads can complete
+  - 2026-04-25 production verification on `https://personality.luckysparrow.ch/` confirmed login, `/app/me`, `/app/chat/history`, `/app/me/settings`, `/app/tools/overview`, `/app/personality/overview`, chat send, and logout all complete without stale parser errors or endless loading posture
 - Screenshots/logs:
+  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl https://personality.luckysparrow.ch`
 - High-risk checks:
+  - backend-owned SPA serving now rewrites the web-shell build revision meta to runtime `APP_BUILD_REVISION`, so deploy parity no longer depends on frontend build-time variable propagation
 
 ## Architecture Evidence (required for architecture-impacting tasks)
 - Architecture source reviewed: docs/architecture/16_agent_contracts.md;
@@ -60,10 +64,10 @@ have coherent user-visible state handling aligned with backend truth.
 - [x] Existing systems were reused where applicable.
 - [x] No workaround paths were introduced.
 - [x] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
+- [x] Definition of Done evidence is attached.
 - [x] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This is a polish pass only after the current broken product paths are restored.

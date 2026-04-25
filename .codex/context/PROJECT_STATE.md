@@ -146,8 +146,15 @@ Last updated: 2026-04-25
   - a follow-up local repair now makes FastAPI inject the runtime
     `APP_BUILD_REVISION` into served SPA HTML so deploy parity no longer
     depends on the frontend bundler receiving the same variable at build time
-  - final live production verification remains pending until that follow-up
-    repair is deployed
+  - follow-up deploy on commit `ddb327f` is now live in production
+  - release smoke now passes against production with matching backend and
+    web-shell build revisions
+  - authenticated production checks now confirm login, `/app/me`,
+    `/app/chat/history`, `/app/me/settings`, `/app/tools/overview`,
+    `/app/personality/overview`, chat send, and logout all succeed on the
+    repaired baseline
+  - the production stabilization lane seeded through `PRJ-680` is now
+    complete
 - 2026-04-24: `PRJ-635` is complete: canonical architecture now freezes one
   explicit core-`v1` time-aware planned-work baseline. Reminders, check-ins,
   routines, and future follow-ups are variants of one internal planned-work

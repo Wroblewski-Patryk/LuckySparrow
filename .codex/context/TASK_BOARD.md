@@ -71,17 +71,22 @@ Last updated: 2026-04-25
   - `PRJ-677` is complete locally:
     - local web route lifecycle no longer self-cancels successful
     `Tools` and `Personality` loads
-  - `PRJ-678` is in progress:
-    - stale route-level errors now clear on navigation, but final post-deploy
-      UX validation is still pending
-  - `PRJ-679` is in progress:
+  - `PRJ-678` is complete:
+    - stale route-level errors clear on navigation
+    - production verification confirms the repaired shell now feels coherent
+      across login, chat, settings, tools, personality, and logout
+  - `PRJ-679` is complete:
     - local regression and release-smoke coverage now include the first-party
       web shell routes `/`, `/chat`, `/settings`, `/tools`, and `/personality`
     - first live smoke on deployed commit `7ff715e` exposed one remaining
       parity gap: the web shell HTML still emitted `aion-web-build-revision`
       as `unknown` even though backend runtime build truth was correct
-    - a backend-owned HTML revision injection fix is now prepared locally and
-      awaiting deploy before final production smoke closure
+    - follow-up deploy on commit `ddb327f` fixed that gap and final production
+      smoke now passes
+  - `PRJ-680` is complete:
+    - task board, project state, and learning journal now describe the same
+      repaired production baseline and the confirmed deploy-parity pitfall
+  - the web-shell stabilization lane seeded through `PRJ-680` is now complete
 
 ## Agent Workflow Refresh (2026-04-18)
 

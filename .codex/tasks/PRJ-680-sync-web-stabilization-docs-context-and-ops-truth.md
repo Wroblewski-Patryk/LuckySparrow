@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-680
 - Title: Sync web stabilization docs, context, and ops truth after the repairs
-- Status: READY
+- Status: DONE
 - Owner: Product Docs Agent
 - Depends on: PRJ-679
 - Priority: P1
@@ -25,9 +25,9 @@ production baseline.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Task board and project state reflect the repaired stabilization lane.
-- [ ] Testing and ops docs describe the current smoke and acceptance evidence.
-- [ ] Learning journal captures any confirmed recurring pitfall discovered
+- [x] Task board and project state reflect the repaired stabilization lane.
+- [x] Testing and ops docs describe the current smoke and acceptance evidence.
+- [x] Learning journal captures any confirmed recurring pitfall discovered
       during the repair wave.
 
 ## Forbidden
@@ -38,9 +38,13 @@ production baseline.
 
 ## Validation Evidence
 - Tests:
+  - `Push-Location backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_web_routes.py tests/test_deployment_trigger_scripts.py; Pop-Location`
 - Manual checks:
+  - 2026-04-25 production smoke and authenticated web-shell checks passed after deploy on `https://personality.luckysparrow.ch/`
 - Screenshots/logs:
+  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl https://personality.luckysparrow.ch`
 - High-risk checks:
+  - confirmed the repo-owned source of truth now records the frontend build-revision parity pitfall and the backend-owned fix
 
 ## Architecture Evidence (required for architecture-impacting tasks)
 - Architecture source reviewed: docs/architecture/17_logging_and_debugging.md;
@@ -52,14 +56,14 @@ production baseline.
 - Follow-up architecture doc updates:
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This task closes the lane only after repaired product truth is documented.
