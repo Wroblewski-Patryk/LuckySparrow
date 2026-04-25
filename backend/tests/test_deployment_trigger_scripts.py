@@ -530,6 +530,9 @@ class _StubAionHandler(BaseHTTPRequestHandler):
     event_payload: dict[str, object] = {}
     web_build_revision: str = LOCAL_REPO_HEAD_SHA
     web_routes_missing_revision: set[str] = set()
+    health_payload_sequence: list[dict[str, object]] = []
+    health_request_count: int = 0
+    sync_web_build_revision_from_health: bool = False
 
     def _write_json(self, payload: dict[str, object], *, status: int = 200) -> None:
         body = json.dumps(payload).encode("utf-8")
@@ -564,7 +567,23 @@ class _StubAionHandler(BaseHTTPRequestHandler):
             )
             return
         if self.path == "/health":
-            self._write_json(type(self).health_payload)
+            handler_type = type(self)
+            payload = handler_type.health_payload
+            if handler_type.health_payload_sequence:
+                index = min(
+                    handler_type.health_request_count,
+                    len(handler_type.health_payload_sequence) - 1,
+                )
+                payload = handler_type.health_payload_sequence[index]
+            handler_type.health_request_count += 1
+
+            deployment = payload.get("deployment") if isinstance(payload, dict) else None
+            if handler_type.sync_web_build_revision_from_health and isinstance(deployment, dict):
+                runtime_build_revision = deployment.get("runtime_build_revision")
+                if isinstance(runtime_build_revision, str) and runtime_build_revision:
+                    handler_type.web_build_revision = runtime_build_revision
+
+            self._write_json(payload)
             return
         self._write_json({"detail": "not found"}, status=404)
 
@@ -609,6 +628,9 @@ class _StubAionServer:
 def stub_aion_server() -> _StubAionServer:
     _StubAionHandler.web_build_revision = LOCAL_REPO_HEAD_SHA
     _StubAionHandler.web_routes_missing_revision = set()
+    _StubAionHandler.health_payload_sequence = []
+    _StubAionHandler.health_request_count = 0
+    _StubAionHandler.sync_web_build_revision_from_health = False
     _StubAionHandler.health_payload = {
         "status": "ok",
         "runtime_policy": {
@@ -2497,6 +2519,78 @@ def test_release_smoke_fails_when_runtime_build_revision_does_not_match_local_re
     assert result.returncode != 0
     combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
     assert "does not match local repo HEAD" in combined_output
+
+
+def test_release_smoke_can_wait_for_deploy_parity_until_runtime_revision_matches_local_head(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    original = dict(_StubAionHandler.health_payload)
+    stale = dict(original)
+    stale_deployment = dict(stale["deployment"])
+    stale_deployment["runtime_build_revision"] = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    stale["deployment"] = stale_deployment
+    _StubAionHandler.health_payload_sequence = [stale, original]
+    _StubAionHandler.health_request_count = 0
+    _StubAionHandler.sync_web_build_revision_from_health = True
+    _StubAionHandler.web_build_revision = stale_deployment["runtime_build_revision"]
+
+    try:
+        result = _run_release_smoke(
+            "-BaseUrl",
+            stub_aion_server.base_url,
+            "-WaitForDeployParity",
+            "-DeployParityMaxWaitSeconds",
+            "5",
+            "-DeployParityPollSeconds",
+            "1",
+            cwd=ROOT,
+        )
+    finally:
+        _StubAionHandler.health_payload_sequence = []
+        _StubAionHandler.health_request_count = 0
+        _StubAionHandler.sync_web_build_revision_from_health = False
+        _StubAionHandler.health_payload = original
+        _StubAionHandler.web_build_revision = LOCAL_REPO_HEAD_SHA
+
+    assert result.returncode == 0
+    summary = json.loads(result.stdout)
+    assert summary["deployment_runtime_build_revision"] == LOCAL_REPO_HEAD_SHA
+
+
+def test_release_smoke_wait_for_deploy_parity_times_out_when_runtime_revision_stays_stale(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    original = dict(_StubAionHandler.health_payload)
+    stale = dict(original)
+    stale_deployment = dict(stale["deployment"])
+    stale_deployment["runtime_build_revision"] = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+    stale["deployment"] = stale_deployment
+    _StubAionHandler.health_payload_sequence = [stale]
+    _StubAionHandler.health_request_count = 0
+    _StubAionHandler.sync_web_build_revision_from_health = True
+    _StubAionHandler.web_build_revision = stale_deployment["runtime_build_revision"]
+
+    try:
+        result = _run_release_smoke(
+            "-BaseUrl",
+            stub_aion_server.base_url,
+            "-WaitForDeployParity",
+            "-DeployParityMaxWaitSeconds",
+            "2",
+            "-DeployParityPollSeconds",
+            "1",
+            cwd=ROOT,
+        )
+    finally:
+        _StubAionHandler.health_payload_sequence = []
+        _StubAionHandler.health_request_count = 0
+        _StubAionHandler.sync_web_build_revision_from_health = False
+        _StubAionHandler.health_payload = original
+        _StubAionHandler.web_build_revision = LOCAL_REPO_HEAD_SHA
+
+    assert result.returncode != 0
+    combined_output = "\n".join(part for part in (result.stdout, result.stderr) if part)
+    assert "did not match local repo HEAD" in combined_output
 
 
 def test_release_smoke_fails_when_web_shell_build_revision_meta_tag_is_missing(

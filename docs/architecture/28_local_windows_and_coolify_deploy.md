@@ -174,12 +174,26 @@ After a deploy, run:
 .\scripts\run_release_smoke.ps1 -BaseUrl "https://YOUR_DOMAIN"
 ```
 
+If Coolify source automation has started but deploy parity has not yet reached
+the latest pushed commit, use the same smoke script in bounded wait mode:
+
+```powershell
+.\scripts\run_release_smoke.ps1 `
+  -BaseUrl "https://YOUR_DOMAIN" `
+  -WaitForDeployParity `
+  -DeployParityMaxWaitSeconds 120 `
+  -DeployParityPollSeconds 15
+```
+
 Operator verification order for the repo-driven Coolify baseline:
 
 1. confirm the `migrate` service finished successfully in Coolify
 2. confirm the `app` service turns healthy
 3. run release smoke against the public domain
-4. only then investigate route-level regressions
+4. when the app is healthy but runtime build revision still trails the pushed
+   commit, rerun release smoke with `-WaitForDeployParity` before escalating to
+   deployment-trigger drift
+5. only then investigate route-level regressions
 
 Optional UTF-8 verification:
 

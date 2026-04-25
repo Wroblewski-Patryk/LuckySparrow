@@ -5,7 +5,10 @@ param(
     [switch]$IncludeDebug,
     [string]$DeploymentEvidencePath = "",
     [int]$DeploymentEvidenceMaxAgeMinutes = 60,
-    [string]$IncidentEvidenceBundlePath = ""
+    [string]$IncidentEvidenceBundlePath = "",
+    [switch]$WaitForDeployParity,
+    [int]$DeployParityMaxWaitSeconds = 300,
+    [int]$DeployParityPollSeconds = 15
 )
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -247,6 +250,48 @@ function Resolve-LocalRepoHeadSha {
     }
     catch {
         return ""
+    }
+}
+
+function Get-DeploymentRuntimeBuildRevision {
+    param(
+        [Parameter(Mandatory = $true)][object]$Health
+    )
+
+    if ($null -eq $Health) {
+        throw "Health check failed: response is empty."
+    }
+    if ($null -eq $Health.deployment) {
+        throw "Health check failed: response is missing deployment."
+    }
+    if (-not (Has-Property -Object $Health.deployment -Name "runtime_build_revision")) {
+        throw "Health check failed: deployment is missing runtime_build_revision."
+    }
+    return [string]$Health.deployment.runtime_build_revision
+}
+
+function Wait-ForDeploymentParity {
+    param(
+        [Parameter(Mandatory = $true)][string]$BaseUrl,
+        [Parameter(Mandatory = $true)][string]$ExpectedRevision,
+        [Parameter(Mandatory = $true)][int]$TimeoutSeconds,
+        [Parameter(Mandatory = $true)][int]$PollSeconds
+    )
+
+    $deadline = [datetimeoffset]::UtcNow.AddSeconds($TimeoutSeconds)
+
+    while ($true) {
+        $health = Invoke-JsonUtf8 -Method GET -Uri "$BaseUrl/health"
+        $observedRevision = Get-DeploymentRuntimeBuildRevision -Health $health
+        if ($observedRevision -eq $ExpectedRevision) {
+            return $health
+        }
+
+        if ([datetimeoffset]::UtcNow -ge $deadline) {
+            throw "Health check failed: deployment runtime_build_revision '$observedRevision' did not match local repo HEAD '$ExpectedRevision' within $TimeoutSeconds seconds."
+        }
+
+        Start-Sleep -Seconds $PollSeconds
     }
 }
 
@@ -1311,6 +1356,16 @@ function Assert-OrganizerToolStackContract {
 }
 
 $trimmedBaseUrl = $BaseUrl.TrimEnd("/")
+$localRepoHeadSha = Resolve-LocalRepoHeadSha
+if (-not $localRepoHeadSha) {
+    throw "Health check failed: local repo HEAD could not be resolved for deploy parity."
+}
+if ($DeployParityMaxWaitSeconds -lt 1) {
+    throw "Health check failed: DeployParityMaxWaitSeconds must be at least 1."
+}
+if ($DeployParityPollSeconds -lt 1) {
+    throw "Health check failed: DeployParityPollSeconds must be at least 1."
+}
 $traceId = [guid]::NewGuid().ToString()
 $eventUrl = "$trimmedBaseUrl/event"
 if ($IncludeDebug) {
@@ -1332,7 +1387,16 @@ $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($json)
 $deploymentEvidenceCheck = Validate-DeploymentEvidence -Path $DeploymentEvidencePath -MaxAgeMinutes $DeploymentEvidenceMaxAgeMinutes
 $incidentEvidenceBundleCheck = Validate-IncidentEvidenceBundle -Path $IncidentEvidenceBundlePath
 
-$health = Invoke-JsonUtf8 -Method GET -Uri "$trimmedBaseUrl/health"
+$health = if ($WaitForDeployParity) {
+    Wait-ForDeploymentParity `
+        -BaseUrl $trimmedBaseUrl `
+        -ExpectedRevision $localRepoHeadSha `
+        -TimeoutSeconds $DeployParityMaxWaitSeconds `
+        -PollSeconds $DeployParityPollSeconds
+}
+else {
+    Invoke-JsonUtf8 -Method GET -Uri "$trimmedBaseUrl/health"
+}
 if ($health.status -ne "ok") {
     throw "Health check failed: unexpected status '$($health.status)'."
 }
@@ -1826,10 +1890,6 @@ if ([string]$deployment.runtime_build_revision_state -eq "runtime_build_revision
 }
 if (-not [string]$deployment.runtime_build_revision) {
     throw "Health check failed: deployment runtime_build_revision is empty."
-}
-$localRepoHeadSha = Resolve-LocalRepoHeadSha
-if (-not $localRepoHeadSha) {
-    throw "Health check failed: local repo HEAD could not be resolved for deploy parity."
 }
 if ([string]$deployment.runtime_build_revision -ne $localRepoHeadSha) {
     throw "Health check failed: deployment runtime_build_revision '$($deployment.runtime_build_revision)' does not match local repo HEAD '$localRepoHeadSha'."

@@ -25,6 +25,35 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-25 - Coolify source automation can lag after push even when deploy parity eventually converges
+- Context:
+  - after `PRJ-692` pushed repo-owned auto-migration into the Coolify compose
+    graph, immediate release smoke still saw an older production commit even
+    though `origin/main` already pointed to the new deploy target.
+- Symptom:
+  - final parity smoke can fail on `runtime_build_revision` mismatch right
+    after push, while production catches up shortly afterwards without any code
+    change.
+- Root cause:
+  - Coolify source automation and deployment propagation are not necessarily
+    instantaneous, so a strict immediate parity check can observe normal lag
+    rather than a true deploy miss.
+- Guardrail:
+  - keep final release smoke strict by default, but provide one bounded
+    polling mode for operators who need to wait briefly for post-push parity.
+- Preferred pattern:
+  - run immediate smoke first when proving final parity
+  - if app health is green but deployed revision still trails the pushed
+    commit, rerun release smoke with `-WaitForDeployParity`
+  - escalate to deployment-trigger drift only if bounded wait still times out
+- Avoid:
+  - weakening the default parity assertion for every smoke run
+  - assuming an immediate mismatch always means the deploy never started
+- Evidence:
+  - `backend/scripts/run_release_smoke.ps1`
+  - `backend/tests/test_deployment_trigger_scripts.py`
+  - live production smoke on 2026-04-25 against `https://personality.luckysparrow.ch`
+
 ### 2026-04-25 - Coolify repo-driven deploys need one compose-owned migration step before long-lived services
 - Context:
   - a new Alembic revision landed during the product-facing web UX/UI lane,

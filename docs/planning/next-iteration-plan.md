@@ -328,6 +328,16 @@ Implementation status on 2026-04-25:
 - `PRJ-692` is now complete in the repo baseline
 - repo-driven Coolify deploys now own `alembic upgrade head` directly in the
   compose graph instead of relying on an out-of-band manual hook
+- `PRJ-693` is now complete in the repo baseline
+- `backend/scripts/run_release_smoke.ps1` now has an opt-in deploy-parity wait
+  mode for short Coolify source-automation lag after push
+- live observation on 2026-04-25:
+  - immediate smoke still saw deployed revision
+    `00ae4eadcca0afe46ce13e88366ab2c744695a36`
+  - wait-mode smoke later passed on
+    `b514a01c3b68d55edecfa247429e5db29867effe`
+  - next deployment-trigger investigation should therefore distinguish
+    temporary propagation lag from a true missing deploy
 
 ## Planned On 2026-04-24 For Core V1 Time-Aware Planning
 

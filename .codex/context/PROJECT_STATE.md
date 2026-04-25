@@ -266,6 +266,19 @@ Last updated: 2026-04-25
   - Coolify deployment guidance and the runtime ops runbook now describe the
     same migration-first operator path, which keeps push-driven deploys
     self-contained without paid GitHub automation
+- 2026-04-25: `PRJ-693` is complete:
+  - release smoke now supports opt-in deploy-parity waiting through
+    `-WaitForDeployParity`, `-DeployParityMaxWaitSeconds`, and
+    `-DeployParityPollSeconds`
+  - live production evidence on 2026-04-25 showed that repo-driven source
+    automation can still expose the previous deployed revision for at least
+    45 seconds after push, even though the target commit arrives shortly after
+  - immediate smoke after push observed deployed revision
+    `00ae4eadcca0afe46ce13e88366ab2c744695a36`, while wait-mode smoke later
+    passed on `b514a01c3b68d55edecfa247429e5db29867effe`
+  - the deploy-proof baseline now distinguishes temporary Coolify propagation
+    lag from a real deployment-trigger miss without weakening strict final
+    parity checks
 - 2026-04-24: `PRJ-635` is complete: canonical architecture now freezes one
   explicit core-`v1` time-aware planned-work baseline. Reminders, check-ins,
   routines, and future follow-ups are variants of one internal planned-work

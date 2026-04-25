@@ -1259,6 +1259,21 @@ Bundle verification now also checks durable-attention posture from
 `incident_evidence.json`, so release and incident review do not depend only on
 the public `/health` snapshot for attention-owner proof.
 
+When repo-driven Coolify source automation is expected to converge on the
+latest pushed commit but release smoke still shows an older
+`runtime_build_revision`, use bounded wait mode before declaring trigger drift:
+
+```powershell
+.\backend\scripts\run_release_smoke.ps1 `
+  -BaseUrl "https://YOUR_DOMAIN" `
+  -WaitForDeployParity `
+  -DeployParityMaxWaitSeconds 120 `
+  -DeployParityPollSeconds 15
+```
+
+Wait mode is operator opt-in. Default smoke remains immediate-fail on parity
+drift so final release proof does not silently absorb stale deployments.
+
 Optional debug payload with token:
 
 ```powershell

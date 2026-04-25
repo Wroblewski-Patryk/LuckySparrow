@@ -192,6 +192,14 @@ Last updated: 2026-04-25
       migration owner to complete successfully before startup
     - deployment guidance and the runtime ops runbook now describe the same
       migration-first startup order and operator verification path
+  - `PRJ-693` is now complete:
+    - `backend/scripts/run_release_smoke.ps1` now supports opt-in
+      `-WaitForDeployParity` polling with bounded timeout and poll interval
+    - deployment-trigger regressions can now distinguish short Coolify
+      propagation lag from a true missing deploy without weakening the default
+      strict parity check
+    - targeted script tests and live production smoke now prove both the new
+      wait mode and the current post-push convergence posture
 - planned execution order for this lane:
   - `PRJ-685` Mobile-First App Shell Baseline
   - `PRJ-686` UI Language Boundary And Locale Switcher Plan
