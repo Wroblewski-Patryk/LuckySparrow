@@ -95,6 +95,35 @@ first-party web and future mobile clients.
    - the next UX/UI planning lane should freeze this split before route-level
      settings redesign
 
+## Data Reset And Production Cleanup Boundary (2026-04-25)
+
+Fresh user planning now highlights one destructive-boundary topic that should
+be kept explicit before implementation starts.
+
+1. current repo fact
+   - auth accounts, app sessions, profile-owned Telegram linking, learned
+     state, and internal planning continuity are already backend-owned, but the
+     repo has no shared reset or cleanup contract yet
+2. recommended direction
+   - production-wide cleanup should stay operator-only and must not be exposed
+     through first-party product UI
+   - first-party product UI may expose an authenticated self-service reset for
+     one user's runtime data only
+   - account deletion should remain a separate decision and must not be hidden
+     behind "clear my data"
+3. still-open bounded follow-ups
+   - whether self-service reset should preserve `display_name` or return the
+     account to a near-first-login baseline
+   - whether the first destructive reset should revoke all sessions,
+     including the current one
+   - whether any later full auth-user destructive wipe is needed beyond the
+     safer runtime-only production cleanup
+4. current execution direction
+   - `PRJ-718` now records the recommended plan in
+     `docs/planning/user-data-reset-and-production-cleanup-plan.md`
+   - implementation should start with the bounded runtime-reset path and
+     shared cleanup owner, not with a product-facing production wipe feature
+
 ## Multimodal Telegram And App Boundary (2026-04-25)
 
 Fresh user-driven analysis now highlights a real product gap just below the

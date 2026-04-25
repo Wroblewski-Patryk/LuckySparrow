@@ -7,6 +7,92 @@ This plan translates the repo analysis into an execution roadmap that brings the
 The goal is not to add more features first.
 The goal is to make the current AION runtime more correct, more inspectable, and easier to extend without architectural drift.
 
+## Planned On 2026-04-25 For User Data Reset And Production Cleanup
+
+Fresh user direction now asks for a detailed plan covering both destructive
+production cleanup and a self-service user data reset path inside the
+first-party account settings flow.
+
+### Fresh Gap Snapshot
+
+Observed from the current backend, product shell, and durable data model:
+
+- backend-owned auth/session and app-facing settings routes already exist
+- user continuity is spread across memory, adaptive state, planning state,
+  linked Telegram identity, and auth sessions
+- there is no shared backend cleanup owner for destructive reset behavior
+- there is no operator script or runbook baseline for repo-owned production
+  runtime cleanup
+- a product-facing "clear my data" action would be unsafe if it were allowed
+  to drift into account deletion or production-wide wipe semantics
+
+### New Queue
+
+The next destructive-data lane is now seeded through `PRJ-722`.
+
+- `PRJ-718` Plan the user data reset and production cleanup lane. (complete)
+  - Result:
+    - the repo now contains one execution-ready plan in
+      `docs/planning/user-data-reset-and-production-cleanup-plan.md`
+    - the plan freezes the safe split between:
+      - operator-only production cleanup
+      - authenticated self-service per-user runtime reset
+    - the plan records the current table-ownership inventory and the
+      recommended keep-versus-reset boundary
+  - Validation:
+    - planning and source-of-truth cross-review
+
+- `PRJ-719` Reset Boundary Contract And Retention Policy Freeze
+  - Result:
+    - one explicit reset contract defines:
+      - what "clear my data" means for an authenticated user
+      - which durable tables are deleted versus reset to baseline
+      - whether sessions survive reset
+      - how this stays separate from account deletion
+  - Validation:
+    - architecture, planning, and data-ownership cross-review
+
+- `PRJ-720` Shared Backend Cleanup Owner And Operator Script
+  - Result:
+    - backend gains one shared cleanup owner for destructive per-user runtime
+      reset
+    - operator tooling reuses that owner for:
+      - single-user runtime reset
+      - runtime-only production cleanup preserving auth accounts
+    - the app-facing self-service reset endpoint is built on the same owner
+      instead of duplicating delete logic
+  - Validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_api_routes.py tests/test_runtime_pipeline.py; Pop-Location`
+
+- `PRJ-721` Account Settings Reset UX And Confirmation Flow
+  - Result:
+    - the authenticated settings route gains one explicit destructive reset
+      action with confirmation UX
+    - the UI describes that the action clears runtime data, removes Telegram
+      linkage, keeps the account, and signs the user out afterward
+  - Validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+
+- `PRJ-722` Regression Proof, Ops Runbook, And Context Sync
+  - Result:
+    - regressions pin the reset boundary and destructive guardrails
+    - the runtime ops runbook documents the operator-only production cleanup
+      flow
+    - planning and context truth align on the same destructive-data posture
+  - Validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+    - `Push-Location .\web; npm run build; Pop-Location`
+
+Why this order:
+
+- freeze the destructive boundary first so later implementation does not blur
+  runtime reset, account deletion, and operator-only production cleanup
+- centralize backend deletion ownership before adding UI affordances
+- add the settings button only after the backend contract is explicit and
+  reusable
+- finish with regression proof, runbook guidance, and source-of-truth sync so
+  destructive behavior is operationally safe rather than implicit
+
 ## Planned On 2026-04-25 For V2 Product Entry
 
 Fresh user-approved product direction now defines the next post-no-UI product

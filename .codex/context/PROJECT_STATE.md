@@ -10,6 +10,23 @@ Last updated: 2026-04-25
   user preferences over time
 - Commercial model: TBD
 - Current phase: no-UI V1 baseline achieved in repo; core-V1 time-aware planning revision now active before later organizer-tool onboarding
+- 2026-04-25: fresh product and ops analysis now seeds one bounded
+  destructive-data lane through `PRJ-722`:
+  - production-wide cleanup and per-user self-service reset are now explicitly
+    treated as different contracts rather than one ambiguous "clear data"
+    action
+  - the approved architecture can support a self-service user reset by reusing
+    backend-owned auth, profile, and per-user continuity ownership without
+    creating a second settings or workspace subsystem
+  - production-wide cleanup is now planned as an operator-only maintenance flow
+    and must not be exposed through normal product UI
+  - the repo now contains one execution-ready plan in
+    `docs/planning/user-data-reset-and-production-cleanup-plan.md`
+  - the seeded implementation order is:
+    - `PRJ-719` Reset Boundary Contract And Retention Policy Freeze
+    - `PRJ-720` Shared Backend Cleanup Owner And Operator Script
+    - `PRJ-721` Account Settings Reset UX And Confirmation Flow
+    - `PRJ-722` Regression Proof, Ops Runbook, And Context Sync
 - 2026-04-25: approved post-no-UI `v2` entry direction is now explicit:
   - the repository should evolve toward product-facing top-level folders
     `backend/`, `web/`, and `mobile/`

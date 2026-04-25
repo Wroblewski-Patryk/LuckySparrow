@@ -2,6 +2,31 @@
 
 Last updated: 2026-04-25
 
+## Fresh Data Reset Analysis (2026-04-25)
+
+- fresh user product and ops analysis now seeds one bounded destructive-data
+  lane through `PRJ-722`:
+  - the repo needs one explicit split between:
+    - operator-owned production cleanup during the Telegram-first to web-first
+      transition
+    - authenticated self-service reset of one user's runtime data
+  - the current backend already has the right ownership boundaries:
+    - backend-owned auth/session
+    - backend-owned profile/settings
+    - per-user runtime continuity keyed by `user_id`
+  - the main missing piece is not a new subsystem but one shared cleanup owner
+    plus product and ops contracts for destructive behavior
+- `PRJ-718` is complete:
+  - the repo now contains one execution-ready plan in
+    `docs/planning/user-data-reset-and-production-cleanup-plan.md`
+  - the plan freezes the safe boundary that production-wide cleanup must stay
+    operator-only while account settings may expose only per-user runtime reset
+- planned execution order for this lane:
+  - `PRJ-719` Reset Boundary Contract And Retention Policy Freeze
+  - `PRJ-720` Shared Backend Cleanup Owner And Operator Script
+  - `PRJ-721` Account Settings Reset UX And Confirmation Flow
+  - `PRJ-722` Regression Proof, Ops Runbook, And Context Sync
+
 ## Current Active Lane
 
 - `PRJ-655` freezes the approved `v2` product topology:
