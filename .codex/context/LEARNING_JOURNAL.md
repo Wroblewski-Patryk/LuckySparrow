@@ -25,6 +25,39 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-25 - Linked channels must change runtime identity resolution, not only profile status
+- Context:
+  - fresh analysis of the first Telegram linking lane showed a user-visible
+    `linked` state in the app tools screen while later memory continuity still
+    appeared split between first-party web and Telegram conversations.
+- Symptom:
+  - the personality can remember a fact through `/app/chat/message`, but after
+    linking Telegram the same user may still not get that recall from a normal
+    Telegram turn.
+- Root cause:
+  - the linking flow persists channel linkage on the authenticated profile, but
+    normal ingress can still normalize runtime `user_id` from the raw channel
+    sender instead of resolving the linked backend identity owner.
+- Guardrail:
+  - when a product flow claims that an external channel is linked to a backend
+    user identity, ordinary runtime ingress for that channel must resolve
+    memory and continuity through that same backend identity owner.
+- Preferred pattern:
+  - keep linking truth in the existing profile-owned fields
+  - resolve linked backend identity before foreground runtime state load
+  - preserve explicit fallback for unlinked traffic
+  - prove the outcome with cross-channel continuity tests, not only link-state
+    tests
+- Avoid:
+  - treating `linked` UI state as sufficient proof that runtime memory owners
+    are merged
+  - validating only code-generation, confirmation, or tools-overview status
+    without a later ordinary channel turn
+- Evidence:
+  - 2026-04-25 repo analysis across `backend/app/api/routes.py`,
+    `backend/app/core/events.py`, `backend/app/memory/repository.py`, and
+    `backend/tests/test_api_routes.py`
+
 ### 2026-04-25 - App-facing web clients must not assume every backend error is JSON
 - Context:
   - live production testing of the first `v2` web shell showed that some

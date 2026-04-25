@@ -155,6 +155,24 @@ Last updated: 2026-04-25
     repaired baseline
   - the production stabilization lane seeded through `PRJ-680` is now
     complete
+- 2026-04-25: fresh linked-account analysis now seeds the next identity
+  continuity lane through `PRJ-684`:
+  - the Telegram link flow appears to persist `telegram_chat_id` and
+    `telegram_user_id` on the authenticated profile and the app-facing tools
+    surface truthfully reports `linked`
+  - but ordinary Telegram foreground events still appear to normalize under
+    the raw Telegram sender identity instead of resolving to the linked
+    backend auth `user_id`
+  - this likely leaves chat memory, learned preferences, and later recall
+    split across two identity owners even after the user completes the
+    linking flow successfully
+  - the next repair lane is therefore ordered as:
+    - freeze the linked-identity resolution contract plus relink conflict rule
+    - make Telegram event normalization/runtime identity resolution honor the
+      linked backend auth identity
+    - add end-to-end regression coverage for shared UI+Telegram memory
+      continuity
+    - sync task/context truth and record the pitfall in the learning journal
 - 2026-04-24: `PRJ-635` is complete: canonical architecture now freezes one
   explicit core-`v1` time-aware planned-work baseline. Reminders, check-ins,
   routines, and future follow-ups are variants of one internal planned-work

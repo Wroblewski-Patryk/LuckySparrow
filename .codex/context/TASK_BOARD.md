@@ -83,10 +83,29 @@ Last updated: 2026-04-25
       as `unknown` even though backend runtime build truth was correct
     - follow-up deploy on commit `ddb327f` fixed that gap and final production
       smoke now passes
-  - `PRJ-680` is complete:
-    - task board, project state, and learning journal now describe the same
-      repaired production baseline and the confirmed deploy-parity pitfall
-  - the web-shell stabilization lane seeded through `PRJ-680` is now complete
+- `PRJ-680` is complete:
+  - task board, project state, and learning journal now describe the same
+    repaired production baseline and the confirmed deploy-parity pitfall
+- the web-shell stabilization lane seeded through `PRJ-680` is now complete
+- fresh repo analysis on 2026-04-25 now seeds the next backend+web identity
+  continuity lane through `PRJ-684`:
+  - Telegram link confirmation currently updates authenticated profile state
+    and tools-screen posture, but normal Telegram events still appear to run
+    under raw Telegram identity instead of the linked backend auth identity
+  - this leaves memory continuity split between `/app/*` traffic and Telegram
+    traffic even after the user-visible link flow reports `linked`
+  - the next queue should therefore repair runtime identity resolution first,
+    then add end-to-end regression proof for shared memory continuity, then
+    sync docs/context and record the pitfall
+- `PRJ-681` is now the first `READY` slice:
+  - freeze the linked Telegram identity-resolution contract and choose the
+    conflict posture for relinking a Telegram chat that is already attached to
+    another backend auth identity
+- planned execution order for this lane:
+  - `PRJ-681` Linked Telegram Identity Resolution Contract Freeze
+  - `PRJ-682` Runtime Identity Resolution Implementation
+  - `PRJ-683` Shared Memory Continuity Regression Proof
+  - `PRJ-684` Context, Docs, And Learning Sync
 
 ## Agent Workflow Refresh (2026-04-18)
 

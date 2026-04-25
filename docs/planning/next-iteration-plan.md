@@ -104,6 +104,100 @@ Why this order:
 - only after the real product paths work should the shell be polished with
   stronger state handling, smoke coverage, and synced repo truth
 
+## Planned On 2026-04-25 For Linked UI-Telegram Identity Continuity
+
+Fresh repo analysis after the first Telegram linking lane shows that the
+current product flow likely stops one step short of true identity merge.
+
+### Fresh Gap Snapshot
+
+Observed from the link flow, runtime identity path, and app-facing contracts:
+
+- `POST /app/tools/telegram/link/start` and Telegram `/link CODE` appear to
+  persist the Telegram chat on the authenticated profile
+- `GET /app/tools/overview` truthfully reports `not_linked`,
+  `pending_confirmation`, and `linked`
+- but normal Telegram events still appear to normalize `meta.user_id` from the
+  raw Telegram sender id instead of resolving through the linked profile
+- `/app/chat/message` already runs under backend auth identity, so the current
+  posture likely creates two memory owners for the same human:
+  - backend auth `user_id` for first-party web
+  - raw Telegram sender id for Telegram ingress
+- current regression coverage proves link-state transitions, but it does not
+  yet prove the real product outcome:
+  - shared memory continuity between UI and Telegram after linking
+
+### New Queue
+
+The next identity-continuity queue is now seeded through `PRJ-684`.
+
+New groups:
+
+- `PRJ-681` Linked Telegram Identity Resolution Contract Freeze
+- `PRJ-682` Runtime Identity Resolution Implementation
+- `PRJ-683` Shared Memory Continuity Regression Proof
+- `PRJ-684` Context, Docs, And Learning Sync
+
+Why this order:
+
+- freeze the identity-resolution contract first so runtime repair does not
+  silently choose a relink-conflict rule with user-visible consequences
+- repair runtime identity resolution second because continuity depends on the
+  actual `user_id` owner used by foreground execution, not just the linked
+  status shown in the tools UI
+- add regression proof third so the repaired behavior is pinned as one shared
+  product contract across Telegram and `/app/*`
+- sync context and learning last so repo truth captures both the fix and the
+  pitfall that allowed the drift
+
+### Group 109 - Linked UI-Telegram Identity Continuity
+
+- `PRJ-681` Freeze the linked Telegram identity-resolution contract.
+  - Result:
+    - one explicit implementation plan records how normal Telegram ingress
+      resolves a linked backend auth identity after `/link CODE`
+    - the queue also records the required conflict decision for when a
+      Telegram chat is already attached to another backend auth identity
+    - option set to review before implementation:
+      - reject relink with explicit conflict
+      - transfer chat ownership to the new authenticated user and clear the old
+        link
+      - prefer Telegram user id over chat id for conflict detection when both
+        exist but differ
+  - Validation:
+    - repo analysis and architecture-fit review against the existing
+      profile-owned linking model
+
+- `PRJ-682` Make Telegram runtime identity resolution honor the linked auth user.
+  - Result:
+    - ordinary Telegram foreground events resolve to the linked backend auth
+      `user_id` when a profile link exists
+    - unlinked Telegram traffic keeps the current raw Telegram identity
+      fallback instead of losing backward compatibility
+    - the implementation reuses the existing `aion_profile` linking fields
+      rather than creating a second identity map
+  - Validation:
+    - targeted backend route and runtime coverage
+
+- `PRJ-683` Add shared memory continuity regression proof for linked users.
+  - Result:
+    - tests now prove that memory captured through `/app/*` is visible on a
+      later linked Telegram turn, and vice versa when the same linked backend
+      auth identity is used
+    - regression coverage also pins fallback posture for unlinked Telegram
+      traffic and the selected relink-conflict rule
+  - Validation:
+    - targeted pytest plus route/runtime integration coverage
+
+- `PRJ-684` Sync context, docs, and learning for linked identity continuity.
+  - Result:
+    - planning/context truth records that Telegram linking must affect runtime
+      identity resolution, not only tools-screen status
+    - the learning journal captures the guardrail so later channel-linking work
+      does not stop at UI-visible linkage alone
+  - Validation:
+    - doc-and-context sync
+
 ## Planned On 2026-04-24 For Core V1 Time-Aware Planning
 
 The previous final no-UI `v1` closure lane assumed that organizer-tool
