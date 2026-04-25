@@ -21,6 +21,10 @@ Last updated: 2026-04-25
     `docs/planning/user-data-reset-and-production-cleanup-plan.md`
   - the plan freezes the safe boundary that production-wide cleanup must stay
     operator-only while account settings may expose only per-user runtime reset
+  - later user clarification now freezes that per-user reset as:
+    - preserve connected APIs, linked integrations, and user settings
+    - clear runtime continuity so the account can start fresh without
+      reconfiguration
 - planned execution order for this lane:
   - `PRJ-719` Reset Boundary Contract And Retention Policy Freeze
   - `PRJ-720` Shared Backend Cleanup Owner And Operator Script

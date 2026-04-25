@@ -111,9 +111,10 @@ be kept explicit before implementation starts.
      one user's runtime data only
    - account deletion should remain a separate decision and must not be hidden
      behind "clear my data"
+   - user-confirmed boundary:
+     - connected APIs, linked integrations, and user settings should stay
+       unchanged so the user can start "from new" without reconfiguration
 3. still-open bounded follow-ups
-   - whether self-service reset should preserve `display_name` or return the
-     account to a near-first-login baseline
    - whether the first destructive reset should revoke all sessions,
      including the current one
    - whether any later full auth-user destructive wipe is needed beyond the

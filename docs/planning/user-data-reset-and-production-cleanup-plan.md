@@ -47,6 +47,9 @@ Recommended direction for this lane:
 - add one self-service reset action under authenticated account settings
 - self-service reset should clear runtime continuity for the current user, not
   delete the auth account
+- self-service reset should preserve connected integrations, linked channels,
+  and existing user settings so the user can start "from new" without
+  reconfiguring the product shell
 - self-service reset should reuse backend-owned auth/session, profile, and
   memory ownership instead of inventing a parallel "workspace reset" subsystem
 - destructive deletion logic should have one shared backend owner so:
@@ -80,10 +83,25 @@ The current per-user runtime footprint spans these durable owners:
 
 - keep by default for self-service reset:
   - `aion_auth_user`
+- preserve by default for self-service reset:
+  - `aion_profile`
+    - keep Telegram link fields and link codes unless a later product decision
+      explicitly says that linked-channel identity should be reset too
+    - keep `preferred_language`
+    - keep `ui_language`
+    - keep language confidence/source when those fields are part of the user's
+      chosen shell and continuity settings
+  - settings-shaped operational conclusions:
+    - `proactive_opt_in`
+    - `telegram_enabled`
+    - `clickup_enabled`
+    - `google_calendar_enabled`
+    - `google_drive_enabled`
 - reset or delete for self-service reset:
   - `aion_memory`
   - `aion_semantic_embedding`
   - `aion_conclusion`
+    - excluding the preserved settings-shaped operational conclusions above
   - `aion_relation`
   - `aion_theta`
   - `aion_goal`
@@ -95,16 +113,11 @@ The current per-user runtime footprint spans these durable owners:
   - `aion_attention_turn`
   - `aion_reflection_task`
   - `aion_subconscious_proposal`
-- reset to baseline instead of deleting outright:
-  - `aion_profile`
-    - clear Telegram link fields and link codes
-    - reset `preferred_language` to default continuity posture
-    - reset `ui_language` to `system`
-    - reset language confidence/source to baseline values
 - revoke during self-service reset:
   - `aion_auth_session`
-    - recommended posture: revoke all sessions after destructive reset so the
-      account re-enters through a clean auth boundary
+    - open implementation detail: current session may stay active if that gives
+      the cleanest UX after reset, but reset must not silently drop preserved
+      settings or integration state
 
 Production cleanup should be built from the same ownership map, but the lane
 must keep two distinct operator scopes:
@@ -126,8 +139,9 @@ Recommended first implementation:
   - optional future scope selector, but start with one fixed safe scope
 - success semantics:
   - runtime continuity for the current authenticated user is removed
-  - profile-owned Telegram link state is cleared
-  - user is signed out after reset
+  - connected integrations and user settings stay in place
+  - linked Telegram continuity stays attached unless a later explicit product
+    decision says otherwise
   - the response returns a compact destructive-operation summary, not raw delete
     counts only
 
@@ -137,22 +151,24 @@ Recommended first reset scope:
   - auth account identity
   - email
   - password hash
+  - display name
+  - UI and conversation settings
+  - tool enablement preferences
+  - linked integrations and linked channels
 - reset:
-  - display continuity
   - memory continuity
-  - learned preferences
+  - learned preferences that are not explicit user-managed settings
   - adaptive state
   - internal planning state
-  - linked Telegram identity
-  - active sessions
+  - transient queue and proposal state
 
 Why this scope:
 
-- it matches the user-facing meaning of "clear my data" better than only
-  deleting chat history
+- it matches the user clarification that connected APIs and settings should not
+  change
 - it keeps the feature separate from account deletion
-- it avoids leaving old Telegram links, goals, or learned preferences attached
-  to a supposedly clean account
+- it lets the user keep the configured shell and integrations while removing
+  learned continuity, goals, tasks, and recall
 
 ### Production Cleanup
 
@@ -178,7 +194,10 @@ Result:
 - one explicit reset contract is frozen for:
   - self-service user reset
   - operator-owned production runtime cleanup
-- the repo records exactly which tables are deleted versus reset-to-baseline
+- the repo records exactly which tables and conclusion kinds are:
+  - deleted
+  - preserved
+  - optionally session-revoked
 - session posture after reset is frozen
 - product wording distinguishes:
   - clear my data
@@ -212,9 +231,8 @@ Result:
 - the authenticated settings route gains one explicit destructive-action card
 - the UI explains the exact effect:
   - clears memory and learned runtime state
-  - removes linked Telegram continuity
+  - keeps integrations, linked channels, and user settings
   - keeps the account
-  - signs the user out afterwards
 - the flow requires a deliberate confirmation step instead of a one-click
   toggle
 
@@ -241,12 +259,13 @@ Validation:
 
 1. should self-service reset preserve `display_name`, or should it return the
    user to a near-first-login state?
-   - recommended: preserve account only, reset display continuity too
+   - resolved by user direction: preserve `display_name` and other settings
 2. should the first operator script support full auth-user deletion?
    - recommended: no; start with runtime-only production cleanup and single-user
      reset
 3. should self-service reset keep the current session alive?
-   - recommended: no; revoke sessions and require login again after reset
+   - still open implementation detail; preserving the current session is
+     acceptable if it keeps the UX simple and does not blur the reset boundary
 
 ## Risks And Guardrails
 
@@ -259,8 +278,9 @@ Validation:
    - table cleanup must live behind one backend owner, not several hand-written
      endpoint-specific delete blocks
 4. clear linked-channel continuity too
-   - a reset that leaves Telegram link state active would not be a truthful
-     "fresh start"
+   - superseded by user direction for this lane: linked integrations and
+     settings should stay in place unless a later product decision narrows the
+     reset scope
 5. prove reset behavior with regression coverage
    - destructive flows should not rely on manual confidence alone
 

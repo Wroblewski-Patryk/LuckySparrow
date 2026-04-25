@@ -20,6 +20,12 @@ Last updated: 2026-04-25
     creating a second settings or workspace subsystem
   - production-wide cleanup is now planned as an operator-only maintenance flow
     and must not be exposed through normal product UI
+  - later user clarification now freezes the self-service reset boundary more
+    tightly:
+    - connected APIs, linked integrations, and user settings should remain
+      unchanged
+    - the reset should remove runtime continuity so the user can start "from
+      new" without reconfiguration
   - the repo now contains one execution-ready plan in
     `docs/planning/user-data-reset-and-production-cleanup-plan.md`
   - the seeded implementation order is:

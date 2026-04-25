@@ -46,9 +46,10 @@ The next destructive-data lane is now seeded through `PRJ-722`.
   - Result:
     - one explicit reset contract defines:
       - what "clear my data" means for an authenticated user
-      - which durable tables are deleted versus reset to baseline
+      - which durable tables and conclusion kinds are deleted versus preserved
       - whether sessions survive reset
       - how this stays separate from account deletion
+      - how integrations, linked channels, and user settings remain unchanged
   - Validation:
     - architecture, planning, and data-ownership cross-review
 
@@ -68,8 +69,8 @@ The next destructive-data lane is now seeded through `PRJ-722`.
   - Result:
     - the authenticated settings route gains one explicit destructive reset
       action with confirmation UX
-    - the UI describes that the action clears runtime data, removes Telegram
-      linkage, keeps the account, and signs the user out afterward
+    - the UI describes that the action clears runtime data while preserving
+      integrations, linked channels, and user settings
   - Validation:
     - `Push-Location .\web; npm run build; Pop-Location`
 
