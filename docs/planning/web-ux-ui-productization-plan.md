@@ -110,8 +110,8 @@ Execution order:
 ## Header
 - ID: PRJ-685
 - Title: Freeze the mobile-first authenticated app shell baseline
-- Status: READY
-- Owner: Planning Agent
+- Status: DONE
+- Owner: Frontend Builder
 - Depends on: PRJ-684
 - Priority: P0
 
@@ -135,9 +135,9 @@ Freeze one approved product-shell baseline for authenticated screens:
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] One explicit shell pattern is chosen for authenticated web screens.
-- [ ] The shell baseline is described for mobile, tablet, and desktop.
-- [ ] The baseline keeps backend-owned routing and auth/session truth.
+- [x] One explicit shell pattern is chosen for authenticated web screens.
+- [x] The shell baseline is described for mobile, tablet, and desktop.
+- [x] The baseline keeps backend-owned routing and auth/session truth.
 
 ## Forbidden
 - new systems without approval
@@ -146,9 +146,9 @@ Freeze one approved product-shell baseline for authenticated screens:
 - architecture changes without explicit approval
 
 ## Validation Evidence
-- Tests: n/a planning slice
-- Manual checks: audit screenshots for `/chat`, `/settings`, `/tools`, `/personality`
-- Screenshots/logs: `.codex/artifacts/ux-audit-2026-04-25/`
+- Tests: `npm run build` in `web/`
+- Manual checks: authenticated shell reviewed against the 2026-04-25 route audit for mobile-first chrome reduction and navigation posture
+- Screenshots/logs: `.codex/artifacts/ux-audit-2026-04-25/`; production-ready shell implementation in `web/src/App.tsx`
 - High-risk checks: confirm shell change does not imply client-owned auth or
   navigation state outside current route contract
 
@@ -162,17 +162,24 @@ Freeze one approved product-shell baseline for authenticated screens:
 - Follow-up architecture doc updates: none expected
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
-This slice should define the shell before deeper route-specific redesign starts.
+Chosen shell baseline:
+
+- mobile: sticky compact top bar plus fixed bottom navigation
+- tablet: sticky compact top bar plus route summary strip
+- desktop: sticky compact top bar plus inline route navigation
+- authenticated account access: one toggleable account panel with sign-out
+
+This slice intentionally leaves route-level redesign to later tasks.
 
 ### Task
 

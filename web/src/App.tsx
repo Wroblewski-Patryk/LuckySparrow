@@ -150,6 +150,7 @@ export default function App() {
     proactiveOptIn: false,
   });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [accountPanelOpen, setAccountPanelOpen] = useState(false);
 
   useEffect(() => {
     const onPopState = () => {
@@ -162,6 +163,7 @@ export default function App() {
 
   useEffect(() => {
     setError(null);
+    setAccountPanelOpen(false);
   }, [route]);
 
   useEffect(() => {
@@ -377,6 +379,24 @@ export default function App() {
   const preferenceSummary = (overview?.identity_state as Record<string, unknown> | undefined)?.preference_summary as
     | Record<string, unknown>
     | undefined;
+  const currentUserLabel = me?.user.display_name || me?.user.email || "Account";
+  const accountSummaryItems = [
+    {
+      label: "UI language",
+      value: stringValue(me?.settings.preferred_language ?? settingsDraft.preferredLanguage, "auto"),
+    },
+    {
+      label: "Proactive",
+      value: Boolean(me?.settings.proactive_opt_in) ? "On" : "Off",
+    },
+  ];
+
+  function changeRoute(nextRoute: RoutePath) {
+    startTransition(() => {
+      navigate(nextRoute);
+      setRoute(nextRoute);
+    });
+  }
 
   async function refreshMe() {
     const snapshot = await api.getMe();
@@ -738,73 +758,81 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-base-100 text-base-content">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-10">
-        <header className="mb-6 overflow-hidden rounded-[2rem] border border-base-300 bg-hero-glow shadow-halo">
-          <div className="grid gap-6 px-5 py-6 lg:grid-cols-[1.3fr_0.9fr] lg:px-8">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="badge badge-lg border-none bg-base-900 px-4 py-3 font-display text-signal-gold">
-                  AION Web
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 pb-24 pt-4 sm:px-6 lg:px-10 lg:pb-8">
+        <header className="sticky top-3 z-20 mb-4 rounded-[1.75rem] border border-base-300 bg-base-100/90 shadow-sm backdrop-blur">
+          <div className="flex flex-wrap items-center gap-3 px-4 py-4 sm:px-5">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="badge border-none bg-base-900 px-3 py-3 font-display text-signal-gold">AION Web</span>
+                <span className="badge badge-outline hidden sm:inline-flex">
+                  build {BUILD_REVISION.slice(0, 12)}
                 </span>
-                <span className="badge badge-outline">build {BUILD_REVISION.slice(0, 12)}</span>
               </div>
-              <div>
-                <h1 className="font-display text-3xl leading-tight text-base-900 md:text-5xl">
-                  {ROUTE_LABELS[route]}
-                </h1>
-                <p className="mt-3 max-w-3xl text-sm leading-7 text-base-800 md:text-base">
-                  {routeDescription(route)}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {ROUTES.map((entry) => (
-                  <button
-                    key={entry}
-                    className={`btn btn-sm ${route === entry ? "btn-primary" : "btn-ghost border border-base-300"}`}
-                    onClick={() => {
-                      startTransition(() => {
-                        navigate(entry);
-                        setRoute(entry);
-                      });
-                    }}
-                    type="button"
-                  >
-                    {ROUTE_LABELS[entry]}
-                  </button>
-                ))}
+              <div className="mt-3">
+                <p className="text-xs uppercase tracking-[0.24em] text-base-800">Workspace</p>
+                <h1 className="font-display text-2xl text-base-900 sm:text-3xl">{ROUTE_LABELS[route]}</h1>
               </div>
             </div>
 
-            <div className="grid gap-3 rounded-[1.5rem] border border-base-300 bg-base-100/80 p-4 backdrop-blur">
-              <div className="rounded-2xl bg-base-200 p-4">
-                <p className="text-sm uppercase tracking-[0.24em] text-base-800">Signed in as</p>
-                <p className="mt-2 font-display text-2xl text-base-900">
-                  {me.user.display_name || me.user.email}
-                </p>
-                <p className="mt-1 text-sm text-base-800">{me.user.email}</p>
-              </div>
-              <div className="stats bg-base-200 shadow-none">
-                <div className="stat px-4 py-3">
-                  <div className="stat-title">Language</div>
-                  <div className="stat-value text-2xl">
-                    {stringValue(me.settings.preferred_language ?? settingsDraft.preferredLanguage, "auto")}
-                  </div>
-                  <div className="stat-desc">backend-owned preference</div>
-                </div>
-                <div className="stat px-4 py-3">
-                  <div className="stat-title">Proactive</div>
-                  <div className="stat-value text-2xl">
-                    {Boolean(me.settings.proactive_opt_in) ? "On" : "Off"}
-                  </div>
-                  <div className="stat-desc">user-controlled opt-in</div>
-                </div>
-              </div>
-              <button className="btn btn-outline" onClick={() => void handleLogout()} type="button">
-                Sign out
+            <div className="hidden lg:flex lg:flex-wrap lg:gap-2">
+              {ROUTES.map((entry) => (
+                <button
+                  key={entry}
+                  className={`btn btn-sm ${route === entry ? "btn-primary" : "btn-ghost border border-base-300"}`}
+                  onClick={() => changeRoute(entry)}
+                  type="button"
+                >
+                  {ROUTE_LABELS[entry]}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                className={`btn btn-sm ${accountPanelOpen ? "btn-primary" : "btn-outline"}`}
+                onClick={() => setAccountPanelOpen((value) => !value)}
+                type="button"
+              >
+                Account
               </button>
             </div>
           </div>
+
+          {accountPanelOpen ? (
+            <div className="border-t border-base-300 px-4 py-4 sm:px-5">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                <div className="rounded-[1.4rem] bg-base-200 p-4">
+                  <p className="text-sm uppercase tracking-[0.24em] text-base-800">Signed in as</p>
+                  <p className="mt-2 font-display text-2xl text-base-900">{currentUserLabel}</p>
+                  <p className="mt-1 text-sm text-base-800">{me.user.email}</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto]">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {accountSummaryItems.map((item) => (
+                      <div key={item.label} className="rounded-[1.4rem] bg-base-200 p-4">
+                        <p className="text-xs uppercase tracking-[0.18em] text-base-800">{item.label}</p>
+                        <p className="mt-2 text-base font-semibold text-base-900">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="btn btn-outline sm:self-end xl:self-center" onClick={() => void handleLogout()} type="button">
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </header>
+
+        <section className="mb-4 rounded-[1.5rem] border border-base-300 bg-base-200/80 px-4 py-4 shadow-sm sm:px-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="max-w-3xl">
+              <p className="text-xs uppercase tracking-[0.24em] text-base-800">Current surface</p>
+              <p className="mt-2 text-sm leading-7 text-base-800 sm:text-base">{routeDescription(route)}</p>
+            </div>
+            <div className="badge badge-outline">{ROUTE_LABELS[route]}</div>
+          </div>
+        </section>
 
         {toast ? (
           <div className="alert alert-success mb-4">
@@ -1356,6 +1384,25 @@ export default function App() {
             </div>
           ) : null}
         </main>
+
+        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-base-300 bg-base-100/95 px-3 py-3 backdrop-blur lg:hidden">
+          <div className="mx-auto grid max-w-lg grid-cols-4 gap-2">
+            {ROUTES.map((entry) => (
+              <button
+                key={entry}
+                className={`rounded-[1.2rem] px-3 py-3 text-sm font-medium transition ${
+                  route === entry
+                    ? "bg-base-900 text-base-100 shadow-sm"
+                    : "border border-base-300 bg-base-200 text-base-900"
+                }`}
+                onClick={() => changeRoute(entry)}
+                type="button"
+              >
+                {ROUTE_LABELS[entry]}
+              </button>
+            ))}
+          </div>
+        </nav>
       </div>
     </div>
   );

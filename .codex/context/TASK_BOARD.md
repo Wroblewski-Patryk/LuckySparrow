@@ -144,10 +144,17 @@ Last updated: 2026-04-25
   - split `Personality` product insight from raw inspector posture
   - finish with one visual-system and responsive-proof pass across mobile,
     tablet, and desktop
-- `PRJ-685` is now the first `READY` slice:
-  - freeze the mobile-first authenticated shell baseline for the current web
-    client so later route work can align around one navigation and chrome
-    pattern
+- implementation progress on 2026-04-25:
+  - `PRJ-685` is complete:
+    - the authenticated shell now uses a compact sticky top bar instead of a
+      repeated hero-plus-account block on every signed-in route
+    - desktop navigation now lives in the top bar, while mobile uses a fixed
+      bottom navigation better aligned with later app transfer
+    - account access and sign-out now live behind one dedicated account panel
+      instead of a permanently expanded summary card
+  - `PRJ-686` is now the first `READY` slice:
+    - freeze the explicit GUI-language versus conversation-language boundary
+      before changing the settings route
 - planned execution order for this lane:
   - `PRJ-685` Mobile-First App Shell Baseline
   - `PRJ-686` UI Language Boundary And Locale Switcher Plan

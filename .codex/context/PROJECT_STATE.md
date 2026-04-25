@@ -219,6 +219,15 @@ Last updated: 2026-04-25
     - `PRJ-691` Visual System Hardening, Responsive Proof, And Context Sync
   - the canonical execution plan for this lane now lives in
     `docs/planning/web-ux-ui-productization-plan.md`
+- 2026-04-25: `PRJ-685` is complete:
+  - the authenticated web shell now uses a compact sticky top bar instead of
+    route-level repeated hero chrome
+  - desktop keeps route navigation in the top bar, while mobile now uses a
+    fixed bottom navigation suitable for a later app-shell transfer
+  - account access and sign-out now live in one toggleable account panel
+    rather than a permanently expanded summary card
+  - the next `READY` slice is `PRJ-686`, which freezes the GUI-language versus
+    conversation-language boundary before the settings redesign starts
 - 2026-04-24: `PRJ-635` is complete: canonical architecture now freezes one
   explicit core-`v1` time-aware planned-work baseline. Reminders, check-ins,
   routines, and future follow-ups are variants of one internal planned-work
