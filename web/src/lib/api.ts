@@ -27,6 +27,17 @@ export type AppMeResponse = {
   settings: AppSettings;
 };
 
+export type AppResetDataResponse = {
+  status: string;
+  scope: string;
+  target_user_id?: string | null;
+  total_deleted_records: number;
+  revoked_session_count: number;
+  cleared_categories: string[];
+  preserved_categories: string[];
+  preserved_conclusion_kinds: string[];
+};
+
 export type AppChatHistoryEntry = {
   event_id: string;
   source: string;
@@ -193,6 +204,13 @@ export const api = {
     display_name?: string | null;
   }): Promise<AppSettings> {
     return requestJson<AppSettings>("/app/me/settings", { method: "PATCH" }, body);
+  },
+  resetData(confirmationText: string): Promise<AppResetDataResponse> {
+    return requestJson<AppResetDataResponse>(
+      "/app/me/reset-data",
+      { method: "POST" },
+      { confirmation_text: confirmationText },
+    );
   },
   getChatHistory(): Promise<AppChatHistoryResponse> {
     return requestJson<AppChatHistoryResponse>("/app/chat/history", { method: "GET" });

@@ -5,6 +5,7 @@ import {
   type AppChatHistoryEntry,
   type AppMeResponse,
   type AppPersonalityOverviewResponse,
+  type AppResetDataResponse,
   type AppSettings,
   type AppTelegramLinkStartResponse,
   type AppToolsOverviewResponse,
@@ -18,6 +19,7 @@ type SessionMessage =
   | { id: string; role: "assistant"; text: string; meta?: string };
 
 const BUILD_REVISION = String(import.meta.env.VITE_APP_BUILD_REVISION ?? "dev");
+const RESET_DATA_CONFIRMATION_TEXT = "RESET MY DATA";
 const ROUTES: RoutePath[] = ["/chat", "/settings", "/tools", "/personality"];
 const UI_LANGUAGE_OPTIONS: Array<{
   value: UiLanguageCode;
@@ -121,6 +123,17 @@ const UI_COPY = {
       saveHint: "Settings are persisted through `/app/me/settings`.",
       conversationRuntimeOwned: "Runtime-owned and adaptive",
       savedState: "Saved in backend truth",
+      resetTitle: "Reset runtime data",
+      resetBody:
+        "Clear learned runtime continuity, memory, planning state, and queue state for this account without deleting the account or reconfiguring linked tools.",
+      resetImpact:
+        "This keeps your profile, UI settings, proactive preference, and linked integrations, then revokes every active session including this one.",
+      resetConfirmationLabel: "Confirmation text",
+      resetConfirmationHint: "Type the exact phrase below to unlock the reset action.",
+      resetConfirmationPlaceholder: "RESET MY DATA",
+      resetAction: "Reset my runtime data",
+      resetting: "Resetting...",
+      resetSuccess: "Runtime data reset. Sign in again to start fresh.",
     },
     tools: {
       eyebrow: "Tools",
@@ -251,6 +264,17 @@ const UI_COPY = {
       saveHint: "Ustawienia zapisują się przez `/app/me/settings`.",
       conversationRuntimeOwned: "Sterowane przez runtime i adaptacyjne",
       savedState: "Zapisane w backend truth",
+      resetTitle: "Reset danych runtime",
+      resetBody:
+        "Wyczysc wyuczona ciaglosc runtime, pamiec, stan planowania i kolejki dla tego konta bez usuwania konta ani ponownej konfiguracji podpietych narzedzi.",
+      resetImpact:
+        "Profil, ustawienia UI, zgoda na proaktywnosc i podpiete integracje zostaja, a wszystkie aktywne sesje, takze ta biezaca, sa uniewazniane.",
+      resetConfirmationLabel: "Tekst potwierdzenia",
+      resetConfirmationHint: "Wpisz dokladnie ponizsza fraze, aby odblokowac reset.",
+      resetConfirmationPlaceholder: "RESET MY DATA",
+      resetAction: "Zresetuj dane runtime",
+      resetting: "Resetowanie...",
+      resetSuccess: "Dane runtime zostaly zresetowane. Zaloguj sie ponownie i zacznij od nowa.",
     },
     tools: {
       eyebrow: "Narzędzia",
@@ -381,6 +405,17 @@ const UI_COPY = {
       saveHint: "Einstellungen werden über `/app/me/settings` gespeichert.",
       conversationRuntimeOwned: "Runtime-gesteuert und adaptiv",
       savedState: "In Backend-Truth gespeichert",
+      resetTitle: "Runtime-Daten zurucksetzen",
+      resetBody:
+        "Loscht gelernte Runtime-Kontinuitat, Erinnerung, Planungszustand und Warteschlangenstatus fur dieses Konto, ohne das Konto oder verknupfte Tools neu aufzusetzen.",
+      resetImpact:
+        "Profil, UI-Sprache, proaktive Einstellungen und verknupfte Integrationen bleiben erhalten, danach werden alle aktiven Sitzungen inklusive dieser Sitzung widerrufen.",
+      resetConfirmationLabel: "Bestatigungstext",
+      resetConfirmationHint: "Gib die folgende Phrase exakt ein, um den Reset freizuschalten.",
+      resetConfirmationPlaceholder: "RESET MY DATA",
+      resetAction: "Meine Runtime-Daten zurucksetzen",
+      resetting: "Wird zuruckgesetzt...",
+      resetSuccess: "Runtime-Daten wurden zuruckgesetzt. Melde dich erneut an, um frisch zu starten.",
     },
     tools: {
       eyebrow: "Tools",
@@ -639,6 +674,8 @@ export default function App() {
     proactiveOptIn: false,
   });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [resetConfirmationText, setResetConfirmationText] = useState("");
+  const [resettingData, setResettingData] = useState(false);
   const [accountPanelOpen, setAccountPanelOpen] = useState(false);
 
   useEffect(() => {
@@ -952,6 +989,37 @@ export default function App() {
       });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Failed to sign out.");
+    }
+  }
+
+  async function handleResetData() {
+    if (!me || resetConfirmationText.trim() !== RESET_DATA_CONFIRMATION_TEXT) {
+      return;
+    }
+
+    setResettingData(true);
+    setError(null);
+
+    try {
+      const summary: AppResetDataResponse = await api.resetData(resetConfirmationText.trim());
+      setMe(null);
+      setOverview(null);
+      setToolsOverview(null);
+      setTelegramLinkStart(null);
+      setHistory([]);
+      setSessionMessages([]);
+      setResetConfirmationText("");
+      setToast(
+        `${copy.settings.resetSuccess} ${summary.total_deleted_records} cleared, ${summary.revoked_session_count} sessions revoked.`,
+      );
+      startTransition(() => {
+        navigate("/login");
+        setRoute("/login");
+      });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Failed to reset runtime data.");
+    } finally {
+      setResettingData(false);
     }
   }
 
@@ -1542,6 +1610,43 @@ export default function App() {
                       <p className="mt-1 text-sm leading-7 text-base-800">{copy.settings.proactiveBody}</p>
                     </div>
                   </label>
+                </section>
+
+                <section className="rounded-[1.6rem] border border-error/40 bg-error/5 p-4 xl:col-span-2">
+                  <p className="text-sm uppercase tracking-[0.2em] text-error">{copy.settings.resetTitle}</p>
+                  <h3 className="mt-2 font-display text-2xl text-base-900">{copy.settings.resetAction}</h3>
+                  <p className="mt-3 max-w-4xl text-sm leading-7 text-base-900">{copy.settings.resetBody}</p>
+                  <p className="mt-3 max-w-4xl text-sm leading-7 text-base-800">{copy.settings.resetImpact}</p>
+
+                  <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                    <label className="form-control">
+                      <div className="label">
+                        <span className="label-text text-base-900">{copy.settings.resetConfirmationLabel}</span>
+                      </div>
+                      <input
+                        className="input input-bordered border-error/40 bg-base-100"
+                        value={resetConfirmationText}
+                        onChange={(event) => setResetConfirmationText(event.target.value)}
+                        placeholder={copy.settings.resetConfirmationPlaceholder}
+                      />
+                      <div className="label">
+                        <span className="label-text text-base-800">
+                          {copy.settings.resetConfirmationHint} <code>{RESET_DATA_CONFIRMATION_TEXT}</code>
+                        </span>
+                      </div>
+                    </label>
+
+                    <button
+                      className="btn btn-error w-full lg:w-fit"
+                      disabled={resettingData || resetConfirmationText.trim() !== RESET_DATA_CONFIRMATION_TEXT}
+                      type="button"
+                      onClick={() => {
+                        void handleResetData();
+                      }}
+                    >
+                      {resettingData ? copy.settings.resetting : copy.settings.resetAction}
+                    </button>
+                  </div>
                 </section>
 
                 <div className="xl:col-span-2">
