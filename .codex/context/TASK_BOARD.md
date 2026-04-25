@@ -205,7 +205,40 @@ Last updated: 2026-04-25
       attempt budget before failing the deploy check
     - script regressions now distinguish one brief `503` from a real sustained
       outage
+- fresh runtime-behavior analysis on 2026-04-25 now seeds the next foreground
+  awareness repair lane through `PRJ-702`:
+  - linked Telegram identity continuity is repaired, but the foreground answer
+    path can still behave as if it lacks memory continuity, current-time
+    awareness, or practical access to bounded search and page reading
+  - the repo already has memory, linked identity, `event.timestamp`, bounded
+    search, and bounded page-read execution, so the next lane must repair
+    propagation and intent inference rather than inventing a new subsystem
+  - the next queue should therefore:
+    - freeze the foreground-awareness contract first
+    - add explicit turn-awareness payload propagation through runtime, context,
+      and expression
+    - surface human-facing identity facts and prevent false capability-denial
+      answers
+    - expand bounded tool use from keyword-only triggers toward intent-aware
+      heuristics for weather, latest facts, and website-content requests
+    - add regression proof for the reported Telegram, time, weather, and
+      website scenarios before syncing docs and context
+- `PRJ-695` is complete:
+  - the repo now contains one detailed execution-ready plan for the foreground
+    memory, time, and bounded-tool awareness repair lane in
+    `docs/planning/foreground-memory-time-and-tool-awareness-repair-plan.md`
+- `PRJ-696` is now the first `READY` slice:
+  - freeze the foreground-awareness contract so implementation reuses existing
+    runtime, identity, and bounded-tool systems without widening authority
 - planned execution order for this lane:
+  - `PRJ-696` Foreground Awareness Contract Freeze
+  - `PRJ-697` Runtime Turn-Awareness Payload And Prompt Propagation
+  - `PRJ-698` Identity Facts Flow And Truthful Capability Claims
+  - `PRJ-699` Implicit Tool Invocation Heuristics For External Facts
+  - `PRJ-700` Behavior Regression Proof For Memory, Time, And Tool Awareness
+  - `PRJ-701` Canonical Docs And Testing Guidance Sync
+  - `PRJ-702` Final Validation, Context Sync, And Learning Closure
+- planned execution order for the completed UX/UI lane was:
   - `PRJ-685` Mobile-First App Shell Baseline
   - `PRJ-686` UI Language Boundary And Locale Switcher Plan
   - `PRJ-687` Chat Experience And Composer Priority

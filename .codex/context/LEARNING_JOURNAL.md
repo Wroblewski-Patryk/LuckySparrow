@@ -983,6 +983,35 @@ fixes for this repository.
   - `PRJ-055` execution logs in this workspace showed `rg.exe` access denied
     while `Select-String` worked normally
 
+### 2026-04-25 - Foreground capability truth must reach expression, not just exist in runtime
+- Context: runtime analysis after linked Telegram identity repair and bounded
+  external-read features were already present in the repo.
+- Symptom: the assistant could still answer as if it could not remember, did
+  not know the current time, or could not use web/page-read capabilities even
+  though the active turn and action layer already carried enough truth to do
+  better.
+- Root cause: capability truth stayed too implicit across runtime, context,
+  planning, and expression. The repo had the feature, but the active turn did
+  not receive one explicit foreground-awareness contract that made those facts
+  reliably available to the final answer path.
+- Guardrail: whenever memory continuity, time awareness, or bounded tools are
+  considered part of user-facing behavior, add one explicit foreground contract
+  plus regression scenarios that prove the expression path can use the same
+  truth the runtime already has.
+- Preferred pattern:
+  - reuse existing runtime truth instead of adding a second subsystem
+  - surface current-turn time, human-facing identity facts, memory continuity,
+    and bounded-tool readiness through one narrow shared payload
+  - test indirect user asks, not only explicit keyword-triggered tool requests
+- Avoid:
+  - treating successful backend capability existence as proof that the user can
+    actually experience that capability
+  - allowing expression to deny capabilities that runtime truth already
+    surfaced for the active turn
+- Evidence:
+  - `docs/planning/foreground-memory-time-and-tool-awareness-repair-plan.md`
+  - `.codex/tasks/PRJ-695-plan-foreground-memory-time-and-tool-awareness-repair.md`
+
 ### 2026-04-19 - API events need explicit user scoping to avoid shared-language drift
 - Context: language/profile memory is keyed by `user_id`, while API requests
   can arrive without explicit `meta.user_id`.

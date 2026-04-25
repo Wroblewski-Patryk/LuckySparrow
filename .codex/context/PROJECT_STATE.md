@@ -285,6 +285,34 @@ Last updated: 2026-04-25
   - live production on 2026-04-25 briefly returned `503 Service Unavailable`
     during deploy convergence and then recovered, so the deploy-proof baseline
     now distinguishes short availability blips from sustained failure
+- 2026-04-25: fresh runtime-behavior analysis now seeds the next foreground
+  awareness repair lane through `PRJ-702`:
+  - linked Telegram identity continuity is repaired, but the active answer path
+    can still deny or miss existing capabilities around memory continuity,
+    current turn time, bounded search, and bounded page reading
+  - the repo already contains the needed foundations:
+    - linked backend auth identity resolution for Telegram
+    - `event.timestamp` on active turns
+    - bounded search and page-read execution in the action layer
+    - context and expression stages that can consume more explicit foreground
+      runtime truth
+  - the remaining gap is therefore a foreground-awareness contract and
+    propagation problem, not a need for a second identity, memory, or tool
+    subsystem
+- 2026-04-25: `PRJ-695` is complete:
+  - the repo now contains one detailed execution-ready repair plan in
+    `docs/planning/foreground-memory-time-and-tool-awareness-repair-plan.md`
+  - the next implementation order is intentionally frozen as:
+    - `PRJ-696` Foreground Awareness Contract Freeze
+    - `PRJ-697` Runtime Turn-Awareness Payload And Prompt Propagation
+    - `PRJ-698` Identity Facts Flow And Truthful Capability Claims
+    - `PRJ-699` Implicit Tool Invocation Heuristics For External Facts
+    - `PRJ-700` Behavior Regression Proof For Memory, Time, And Tool Awareness
+    - `PRJ-701` Canonical Docs And Testing Guidance Sync
+    - `PRJ-702` Final Validation, Context Sync, And Learning Closure
+- 2026-04-25: `PRJ-696` is now the first `READY` slice for this lane:
+  - it should freeze one explicit foreground-awareness contract before any code
+    change expands prompts, runtime payloads, or planner heuristics
 - 2026-04-24: `PRJ-635` is complete: canonical architecture now freezes one
   explicit core-`v1` time-aware planned-work baseline. Reminders, check-ins,
   routines, and future follow-ups are variants of one internal planned-work

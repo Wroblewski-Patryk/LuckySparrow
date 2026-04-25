@@ -342,6 +342,114 @@ Implementation status on 2026-04-25:
 - release smoke now also retries transient `/health` failures with a small
   bounded budget before failing the deployment check
 
+## Planned On 2026-04-25 For Foreground Memory, Time, And Tool Awareness Repair
+
+Fresh runtime-behavior analysis shows that the repo still has one important
+user-facing truth gap after linked Telegram identity continuity was repaired.
+
+### Fresh Gap Snapshot
+
+Observed from the current runtime, app-facing behavior reports, and existing
+bounded tool surfaces:
+
+- linked Telegram identity continuity is now repaired at the `user_id` owner
+  level, but the active answer path can still behave as if it does not know the
+  user in human-facing terms
+- active turns already carry `event.timestamp`, but direct time answers are not
+  yet reliably grounded in that turn-time truth
+- bounded DuckDuckGo search and bounded page-read execution already exist in
+  the action layer, but current planning heuristics still appear too dependent
+  on explicit keyword phrasing
+- this means natural asks such as weather, latest facts, and website-content
+  lookup can still fail even though the capability exists in the repo
+- the remaining gap is therefore a foreground-awareness and propagation problem,
+  not a need for a second memory, identity, or browsing system
+
+### New Queue
+
+The next foreground-awareness repair lane is now seeded through `PRJ-702`.
+
+- `PRJ-695` Plan the foreground memory, time, and bounded-tool awareness
+  repair lane. (complete)
+  - Result:
+    - the repo now contains one execution-ready plan in
+      `docs/planning/foreground-memory-time-and-tool-awareness-repair-plan.md`
+    - the next slices, validations, risks, and acceptance scenarios are frozen
+      before code changes begin
+  - Validation:
+    - planning and source-of-truth cross-review
+
+- `PRJ-696` Foreground Awareness Contract Freeze
+  - Result:
+    - one explicit contract defines which current-turn facts must be visible to
+      the foreground answer path:
+      - current turn time
+      - human-facing identity facts already owned by auth or profile state
+      - memory continuity posture
+      - bounded search and page-read readiness posture
+    - the contract explicitly prevents false capability-denial answers when
+      runtime truth already provides those capabilities
+  - Validation:
+    - architecture and runtime-contract cross-review
+
+- `PRJ-697` Add explicit runtime turn-awareness payload propagation
+  - Result:
+    - the existing runtime, context, and expression path now share one narrow
+      foreground-awareness payload without creating a second prompt or context
+      subsystem
+    - current-turn time and bounded-tool posture become answer-usable facts
+      instead of hidden implementation detail
+  - Validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_context_agent.py tests/test_expression_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py; Pop-Location`
+
+- `PRJ-698` Flow identity facts and truthful capability claims into expression
+  - Result:
+    - linked users can be referred to through existing human-facing identity
+      facts when those facts are actually present
+    - expression no longer claims it cannot remember or otherwise denies
+      capabilities that runtime truth already surfaced for the active turn
+  - Validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_expression_agent.py tests/test_runtime_pipeline.py; Pop-Location`
+
+- `PRJ-699` Expand implicit tool invocation heuristics for external facts
+  - Result:
+    - weather, latest-fact, and website-content turns can trigger bounded
+      search or page-read behavior from intent-aware heuristics rather than
+      only from exact trigger phrases
+    - the implementation still stays inside the approved planning-to-action
+      boundary
+  - Validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py; Pop-Location`
+
+- `PRJ-700` Add behavior regression proof for memory, time, and tool awareness
+  - Result:
+    - focused regressions now cover:
+      - `jak się nazywam?`
+      - `która godzina?`
+      - weather without explicit `search the web`
+      - website-content lookup without explicit `read page`
+      - truthful no-false-denial behavior when memory or tools are available
+  - Validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_planning_agent.py tests/test_expression_agent.py; Pop-Location`
+
+- `PRJ-701` Sync canonical docs and testing guidance for foreground awareness
+  - Result:
+    - architecture, testing guidance, and implementation-reality notes all
+      describe the same foreground-awareness contract once implementation proof
+      is green
+  - Validation:
+    - cross-doc review plus targeted pytest evidence from prior slices
+
+- `PRJ-702` Final validation, context sync, and learning closure
+  - Result:
+    - the full lane closes only after focused validations, source-of-truth sync,
+      and learning-journal capture are complete
+    - the repaired user-facing behavior is recorded explicitly in context truth
+  - Validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+    - manual replay for linked-name recall, time answer, weather lookup, and
+      website-content lookup
+
 ## Planned On 2026-04-24 For Core V1 Time-Aware Planning
 
 The previous final no-UI `v1` closure lane assumed that organizer-tool
