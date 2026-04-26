@@ -41,13 +41,28 @@ Last updated: 2026-04-26
     - reusable module-entry cards for `personality`, `tools`, and `settings`
   - `settings`, `tools`, and `personality` now inherit the same shared surface
     grammar instead of reading like older independent screens
+  - the latest local shell pass extends that reuse further:
+    - `settings` now opens with the same hero-and-chip posture as the dashboard
+    - `tools` now uses the same route hero before grouped capability sections
+    - `personality` now adds one richer embodied layer map plus pipeline rail
+      on top of the backend-owned overview payload
+    - mobile now has explicit route navigation inside the authenticated shell
+    - the chat composer no longer obscures transcript reading order
   - focused validation passed:
     - `Push-Location .\web; npm run build; Pop-Location`
       -> build passed
 - 2026-04-26: `PRJ-728` remains the next UX verification slice:
-  - screenshot proof, accessibility review, and breakpoint audit still need to
-    be captured against the new dashboard-first shell before the lane is fully
-    closed
+  - initial mocked screenshot proof for the refreshed shell now exists in:
+    - `.codex/artifacts/local-chat-desktop-mocked-v2.png`
+    - `.codex/artifacts/local-chat-mobile-mocked-v2.png`
+    - `.codex/artifacts/local-personality-desktop-mocked.png`
+    - `.codex/artifacts/local-personality-mobile-mocked.png`
+    - `.codex/artifacts/local-tools-desktop-mocked.png`
+    - `.codex/artifacts/local-settings-desktop-mocked.png`
+  - full `PRJ-728` closure still needs:
+    - tablet capture
+    - real loading/empty/error/success proof on live backend data
+    - explicit accessibility and reduced-motion review notes
 - 2026-04-25: `PRJ-707` is now complete:
   - the GUI-language selector now rests on one shared locale metadata model
     carrying value, native label, localized label, icon token, and explicit

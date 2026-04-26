@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ApiError,
   api,
@@ -998,6 +998,96 @@ function MotifFigurePanel({
   );
 }
 
+function RouteHeroPanel({
+  eyebrow,
+  title,
+  body,
+  chips,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  chips: string[];
+}) {
+  return (
+    <section className="aion-panel aion-halo rounded-[2rem] p-5">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)] lg:items-end">
+        <div className="max-w-3xl">
+          <p className="text-sm uppercase tracking-[0.24em] text-base-800">{eyebrow}</p>
+          <h2 className="mt-2 font-display text-3xl text-base-900 md:text-4xl">{title}</h2>
+          <p className="mt-3 text-sm leading-7 text-base-800 md:text-base">{body}</p>
+        </div>
+        <div className="flex flex-wrap gap-2 lg:justify-end">
+          {chips.map((chip) => (
+            <span key={chip} className="aion-chip rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-base-900">
+              {chip}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InsightPanel({
+  eyebrow,
+  title,
+  body,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="aion-panel-soft rounded-[2rem] p-5">
+      <div className="mb-4 max-w-3xl">
+        <p className="text-sm uppercase tracking-[0.24em] text-base-800">{eyebrow}</p>
+        <h3 className="mt-2 font-display text-2xl text-base-900">{title}</h3>
+        <p className="mt-3 text-sm leading-7 text-base-800">{body}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function PersonalityLayerCard({
+  zone,
+  title,
+  symbol,
+  body,
+  highlights,
+}: {
+  zone: string;
+  title: string;
+  symbol: string;
+  body: string;
+  highlights: string[];
+}) {
+  return (
+    <article className="aion-panel-soft rounded-[1.7rem] p-4">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-base-800">{zone}</p>
+          <h4 className="mt-2 font-display text-2xl text-base-900">{title}</h4>
+        </div>
+        <span className="aion-chip flex h-11 w-11 items-center justify-center rounded-full text-lg font-semibold text-base-900">
+          {symbol}
+        </span>
+      </div>
+      <p className="text-sm leading-7 text-base-800">{body}</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {highlights.map((item) => (
+          <span key={item} className="aion-chip-ghost rounded-full px-3 py-1 text-xs font-medium">
+            {item}
+          </span>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 export default function App() {
   const [route, setRoute] = useState<RoutePath>(() => normalizeRoute(window.location.pathname));
   const [authMode, setAuthMode] = useState<AuthMode>("login");
@@ -1399,6 +1489,74 @@ export default function App() {
       label: "Channels",
       value: recentChannelsLabel,
     },
+  ];
+  const personalityLayers = [
+    {
+      zone: "Head · identity",
+      title: "Identity",
+      symbol: "◌",
+      body: "Profile continuity, learned preferences, and language posture shape how AION recognizes the current relationship.",
+      highlights: [
+        currentUserLabel,
+        `${stringValue(preferenceSummary?.learned_preference_count, "0")} learned preferences`,
+      ],
+    },
+    {
+      zone: "Near head · planning",
+      title: "Planning",
+      symbol: "⌁",
+      body: "Goals, tasks, and milestones stay visible as the active foreground direction instead of remaining hidden in raw payloads.",
+      highlights: [
+        `${stringValue(planningSummary?.active_goal_count, "0")} goals`,
+        `${stringValue(planningSummary?.active_task_count, "0")} tasks`,
+      ],
+    },
+    {
+      zone: "Hand · learned knowledge",
+      title: "Learned knowledge",
+      symbol: "✦",
+      body: "Patterns and affective takeaways become a reusable memory surface that supports future replies without overwhelming the route.",
+      highlights: [
+        `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} semantic conclusions`,
+        `${stringValue(knowledgeSummary?.affective_conclusion_count, "0")} affective conclusions`,
+      ],
+    },
+    {
+      zone: "Body · role + skills",
+      title: "Role and skills",
+      symbol: "↗",
+      body: "Role posture and skill availability stay visible as product capabilities, while execution boundaries remain safely backend-owned.",
+      highlights: [
+        ...summaryLines("role_skill_state", overview?.role_skill_state ?? {}).slice(0, 2),
+      ],
+    },
+  ];
+  const personalityFlowItems = [
+    {
+      eyebrow: "Conscious loop",
+      title: "Perception to expression",
+      body: "Foreground cognition stays readable: context, motivation, role, planning, and expression all map into visible product zones.",
+    },
+    {
+      eyebrow: "Action boundary",
+      title: "Action and side effects",
+      body: "Useful capabilities stay visible without moving execution authority into the client.",
+    },
+    {
+      eyebrow: "Subconscious loop",
+      title: "Memory and reflection",
+      body: "Reflection remains a slower background layer that shapes continuity over time instead of crowding the live route.",
+    },
+  ];
+  const toolsHeroChips = [
+    `${stringValue(toolsOverview?.summary.provider_ready_count, "0")} ready`,
+    `${stringValue(toolsOverview?.summary.link_required_count, "0")} needs linking`,
+    `${stringValue(toolsOverview?.summary.integral_enabled_count, "0")} always on`,
+  ];
+  const settingsHeroChips = [
+    localeOptionDisplay(selectedUiLanguageMetadata, resolvedUiLanguage),
+    selectedUtcOffsetMetadata.value,
+    Boolean(me?.settings.proactive_opt_in) ? copy.common.on : copy.common.off,
   ];
 
   function changeRoute(nextRoute: RoutePath) {
@@ -1844,6 +2002,21 @@ export default function App() {
             </div>
           </div>
 
+          <div className="border-t border-base-300/70 px-4 py-3 md:hidden sm:px-5">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {ROUTES.map((entry) => (
+                <button
+                  key={entry}
+                  className={`btn btn-sm whitespace-nowrap ${route === entry ? "btn-primary" : "btn-ghost border border-base-300"}`}
+                  onClick={() => changeRoute(entry)}
+                  type="button"
+                >
+                  {routeLabel(entry, resolvedUiLanguage)}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {accountPanelOpen ? (
             <div className="border-t border-base-300/80 px-4 py-4 sm:px-5">
               <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
@@ -2028,10 +2201,7 @@ export default function App() {
                     </div>
                   </section>
 
-                  <form
-                    className="aion-panel sticky bottom-[4.5rem] rounded-[2rem] p-4 md:bottom-0"
-                    onSubmit={(event) => void handleSendMessage(event)}
-                  >
+                  <form className="aion-panel rounded-[2rem] p-4" onSubmit={(event) => void handleSendMessage(event)}>
                     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="text-sm uppercase tracking-[0.24em] text-base-800">Composer</p>
@@ -2124,14 +2294,16 @@ export default function App() {
           ) : null}
 
           {route === "/settings" ? (
-            <section className="aion-panel rounded-[2rem] p-5">
-              <div className="mb-6 max-w-3xl">
-                <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.settings.eyebrow}</p>
-                <h2 className="font-display text-3xl text-base-900">{copy.settings.title}</h2>
-                <p className="mt-3 text-sm leading-7 text-base-800">{copy.settings.subtitle}</p>
-              </div>
+            <div className="grid gap-6">
+              <RouteHeroPanel
+                eyebrow={copy.settings.eyebrow}
+                title={copy.settings.title}
+                body={copy.settings.subtitle}
+                chips={settingsHeroChips}
+              />
 
-              <form className="grid gap-4 md:grid-cols-2" onSubmit={(event) => void handleSaveSettings(event)}>
+              <section className="aion-panel rounded-[2rem] p-5">
+                <form className="grid gap-4 md:grid-cols-2" onSubmit={(event) => void handleSaveSettings(event)}>
                 <section className="aion-panel-soft rounded-[1.6rem] p-4">
                   <p className="text-sm uppercase tracking-[0.2em] text-base-800">{copy.settings.profileTitle}</p>
                   <h3 className="mt-2 font-display text-2xl text-base-900">{copy.auth.displayName}</h3>
@@ -2295,10 +2467,18 @@ export default function App() {
                 </div>
               </form>
             </section>
+            </div>
           ) : null}
 
           {route === "/tools" ? (
             <div className="grid gap-6">
+              <RouteHeroPanel
+                eyebrow={copy.tools.eyebrow}
+                title={copy.tools.title}
+                body={copy.tools.subtitle}
+                chips={toolsHeroChips}
+              />
+
               <section className="aion-panel rounded-[2rem] p-5">
                 <div className="mb-5 max-w-3xl">
                   <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.tools.eyebrow}</p>
@@ -2571,44 +2751,103 @@ export default function App() {
 
           {route === "/personality" ? (
             <div className="grid gap-6">
-              <section className="aion-panel rounded-[2rem] p-5">
-                <div className="mb-5 max-w-3xl">
-                  <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.personality.eyebrow}</p>
-                  <h2 className="font-display text-3xl text-base-900">{copy.personality.title}</h2>
-                  <p className="mt-3 text-sm leading-7 text-base-800">{copy.personality.subtitle}</p>
+              <RouteHeroPanel
+                eyebrow={copy.personality.eyebrow}
+                title={copy.personality.title}
+                body={copy.personality.subtitle}
+                chips={[
+                  `${stringValue(planningSummary?.active_goal_count, "0")} goals`,
+                  `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} patterns`,
+                  `${stringValue(preferenceSummary?.learned_preference_count, "0")} preferences`,
+                ]}
+              />
+
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(22rem,0.8fr)]">
+                <div className="grid gap-6">
+                  <MotifFigurePanel
+                    title="Architecture made tangible"
+                    body="This route turns the AION runtime into one readable embodied map: identity near the head, planning close to the cognitive surface, knowledge and skills as held capabilities, and memory plus reflection as deeper continuity layers."
+                    highlights={[
+                      "identity near the head",
+                      "planning as the active board",
+                      "knowledge and skills as visible tools",
+                      "memory and reflection as slower layers",
+                    ]}
+                  />
+
+                  <InsightPanel
+                    eyebrow="Layer map"
+                    title="Embodied personality layers"
+                    body="The route reuses the same shell system, but this is where the product can show the richest architecture-to-visual mapping."
+                  >
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      {personalityLayers.map((layer) => (
+                        <PersonalityLayerCard
+                          key={layer.title}
+                          zone={layer.zone}
+                          title={layer.title}
+                          symbol={layer.symbol}
+                          body={layer.body}
+                          highlights={layer.highlights}
+                        />
+                      ))}
+                    </div>
+                  </InsightPanel>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {[
-                  {
-                    title: copy.personality.goals,
-                    value: stringValue(planningSummary?.active_goal_count, "0"),
-                    note: "Goals AION is currently following",
-                  },
-                  {
-                    title: copy.personality.tasks,
-                    value: stringValue(planningSummary?.active_task_count, "0"),
-                    note: "Tasks currently being tracked",
-                  },
-                  {
-                    title: copy.personality.knowledge,
-                    value: stringValue(knowledgeSummary?.semantic_conclusion_count, "0"),
-                    note: "Learned patterns kept available",
-                  },
-                  {
-                    title: copy.personality.preferences,
-                    value: stringValue(preferenceSummary?.learned_preference_count, "0"),
-                    note: "Preferences AION has picked up",
-                  },
-                ].map((card) => (
-                  <article key={card.title} className="aion-panel-soft rounded-[1.75rem] p-5">
-                    <p className="text-sm uppercase tracking-[0.22em] text-base-800">{card.title}</p>
-                    <p className="mt-3 font-display text-4xl text-base-900">{card.value}</p>
-                    <p className="mt-2 text-sm text-base-800">{card.note}</p>
-                  </article>
-                ))}
+                <div className="grid gap-6">
+                  <InsightPanel
+                    eyebrow="Pipeline"
+                    title="Conscious and subconscious view"
+                    body="Foreground stages stay visible as one coherent route, while background reflection stays present as a slower support layer."
+                  >
+                    <FlowRail items={personalityFlowItems} />
+                  </InsightPanel>
+
+                  <InsightPanel
+                    eyebrow="Highlights"
+                    title="Current product signals"
+                    body="These summary cards keep the route readable before the user opens any deeper detail."
+                  >
+                    <div className="grid gap-3">
+                      {[
+                        {
+                          title: copy.personality.goals,
+                          value: stringValue(planningSummary?.active_goal_count, "0"),
+                          note: "Goals AION is currently following",
+                          accent: "gold" as const,
+                        },
+                        {
+                          title: copy.personality.tasks,
+                          value: stringValue(planningSummary?.active_task_count, "0"),
+                          note: "Tasks currently being tracked",
+                          accent: "default" as const,
+                        },
+                        {
+                          title: copy.personality.knowledge,
+                          value: stringValue(knowledgeSummary?.semantic_conclusion_count, "0"),
+                          note: "Learned patterns kept available",
+                          accent: "teal" as const,
+                        },
+                        {
+                          title: copy.personality.preferences,
+                          value: stringValue(preferenceSummary?.learned_preference_count, "0"),
+                          note: "Preferences AION has picked up",
+                          accent: "default" as const,
+                        },
+                      ].map((card) => (
+                        <MetricCard
+                          key={card.title}
+                          eyebrow={card.title}
+                          value={card.value}
+                          detail={card.note}
+                          accent={card.accent}
+                        />
+                      ))}
+                    </div>
+                  </InsightPanel>
                 </div>
-              </section>
+              </div>
 
               <section className="aion-panel rounded-[2rem] p-5">
                 <div className="mb-5 flex flex-wrap items-end justify-between gap-4">

@@ -120,12 +120,26 @@ Last updated: 2026-04-26
       cards for deeper modules
     - `settings`, `tools`, and `personality` now reuse the same shared surface
       language instead of sitting in the previous flatter shell styling
+    - the latest local app pass now pushes the shared contract further:
+      - `settings` and `tools` now open with the same hero structure as the
+        dashboard shell
+      - `personality` now includes the richer embodied layer map and pipeline
+        rail planned for the motif-based route
+      - mobile authenticated navigation now has an explicit route strip
+      - the chat composer no longer blocks transcript reading order
     - focused validation passed:
       - `Push-Location .\web; npm run build; Pop-Location`
-  - `PRJ-728` is now the next `READY` slice:
-    - capture screenshot proof across desktop, tablet, and mobile
-    - verify loading, empty, error, and success states against the new shell
-    - review keyboard, touch, pointer, contrast, and reduced-motion posture
+  - `PRJ-728` is now `IN_PROGRESS`:
+    - initial mocked proof now exists for:
+      - `chat` desktop and mobile
+      - `personality` desktop and mobile
+      - `tools` desktop
+      - `settings` desktop
+    - evidence currently lives in `.codex/artifacts/`
+    - before closure, the slice still needs:
+      - tablet capture
+      - live backend state coverage for loading, empty, error, and success
+      - keyboard, touch, pointer, contrast, and reduced-motion review
 
 ## Current Active Lane
 
