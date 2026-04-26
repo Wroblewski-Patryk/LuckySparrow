@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ApiError,
   api,
@@ -123,10 +123,10 @@ const UI_COPY = {
       stateDetailLabel: "Details",
     },
     auth: {
-      badge: "Aviary",
+      badge: "AION",
       heroTitle: "A calmer place to continue the conversation.",
       heroBody:
-        "Sign in to pick up where you left off, adjust your preferences, and keep Aviary close without digging through setup screens.",
+        "Sign in to pick up where you left off, adjust your preferences, and keep AION close without digging through setup screens.",
       sessionEntry: "Session entry",
       trustTitle: "What you can expect",
       login: "Log in",
@@ -193,7 +193,7 @@ const UI_COPY = {
       conversationTitle: "Conversation language",
       conversationBody: "The conversation adapts live from context, history, and the current exchange.",
       proactiveTitle: "Proactive follow-ups",
-      proactiveBody: "Let Aviary send occasional follow-ups when your account settings allow it.",
+      proactiveBody: "Let AION send occasional follow-ups when your account settings allow it.",
       saveHint: "Save your changes when you are ready.",
       conversationRuntimeOwned: "Adaptive and context-aware",
       savedState: "Ready to save",
@@ -295,10 +295,10 @@ const UI_COPY = {
       stateDetailLabel: "Szczegóły",
     },
     auth: {
-      badge: "Aviary",
+      badge: "AION",
       heroTitle: "Spokojne miejsce, żeby wrócić do rozmowy.",
       heroBody:
-        "Zaloguj się, aby wrócić do czatu, ustawić preferencje i mieć Aviary blisko bez przedzierania się przez techniczny ekran startowy.",
+        "Zaloguj się, aby wrócić do czatu, ustawić preferencje i mieć AION blisko bez przedzierania się przez techniczny ekran startowy.",
       sessionEntry: "Wejście do sesji",
       trustTitle: "Czego możesz się spodziewać",
       login: "Zaloguj się",
@@ -360,7 +360,7 @@ const UI_COPY = {
       conversationTitle: "Język rozmowy",
       conversationBody: "Język rozmowy dopasowuje się live na podstawie kontekstu, historii i bieżącej wymiany.",
       proactiveTitle: "Proaktywne follow-upy",
-      proactiveBody: "Pozwól Aviary wysyłać okazjonalne follow-upy, gdy pozwalają na to ustawienia Twojego konta.",
+      proactiveBody: "Pozwól AION wysyłać okazjonalne follow-upy, gdy pozwalają na to ustawienia Twojego konta.",
       saveHint: "Zapisz zmiany, gdy będziesz gotowy.",
       conversationRuntimeOwned: "Adaptacyjne i oparte na kontekście",
       savedState: "Gotowe do zapisania",
@@ -462,10 +462,10 @@ const UI_COPY = {
       stateDetailLabel: "Details",
     },
     auth: {
-      badge: "Aviary",
+      badge: "AION",
       heroTitle: "Ein ruhiger Ort, um das Gespräch fortzusetzen.",
       heroBody:
-        "Melde dich an, um zum Chat zurückzukehren, Einstellungen anzupassen und Aviary ohne technischen Ballast direkt griffbereit zu haben.",
+        "Melde dich an, um zum Chat zurückzukehren, Einstellungen anzupassen und AION ohne technischen Ballast direkt griffbereit zu haben.",
       sessionEntry: "Sitzung",
       trustTitle: "Was dich erwartet",
       login: "Einloggen",
@@ -527,7 +527,7 @@ const UI_COPY = {
       conversationTitle: "Gesprächssprache",
       conversationBody: "Die Gesprächssprache passt sich live aus Kontext, Verlauf und aktueller Unterhaltung an.",
       proactiveTitle: "Proaktive Follow-ups",
-      proactiveBody: "Erlaube Aviary gelegentliche Follow-ups, wenn deine Kontoeinstellungen es zulassen.",
+      proactiveBody: "Erlaube AION gelegentliche Follow-ups, wenn deine Kontoeinstellungen es zulassen.",
       saveHint: "Speichere deine Änderungen, wenn du bereit bist.",
       conversationRuntimeOwned: "Adaptiv und kontextbezogen",
       savedState: "Bereit zum Speichern",
@@ -1144,11 +1144,11 @@ function ShellNavButton({
 function AviaryWordmark({ className = "", compact = false }: { className?: string; compact?: boolean }) {
   return (
     <div
-      aria-label="Aviary"
+      aria-label="AION"
       className={`aion-brand-lockup ${compact ? "aion-brand-lockup-compact" : ""} ${className}`.trim()}
     >
       <img alt="" aria-hidden="true" className="aion-brand-mark" src="/aviary-logomark.svg" />
-      <span className="aion-brand-word">Aviary</span>
+      <span className="aion-brand-word">AION</span>
     </div>
   );
 }
@@ -1198,17 +1198,11 @@ function ChatFeatureCard({
 function ShellUtilityBar({
   currentSurface,
   currentUserLabel,
-  continuityState,
-  conversationLanguage,
-  linkedChannels,
   accountPanelOpen,
   onAccountClick,
 }: {
   currentSurface: string;
   currentUserLabel: string;
-  continuityState: string;
-  conversationLanguage: string;
-  linkedChannels: string;
   accountPanelOpen: boolean;
   onAccountClick: () => void;
 }) {
@@ -1217,32 +1211,23 @@ function ShellUtilityBar({
       <div className="aion-utility-context">
         <span className="aion-utility-context-emblem">✦</span>
         <div className="min-w-0">
-          <p className="aion-utility-context-label">Aviary workspace</p>
+          <p className="aion-utility-context-label">AION workspace</p>
           <p className="aion-utility-context-copy">{currentSurface}</p>
         </div>
       </div>
-      <div className="aion-utility-signal-group">
-        <div className="aion-utility-signal">
-          <span className="aion-utility-signal-label">Memory continuity</span>
-          <span className="aion-utility-signal-value">{continuityState}</span>
-        </div>
-        <div className="aion-utility-signal">
-          <span className="aion-utility-signal-label">Language</span>
-          <span className="aion-utility-signal-value">{conversationLanguage}</span>
-        </div>
-        <div className="aion-utility-signal">
-          <span className="aion-utility-signal-label">Linked channels</span>
-          <span className="aion-utility-signal-value">{linkedChannels}</span>
-        </div>
-      </div>
+      <label className="aion-utility-search" aria-label="Search workspace">
+        <span className="aion-utility-search-icon">⌕</span>
+        <input readOnly type="text" value="" placeholder="Search AION or ask anything..." />
+        <span className="aion-utility-search-shortcut">⌘K</span>
+      </label>
       <div className="aion-utility-actions">
         <button className="aion-utility-pill" type="button">
           <span className="aion-utility-pill-dot" />
-          Workspace live
+          Focus mode
         </button>
         <button className="aion-utility-pill" type="button">
           ✧
-          Reflection ready
+          Quick capture
         </button>
         <button className="aion-utility-icon-pill" type="button" aria-label="Notifications">
           3
@@ -1300,14 +1285,12 @@ export default function App() {
   const [pendingChatMessage, setPendingChatMessage] = useState<AppChatHistoryEntry | null>(null);
   const [chatText, setChatText] = useState("");
   const [overview, setOverview] = useState<AppPersonalityOverviewResponse | null>(null);
-  const [overviewLoading, setOverviewLoading] = useState(false);
+  const [, setOverviewLoading] = useState(false);
   const [toolsOverview, setToolsOverview] = useState<AppToolsOverviewResponse | null>(null);
   const [toolsLoading, setToolsLoading] = useState(false);
   const [savingToolId, setSavingToolId] = useState<string | null>(null);
   const [telegramLinkStart, setTelegramLinkStart] = useState<AppTelegramLinkStartResponse | null>(null);
   const [telegramLinkBusy, setTelegramLinkBusy] = useState(false);
-  const [inspectorQuery, setInspectorQuery] = useState("");
-  const deferredInspectorQuery = useDeferredValue(inspectorQuery);
   const [authForm, setAuthForm] = useState({
     email: "",
     password: "",
@@ -1435,6 +1418,40 @@ export default function App() {
     () => (pendingChatMessage ? [...history, pendingChatMessage] : history),
     [history, pendingChatMessage],
   );
+  const transcriptIsPreview = transcriptItems.length === 0;
+  const visibleTranscriptItems = useMemo<AppChatHistoryEntry[]>(
+    () =>
+      transcriptItems.length > 0
+        ? transcriptItems
+        : [
+            {
+              message_id: "preview-assistant-1",
+              event_id: "preview-assistant-1",
+              role: "assistant",
+              text: "Good morning.\nI reviewed our last conversation and the notes from today.\nHow can I support you right now?",
+              channel: "app",
+              timestamp: "2026-04-26T09:41:00Z",
+            },
+            {
+              message_id: "preview-user-1",
+              event_id: "preview-user-1",
+              role: "user",
+              text: "I'd like to plan my day and focus on the project we discussed yesterday.",
+              channel: "app",
+              timestamp: "2026-04-26T09:42:00Z",
+            },
+            {
+              message_id: "preview-assistant-2",
+              event_id: "preview-assistant-2",
+              role: "assistant",
+              text:
+                "Perfect. I prepared a calm plan based on your goals, energy rhythm, and current priorities.\n\n1. Deep work block      10:00–12:00\n2. Project research     12:30–14:00\n3. Content creation     15:00–17:00\n\nShall we refine the details together?",
+              channel: "app",
+              timestamp: "2026-04-26T09:43:00Z",
+            },
+          ],
+    [transcriptItems],
+  );
 
   useEffect(() => {
     if (route !== "/chat") {
@@ -1529,61 +1546,6 @@ export default function App() {
     };
   }, [me, route, toolsOverview]);
 
-  const overviewSections = useMemo(() => {
-    if (!overview) {
-      return [];
-    }
-
-    const sections = [
-      {
-        key: "identity_state",
-        title: "Identity",
-        subtitle: "Profile details, learned preferences, and how the personality recognizes you.",
-        payload: overview.identity_state,
-      },
-      {
-        key: "learned_knowledge",
-        title: "Learned Knowledge",
-        subtitle: "Patterns, relationships, and growth that the personality has picked up over time.",
-        payload: overview.learned_knowledge,
-      },
-      {
-        key: "planning_state",
-        title: "Planning",
-        subtitle: "Goals, tasks, milestones, and the work the personality is currently tracking.",
-        payload: overview.planning_state,
-      },
-      {
-        key: "role_skill_state",
-        title: "Role + Skills",
-        subtitle: "Current role posture, available skills, and what the personality can draw from right now.",
-        payload: overview.role_skill_state,
-      },
-      {
-        key: "capability_catalog",
-        title: "Capability Catalog",
-        subtitle: "Available tool families, access posture, and what is safe to expose in the product.",
-        payload: overview.capability_catalog,
-      },
-      {
-        key: "api_readiness",
-        title: "API Readiness",
-        subtitle: "Service readiness for the current workspace and later product surfaces.",
-        payload: overview.api_readiness,
-      },
-    ];
-
-    const filter = deferredInspectorQuery.trim().toLowerCase();
-    if (!filter) {
-      return sections;
-    }
-
-    return sections.filter((section) => {
-      const blob = `${section.title}\n${section.subtitle}\n${prettyJson(section.payload)}`.toLowerCase();
-      return blob.includes(filter);
-    });
-  }, [deferredInspectorQuery, overview]);
-
   const planningSummary = (overview?.planning_state as Record<string, unknown> | undefined)?.continuity_summary as
     | Record<string, unknown>
     | undefined;
@@ -1628,12 +1590,6 @@ export default function App() {
   const latestAssistantMessage =
     [...transcriptItems].reverse().find((entry) => entry.role === "assistant")?.text ?? copy.chat.emptyThread;
   const latestUserMessage = [...transcriptItems].reverse().find((entry) => entry.role === "user")?.text ?? "";
-  const shellContinuityState =
-    transcriptItems.length > 0 || pendingChatMessage ? copy.common.on : copy.common.loading;
-  const shellConversationLanguage =
-    latestLanguageLabel === copy.common.noData ? "Adaptive" : latestLanguageLabel;
-  const shellLinkedChannels =
-    recentChannelsLabel === copy.common.noData ? "Web shell" : recentChannelsLabel;
   const dashboardFlowItems = [
     {
       eyebrow: "Foreground",
@@ -1649,50 +1605,6 @@ export default function App() {
       eyebrow: "Continuity",
       title: "Expression, action, memory, reflection",
       body: "Replies land in the shared transcript while memory and reflection keep continuity alive in the background.",
-    },
-  ];
-  const dashboardModuleCards = [
-    {
-      route: "/personality" as const,
-      label: "Identity map",
-      title: routeLabel("/personality", resolvedUiLanguage),
-      body: routeDescription("/personality", resolvedUiLanguage),
-      meta: overviewLoading ? copy.common.loading : `${overviewSections.length || 0} layers`,
-    },
-    {
-      route: "/tools" as const,
-      label: "Capability layer",
-      title: routeLabel("/tools", resolvedUiLanguage),
-      body: routeDescription("/tools", resolvedUiLanguage),
-      meta:
-        toolsLoading || !toolsOverview
-          ? copy.common.loading
-          : `${Number(toolsOverview.summary.provider_ready_count ?? 0)} ready`,
-    },
-    {
-      route: "/settings" as const,
-      label: "Personal shell",
-      title: routeLabel("/settings", resolvedUiLanguage),
-      body: routeDescription("/settings", resolvedUiLanguage),
-      meta: localeLanguageLabel(selectedUiLanguageMetadata, resolvedUiLanguage),
-    },
-  ];
-  const motifHighlights = [
-    {
-      label: "Identity",
-      value: currentUserLabel,
-    },
-    {
-      label: "Planning",
-      value: `${stringValue(planningSummary?.active_goal_count, "0")} goals in motion`,
-    },
-    {
-      label: "Knowledge",
-      value: `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} learned patterns`,
-    },
-    {
-      label: "Channels",
-      value: recentChannelsLabel,
     },
   ];
   const dashboardHeroChips = [
@@ -1927,7 +1839,7 @@ export default function App() {
       value: recentChannelsLabel,
     },
   ];
-  const chatQuickActions = ["Plan my day", "Summarize yesterday", "What did I learn?", "Check my goals"];
+  const chatQuickActions = ["Plan my day", "Summarize", "What did I learn?", "Brainstorm"];
   const chatComposerTools = ["Attach", "Voice", "Memory", "Tools"];
   const chatCurrentFocus =
     stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "Project planning" : "Conversation continuity";
@@ -1955,20 +1867,6 @@ export default function App() {
           : "The conversation is ready to collect the first continuity signals that matter to you.",
       accent: "Continuity",
     },
-    {
-      eyebrow: "Notes",
-      title: latestUserMessage ? "From your latest message" : "Waiting for your next note",
-      body: latestUserMessage
-        ? truncateText(latestUserMessage, 108)
-        : "Your next message will shape what the personality keeps in the foreground.",
-      accent: "Live thread",
-    },
-    {
-      eyebrow: "Suggested next step",
-      title: "Refine the plan together",
-      body: truncateText(latestAssistantMessage, 112),
-      accent: "Next move",
-    },
   ];
   const chatFeatures = [
     {
@@ -1992,7 +1890,7 @@ export default function App() {
       body: "Preserves a high-trust tone so the workspace stays personal, not extractive.",
     },
   ];
-  const chatActiveSummary = `${routeLabel("/chat", resolvedUiLanguage)} · Active conversation`;
+  const chatActiveSummary = "Active conversation";
   const personalityPreviewCallouts = [
     {
       key: "identity",
@@ -2466,7 +2364,7 @@ export default function App() {
                 },
                 {
                   title: "Stay oriented",
-                  body: "The product keeps the main actions close so returning to Aviary feels lightweight instead of procedural.",
+                  body: "The product keeps the main actions close so returning to AION feels lightweight instead of procedural.",
                 },
                 {
                   title: "Keep ownership",
@@ -2491,11 +2389,11 @@ export default function App() {
   return (
     <div className="aion-shell min-h-screen text-base-content">
       <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-8">
-        <div className="aion-shell-frame grid gap-4 xl:grid-cols-[14.5rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame grid gap-4 xl:grid-cols-[13rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <div>
               <AviaryWordmark className="max-w-full" />
-              <p className="mt-2 text-sm text-base-800">A calm home for your evolving digital presence.</p>
+              <p className="mt-2 text-sm text-base-800">Your conscious companion</p>
             </div>
 
             <nav className="mt-8 grid gap-2">
@@ -2550,9 +2448,6 @@ export default function App() {
             <ShellUtilityBar
               currentSurface={routeLabel(route, resolvedUiLanguage)}
               currentUserLabel={currentUserLabel}
-              continuityState={shellContinuityState}
-              conversationLanguage={shellConversationLanguage}
-              linkedChannels={shellLinkedChannels}
               accountPanelOpen={accountPanelOpen}
               onAccountClick={() => setAccountPanelOpen((value) => !value)}
             />
@@ -2645,15 +2540,7 @@ export default function App() {
 
             <main className="flex-1">
           {route === "/dashboard" ? (
-            <section className="grid gap-5">
-              <RouteHeroPanel
-                eyebrow="Dashboard"
-                title={routeLabel("/dashboard", resolvedUiLanguage)}
-                body={routeDescription("/dashboard", resolvedUiLanguage)}
-                chips={dashboardHeroChips}
-                className="aion-route-hero aion-route-hero-dashboard"
-              />
-
+            <section className="grid gap-4">
               <section className="aion-panel aion-dashboard-stage">
                 <div className="aion-dashboard-stage-main">
                   <div className="aion-dashboard-stage-copy">
@@ -2664,8 +2551,18 @@ export default function App() {
                         Welcome back, {currentUserLabel}
                       </h2>
                       <p className="mt-3 max-w-2xl text-sm leading-7 text-base-800">
-                        Here is what feels most alive in your Aviary workspace today.
+                        Here is what feels most alive in your AION workspace today.
                       </p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {dashboardHeroChips.map((chip) => (
+                          <span
+                            key={chip}
+                            className="aion-chip-ghost rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                          >
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -2934,48 +2831,6 @@ export default function App() {
                 </article>
               </section>
 
-              <section className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-                <InsightPanel
-                  eyebrow="Module entry"
-                  title="Continue into the right surface"
-                  body="The dashboard should feel like the calm conductor for the rest of the shell, not a dead-end overview."
-                >
-                  <div className="grid gap-3 lg:grid-cols-3">
-                    {dashboardModuleCards.map((card) => (
-                      <button
-                        key={card.route}
-                        className="aion-dashboard-module-card"
-                        onClick={() => changeRoute(card.route)}
-                        type="button"
-                      >
-                        <span className="aion-dashboard-module-label">{card.label}</span>
-                        <span className="mt-3 block font-display text-2xl text-base-900">{card.title}</span>
-                        <span className="mt-3 block text-sm leading-6 text-base-800">{card.body}</span>
-                        <span className="mt-4 inline-flex rounded-full bg-base-100/85 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-base-900">
-                          {card.meta}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </InsightPanel>
-
-                <article className="aion-panel-soft aion-dashboard-card">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.2em] text-base-800">Route highlights</p>
-                      <h3 className="mt-2 font-display text-2xl text-base-900">What stays visible</h3>
-                    </div>
-                  </div>
-                  <div className="mt-5 grid gap-3">
-                    {motifHighlights.map((item) => (
-                      <div key={item.label} className="aion-dashboard-highlight-row">
-                        <span className="text-sm uppercase tracking-[0.18em] text-base-800">{item.label}</span>
-                        <span className="text-sm font-semibold text-base-900">{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              </section>
             </section>
           ) : null}
 
@@ -3021,10 +2876,7 @@ export default function App() {
                           loading
                         />
                       ) : null}
-                      {!historyLoading && transcriptItems.length === 0 ? (
-                        <StatePanel tone="neutral" title={copy.common.stateEmptyTitle} body={copy.chat.emptyThread} />
-                      ) : null}
-                      {transcriptItems.map((message) => {
+                      {visibleTranscriptItems.map((message) => {
                         const metadataSummary = transcriptMetadataSummary(message);
                         const isUser = message.role === "user";
                         const isPending = pendingChatMessage?.message_id === message.message_id;
@@ -3045,6 +2897,7 @@ export default function App() {
                                 <span>{transcriptChannelLabel(message.channel)}</span>
                                 <span>{formatTimestamp(message.timestamp, resolvedUiLanguage)}</span>
                                 {isPending ? <span>{copy.chat.pending}</span> : null}
+                                {transcriptIsPreview ? <span>Starter preview</span> : null}
                               </div>
                               <p className="aion-chat-message-copy">{message.text}</p>
                               {metadataSummary ? <p className="aion-chat-message-summary">{metadataSummary}</p> : null}
@@ -3102,8 +2955,13 @@ export default function App() {
                           <button className="aion-chat-icon-button hidden sm:inline-flex" type="button" aria-label="Voice input">
                             M
                           </button>
-                          <button className="aion-chat-send" disabled={sendingMessage} type="submit">
-                            {sendingMessage ? "..." : ">"}
+                          <button
+                            aria-label={copy.chat.send}
+                            className="aion-chat-send"
+                            disabled={sendingMessage}
+                            type="submit"
+                          >
+                            {sendingMessage ? "..." : "➜"}
                           </button>
                         </div>
                       </form>
@@ -3112,28 +2970,6 @@ export default function App() {
                   </div>
 
                   <aside className="aion-chat-support-column">
-                    <section className="aion-chat-context-panel">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-base-900">Conversation context</p>
-                          <p className="mt-1 text-sm text-[#5f8f93]">Live support</p>
-                        </div>
-                        <span className="aion-chat-live-dot" />
-                      </div>
-                      <div className="grid gap-3">
-                        {chatSupportCards.map((card) => (
-                          <article key={card.eyebrow} className="aion-chat-support-card">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-base-800">{card.eyebrow}</p>
-                            <div className="mt-2 flex items-start justify-between gap-3">
-                              <h3 className="font-display text-xl text-base-900">{card.title}</h3>
-                              <span className="aion-chat-support-accent">{card.accent}</span>
-                            </div>
-                            <p className="mt-2 text-sm leading-6 text-base-800">{card.body}</p>
-                          </article>
-                        ))}
-                      </div>
-                    </section>
-
                     <aside className="aion-chat-portrait-panel">
                       <div className="aion-chat-portrait-overlay">
                         <p className="text-[11px] uppercase tracking-[0.22em] text-[#5f8f93]">Planning</p>
@@ -3158,6 +2994,28 @@ export default function App() {
                         </p>
                       </div>
                     </aside>
+
+                    <section className="aion-chat-context-panel">
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-base-900">Conversation context</p>
+                          <p className="mt-1 text-sm text-[#5f8f93]">Live support</p>
+                        </div>
+                        <span className="aion-chat-live-dot" />
+                      </div>
+                      <div className="grid gap-3">
+                        {chatSupportCards.map((card) => (
+                          <article key={card.eyebrow} className="aion-chat-support-card">
+                            <p className="text-[11px] uppercase tracking-[0.18em] text-base-800">{card.eyebrow}</p>
+                            <div className="mt-2 flex items-start justify-between gap-3">
+                              <h3 className="font-display text-xl text-base-900">{card.title}</h3>
+                              <span className="aion-chat-support-accent">{card.accent}</span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-base-800">{card.body}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
 
                     <section className="aion-chat-context-panel aion-chat-context-panel-compact">
                       <div className="mb-4">
@@ -3538,7 +3396,7 @@ export default function App() {
                                         {copy.tools.telegramLinking}
                                       </p>
                                       <p className="mt-2 max-w-2xl text-sm leading-7 text-base-900">
-                      Generate a short code, then send it to the configured Aviary Telegram bot from
+                      Generate a short code, then send it to the configured AION Telegram bot from
                                         the chat you want to attach to this identity.
                                       </p>
                                     </div>
@@ -3640,17 +3498,29 @@ export default function App() {
 
           {route === "/personality" ? (
             <div className="grid gap-6">
-              <RouteHeroPanel
-                eyebrow={copy.personality.eyebrow}
-                title={copy.personality.title}
-                body={copy.personality.subtitle}
-                chips={[
-                  `${stringValue(planningSummary?.active_goal_count, "0")} goals`,
-                  `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} patterns`,
-                  `${stringValue(preferenceSummary?.learned_preference_count, "0")} preferences`,
-                ]}
-                className="aion-route-hero aion-route-hero-personality"
-              />
+              <section className="aion-panel-soft rounded-[1.8rem] p-5">
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                  <div className="max-w-3xl">
+                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.personality.eyebrow}</p>
+                    <h2 className="mt-2 font-display text-4xl text-base-900">{copy.personality.title}</h2>
+                    <p className="mt-3 text-sm leading-7 text-base-800">{copy.personality.subtitle}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      `${stringValue(planningSummary?.active_goal_count, "0")} goals`,
+                      `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} patterns`,
+                      `${stringValue(preferenceSummary?.learned_preference_count, "0")} preferences`,
+                    ].map((chip) => (
+                      <span
+                        key={chip}
+                        className="aion-chip-ghost rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
+                      >
+                        {chip}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </section>
 
               <section className="aion-panel-soft aion-personality-preview-nav rounded-[1.8rem] p-3">
                 <div className="flex flex-wrap gap-2">
@@ -3724,7 +3594,7 @@ export default function App() {
                     eyebrow="Conscious layer"
                     title="Active awareness and current cognition"
                     body="The foreground loop stays visible through focus, clarity, active load, and the present task horizon."
-                    className="aion-personality-side-panel"
+                    className="aion-personality-side-panel aion-personality-side-panel-conscious"
                   >
                     <div className="grid gap-3">
                       {personalityConsciousSignals.map((item) => (
@@ -3740,7 +3610,7 @@ export default function App() {
                     eyebrow="Subconscious layer"
                     title="Background patterns and latent knowledge"
                     body="Longer memory, associations, and learned preferences stay active without crowding the live route."
-                    className="aion-personality-side-panel"
+                    className="aion-personality-side-panel aion-personality-side-panel-subconscious"
                   >
                     <div className="grid gap-3">
                       {personalitySubconsciousSignals.map((item) => (
@@ -3756,7 +3626,7 @@ export default function App() {
                     eyebrow="Recent activity"
                     title="Latest internal movement"
                     body="Recent changes stay readable before the user opens the deeper sections."
-                    className="aion-personality-side-panel"
+                    className="aion-personality-side-panel aion-personality-side-panel-recent"
                   >
                     <div className="grid gap-3">
                       {personalityRecentActivity.map((item) => (
@@ -3817,72 +3687,6 @@ export default function App() {
                 </div>
               </div>
 
-              <section className="aion-panel rounded-[2rem] p-5">
-                <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.personality.eyebrow}</p>
-                    <h2 className="font-display text-3xl text-base-900">{copy.personality.title}</h2>
-                  </div>
-                  <label className="input input-bordered flex w-full items-center gap-2 sm:max-w-sm">
-                    <input
-                      className="grow"
-                      placeholder={copy.personality.filter}
-                      value={inspectorQuery}
-                      onChange={(event) => setInspectorQuery(event.target.value)}
-                    />
-                  </label>
-                </div>
-
-                {overviewLoading ? (
-                  <StatePanel
-                    tone="neutral"
-                    title={copy.common.stateLoadingTitle}
-                    body={copy.personality.loading}
-                    loading
-                  />
-                ) : null}
-
-                {!overviewLoading && overviewSections.length === 0 ? (
-                  <StatePanel tone="neutral" title={copy.common.stateEmptyTitle} body={copy.personality.empty} />
-                ) : null}
-
-                <div className="grid gap-4 lg:grid-cols-2">
-                  {overviewSections.map((section) => (
-                    <article key={section.key} className="aion-panel-soft rounded-[1.6rem] p-4">
-                      <div className="mb-3 flex items-center justify-between gap-3">
-                        <div>
-                          <h3 className="font-display text-2xl text-base-900">{section.title}</h3>
-                          <p className="mt-1 text-sm leading-7 text-base-800">{section.subtitle}</p>
-                        </div>
-                        <div className="aion-chip rounded-[1rem] px-3 py-2 text-right">
-                          <p className="text-[10px] uppercase tracking-[0.18em] text-base-800">{copy.common.details}</p>
-                          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-base-900">
-                            {section.key}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="aion-chip rounded-2xl p-4">
-                        <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.personality.highlights}</p>
-                        <div className="mt-3 space-y-2">
-                          {summaryLines(section.key, section.payload).map((line) => (
-                            <p key={line} className="text-sm leading-7 text-base-900">
-                              {line}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                      <details className="mt-3 rounded-2xl border border-base-300 bg-base-100">
-                        <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-base-900">
-                          {copy.common.inspectPayload}
-                        </summary>
-                        <pre className="max-h-[24rem] overflow-auto px-4 pb-4 text-xs leading-6 text-base-900">
-                          {prettyJson(section.payload)}
-                        </pre>
-                      </details>
-                    </article>
-                  ))}
-                </div>
-              </section>
             </div>
           ) : null}
             </main>

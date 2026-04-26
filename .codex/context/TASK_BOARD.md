@@ -2,6 +2,29 @@
 
 Last updated: 2026-04-26
 
+## Fresh Aviary Production Host Baseline (2026-04-26)
+
+- user direction now freezes one production-host rename without adding a new
+  deploy topology:
+  - old host:
+    - `https://personality.luckysparrow.ch`
+  - new canonical host:
+    - `https://aviary.luckysparrow.ch`
+  - approved deploy shape remains:
+    - one same-origin host for SPA plus backend routes
+    - no `api.*` subdomain in the baseline
+- `PRJ-767` is now complete locally:
+  - operator and testing docs now point active release-smoke examples to:
+    - `https://aviary.luckysparrow.ch`
+  - runtime ops guidance now explicitly records:
+    - same-origin deploy posture
+    - Telegram webhook target:
+      - `https://aviary.luckysparrow.ch/event`
+  - project context truth is synchronized with the renamed host baseline
+  - focused validation target for this slice is:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_api_routes.py; Pop-Location`
+    - `Push-Location .\web; npm run build; Pop-Location`
+
 ## Fresh Aviary Brand And Unnamed Personality Baseline (2026-04-26)
 
 - fresh user direction now freezes one canonical first-party brand baseline for
@@ -175,6 +198,38 @@ Last updated: 2026-04-26
   - deployed screenshot parity
   - final dashboard hero proportion tuning
   - final chat and personality spacing polish after real-browser review
+- one more local proportion pass is now complete:
+  - dashboard center-stage dominance is stronger
+  - chat is slightly more transcript-first
+  - personality hero is more ceremonial and closer to the canonical preview
+- the next most valuable remaining route-family gap is now:
+  - deployed screenshot parity
+  - final shell and spacing tuning after real-browser comparison
+  - possible last dashboard-hero crop pass if production still feels flatter
+    than the canonical reference
+- one logged-in production audit is now complete for the three flagship
+  authenticated routes:
+  - evidence now exists in:
+    - `.codex/artifacts/production-audit-2026-04-26/`
+  - the detailed audit and final convergence queue now live in:
+    - `docs/planning/flagship-production-audit-and-final-convergence-plan.md`
+- the latest local implementation pass now answers the highest-value audited
+  drift through:
+  - removing redundant route-hero banners from `dashboard` and `personality`
+  - shortening the dashboard by removing the extra module-entry / route
+    highlights row
+  - adding a premium starter transcript for empty-history `chat`
+  - moving the `chat` portrait panel higher inside the support column
+  - removing the long payload-browser section from the flagship
+    `personality` route
+- the next smallest remaining parity loop after this pass is now:
+  - redeploy and capture fresh logged-in screenshots
+  - verify that dashboard height and rhythm are now close enough to the
+    canonical overview
+  - if needed, run one final crop/connector/material pass on:
+    - dashboard hero stage
+    - chat portrait stage
+    - personality callout visibility
 
 ## Fresh Canonical Screen-Set Freeze (2026-04-26)
 

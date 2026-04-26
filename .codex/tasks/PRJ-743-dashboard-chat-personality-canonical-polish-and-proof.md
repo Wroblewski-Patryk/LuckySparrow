@@ -60,8 +60,13 @@ comparison.
     - `GET /health`
     - root HTML build meta tag
 - Screenshots/logs:
-  - authenticated deployed screenshot proof still pending because a safe
-    browser-auth path was not available in this turn
+  - authenticated deployed screenshot proof now exists in:
+    - `.codex/artifacts/production-audit-2026-04-26/dashboard-desktop.png`
+    - `.codex/artifacts/production-audit-2026-04-26/chat-desktop.png`
+    - `.codex/artifacts/production-audit-2026-04-26/personality-desktop.png`
+    - `.codex/artifacts/production-audit-2026-04-26/dashboard-mobile.png`
+    - `.codex/artifacts/production-audit-2026-04-26/chat-mobile.png`
+    - `.codex/artifacts/production-audit-2026-04-26/personality-mobile.png`
 - High-risk checks:
   - no new backend contract added
   - no parallel dashboard system introduced
@@ -170,3 +175,43 @@ Next smallest remaining parity slice after this pass:
 - browser-verified proportion tuning for dashboard hero stage
 - cognitive-flow band simplification if it still reads too modular
 - post-deploy screenshot comparison for dashboard, chat, and personality
+
+Additional refinement pass now complete:
+
+- the dashboard cognitive-flow row now uses a tighter, less card-heavy visual
+  rhythm
+- the dashboard current-phase sidecard now reads more like one premium
+  orchestration object
+- personality side insight panels now use a more editorial surface family
+  instead of reading like four equal generic boxes
+- chat support surfaces now also use a softer premium material treatment so
+  the right column supports the transcript more quietly
+- the flagship route proportions are now closer to the canonical references:
+  - wider dashboard hero center
+  - slightly calmer guidance-column share
+  - larger personality hero figure stage
+  - slightly more transcript-first chat stage balance
+- the shared flagship shell and panel tiering were also tightened:
+  - utility bar now feels more inset and premium
+  - dashboard guidance, recent, and intention tiers are more distinct
+  - personality side panels now read less like equal cards and more like one
+    curated editorial stack
+- visible route-family branding is also being normalized toward AION so old
+  naming does not undercut the premium canonical presentation
+
+Production-audit-backed refinement pass now also complete:
+
+- one logged-in production audit was executed on:
+  - `https://aviary.luckysparrow.ch`
+- detailed audit findings and the bounded final convergence queue now live in:
+  - `docs/planning/flagship-production-audit-and-final-convergence-plan.md`
+- the current local implementation now responds to the highest-value audited
+  gaps through:
+  - removing redundant route-hero banners from `dashboard` and `personality`
+  - shortening the dashboard by removing the extra module-entry / route
+    highlights row
+  - moving dashboard hero chips into the actual flagship stage
+  - adding a premium starter transcript for zero-history `chat`
+  - moving the `chat` portrait panel higher in the support column
+  - removing the long payload-browser section from the flagship
+    `personality` route

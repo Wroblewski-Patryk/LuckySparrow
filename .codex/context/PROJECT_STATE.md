@@ -4,6 +4,14 @@ Last updated: 2026-04-26
 
 ## Product Snapshot
 
+- 2026-04-26: the canonical first-party production host baseline is now:
+  - `https://aviary.luckysparrow.ch`
+  - the approved deployment posture remains same-origin:
+    - the same host serves the web shell and backend routes
+    - no separate API subdomain is part of the baseline
+  - the Telegram webhook target should now be:
+    - `https://aviary.luckysparrow.ch/event`
+
 - Name: Personality / AION
 - Goal: build a memory-aware AI runtime that receives events, reasons through a
   structured pipeline, replies through API or Telegram, and learns lightweight
@@ -149,6 +157,30 @@ Last updated: 2026-04-26
   - personality side insight panels now carry a more premium editorial surface
     treatment, improving parity with the canonical route without changing
     topology
+- 2026-04-26: one logged-in production audit against the canonical flagship
+  route set is now recorded and partially implemented locally:
+  - audit evidence now exists in:
+    - `.codex/artifacts/production-audit-2026-04-26/`
+  - the bounded final convergence plan now lives in:
+    - `docs/planning/flagship-production-audit-and-final-convergence-plan.md`
+  - the latest local shell pass now responds to the highest-value audited
+    drift through:
+    - removing redundant route-hero banners from `dashboard` and
+      `personality`
+    - shortening the dashboard by removing the extra module-entry / route
+      highlights row
+    - adding a premium starter transcript for empty-history `chat`
+    - moving the `chat` portrait support higher in the right column
+    - removing the long payload-browser section from the flagship
+      `personality` route
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+- 2026-04-26: another proportion-tuning pass is now complete locally:
+  - dashboard hero now gives more visual dominance to the central embodied
+    stage while slightly reducing guidance-column weight
+  - chat stage now leans a little more transcript-first on desktop
+  - personality hero stage is now larger and more ceremonial, improving
+    parity with the canonical preview composition
 - 2026-04-26: `PRJ-733` is now complete:
   - the approved canonical web-screen set is now stored in:
     - `docs/ux/assets/aion-landing-canonical-reference-v1.png`

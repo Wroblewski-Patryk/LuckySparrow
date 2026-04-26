@@ -239,3 +239,17 @@ The lane is complete when:
 - overbuilding dashboard motifs into `chat` instead of keeping it intimate
 - flattening premium route atmosphere back into CSS-only gradients when a
   bespoke raster layer is the cleaner answer
+
+## Production Audit Follow-Up
+
+One logged-in production audit now also exists for this lane:
+
+- `docs/planning/flagship-production-audit-and-final-convergence-plan.md`
+
+That audit tightened the remaining parity work into three concrete final
+themes:
+
+- shell compression and removal of redundant flagship route banners
+- dashboard height/rhythm reduction toward the canonical one-screen overview
+- preview-only convergence for `personality` plus a premium empty-history
+  transcript for `chat`
