@@ -10,18 +10,23 @@ Last updated: 2026-04-26
   user preferences over time
 - Commercial model: TBD
 - Current phase: no-UI V1 baseline achieved in repo; core-V1 time-aware planning revision now active before later organizer-tool onboarding
-- 2026-04-26: the canonical brand typography and logotype baseline is now
-  frozen locally:
+- 2026-04-26: the canonical first-party product brand baseline is now frozen
+  locally:
+  - the app-shell brand is now explicitly:
+    - `Aviary`
   - the approved web brand pair is now:
-    - `Cormorant Garamond` for logotype and flagship headers
+    - `Cormorant Garamond` for the `AVIARY` wordmark and flagship headers
     - `Inter` for operational UI and body copy
-  - the provided bird logotype assets are now stored in:
-    - `docs/ux/assets/aion-logotype-canonical.svg`
-    - `docs/ux/assets/aion-logotype-preview.png`
-    - `web/public/aion-logotype.svg`
-    - `web/public/aion-logotype-preview.png`
-  - the web shell now reuses the canonical SVG logotype in the authenticated
-    rail and compact mobile header instead of the previous text-only lockup
+  - the canonical bird logomark assets are now stored in:
+    - `docs/ux/assets/aviary-logomark.svg`
+    - `docs/ux/assets/aviary-logomark-preview.png`
+    - `web/public/aviary-logomark.svg`
+    - `web/public/aviary-logomark-preview.png`
+  - the embodied digital personality remains intentionally unnamed in the
+    product shell
+  - the web shell now uses the Aviary brand lockup in the authenticated rail
+    and compact mobile header, while personality-facing copy no longer assigns
+    a fixed proper name to the presence
   - UX source-of-truth docs are now updated in:
     - `docs/ux/brand-personality-tokens.md`
     - `docs/ux/aion-visual-motif-system.md`
@@ -138,6 +143,12 @@ Last updated: 2026-04-26
     one family
   - design memory is now updated with:
     - dashboard cognition field
+- 2026-04-26: one more route-family refinement pass is now complete locally:
+  - dashboard cognitive flow now reads less like six separate cards and more
+    like one calmer orchestration band
+  - personality side insight panels now carry a more premium editorial surface
+    treatment, improving parity with the canonical route without changing
+    topology
 - 2026-04-26: `PRJ-733` is now complete:
   - the approved canonical web-screen set is now stored in:
     - `docs/ux/assets/aion-landing-canonical-reference-v1.png`

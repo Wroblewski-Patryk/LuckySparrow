@@ -1,4 +1,4 @@
-# AION Visual Motif System
+# Aviary Product Motif System
 
 ## Purpose
 
@@ -7,17 +7,21 @@ the current source of truth for future web-first UX/UI implementation.
 
 The goal is not to turn Personality into a noisy sci-fi dashboard.
 The goal is to give the product one memorable, humane, high-trust visual
-language that makes the AION cognitive model feel tangible without breaking the
-existing calm product posture.
+language that makes the internal AION cognitive model feel tangible inside the
+Aviary product shell without breaking the existing calm product posture.
 
 ## Approved Design Source
 
 - Primary approved snapshot:
   - `docs/ux/assets/aion-visual-motif-reference.png`
+- Canonical brand logomark:
+  - `docs/ux/assets/aviary-logomark.svg`
+- Canonical brand preview:
+  - `docs/ux/assets/aviary-logomark-preview.png`
 - Current canonical route screen-set:
   - `docs/ux/canonical-web-screen-reference-set.md`
 
-![AION visual motif reference](./assets/aion-visual-motif-reference.png)
+![Aviary visual motif reference](./assets/aion-visual-motif-reference.png)
 
 ## Core Thesis
 
@@ -53,7 +57,7 @@ The visual language should not feel like:
 
 ### 1. Embodied Cognition, Not Literal Anatomy
 
-The figure exists to explain the AION model symbolically.
+The figure exists to explain the internal AION model symbolically.
 Every mapped object should correspond to a real product concept or route.
 Do not add decorative anatomy details that do not carry product meaning.
 
@@ -116,8 +120,20 @@ Avoid:
 ## Typography Direction
 
 Typography should feel editorial and human.
-Use the current calm readability baseline, but push future implementation
-toward:
+Use the canonical brand pairing:
+
+- `Cormorant Garamond` for logotype, flagship headers, and ceremonial section
+  framing
+- `Inter` for paragraphs, labels, helper text, and operational UI
+
+The `Cormorant Garamond` usage should preserve:
+
+- uppercase wordmark treatment where the `AVIARY` wordmark appears
+- generous letter spacing
+- lighter weights such as `300` or `400`
+- enough negative space that the brand reads more like a system than a badge
+
+Future implementation should keep pushing toward:
 
 - stronger title contrast
 - slightly more gallery-like section framing
@@ -199,7 +215,8 @@ Canonical implementation target:
 - keep one central embodied presence or cognition anchor
 - use one calm premium utility bar to frame the workspace before route content
 - surround it with usable cards, goals, reflection, memory, and guidance
-- use the motif to explain AION state rather than to decorate empty space
+- use the motif to explain internal cognition rather than to decorate empty
+  space
 
 ## Responsive Interpretation
 
@@ -263,9 +280,16 @@ V1 asset family for web:
 V2 concept direction:
 
 - later graphics can evolve from generic symbolic android into a more personal
-  identity shaped by the user’s actual AION profile and accumulated runtime
+  identity shaped by the user’s actual runtime profile and accumulated memory
   character
 - this must remain a later explicit product decision, not a quiet assumption
+
+## Brand And Naming Boundary
+
+- `Aviary` is the app brand shown in navigation, headers, and shell framing.
+- the embodied personality remains intentionally unnamed for now
+- future naming for that presence should emerge from personality identity work,
+  not from shell-brand convenience
 
 ## Implementation Roadmap
 

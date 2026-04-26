@@ -86,7 +86,7 @@ const UI_COPY = {
     routeDescriptions: {
       "/login": "Authenticate into the product shell.",
       "/dashboard": "Flagship overview of your current goals, signals, flow, and next best actions.",
-      "/chat": "One shared conversation thread with your latest exchanged messages and fresh replies from AION.",
+      "/chat": "One shared conversation thread with your latest exchanged messages and fresh replies from the personality.",
       "/settings": "Profile, interface language, and proactive preferences in one clear place.",
       "/tools": "See what is ready, what needs attention, and what you can use next.",
       "/personality": "Product-facing overview of identity, knowledge, planning, and capabilities.",
@@ -112,7 +112,7 @@ const UI_COPY = {
       inspectPayload: "View details",
       noData: "No data yet.",
       user: "You",
-      assistant: "AION",
+      assistant: "Presence",
       sourceOfTruth: "Current value",
       notSet: "not set",
       system: "System",
@@ -123,10 +123,10 @@ const UI_COPY = {
       stateDetailLabel: "Details",
     },
     auth: {
-      badge: "AION Web v2",
+      badge: "Aviary",
       heroTitle: "A calmer place to continue the conversation.",
       heroBody:
-        "Sign in to pick up where you left off, adjust your preferences, and keep AION close without digging through setup screens.",
+        "Sign in to pick up where you left off, adjust your preferences, and keep Aviary close without digging through setup screens.",
       sessionEntry: "Session entry",
       trustTitle: "What you can expect",
       login: "Log in",
@@ -164,7 +164,7 @@ const UI_COPY = {
       subtitle: "See the latest shared conversation first, whether the recent turns came from the app or a linked channel.",
       emptyThread:
         "Start the conversation here. New turns will appear in this shared thread as soon as they are exchanged.",
-      placeholder: "Send a message to AION...",
+      placeholder: "Send a message...",
       composerHint: "Replies land back in this same transcript, so you can stay focused on one conversation.",
       send: "Send message",
       sending: "Sending...",
@@ -186,14 +186,14 @@ const UI_COPY = {
       profileBody: "Choose how the shell identifies you.",
       uiLanguageTitle: "Interface language",
       uiLanguageBody: "Changes labels, copy, and navigation in the app shell only.",
-      uiLanguageHelp: "This does not control the language used when talking with AION.",
+      uiLanguageHelp: "This does not control the language used inside the conversation itself.",
       utcOffsetTitle: "Local time offset",
-      utcOffsetBody: "Sets the explicit UTC offset used when AION reasons about the current date and time for your profile.",
+      utcOffsetBody: "Sets the explicit UTC offset used when the runtime reasons about the current date and time for your profile.",
       utcOffsetHelp: "Choose the offset that matches your current place, for example Switzerland or Poland in winter is usually UTC+01:00.",
       conversationTitle: "Conversation language",
-      conversationBody: "AION adapts live from context, history, and the current conversation.",
+      conversationBody: "The conversation adapts live from context, history, and the current exchange.",
       proactiveTitle: "Proactive follow-ups",
-      proactiveBody: "Let AION send occasional follow-ups when your account settings allow it.",
+      proactiveBody: "Let Aviary send occasional follow-ups when your account settings allow it.",
       saveHint: "Save your changes when you are ready.",
       conversationRuntimeOwned: "Adaptive and context-aware",
       savedState: "Ready to save",
@@ -258,7 +258,7 @@ const UI_COPY = {
     routes: { "/login": "Logowanie", "/chat": "Czat", "/settings": "Ustawienia", "/tools": "Narzędzia", "/personality": "Osobowość" },
     routeDescriptions: {
       "/login": "Zaloguj się do powłoki produktu.",
-      "/chat": "Jeden wspólny wątek rozmowy z ostatnimi wiadomościami i świeżymi odpowiedziami AION.",
+      "/chat": "Jeden wspólny wątek rozmowy z ostatnimi wiadomościami i świeżymi odpowiedziami osobowości.",
       "/settings": "Profil, język interfejsu i proaktywność w jednym prostym miejscu.",
       "/tools": "Zobacz, co jest gotowe, co wymaga uwagi i z czego możesz skorzystać dalej.",
       "/personality": "Produktowy przegląd tożsamości, wiedzy, planowania i możliwości.",
@@ -284,7 +284,7 @@ const UI_COPY = {
       inspectPayload: "Pokaż szczegóły",
       noData: "Brak danych.",
       user: "Ty",
-      assistant: "AION",
+      assistant: "Obecność",
       sourceOfTruth: "Bieżąca wartość",
       notSet: "brak",
       system: "System",
@@ -295,10 +295,10 @@ const UI_COPY = {
       stateDetailLabel: "Szczegóły",
     },
     auth: {
-      badge: "AION Web v2",
+      badge: "Aviary",
       heroTitle: "Spokojne miejsce, żeby wrócić do rozmowy.",
       heroBody:
-        "Zaloguj się, aby wrócić do czatu, ustawić preferencje i mieć AION blisko bez przedzierania się przez techniczny ekran startowy.",
+        "Zaloguj się, aby wrócić do czatu, ustawić preferencje i mieć Aviary blisko bez przedzierania się przez techniczny ekran startowy.",
       sessionEntry: "Wejście do sesji",
       trustTitle: "Czego możesz się spodziewać",
       login: "Zaloguj się",
@@ -331,7 +331,7 @@ const UI_COPY = {
       subtitle: "Najpierw widzisz wspólną rozmowę, niezależnie od tego, czy ostatnie wiadomości przyszły z aplikacji czy z podpiętego kanału.",
       emptyThread:
         "Zacznij rozmowę tutaj. Nowe wiadomości pojawią się w tym samym wspólnym wątku zaraz po wymianie.",
-      placeholder: "Napisz wiadomość do AION...",
+      placeholder: "Napisz wiadomość...",
       composerHint: "Odpowiedzi wracają do tego samego transcriptu, żeby cały dialog został w jednym miejscu.",
       send: "Wyślij wiadomość",
       sending: "Wysyłanie...",
@@ -353,14 +353,14 @@ const UI_COPY = {
       profileBody: "Wybierz, jak aplikacja ma Cię opisywać.",
       uiLanguageTitle: "Język interfejsu",
       uiLanguageBody: "Zmienia etykiety, copy i nawigację tylko w powłoce aplikacji.",
-      uiLanguageHelp: "To nie steruje językiem rozmowy z AION.",
+      uiLanguageHelp: "To nie steruje językiem używanym wewnątrz samej rozmowy.",
       utcOffsetTitle: "Lokalny offset czasu",
-      utcOffsetBody: "Ustawia jawny offset UTC, którego AION używa przy wnioskowaniu o bieżącej dacie i godzinie dla Twojego profilu.",
+      utcOffsetBody: "Ustawia jawny offset UTC, którego runtime używa przy wnioskowaniu o bieżącej dacie i godzinie dla Twojego profilu.",
       utcOffsetHelp: "Wybierz offset zgodny z Twoim aktualnym miejscem. Na przykład Polska lub Szwajcaria zimą to zwykle UTC+01:00.",
       conversationTitle: "Język rozmowy",
-      conversationBody: "AION dopasowuje go live na podstawie kontekstu, historii i bieżącej rozmowy.",
+      conversationBody: "Język rozmowy dopasowuje się live na podstawie kontekstu, historii i bieżącej wymiany.",
       proactiveTitle: "Proaktywne follow-upy",
-      proactiveBody: "Pozwól AION wysyłać okazjonalne follow-upy, gdy pozwalają na to ustawienia Twojego konta.",
+      proactiveBody: "Pozwól Aviary wysyłać okazjonalne follow-upy, gdy pozwalają na to ustawienia Twojego konta.",
       saveHint: "Zapisz zmiany, gdy będziesz gotowy.",
       conversationRuntimeOwned: "Adaptacyjne i oparte na kontekście",
       savedState: "Gotowe do zapisania",
@@ -425,7 +425,7 @@ const UI_COPY = {
     routes: { "/login": "Login", "/chat": "Chat", "/settings": "Einstellungen", "/tools": "Tools", "/personality": "Persönlichkeit" },
     routeDescriptions: {
       "/login": "Melde dich in der Produkthülle an.",
-      "/chat": "Ein gemeinsamer Gesprächsthread mit den letzten Nachrichten und neuen Antworten von AION.",
+      "/chat": "Ein gemeinsamer Gesprächsthread mit den letzten Nachrichten und neuen Antworten der Persönlichkeit.",
       "/settings": "Profil, Oberflächensprache und proaktive Präferenzen an einem klaren Ort.",
       "/tools": "Sieh, was bereit ist, was Aufmerksamkeit braucht und was du als Nächstes nutzen kannst.",
       "/personality": "Produktorientierter Überblick über Identität, Wissen, Planung und Fähigkeiten.",
@@ -451,7 +451,7 @@ const UI_COPY = {
       inspectPayload: "Details anzeigen",
       noData: "Noch keine Daten.",
       user: "Du",
-      assistant: "AION",
+      assistant: "Präsenz",
       sourceOfTruth: "Aktueller Wert",
       notSet: "nicht gesetzt",
       system: "System",
@@ -462,10 +462,10 @@ const UI_COPY = {
       stateDetailLabel: "Details",
     },
     auth: {
-      badge: "AION Web v2",
+      badge: "Aviary",
       heroTitle: "Ein ruhiger Ort, um das Gespräch fortzusetzen.",
       heroBody:
-        "Melde dich an, um zum Chat zurückzukehren, Einstellungen anzupassen und AION ohne technischen Ballast direkt griffbereit zu haben.",
+        "Melde dich an, um zum Chat zurückzukehren, Einstellungen anzupassen und Aviary ohne technischen Ballast direkt griffbereit zu haben.",
       sessionEntry: "Sitzung",
       trustTitle: "Was dich erwartet",
       login: "Einloggen",
@@ -498,7 +498,7 @@ const UI_COPY = {
       subtitle: "Du siehst zuerst den gemeinsamen Gesprächsverlauf, egal ob die letzten Nachrichten aus der App oder aus einem verknüpften Kanal kamen.",
       emptyThread:
         "Starte die Unterhaltung hier. Neue Nachrichten erscheinen direkt in diesem gemeinsamen Thread, sobald sie ausgetauscht wurden.",
-      placeholder: "Sende eine Nachricht an AION...",
+      placeholder: "Sende eine Nachricht...",
       composerHint: "Antworten landen wieder in diesem selben Transkript, damit die ganze Unterhaltung an einem Ort bleibt.",
       send: "Nachricht senden",
       sending: "Senden...",
@@ -520,14 +520,14 @@ const UI_COPY = {
       profileBody: "Lege fest, wie dich die App anzeigen soll.",
       uiLanguageTitle: "Oberflächensprache",
       uiLanguageBody: "Ändert nur Labels, Copy und Navigation der App-Hülle.",
-      uiLanguageHelp: "Das steuert nicht die Sprache des Gesprächs mit AION.",
+      uiLanguageHelp: "Das steuert nicht die Sprache innerhalb des eigentlichen Gesprächs.",
       utcOffsetTitle: "Lokaler Zeit-Offset",
-      utcOffsetBody: "Legt den expliziten UTC-Offset fest, den AION für Datum und Uhrzeit deines Profils verwendet.",
+      utcOffsetBody: "Legt den expliziten UTC-Offset fest, den die Runtime für Datum und Uhrzeit deines Profils verwendet.",
       utcOffsetHelp: "Wähle den Offset passend zu deinem aktuellen Ort. Polen oder die Schweiz im Winter sind zum Beispiel meist UTC+01:00.",
       conversationTitle: "Gesprächssprache",
-      conversationBody: "AION passt sie live aus Kontext, Verlauf und aktueller Unterhaltung an.",
+      conversationBody: "Die Gesprächssprache passt sich live aus Kontext, Verlauf und aktueller Unterhaltung an.",
       proactiveTitle: "Proaktive Follow-ups",
-      proactiveBody: "Erlaube AION gelegentliche Follow-ups, wenn deine Kontoeinstellungen es zulassen.",
+      proactiveBody: "Erlaube Aviary gelegentliche Follow-ups, wenn deine Kontoeinstellungen es zulassen.",
       saveHint: "Speichere deine Änderungen, wenn du bereit bist.",
       conversationRuntimeOwned: "Adaptiv und kontextbezogen",
       savedState: "Bereit zum Speichern",
@@ -1057,14 +1057,16 @@ function InsightPanel({
   title,
   body,
   children,
+  className = "",
 }: {
   eyebrow: string;
   title: string;
   body: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="aion-panel-soft rounded-[2rem] p-5">
+    <section className={`aion-panel-soft rounded-[2rem] p-5 ${className}`}>
       <div className="mb-4 max-w-3xl">
         <p className="text-sm uppercase tracking-[0.24em] text-base-800">{eyebrow}</p>
         <h3 className="mt-2 font-display text-2xl text-base-900">{title}</h3>
@@ -1139,8 +1141,16 @@ function ShellNavButton({
   );
 }
 
-function AionWordmark({ className = "" }: { className?: string }) {
-  return <img alt="AION" className={`aion-wordmark ${className}`.trim()} src="/aion-logotype.svg" />;
+function AviaryWordmark({ className = "", compact = false }: { className?: string; compact?: boolean }) {
+  return (
+    <div
+      aria-label="Aviary"
+      className={`aion-brand-lockup ${compact ? "aion-brand-lockup-compact" : ""} ${className}`.trim()}
+    >
+      <img alt="" aria-hidden="true" className="aion-brand-mark" src="/aviary-logomark.svg" />
+      <span className="aion-brand-word">Aviary</span>
+    </div>
+  );
 }
 
 function ChatFlowStage({
@@ -1207,7 +1217,7 @@ function ShellUtilityBar({
       <div className="aion-utility-context">
         <span className="aion-utility-context-emblem">✦</span>
         <div className="min-w-0">
-          <p className="aion-utility-context-label">AION workspace</p>
+          <p className="aion-utility-context-label">Aviary workspace</p>
           <p className="aion-utility-context-copy">{currentSurface}</p>
         </div>
       </div>
@@ -1528,25 +1538,25 @@ export default function App() {
       {
         key: "identity_state",
         title: "Identity",
-        subtitle: "Profile details, learned preferences, and how AION recognizes you.",
+        subtitle: "Profile details, learned preferences, and how the personality recognizes you.",
         payload: overview.identity_state,
       },
       {
         key: "learned_knowledge",
         title: "Learned Knowledge",
-        subtitle: "Patterns, relationships, and growth that AION has picked up over time.",
+        subtitle: "Patterns, relationships, and growth that the personality has picked up over time.",
         payload: overview.learned_knowledge,
       },
       {
         key: "planning_state",
         title: "Planning",
-        subtitle: "Goals, tasks, milestones, and the work AION is currently tracking.",
+        subtitle: "Goals, tasks, milestones, and the work the personality is currently tracking.",
         payload: overview.planning_state,
       },
       {
         key: "role_skill_state",
         title: "Role + Skills",
-        subtitle: "Current role posture, available skills, and what AION can draw from right now.",
+        subtitle: "Current role posture, available skills, and what the personality can draw from right now.",
         payload: overview.role_skill_state,
       },
       {
@@ -1633,7 +1643,7 @@ export default function App() {
     {
       eyebrow: "Decision",
       title: "Motivation, role, planning",
-      body: "AION chooses the right posture, priorities, and plan instead of replying from an empty shell.",
+      body: "The personality chooses the right posture, priorities, and plan instead of replying from an empty shell.",
     },
     {
       eyebrow: "Continuity",
@@ -1765,12 +1775,12 @@ export default function App() {
     },
   ];
   const dashboardCognitiveSteps = [
-    { token: "O", title: "Observe", detail: "Taking in" },
-    { token: "U", title: "Understand", detail: "Making sense" },
-    { token: "C", title: "Connect", detail: "Finding patterns" },
-    { token: "R", title: "Reflect", detail: "Generating insight", active: true },
-    { token: "P", title: "Plan", detail: "Designing path" },
-    { token: "A", title: "Act", detail: "Creating impact" },
+    { token: "O", title: "Observe", detail: "Input" },
+    { token: "U", title: "Understand", detail: "Intent" },
+    { token: "C", title: "Connect", detail: "Pattern" },
+    { token: "R", title: "Reflect", detail: "Insight", active: true },
+    { token: "P", title: "Plan", detail: "Path" },
+    { token: "A", title: "Act", detail: "Delivery" },
   ];
   const dashboardGoalRows = [
     { title: "Build a stronger daily rhythm", value: "72%" },
@@ -1808,7 +1818,7 @@ export default function App() {
       zone: "Head · identity",
       title: "Identity",
       symbol: "◌",
-      body: "Profile continuity, learned preferences, and language posture shape how AION recognizes the current relationship.",
+      body: "Profile continuity, learned preferences, and language posture shape how the personality recognizes the current relationship.",
       highlights: [
         currentUserLabel,
         `${stringValue(preferenceSummary?.learned_preference_count, "0")} learned preferences`,
@@ -1941,7 +1951,7 @@ export default function App() {
       title: `${stringValue(preferenceSummary?.learned_preference_count, "0")} learned cues`,
       body:
         Boolean(preferenceSummary?.learned_preference_count)
-          ? "AION can lean on earlier preferences and remembered patterns from your shared work."
+          ? "The personality can lean on earlier preferences and remembered patterns from your shared work."
           : "The conversation is ready to collect the first continuity signals that matter to you.",
       accent: "Continuity",
     },
@@ -1950,7 +1960,7 @@ export default function App() {
       title: latestUserMessage ? "From your latest message" : "Waiting for your next note",
       body: latestUserMessage
         ? truncateText(latestUserMessage, 108)
-        : "Your next message will shape what AION keeps in the foreground.",
+        : "Your next message will shape what the personality keeps in the foreground.",
       accent: "Live thread",
     },
     {
@@ -2425,7 +2435,7 @@ export default function App() {
                       type="text"
                       value={authForm.displayName}
                       onChange={(event) => setAuthForm((form) => ({ ...form, displayName: event.target.value }))}
-                      placeholder="How AION should address you"
+                      placeholder="How the personality should address you"
                     />
                   </label>
                 ) : null}
@@ -2456,7 +2466,7 @@ export default function App() {
                 },
                 {
                   title: "Stay oriented",
-                  body: "The product keeps the main actions close so returning to AION feels lightweight instead of procedural.",
+                  body: "The product keeps the main actions close so returning to Aviary feels lightweight instead of procedural.",
                 },
                 {
                   title: "Keep ownership",
@@ -2484,8 +2494,8 @@ export default function App() {
         <div className="aion-shell-frame grid gap-4 xl:grid-cols-[14.5rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <div>
-              <AionWordmark className="w-[10.75rem]" />
-              <p className="mt-2 text-sm text-base-800">Your conscious companion</p>
+              <AviaryWordmark className="max-w-full" />
+              <p className="mt-2 text-sm text-base-800">A calm home for your evolving digital presence.</p>
             </div>
 
             <nav className="mt-8 grid gap-2">
@@ -2530,7 +2540,7 @@ export default function App() {
               <section className="aion-panel-soft aion-rail-story rounded-[1.8rem] p-4">
                 <p className="text-base font-semibold leading-7 text-base-900">“Clarity is the lamp that makes the path.”</p>
                 <div className="mt-4">
-                  <AionWordmark className="w-[4.8rem]" />
+                  <AviaryWordmark compact />
                 </div>
               </section>
             </div>
@@ -2552,7 +2562,7 @@ export default function App() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-3">
                     <div className="aion-wordmark-mobile-badge">
-                      <AionWordmark className="w-[5.75rem]" />
+                      <AviaryWordmark compact />
                     </div>
                     <p className="text-xs uppercase tracking-[0.18em] text-base-800">
                       {copy.common.build} {BUILD_REVISION.slice(0, 12)}
@@ -2654,7 +2664,7 @@ export default function App() {
                         Welcome back, {currentUserLabel}
                       </h2>
                       <p className="mt-3 max-w-2xl text-sm leading-7 text-base-800">
-                        Here is what feels most alive in your AION workspace today.
+                        Here is what feels most alive in your Aviary workspace today.
                       </p>
                     </div>
                   </div>
@@ -2680,7 +2690,7 @@ export default function App() {
                       <img
                         className="aion-dashboard-figure-image"
                         src="/aion-personality-figure-reference-v1.png"
-                        alt="Embodied AION overview"
+                        alt="Embodied personality overview"
                       />
                       <div className="aion-dashboard-figure-caption">
                         <p className="aion-dashboard-figure-caption-label">Embodied cognition field</p>
@@ -2765,7 +2775,7 @@ export default function App() {
               <section className="aion-panel aion-dashboard-flow-panel">
                 <div className="aion-dashboard-flow-header">
                   <div>
-                    <p className="text-sm uppercase tracking-[0.22em] text-base-800">AION cognitive flow</p>
+                    <p className="text-sm uppercase tracking-[0.22em] text-base-800">Cognitive flow</p>
                     <h3 className="mt-2 font-display text-2xl text-base-900">Live orchestration</h3>
                   </div>
                   <div className="aion-chip-ghost rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em]">
@@ -3528,7 +3538,7 @@ export default function App() {
                                         {copy.tools.telegramLinking}
                                       </p>
                                       <p className="mt-2 max-w-2xl text-sm leading-7 text-base-900">
-                                        Generate a short code, then send it to the configured AION Telegram bot from
+                      Generate a short code, then send it to the configured Aviary Telegram bot from
                                         the chat you want to attach to this identity.
                                       </p>
                                     </div>
@@ -3714,6 +3724,7 @@ export default function App() {
                     eyebrow="Conscious layer"
                     title="Active awareness and current cognition"
                     body="The foreground loop stays visible through focus, clarity, active load, and the present task horizon."
+                    className="aion-personality-side-panel"
                   >
                     <div className="grid gap-3">
                       {personalityConsciousSignals.map((item) => (
@@ -3729,6 +3740,7 @@ export default function App() {
                     eyebrow="Subconscious layer"
                     title="Background patterns and latent knowledge"
                     body="Longer memory, associations, and learned preferences stay active without crowding the live route."
+                    className="aion-personality-side-panel"
                   >
                     <div className="grid gap-3">
                       {personalitySubconsciousSignals.map((item) => (
@@ -3744,6 +3756,7 @@ export default function App() {
                     eyebrow="Recent activity"
                     title="Latest internal movement"
                     body="Recent changes stay readable before the user opens the deeper sections."
+                    className="aion-personality-side-panel"
                   >
                     <div className="grid gap-3">
                       {personalityRecentActivity.map((item) => (
@@ -3762,13 +3775,14 @@ export default function App() {
                     eyebrow="Highlights"
                     title="Current product signals"
                     body="These summary cards keep the route readable before the user opens any deeper detail."
+                    className="aion-personality-side-panel aion-personality-side-panel-highlight"
                   >
                     <div className="grid gap-3">
                       {[
                         {
                           title: copy.personality.goals,
                           value: stringValue(planningSummary?.active_goal_count, "0"),
-                          note: "Goals AION is currently following",
+                      note: "Goals the personality is currently following",
                           accent: "gold" as const,
                         },
                         {
@@ -3786,7 +3800,7 @@ export default function App() {
                         {
                           title: copy.personality.preferences,
                           value: stringValue(preferenceSummary?.learned_preference_count, "0"),
-                          note: "Preferences AION has picked up",
+                      note: "Preferences the personality has picked up",
                           accent: "default" as const,
                         },
                       ].map((card) => (

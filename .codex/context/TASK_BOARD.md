@@ -2,31 +2,37 @@
 
 Last updated: 2026-04-26
 
-## Fresh Canonical Brand Typography And Logotype Baseline (2026-04-26)
+## Fresh Aviary Brand And Unnamed Personality Baseline (2026-04-26)
 
 - fresh user direction now freezes one canonical first-party brand baseline for
   web UX/UI:
+  - the product name is now `Aviary`
   - `Cormorant Garamond` for header and logo treatment
   - `Inter` for body and operational UI
-  - the provided bird logotype SVG is the canonical shell logotype source
-- `PRJ-765` is now complete locally:
+  - the provided bird mark plus `AVIARY` wordmark is the canonical shell
+    branding source
+  - the embodied digital personality currently has no fixed proper name
+- `PRJ-766` is now complete locally:
   - canonical brand docs now record the font pairing, logotype asset, and
-    usage rules in:
+    naming boundary in:
     - `docs/ux/brand-personality-tokens.md`
     - `docs/ux/aion-visual-motif-system.md`
     - `docs/ux/design-memory.md`
     - `docs/README.md`
     - `docs/architecture/architecture-source-of-truth.md`
   - the provided logo assets are now stored in:
-    - `docs/ux/assets/aion-logotype-canonical.svg`
-    - `docs/ux/assets/aion-logotype-preview.png`
-    - `web/public/aion-logotype.svg`
-    - `web/public/aion-logotype-preview.png`
-  - the web shell now uses the canonical SVG logotype in the authenticated
+    - `docs/ux/assets/aviary-logomark.svg`
+    - `docs/ux/assets/aviary-logomark-preview.png`
+    - `web/public/aviary-logomark.svg`
+    - `web/public/aviary-logomark-preview.png`
+  - the web shell now uses the Aviary brand lockup in the authenticated
     desktop rail and compact mobile header
   - the first-party typography baseline now uses:
     - `Cormorant Garamond` as `font-display`
     - `Inter` as the shared UI/body family
+  - user-facing copy now treats:
+    - `Aviary` as the app brand
+    - the digital presence as intentionally unnamed
   - focused validation passed:
     - `Push-Location .\web; npm run build; Pop-Location`
 
@@ -161,6 +167,14 @@ Last updated: 2026-04-26
     component-like after deploy
   - authenticated deployed screenshot parity for `dashboard`, `chat`, and
     `personality`
+- another local visual pass is now complete:
+  - the dashboard cognitive-flow band has been simplified materially
+  - the personality right-column insight family now has a stronger premium
+    hierarchy
+- the next most valuable remaining route-family gap is now narrower:
+  - deployed screenshot parity
+  - final dashboard hero proportion tuning
+  - final chat and personality spacing polish after real-browser review
 
 ## Fresh Canonical Screen-Set Freeze (2026-04-26)
 

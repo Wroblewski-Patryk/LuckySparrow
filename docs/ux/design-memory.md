@@ -12,7 +12,7 @@
   surface.
 - Embodied cognition motif:
   Use one humane synthetic figure, anchored pins, and timeline rails to map
-  AION concepts into memorable product visuals without turning the shell into a
+  internal cognition concepts into memorable product visuals without turning the shell into a
   sci-fi console.
 - Timeline-backed metadata:
   Attach labels, chips, and mini-stats to explicit rails or sections instead of
@@ -46,9 +46,12 @@
   inside one shared tray so the conversation footer reads like one premium
   surface instead of stacked unrelated controls.
 - Brand logotype and font pairing:
-  Use the canonical bird logotype SVG with `Cormorant Garamond` for major
-  headers and `Inter` for operational UI, instead of mixing unrelated display
-  and body families across routes.
+  Use the canonical Aviary bird logomark with the `AVIARY` wordmark in
+  `Cormorant Garamond` for major headers and `Inter` for operational UI,
+  instead of mixing unrelated display and body families across routes.
+- Product naming boundary:
+  keep `Aviary` for app-brand surfaces, while the embodied personality remains
+  unnamed until a later identity-forming product decision.
 
 ## Reuse Notes
 

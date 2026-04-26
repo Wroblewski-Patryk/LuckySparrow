@@ -5,8 +5,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ["'Space Grotesk'", "sans-serif"],
-        body: ["'Manrope'", "sans-serif"],
+        display: ["'Cormorant Garamond'", "serif"],
+        body: ["'Inter'", "sans-serif"],
       },
       colors: {
         base: {
@@ -15,7 +15,7 @@ export default {
           800: "#3d342f",
         },
         signal: {
-          gold: "#e4b85d",
+          gold: "#c49359",
           coral: "#ef7f6d",
           mist: "#f2ece4",
         },

@@ -14,6 +14,12 @@ architecture, including:
 - runtime shape and topology
 - confirmed technology choices
 
+Brand, typography, canonical logotype assets, and reusable visual-system rules
+for first-party surfaces are owned separately in `docs/ux/` and should be
+updated there rather than being mixed into system-boundary architecture docs.
+That same UX layer also owns the distinction between product brand naming and
+unnamed personality presentation in the shell.
+
 Treat these files as implementation constraints.
 
 ## Default Rule
