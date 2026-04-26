@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-707
 - Title: Freeze locale metadata foundation for GUI language UX
-- Status: BACKLOG
+- Status: DONE
 - Owner: Planning Agent
 - Depends on: PRJ-706
 - Priority: P1
@@ -25,9 +25,9 @@ the runtime-owned conversation-language boundary.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] One locale metadata model is documented for web and later mobile reuse.
-- [ ] GUI language remains explicitly separate from runtime-owned conversation language.
-- [ ] flag or locale-icon rendering posture is described without relying on implicit system emoji behavior.
+- [x] One locale metadata model is documented for web and later mobile reuse.
+- [x] GUI language remains explicitly separate from runtime-owned conversation language.
+- [x] flag or locale-icon rendering posture is described without relying on implicit system emoji behavior.
 
 ## Forbidden
 - new systems without approval
@@ -36,29 +36,41 @@ the runtime-owned conversation-language boundary.
 - architecture changes without explicit approval
 
 ## Validation Evidence
-- Tests: n/a planning slice
-- Manual checks: reviewed current `ui_language` contract in frontend and app-facing settings API
-- Screenshots/logs: selector evidence from `.codex/artifacts/ux-audit-2026-04-25-round2/`
-- High-risk checks: confirm no plan overloads locale selection with conversation-language control
+- Tests:
+  - `Push-Location .\web; npm run build; Pop-Location`
+- Manual checks:
+  - reviewed current `ui_language` contract in frontend and app-facing settings API
+  - selector now renders from one metadata model carrying value, native label, localized label, icon token, and fallback posture
+  - GUI locale remains explicitly separate from runtime-owned conversation language
+- Screenshots/logs:
+  - selector foundation now lives in `web/src/App.tsx`
+  - planning contract updated in `docs/planning/open-decisions.md` and `docs/planning/web-ux-ui-productization-plan.md`
+- High-risk checks:
+  - confirmed no locale planning change overloads `preferred_language` or conversation-language control
 
 ## Architecture Evidence (required for architecture-impacting tasks)
-- Architecture source reviewed: `docs/architecture/16_agent_contracts.md`
+- Architecture source reviewed:
+  - `docs/architecture/16_agent_contracts.md`
+  - `docs/planning/open-decisions.md`
 - Fits approved architecture: yes
 - Mismatch discovered: no
 - Decision required from user: no
-- Approval reference if architecture changed: n/a
-- Follow-up architecture doc updates: expected in canonical planning and architecture docs if the metadata contract becomes approved
+- Approval reference if architecture changed:
+  - not applicable
+- Follow-up architecture doc updates:
+  - planning and context sync completed in this slice
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This slice is about durable UX metadata planning, not about introducing a new
 translation subsystem.
+- Completed on 2026-04-25 with shared locale metadata in `web/src/App.tsx`.

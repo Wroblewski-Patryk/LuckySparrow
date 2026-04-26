@@ -89,8 +89,16 @@ first-party web and future mobile clients.
      `ui_language` separately from `preferred_language`
    - `preferred_language` keeps its current meaning as conversation continuity
    - the initial UI posture should support `system`, `en`, `pl`, and `de`
-   - the selector should render as `flag + language label`, with helper copy
-     that explicitly says this controls only the interface
+   - the selector should render from one reusable locale metadata record per
+     option:
+     - `value`
+     - `native_label`
+     - localized label map for supported GUI locales
+     - explicit locale-icon token or asset reference
+     - fallback semantics for `system`
+   - locale-icon posture must not rely on system emoji availability; the
+     baseline fallback is a text token such as `AUTO`, `EN`, `PL`, or `DE`
+   - helper copy should explicitly say this controls only the interface
 6. current execution direction
    - the next UX/UI planning lane should freeze this split before route-level
      settings redesign
@@ -241,12 +249,10 @@ smaller set of truthfulness and delivery gaps remains before the product story
 feels fully convincing.
 
 1. truthful `v1_readiness`
-   - not yet fully resolved
-   - the approved product boundary now treats organizer tooling as a later
-     extension, but some runtime and regression surfaces still mix organizer
-     daily-use posture into the final no-UI `v1` acceptance story
-   - some gate fields also remain static or surface-validity-oriented instead
-     of being derived from live owner surfaces
+   - resolved in runtime and proof
+   - `v1_readiness` now derives core gate states from live owner surfaces
+   - organizer daily-use now remains visible only as mirrored extension
+     posture, not as a hidden core blocker
 2. channel-aware Telegram delivery
    - not yet resolved
    - the delivery layer still sends one raw Telegram message without explicit
@@ -254,10 +260,10 @@ feels fully convincing.
    - this is now the clearest user-facing quality gap after the core-v1
      planning lane
 3. high-level docs drift
-   - partially resolved
-   - canonical architecture is in better shape, but `docs/overview.md` and
-     some runtime-reality wording still imply planned/deferred capability
-     slices that are already live
+   - active doc-sync slice
+   - canonical architecture is in good shape, but high-level and operator docs
+     still need one final wording pass after the tightened `v1_readiness`
+     semantics
 4. organizer full provider activation and richer empathy rollout
    - intentionally not first in this queue
    - both remain useful later lanes, but fresh analysis says they are not the
@@ -277,9 +283,21 @@ Current execution note:
     extension posture
   - organizer daily-use posture is now described as extension readiness rather
     than as a hidden blocker inside the post-`PRJ-642` core boundary
-- `PRJ-648` is now the first `READY` slice:
-  - the next remaining gap is to make `/health.v1_readiness` reflect that
-    clarified boundary truthfully
+- `PRJ-648..PRJ-649` are now complete:
+  - `/health.v1_readiness` now reflects the clarified core-v1 boundary
+    truthfully
+  - release smoke now fails on semantic readiness drift, not only missing
+    fields
+- `PRJ-650` is now complete:
+  - docs and context now tell one tightened core-v1-versus-extension story
+- `PRJ-651..PRJ-654` are now effectively complete:
+  - the foreground-awareness contract, implementation, proof, and sync were
+    later executed through `PRJ-696..PRJ-702`
+- `PRJ-643` is now complete:
+  - channel-aware delivery is now explicitly frozen as a delivery-layer
+    concern below expression
+- the next true remaining implementation slice is now `PRJ-644` for Telegram
+  segmentation and formatting
 - fresh code analysis now also records a narrower follow-up gap after
   `PRJ-650`:
   - planning, planned work, bounded web search, page reading, and

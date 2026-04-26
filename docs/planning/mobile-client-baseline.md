@@ -29,7 +29,7 @@ The shared first-party resource model is:
 
 - authenticated user/session state
 - settings
-- chat history
+- shared conversation transcript history
 - chat message send
 - personality overview
 - tools overview
@@ -49,6 +49,16 @@ Current shared app-facing endpoints:
 - `GET /app/tools/overview`
 - `PATCH /app/tools/preferences`
 - `POST /app/tools/telegram/link/start`
+
+Transcript posture for `GET /app/chat/history`:
+
+- it returns exchanged message items, not memory cards
+- the default app-facing window is the latest `10` messages
+- message order is oldest-to-newest for direct chat rendering
+- the same transcript continuity is shared across first-party app chat and
+  linked Telegram once both resolve under the same backend `user_id`
+- mobile must present this as one conversation thread instead of rebuilding a
+  separate continuity or memory-inspector surface
 
 ## Boundary Rules
 

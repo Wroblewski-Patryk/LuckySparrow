@@ -2,8 +2,8 @@
 
 ## Header
 - ID: PRJ-704
-- Title: Clean product-facing copy and remove system-language leakage
-- Status: BACKLOG
+- Title: Product Copy And Terminology Cleanup Across The Shell
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-703
 - Priority: P0
@@ -24,9 +24,9 @@ settings, tools, and personality surfaces while preserving truthful behavior.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Primary shell copy no longer references backend contracts or raw endpoints as user-facing value.
-- [ ] Shared terminology across routes reads consistently as product copy.
-- [ ] Any remaining technical detail is explicitly secondary or inspect-only.
+- [x] Primary shell copy no longer references backend contracts or raw endpoints as user-facing value.
+- [x] Shared terminology across routes reads consistently as product copy.
+- [x] Any remaining technical detail is explicitly secondary or inspect-only.
 
 ## Forbidden
 - new systems without approval
@@ -35,29 +35,40 @@ settings, tools, and personality surfaces while preserving truthful behavior.
 - architecture changes without explicit approval
 
 ## Validation Evidence
-- Tests: `npm run build` in `web/`
-- Manual checks: copy review across `/login`, `/chat`, `/settings`, `/tools`, and `/personality`
-- Screenshots/logs: browser text proof in the refreshed audit artifact set
-- High-risk checks: confirm product wording stays truthful and does not promise unsupported capability
+- Tests:
+  - `Push-Location .\web; npm run build; Pop-Location`
+- Manual checks:
+  - copy review across `/login`, `/chat`, `/settings`, `/tools`, and `/personality`
+  - route descriptions, loading copy, saved-state labels, and inspect labels now avoid backend/contract/endpoint framing
+  - remaining technical detail stays inside secondary detail areas such as collapsible details panels
+- Screenshots/logs:
+  - `vite build` passed after the shared copy cleanup
+- High-risk checks:
+  - product wording stays truthful and does not imply new capabilities or client-owned logic
 
 ## Architecture Evidence (required for architecture-impacting tasks)
-- Architecture source reviewed: `docs/architecture/02_architecture.md`, `docs/architecture/16_agent_contracts.md`
+- Architecture source reviewed:
+  - `docs/planning/web-ux-ui-productization-plan.md`
+  - `docs/planning/next-iteration-plan.md`
 - Fits approved architecture: yes
 - Mismatch discovered: no
 - Decision required from user: no
-- Approval reference if architecture changed: n/a
-- Follow-up architecture doc updates: none expected
+- Approval reference if architecture changed:
+  - not applicable
+- Follow-up architecture doc updates:
+  - context sync after implementation
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 The user-facing shell should describe outcomes, actions, and states rather than
 internal implementation posture.
+- Completed on 2026-04-25 with shared copy cleanup in `web/src/App.tsx`.

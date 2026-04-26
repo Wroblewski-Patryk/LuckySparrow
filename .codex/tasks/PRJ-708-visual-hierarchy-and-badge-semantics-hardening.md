@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-708
 - Title: Harden visual hierarchy and badge semantics across the shell
-- Status: BACKLOG
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-707
 - Priority: P1
@@ -24,9 +24,9 @@ scan across routes.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] badge usage is reduced or made more semantic across public and authenticated routes.
-- [ ] visual hierarchy between title, body, state, and action is clearer across key cards.
-- [ ] updated system still fits the existing Tailwind and daisyUI-based stack.
+- [x] badge usage is reduced or made more semantic across public and authenticated routes.
+- [x] visual hierarchy between title, body, state, and action is clearer across key cards.
+- [x] updated system still fits the existing Tailwind and daisyUI-based stack.
 
 ## Forbidden
 - new systems without approval
@@ -35,10 +35,10 @@ scan across routes.
 - architecture changes without explicit approval
 
 ## Validation Evidence
-- Tests: `npm run build` in `web/`
-- Manual checks: visual review of shell hierarchy and card scanning behavior
-- Screenshots/logs: refreshed browser artifact set across primary routes
-- High-risk checks: confirm visual cleanup does not remove necessary status meaning
+- Tests: `Push-Location .\web; npm run build; Pop-Location`
+- Manual checks: visual review against refreshed login and authenticated route screenshots after hierarchy cleanup
+- Screenshots/logs: refreshed proof set under `.codex/artifacts/prj708-visual-hierarchy-proof/`
+- High-risk checks: preserved status chips only where they still communicate tool state or required action
 
 ## Architecture Evidence (required for architecture-impacting tasks)
 - Architecture source reviewed: `docs/architecture/02_architecture.md`
@@ -49,14 +49,19 @@ scan across routes.
 - Follow-up architecture doc updates: none expected
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This is a semantic pass, not a theme replacement.
+
+Completed on 2026-04-25 by reducing decorative badge usage in `web/src/App.tsx`
+and shifting emphasis back to overlines, headings, metric tiles, and status-only
+chips. Refreshed browser proof was captured against the local Vite shell with
+routed fixture responses in `.codex/artifacts/prj708-visual-hierarchy-proof/`.

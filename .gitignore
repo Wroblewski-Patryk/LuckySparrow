@@ -16,3 +16,4 @@ mobile/.expo/
 pytest-cache-files-*/
 .playwright-cli/
 .tmp/
+.codex/artifacts/

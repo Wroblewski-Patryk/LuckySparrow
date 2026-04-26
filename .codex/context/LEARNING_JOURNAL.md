@@ -25,6 +25,35 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-04-26 - Scheduler cadence tests must pin a daytime clock when quiet-hours behavior is in scope
+- Context:
+  - final full-suite validation for the shared transcript lane surfaced three
+    failures in `backend/tests/test_scheduler_worker.py` even though the
+    transcript changes themselves were already green.
+- Symptom:
+  - due planned-work maintenance tests can fail with zero handoffs or zero
+    foreground deliveries when they run during UTC quiet hours.
+- Root cause:
+  - the affected scheduler tests relied on `datetime.now(timezone.utc)` inside
+    `run_maintenance_tick_once()`, so real wall-clock time could push the
+    worker into the valid quiet-hours delay path instead of the asserted
+    daytime delivery path.
+- Guardrail:
+  - when scheduler assertions depend on daytime delivery behavior, pin the
+    worker clock to an explicit non-quiet-hours timestamp in the test.
+- Preferred pattern:
+  - choose a fixed UTC daytime timestamp
+  - set planned-work `preferred_at` relative to that fixed timestamp
+  - override the scheduler clock used by the test path before asserting
+    handoff or delivery counts
+- Avoid:
+  - using live wall-clock time in scheduler tests that assert one specific
+    branch of quiet-hours-sensitive logic
+  - treating time-of-day flakes as evidence of product-contract regressions
+- Evidence:
+  - `backend/tests/test_scheduler_worker.py`
+  - `.codex/tasks/PRJ-717-final-validation-context-sync-and-learning-closure.md`
+
 ### 2026-04-25 - Shared identity continuity does not automatically create a product-safe shared chat transcript
 - Context:
   - fresh product planning after the linked Telegram identity repair showed
@@ -1178,3 +1207,28 @@ fixes for this repository.
   - `PRJ-018` validation command corrected to existing tests in
     `.codex/context/TASK_BOARD.md`
   - full regression remained green after the correction
+
+### 2026-04-25 - Browser proof may need Playwright fallback when browser plugin runtime drifts
+- Context: frontend screenshot-proof work for responsive slices on the local
+  Codex desktop thread.
+- Symptom: the in-app browser plugin path failed before first action because
+  `node_repl` resolved an older Node runtime than the browser plugin requires.
+- Root cause: local browser-tool bootstrap depends on a newer Node runtime than
+  the thread-default `node_repl` binary, so browser proof can fail even when
+  the repo and local app are healthy.
+- Guardrail: when screenshot proof is required, first try the in-app browser
+  workflow; if `node_repl` reports an incompatible Node version, switch to the
+  bundled workspace Node plus Playwright and keep the proof local.
+- Preferred pattern:
+  - confirm the local app target is reachable
+  - use the in-app browser path first
+  - if the browser runtime is blocked by Node drift, set `NODE_PATH` to the
+    bundled workspace dependencies and run a small Playwright proof script
+  - save screenshots into `.codex/artifacts/` and note the fallback in task
+    evidence
+- Avoid:
+  - abandoning screenshot proof just because the browser plugin bootstrap fails
+  - assuming the plugin failure means the local route implementation is broken
+- Evidence:
+  - `.codex/artifacts/prj705-responsive-proof/`
+  - `.codex/tasks/PRJ-705-responsive-tier-rules-for-mobile-tablet-and-desktop.md`

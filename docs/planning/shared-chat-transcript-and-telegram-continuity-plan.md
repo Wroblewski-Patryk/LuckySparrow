@@ -85,6 +85,25 @@ Validation:
 
 - architecture and app-facing contract cross-review
 
+Frozen contract on 2026-04-26:
+
+- `/app/chat/history` is now frozen as a message-transcript surface rather
+  than a memory-entry surface
+- the default app-facing load window is the latest `10` exchanged messages
+- item order is chronological from oldest to newest
+- each transcript item is bounded to:
+  - `message_id`
+  - `event_id`
+  - `role`
+  - `text`
+  - `channel`
+  - `timestamp`
+  - optional bounded `metadata`
+- raw memory-entry fields such as `source`, `summary`, and arbitrary stored
+  payload blobs are not the durable client contract
+- future pagination may widen the envelope, but must not reopen ownership or
+  replace the frozen item shape
+
 ### PRJ-713 Backend Transcript Projection And Chat History API Update
 
 Result:
@@ -102,13 +121,23 @@ Validation:
 
 - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_memory_repository.py; Pop-Location`
 
+Implemented on 2026-04-26:
+
+- `/app/chat/history` now projects existing episodic turn memory into
+  transcript items derived from `payload.event` and `payload.expression`
+- the endpoint now defaults to the latest `10` transcript items and returns
+  them oldest-to-newest
+- channel posture is normalized to `api|telegram` without introducing a second
+  durable chat store
+
 ### PRJ-714 Web Chat Thread Unification And Scroll Behavior
 
 Result:
 
 - the web chat screen renders one transcript thread instead of a split between
   local `sessionMessages` and a separate continuity panel
-- initial transcript load scrolls the message container to the bottom
+- initial transcript load fetches only the latest `10` merged transcript
+  messages and scrolls the message container to the bottom
 - when a new assistant reply appears, the viewport moves so the top of that
   new reply is visible
 - the "recent memory" framing leaves the main chat route
@@ -117,8 +146,18 @@ Result:
 
 Validation:
 
-- `Push-Location .\web; npm test -- --runInBand; Pop-Location`
 - `Push-Location .\web; npm run build; Pop-Location`
+
+Implemented on 2026-04-26:
+
+- `web/src/lib/api.ts` now matches the backend transcript item shape
+  `message_id / event_id / role / text / channel / timestamp / metadata`
+- `web/src/App.tsx` now renders one backend-owned transcript thread and removes
+  the separate continuity sidebar from `/chat`
+- initial transcript load now scrolls to the bottom and new assistant replies
+  are revealed from the top edge after send
+- current web workspace validation for this slice is `npm run build`; there is
+  no dedicated `web` test script to invoke yet
 
 ### PRJ-715 Cross-Channel Regression Proof For Linked Telegram And App Chat
 
@@ -135,6 +174,18 @@ Validation:
 
 - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py; Pop-Location`
 
+Implemented on 2026-04-26:
+
+- `backend/tests/test_api_routes.py` now proves that:
+  - linked Telegram turns and app turns appear together in the authenticated
+    `/app/chat/history` transcript
+  - unlinked Telegram turns stay outside the authenticated app transcript
+- `backend/tests/test_runtime_pipeline.py` now proves one shared continuity
+  owner can project both `api` and `telegram` turns into the same transcript
+- focused validation passed:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py; Pop-Location`
+    -> `218 passed`
+
 ### PRJ-716 Shared Client Baseline And Product Docs Sync
 
 Result:
@@ -150,6 +201,16 @@ Validation:
 
 - doc-and-context cross-review
 
+Implemented on 2026-04-26:
+
+- `docs/planning/mobile-client-baseline.md` now defines `GET /app/chat/history`
+  as a shared message transcript with latest-`10` posture, oldest-to-newest
+  ordering, and one continuity owner across app chat and linked Telegram
+- `mobile/README.md` now points the reserved native client workspace at that
+  same transcript surface instead of an implied memory-list interpretation
+- `docs/overview.md` now labels `/app/chat/history` as a shared message
+  transcript surface in the active product overview
+
 ### PRJ-717 Final Validation, Context Sync, And Learning Closure
 
 Result:
@@ -164,6 +225,17 @@ Validation:
 - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
 - `Push-Location .\web; npm run build; Pop-Location`
 
+Implemented on 2026-04-26:
+
+- full-lane validation passed:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+    -> `942 passed`
+  - `Push-Location .\web; npm run build; Pop-Location`
+    -> build passed
+- source-of-truth files now reflect the lane as complete through `PRJ-717`
+- `.codex/context/LEARNING_JOURNAL.md` now records the scheduler quiet-hours
+  test guardrail confirmed during final full-suite validation
+
 ## Risks And Guardrails
 
 1. shared memory is not the same thing as a shared transcript
@@ -174,6 +246,9 @@ Validation:
 3. keep chronology product-safe
    - transcript order should stay oldest-to-newest while the initial viewport
      lands on the newest messages
+4. reverse infinite scroll must stay backend-truthful
+   - loading older history should page backward through the same transcript
+     contract rather than reconstructing continuity from local-only state
 4. keep Telegram optional
    - app chat must not depend on Telegram setup, but linked Telegram must join
      the same continuity owner once enabled

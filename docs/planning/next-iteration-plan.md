@@ -459,6 +459,139 @@ Why this order:
 - final screenshot proof should validate the refined shell as one product
   system across mobile, tablet, and desktop
 
+Implementation update on 2026-04-25:
+
+- `PRJ-703` is now complete:
+  - the public `/login` route now foregrounds return-to-conversation value and
+    trust instead of architecture framing
+  - the user-facing build badge was removed from the unauthenticated session
+    entry panel
+  - supporting public cards now reinforce workspace return, preference
+    control, and runtime-reset ownership without endpoint-heavy wording
+- `PRJ-704` is now the next planned slice:
+  - clean remaining product copy across authenticated routes so backend and
+    contract terminology stop leaking into normal user-facing surfaces
+
+Follow-up update on 2026-04-25:
+
+- `PRJ-704` is now complete:
+  - route descriptions, settings labels, loading states, and personality
+    summaries now use product-facing wording across `en`, `pl`, and `de`
+  - backend, contract, endpoint, and payload language no longer leads the
+    normal shell experience
+- `PRJ-705` is now the next planned slice:
+  - define explicit responsive tier rules for mobile, tablet, and desktop so
+    the shell gains a deliberate intermediate tablet posture
+
+Responsive follow-up on 2026-04-25:
+
+- `PRJ-705` is now complete:
+  - tablet now has a deliberate shell posture with top navigation, summary
+    quick stats, and corrected sticky-bottom behavior instead of acting like a
+    scaled mobile screen
+  - chat, settings, tools, and personality now move into earlier multi-column
+    layouts on larger tiers without creating route-specific shell forks
+  - screenshot proof was captured in `.codex/artifacts/prj705-responsive-proof/`
+- `PRJ-706` is now the next planned slice:
+  - normalize loading, empty, success, and error states so the product reads
+    as guided UX instead of system status output
+
+State-system follow-up on 2026-04-25:
+
+- `PRJ-706` is now complete:
+  - loading, empty, success, and error states now share one product-facing
+    posture across the shell
+  - first-line feedback is shorter and recovery-oriented, while truthful
+    operational detail remains available as secondary detail
+- `PRJ-707` is now the next planned slice:
+  - define locale metadata that can support a durable GUI-language foundation
+    across current web work and later mobile reuse
+
+Locale-foundation follow-up on 2026-04-25:
+
+- `PRJ-707` is now complete:
+  - the GUI-language selector now uses one shared locale metadata model with
+    native labels, localized labels, icon tokens, and explicit `system`
+    fallback semantics
+  - locale-icon posture no longer depends on implicit emoji rendering, making
+    the selector safer for later web-to-mobile reuse
+- `PRJ-708` is now complete:
+  - decorative badge usage was reduced across public and authenticated routes,
+    with hierarchy shifted back toward headings, overlines, and metric/detail
+    tiles
+  - status chips now stay concentrated around true tool status and required
+    action, rather than acting as generic decoration
+  - refreshed screenshot proof now lives in
+    `.codex/artifacts/prj708-visual-hierarchy-proof/`
+- `PRJ-709` is now complete:
+  - authenticated `chat`, `settings`, `tools`, and `personality` were reviewed
+    across mobile, tablet, and desktop after the second UX/UI lane changes
+  - screenshot proof and route notes now live in
+    `.codex/artifacts/prj709-authenticated-route-sweep/`
+  - the accepted shell baseline now shows only polish-level follow-up instead
+    of product-structure gaps
+- `PRJ-710` is now complete:
+  - planning docs, board state, project state, and learning references now
+    describe one accepted second-pass UX/UI baseline
+  - accepted evidence points to the responsive proof, hierarchy proof, and
+    authenticated route sweep artifacts
+  - the next queue now explicitly hands off to shared transcript continuity
+- `PRJ-712` is now complete:
+  - `/app/chat/history` is now frozen as a shared transcript contract instead
+    of a memory-entry surface
+  - the contract now fixes one backend-owned continuity owner, a default
+    latest-`10` app-facing window, chronological ordering, and a bounded
+    message item shape
+- `PRJ-713` is now complete:
+  - backend now projects existing episodic turn memory into transcript items
+    for `/app/chat/history` instead of raw memory entries
+  - the endpoint now defaults to the latest `10` transcript items and returns
+    them oldest-to-newest with normalized `api|telegram` channel posture
+- `PRJ-714` is now complete:
+  - `web/src/lib/api.ts` now matches the backend transcript item shape instead
+    of the previous memory-entry interpretation
+  - the web chat route now renders one backend-owned transcript thread and
+    removes the separate continuity sidebar
+  - initial transcript load now scrolls to the bottom, and a new assistant
+    reply is revealed from the top edge after send
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+- the next true `READY` slice is now `PRJ-715`:
+  - prove that linked Telegram and first-party app turns appear in the same
+    shared transcript continuity
+- `PRJ-715` is now complete:
+  - route regressions now prove linked Telegram and app turns appear in the
+    same authenticated `/app/chat/history` transcript
+  - regressions now also pin the optional-channel boundary so unlinked
+    Telegram traffic does not impersonate app-auth continuity
+  - runtime regression now proves one continuity owner can project both `api`
+    and `telegram` turns into the same transcript
+  - focused validation passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py; Pop-Location`
+      -> `218 passed`
+- the next true `READY` slice is now `PRJ-716`:
+  - sync shared client baseline and product docs to the transcript-safe
+    contract now proven across linked Telegram and app chat
+- `PRJ-716` is now complete:
+  - the mobile client baseline now describes `/app/chat/history` as a shared
+    message transcript instead of generic chat history or a memory-list
+    interpretation
+  - `mobile/README.md` and `docs/overview.md` now point at the same
+    transcript-safe app-facing contract
+  - doc-and-context cross-review passed for the current shared client baseline
+- the next true `READY` slice is now `PRJ-717`:
+  - attach final lane validation, context sync, and learning closure for the
+    shared transcript continuity work
+- `PRJ-717` is now complete:
+  - full-lane validation passed:
+    - backend full suite: `942 passed`
+    - web build: passed
+  - source-of-truth files now reflect `PRJ-712..PRJ-717` as a completed lane
+  - learning journal now records the scheduler quiet-hours test guardrail
+    confirmed during final validation
+- the shared transcript continuity lane seeded through `PRJ-717` is now
+  complete
+
 ## Planned On 2026-04-25 For Coolify Migration-First Deploy Automation
 
 Fresh deployment review after the `ui_language` migration showed that the
@@ -697,7 +830,6 @@ The next linked-channel chat transcript lane is now seeded through `PRJ-717`.
     - initial transcript load scrolls to the bottom, and a new assistant reply
       moves the viewport so the top of the reply is visible
   - Validation:
-    - `Push-Location .\web; npm test -- --runInBand; Pop-Location`
     - `Push-Location .\web; npm run build; Pop-Location`
 
 - `PRJ-715` Cross-Channel Regression Proof For Linked Telegram And App Chat
@@ -947,8 +1079,20 @@ Queue update (2026-04-25):
   - core no-UI `v1` acceptance gates
   - mirrored extension posture such as organizer daily use
   - later delivery-quality work such as channel-aware Telegram formatting
-- `PRJ-648` is now the next active slice because `/health.v1_readiness`
-  still needs to be tightened to that clarified boundary.
+- `PRJ-648` is now complete:
+  - `/health.v1_readiness` now derives its core gate summary from live owner
+    surfaces and keeps organizer daily use explicitly outside the core final
+    acceptance bundle
+- `PRJ-649` is now complete:
+  - release smoke and deployment-trigger regressions now fail on semantic
+    readiness drift, not only missing fields
+  - organizer extension posture is now explicitly guarded from leaking back
+    into the core final acceptance bundle
+- `PRJ-650` is now complete:
+  - overview, runtime-reality, testing, ops, and context truth now describe
+    the same tightened core-v1-versus-extension semantics
+- `PRJ-651` is now the next active slice because the foreground still needs an
+  explicit capability-and-time awareness contract.
 
 - `PRJ-648` Implement truthful v1-readiness gate evaluation.
   - Result:
@@ -981,6 +1125,16 @@ Queue update (2026-04-25):
   - Validation:
     - architecture and runtime-contract cross-review
 
+Queue update (2026-04-26):
+
+- `PRJ-651` is now complete.
+- canonical contracts now freeze foreground awareness as bounded visibility of:
+  - current turn time
+  - active planned-work posture
+  - approved tool-family readiness
+- execution authority remains unchanged; the later foreground-awareness lane
+  already carried that contract into runtime surfaces.
+
 - `PRJ-652` Implement explicit foreground awareness for time and approved tools.
   - Result:
     - runtime context and prompt surfaces now carry bounded awareness of
@@ -1004,6 +1158,12 @@ Queue update (2026-04-25):
   - Validation:
     - doc-and-context sync
 
+Queue update (2026-04-26):
+
+- older backlog residue for `PRJ-652..PRJ-654` is now marked as covered by the
+  later executed foreground-awareness lane `PRJ-696..PRJ-702`
+- the next true remaining lane is now `PRJ-643..PRJ-646`
+
 ### Group 108 - Channel-Aware Delivery Baseline
 
 - `PRJ-643` Freeze the channel-aware delivery constraint baseline.
@@ -1012,6 +1172,24 @@ Queue update (2026-04-25):
       expression, inside the action/delivery boundary
   - Validation:
     - architecture and delivery-contract cross-review
+
+Queue update (2026-04-26):
+
+- `PRJ-643` is now complete.
+- canonical contracts now freeze channel-aware delivery as delivery-layer
+  adaptation owned below expression
+- `PRJ-644` is now complete.
+- Telegram delivery now segments long outbound responses inside the existing
+  delivery router and applies an explicit Telegram formatting policy with
+  plain-text fallback for unsafe markdown
+- `PRJ-645` is now complete.
+- release smoke, health, and exported incident evidence now pin the same
+  Telegram delivery-adaptation posture instead of leaving it as hidden
+  implementation detail
+- `PRJ-646` is now complete.
+- runtime reality, testing guidance, ops notes, planning truth, and context
+  now describe the same channel-aware Telegram delivery contract
+- the lane `PRJ-643..PRJ-646` is now complete
 
 - `PRJ-644` Implement channel-aware Telegram segmentation and formatting.
   - Result:

@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-653
 - Title: Add proof for indirect capability use and temporal reasoning
-- Status: BACKLOG
+- Status: DONE
 - Owner: QA/Test
 - Depends on: PRJ-652
 - Priority: P0
@@ -25,9 +25,9 @@ existing planning and action boundaries.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Regression tests cover indirect temporal reasoning beyond explicit `today|tomorrow` trigger phrases.
-- [ ] Regression or behavior scenarios cover indirect bounded-tool use beyond explicit `search the web|read page` trigger phrasing.
-- [ ] Proof fails when awareness surfaces drift back to hidden-only heuristics or prompt fiction.
+- [x] Regression tests cover indirect temporal reasoning beyond explicit `today|tomorrow` trigger phrases.
+- [x] Regression or behavior scenarios cover indirect bounded-tool use beyond explicit `search the web|read page` trigger phrasing.
+- [x] Proof fails when awareness surfaces drift back to hidden-only heuristics or prompt fiction.
 
 ## Forbidden
 - new systems without approval
@@ -50,15 +50,38 @@ existing planning and action boundaries.
 - Follow-up architecture doc updates: testing guidance and behavior evidence notes
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This slice should prove operational awareness, not just that existing explicit
 commands still work.
+
+Completed on 2026-04-25 via the later foreground-awareness execution lane
+`PRJ-696..PRJ-702`.
+
+Result:
+
+- regressions now prove direct time answers from `event.timestamp`
+- prompt and context coverage now pin explicit foreground-awareness input
+  instead of hidden-only heuristics
+- planning and action coverage now prove indirect bounded-tool use for latest
+  facts, weather, and page-read patterns without requiring literal trigger
+  phrases
+
+Validation:
+
+- focused lane validation passed with `293 passed` across:
+  - `tests/test_identity_service.py`
+  - `tests/test_openai_prompting.py`
+  - `tests/test_context_agent.py`
+  - `tests/test_expression_agent.py`
+  - `tests/test_planning_agent.py`
+  - `tests/test_action_executor.py`
+  - `tests/test_runtime_pipeline.py`

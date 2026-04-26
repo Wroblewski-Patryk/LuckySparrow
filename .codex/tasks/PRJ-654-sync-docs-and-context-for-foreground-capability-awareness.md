@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-654
 - Title: Sync docs and context for foreground capability awareness
-- Status: BACKLOG
+- Status: DONE
 - Owner: Product Docs Agent
 - Depends on: PRJ-653
 - Priority: P1
@@ -25,9 +25,9 @@ awareness.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Canonical docs describe the bounded awareness contract for time, active planned work, and approved tools.
-- [ ] Runtime reality and testing guidance describe the same proof path as the implemented runtime.
-- [ ] Planning/context truth now sequences later delivery polish after the awareness lane instead of skipping over it.
+- [x] Canonical docs describe the bounded awareness contract for time, active planned work, and approved tools.
+- [x] Runtime reality and testing guidance describe the same proof path as the implemented runtime.
+- [x] Planning/context truth now sequences later delivery polish after the awareness lane instead of skipping over it.
 
 ## Forbidden
 - new systems without approval
@@ -50,14 +50,31 @@ awareness.
 - Follow-up architecture doc updates: completed in docs, planning truth, and context
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This slice is the source-of-truth sync after the runtime and test changes land.
+
+Completed on 2026-04-25 via the later foreground-awareness execution lane
+`PRJ-701..PRJ-702`.
+
+Result:
+
+- canonical docs, runtime reality, testing guidance, planning truth, and
+  context now describe the same bounded foreground-awareness contract
+- the old `PRJ-651..654` lane is now fully covered by the later
+  `PRJ-696..PRJ-702` implementation and sync slices
+- later delivery polish remains sequenced after awareness completion
+
+Validation:
+
+- doc-and-context sync plus focused lane validation recorded in
+  `PROJECT_STATE`, `TASK_BOARD`, and
+  `docs/planning/foreground-memory-time-and-tool-awareness-repair-plan.md`

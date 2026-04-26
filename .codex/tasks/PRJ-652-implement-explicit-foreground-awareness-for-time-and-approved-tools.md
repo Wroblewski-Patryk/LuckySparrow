@@ -3,7 +3,7 @@
 ## Header
 - ID: PRJ-652
 - Title: Implement explicit foreground awareness for time and approved tools
-- Status: BACKLOG
+- Status: DONE
 - Owner: Backend Builder
 - Depends on: PRJ-651
 - Priority: P0
@@ -26,9 +26,9 @@ the turn without widening side-effect authority.
 - do not duplicate logic
 
 ## Definition of Done
-- [ ] Runtime state and/or context surfaces expose bounded current-time and planned-work awareness to the active turn.
-- [ ] Reply-prompt or equivalent foreground prompt surfaces expose approved bounded-tool posture without claiming extra execution authority.
-- [ ] Existing planning and action boundaries remain unchanged, and capability awareness reuses current runtime truth rather than duplicating it.
+- [x] Runtime state and/or context surfaces expose bounded current-time and planned-work awareness to the active turn.
+- [x] Reply-prompt or equivalent foreground prompt surfaces expose approved bounded-tool posture without claiming extra execution authority.
+- [x] Existing planning and action boundaries remain unchanged, and capability awareness reuses current runtime truth rather than duplicating it.
 
 ## Forbidden
 - new systems without approval
@@ -51,15 +51,39 @@ the turn without widening side-effect authority.
 - Follow-up architecture doc updates: runtime reality and testing guidance
 
 ## Review Checklist (mandatory)
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 The point is not to make the model autonomous. The point is to make existing
 bounded capabilities explicit and reliable in normal foreground reasoning.
+
+Completed on 2026-04-25 via the later foreground-awareness execution lane
+`PRJ-696..PRJ-702`.
+
+Result:
+
+- the runtime now carries one explicit bounded foreground-awareness payload
+  with current-turn timestamp, known user name, memory continuity posture, and
+  bounded `search_web` / `read_page` readiness
+- context and expression now consume that foreground-awareness summary instead
+  of relying only on implicit timestamp/tool hints
+- execution authority remains unchanged and still flows through the existing
+  planning -> expression -> action boundary
+
+Validation:
+
+- focused lane validation passed with `293 passed` across:
+  - `tests/test_identity_service.py`
+  - `tests/test_openai_prompting.py`
+  - `tests/test_context_agent.py`
+  - `tests/test_expression_agent.py`
+  - `tests/test_planning_agent.py`
+  - `tests/test_action_executor.py`
+  - `tests/test_runtime_pipeline.py`
