@@ -251,8 +251,14 @@ class FakeTelegramClient:
     def __init__(self):
         self.calls: list[dict[str, str | None]] = []
 
-    async def send_message(self, chat_id: int | str, text: str) -> dict:
-        self.calls.append({"chat_id": str(chat_id), "text": text})
+    async def send_message(
+        self,
+        chat_id: int | str,
+        text: str,
+        *,
+        parse_mode: str | None = None,
+    ) -> dict:
+        self.calls.append({"chat_id": str(chat_id), "text": text, "parse_mode": parse_mode})
         return {"ok": True}
 
     async def set_webhook(self, webhook_url: str, secret_token: str | None) -> dict:
@@ -384,6 +390,7 @@ class FakeMemoryRepository:
         self.user_profile = {
             "preferred_language": "pl",
             "ui_language": "system",
+            "utc_offset": "UTC+00:00",
             "telegram_chat_id": None,
             "telegram_user_id": None,
             "telegram_link_code": None,
@@ -478,12 +485,50 @@ class FakeMemoryRepository:
             }
         return None
 
-    async def get_recent_for_user(self, user_id: str, limit: int = 5) -> list[dict]:
+    async def get_recent_for_user(self, user_id: str, limit: int = 5, offset: int = 0) -> list[dict]:
         return [
             dict(item)
             for item in self.recent_memory
             if str(item.get("user_id", "")).strip() == str(user_id).strip()
-        ][:limit]
+        ][offset : offset + limit]
+
+    async def get_recent_chat_transcript_for_user(self, user_id: str, limit: int = 10) -> list[dict]:
+        normalized_limit = max(1, int(limit))
+        transcript_items: list[dict] = []
+        recent_items = await self.get_recent_for_user(user_id=user_id, limit=max(normalized_limit, 10))
+        for memory_item in recent_items:
+            payload = memory_item.get("payload") if isinstance(memory_item.get("payload"), dict) else {}
+            event_id = str(memory_item.get("event_id", "") or "")
+            timestamp = memory_item.get("event_timestamp")
+            channel = "telegram" if str(memory_item.get("source", "")).strip().lower() == "telegram" else "api"
+            event_text = str(payload.get("event", "") or "").strip()
+            expression_text = str(payload.get("expression", "") or "").strip()
+            response_language = str(payload.get("response_language", "") or payload.get("language", "") or "").strip()
+            if event_text:
+                transcript_items.append(
+                    {
+                        "message_id": f"{event_id}:user",
+                        "event_id": event_id,
+                        "role": "user",
+                        "text": event_text,
+                        "channel": channel,
+                        "timestamp": timestamp,
+                    }
+                )
+            if expression_text:
+                item = {
+                    "message_id": f"{event_id}:assistant",
+                    "event_id": event_id,
+                    "role": "assistant",
+                    "text": expression_text,
+                    "channel": channel,
+                    "timestamp": timestamp,
+                }
+                if response_language:
+                    item["metadata"] = {"language": response_language}
+                transcript_items.append(item)
+        transcript_items.sort(key=lambda item: item["timestamp"])
+        return transcript_items[-normalized_limit:]
 
     async def get_user_runtime_preferences(self, user_id: str, **kwargs) -> dict:
         return dict(self.user_preferences)
@@ -804,6 +849,15 @@ class FakeMemoryRepository:
         ui_language: str,
     ) -> dict:
         self.user_profile["ui_language"] = ui_language
+        return dict(self.user_profile)
+
+    async def set_user_profile_utc_offset(
+        self,
+        *,
+        user_id: str,
+        utc_offset: str,
+    ) -> dict:
+        self.user_profile["utc_offset"] = utc_offset
         return dict(self.user_profile)
 
     async def create_or_rotate_telegram_link_code(
@@ -2954,23 +3008,31 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
         == "foreground_due_delivery_and_recurring_reevaluation_ready"
     )
     assert body["v1_readiness"]["deploy_parity_state"] == "deploy_parity_surface_ready"
+    assert body["v1_readiness"]["organizer_daily_use_classification"] == (
+        "extension_readiness_non_blocking_for_core_v1"
+    )
     assert body["v1_readiness"]["final_acceptance_gate_states"] == {
         "conversation_reliability": "conversation_surface_ready",
         "learned_state_inspection": "inspection_surface_ready",
         "website_reading": "ready_for_direct_and_search_first_review",
         "tool_grounded_learning": "tool_grounded_learning_surface_ready",
         "time_aware_planned_work": "foreground_due_delivery_and_recurring_reevaluation_ready",
-        "organizer_daily_use": "daily_use_workflows_blocked_by_provider_activation",
         "deploy_parity": "deploy_parity_surface_ready",
     }
+    assert body["v1_readiness"]["final_acceptance_state"] == "core_v1_bundle_ready"
     assert body["v1_readiness"]["final_acceptance_surfaces"] == {
         "conversation_reliability": "/health.conversation_channels.telegram",
         "learned_state_inspection": "/health.learned_state",
         "website_reading": "/health.connectors.web_knowledge_tools.website_reading_workflow",
         "tool_grounded_learning": "/health.learned_state.tool_grounded_learning",
         "time_aware_planned_work": "/health.v1_readiness",
-        "organizer_daily_use": "/health.connectors.organizer_tool_stack",
         "deploy_parity": "/health.deployment",
+    }
+    assert body["v1_readiness"]["extension_gate_states"] == {
+        "organizer_daily_use": "daily_use_workflows_blocked_by_provider_activation",
+    }
+    assert body["v1_readiness"]["extension_gate_surfaces"] == {
+        "organizer_daily_use": "/health.connectors.organizer_tool_stack",
     }
     assert body["planning_governance"]["goal_task_creation_posture"] == (
         "bounded_inferred_growth_from_repeated_execution_blockers_only"
@@ -4684,6 +4746,49 @@ def test_health_endpoint_exposes_telegram_round_trip_readiness_state() -> None:
     assert telegram["round_trip_ready"] is False
     assert telegram["round_trip_state"] == "missing_bot_token"
     assert telegram["round_trip_hint"] == "configure_telegram_bot_token_for_v1_round_trip"
+    assert telegram["delivery_adaptation_policy_owner"] == "telegram_delivery_channel_adaptation"
+    assert telegram["delivery_segmentation_state"] == "bounded_transport_segmentation"
+    assert telegram["delivery_formatting_state"] == "supported_markdown_to_html_with_plain_text_fallback"
+    assert telegram["delivery_message_limit"] == 4096
+    assert telegram["delivery_segment_target"] == 3500
+    assert telegram["delivery_supported_markdown"] == ["bold", "inline_code", "fenced_code"]
+
+
+def test_health_endpoint_marks_v1_readiness_conversation_gate_incomplete_without_telegram_round_trip() -> None:
+    client, _, _ = _client(
+        secret="expected-secret",
+        telegram_bot_token=None,
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    v1_readiness = response.json()["v1_readiness"]
+    assert v1_readiness["conversation_round_trip_state"] == "missing_bot_token"
+    assert v1_readiness["conversation_gate_state"] == "conversation_surface_provider_missing"
+    assert v1_readiness["final_acceptance_gate_states"]["conversation_reliability"] == (
+        "conversation_surface_provider_missing"
+    )
+    assert v1_readiness["final_acceptance_state"] == "core_v1_bundle_incomplete"
+
+
+def test_health_endpoint_marks_v1_readiness_deploy_parity_manual_fallback_as_non_green() -> None:
+    client, _, _ = _client(
+        deployment_trigger_mode="ui_manual_fallback",
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    deployment = response.json()["deployment"]
+    v1_readiness = response.json()["v1_readiness"]
+    assert deployment["runtime_trigger_class"] == "manual_fallback"
+    assert deployment["runtime_provenance_state"] == "fallback_runtime_provenance_declared"
+    assert v1_readiness["deploy_parity_state"] == "deploy_parity_surface_manual_fallback"
+    assert v1_readiness["final_acceptance_gate_states"]["deploy_parity"] == (
+        "deploy_parity_surface_manual_fallback"
+    )
+    assert v1_readiness["final_acceptance_state"] == "core_v1_bundle_incomplete"
 
 
 def test_event_endpoint_records_processed_telegram_ingress_telemetry() -> None:
@@ -4754,6 +4859,7 @@ def test_app_auth_register_sets_session_cookie_and_returns_user_snapshot() -> No
     assert body["user"]["display_name"] == "Lucky Sparrow"
     assert body["settings"]["preferred_language"] == "pl"
     assert body["settings"]["ui_language"] == "system"
+    assert body["settings"]["utc_offset"] == "UTC+00:00"
 
 
 def test_app_me_requires_authenticated_session() -> None:
@@ -4798,6 +4904,7 @@ def test_app_login_logout_and_me_roundtrip() -> None:
     body = me_response.json()
     assert body["user"]["email"] == "user@example.com"
     assert body["settings"]["ui_language"] == "system"
+    assert body["settings"]["utc_offset"] == "UTC+00:00"
     assert body["settings"]["proactive_opt_in"] is True
 
 
@@ -4817,6 +4924,7 @@ def test_app_patch_settings_updates_profile_preferences_and_display_name() -> No
         json={
             "preferred_language": "en",
             "ui_language": "de",
+            "utc_offset": "UTC+02:00",
             "proactive_opt_in": False,
             "display_name": "AION Pilot",
         },
@@ -4834,6 +4942,7 @@ def test_app_patch_settings_updates_profile_preferences_and_display_name() -> No
     assert me_body["user"]["display_name"] == "AION Pilot"
     assert me_body["settings"]["preferred_language"] == "en"
     assert me_body["settings"]["ui_language"] == "de"
+    assert me_body["settings"]["utc_offset"] == "UTC+02:00"
     assert me_body["settings"]["proactive_opt_in"] is False
 
 
@@ -4919,6 +5028,7 @@ def test_app_reset_data_clears_runtime_state_revokes_sessions_and_preserves_sett
         json={
             "preferred_language": "en",
             "ui_language": "de",
+            "utc_offset": "UTC+01:00",
             "proactive_opt_in": True,
             "display_name": "AION Pilot",
         },
@@ -4957,6 +5067,7 @@ def test_app_reset_data_clears_runtime_state_revokes_sessions_and_preserves_sett
     assert me_body["user"]["display_name"] == "AION Pilot"
     assert me_body["settings"]["preferred_language"] == "en"
     assert me_body["settings"]["ui_language"] == "de"
+    assert me_body["settings"]["utc_offset"] == "UTC+01:00"
     assert me_body["settings"]["proactive_opt_in"] is True
 
     history_response = client.get("/app/chat/history")
@@ -4965,7 +5076,7 @@ def test_app_reset_data_clears_runtime_state_revokes_sessions_and_preserves_sett
     assert memory_repository.runtime_reset_calls == [{"user_id": user_id}]
 
 
-def test_app_chat_history_returns_recent_memory_entries_for_authenticated_user() -> None:
+def test_app_chat_history_returns_recent_transcript_messages_for_authenticated_user() -> None:
     client, _, _ = _client()
     repository = client.app.state.memory_repository
     register_response = client.post(
@@ -4983,7 +5094,11 @@ def test_app_chat_history_returns_recent_memory_entries_for_authenticated_user()
             "user_id": user_id,
             "event_timestamp": datetime.now(timezone.utc),
             "summary": "User shared a preference update.",
-            "payload": {"text": "please stay concise"},
+            "payload": {
+                "event": "please stay concise",
+                "expression": "I will keep things concise.",
+                "response_language": "en",
+            },
             "importance": 0.7,
         }
     ]
@@ -4992,10 +5107,195 @@ def test_app_chat_history_returns_recent_memory_entries_for_authenticated_user()
 
     assert response.status_code == 200
     body = response.json()
-    assert len(body["items"]) == 1
-    assert body["items"][0]["event_id"] == "evt-1"
-    assert body["items"][0]["source"] == "api"
-    assert body["items"][0]["payload"] == {"text": "please stay concise"}
+    assert len(body["items"]) == 2
+    assert body["items"][0] == {
+        "message_id": "evt-1:user",
+        "event_id": "evt-1",
+        "role": "user",
+        "text": "please stay concise",
+        "channel": "api",
+        "timestamp": body["items"][0]["timestamp"],
+        "metadata": None,
+    }
+    assert body["items"][1] == {
+        "message_id": "evt-1:assistant",
+        "event_id": "evt-1",
+        "role": "assistant",
+        "text": "I will keep things concise.",
+        "channel": "api",
+        "timestamp": body["items"][1]["timestamp"],
+        "metadata": {"language": "en"},
+    }
+
+
+def test_app_chat_history_returns_latest_ten_messages_in_chronological_order() -> None:
+    client, _, _ = _client()
+    repository = client.app.state.memory_repository
+    register_response = client.post(
+        "/app/auth/register",
+        json={
+            "email": "user@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    user_id = register_response.json()["user"]["id"]
+    base_time = datetime(2026, 4, 26, 9, 0, tzinfo=timezone.utc)
+    repository.recent_memory = []
+    for index in range(6):
+        repository.recent_memory.append(
+            {
+                "event_id": f"evt-{index}",
+                "source": "telegram" if index % 2 else "api",
+                "user_id": user_id,
+                "event_timestamp": base_time + timedelta(minutes=index),
+                "summary": f"Episode {index}",
+                "payload": {
+                    "event": f"user message {index}",
+                    "expression": f"assistant reply {index}",
+                    "response_language": "en",
+                },
+                "importance": 0.7,
+            }
+        )
+
+    response = client.get("/app/chat/history")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["items"]) == 10
+    assert [item["message_id"] for item in body["items"]] == [
+        "evt-1:user",
+        "evt-1:assistant",
+        "evt-2:user",
+        "evt-2:assistant",
+        "evt-3:user",
+        "evt-3:assistant",
+        "evt-4:user",
+        "evt-4:assistant",
+        "evt-5:user",
+        "evt-5:assistant",
+    ]
+    assert [item["channel"] for item in body["items"][:2]] == ["telegram", "telegram"]
+    assert [item["channel"] for item in body["items"][2:4]] == ["api", "api"]
+
+
+def test_app_chat_history_merges_linked_telegram_and_app_turns_for_authenticated_user() -> None:
+    client, _, _ = _client(secret="expected-secret")
+    repository = client.app.state.memory_repository
+    register_response = client.post(
+        "/app/auth/register",
+        json={
+            "email": "user@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    user_id = register_response.json()["user"]["id"]
+    link_start = client.post("/app/tools/telegram/link/start")
+    link_code = link_start.json()["link_code"]
+
+    confirm_response = client.post(
+        "/event",
+        json=_telegram_update(91, f"/link {link_code}"),
+        headers={"X-Telegram-Bot-Api-Secret-Token": "expected-secret"},
+    )
+
+    assert confirm_response.status_code == 200
+
+    base_time = datetime(2026, 4, 26, 11, 0, tzinfo=timezone.utc)
+    repository.recent_memory = [
+        {
+            "event_id": "evt-app-1",
+            "source": "api",
+            "user_id": user_id,
+            "event_timestamp": base_time,
+            "summary": "App conversation turn.",
+            "payload": {
+                "event": "hello from web",
+                "expression": "hello from AION in web",
+                "response_language": "en",
+            },
+            "importance": 0.7,
+        },
+        {
+            "event_id": "evt-tg-1",
+            "source": "telegram",
+            "user_id": user_id,
+            "event_timestamp": base_time + timedelta(minutes=1),
+            "summary": "Telegram conversation turn.",
+            "payload": {
+                "event": "hello from telegram",
+                "expression": "hello from AION in telegram",
+                "response_language": "en",
+            },
+            "importance": 0.72,
+        },
+    ]
+
+    response = client.get("/app/chat/history")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert [item["message_id"] for item in body["items"]] == [
+        "evt-app-1:user",
+        "evt-app-1:assistant",
+        "evt-tg-1:user",
+        "evt-tg-1:assistant",
+    ]
+    assert [item["channel"] for item in body["items"]] == ["api", "api", "telegram", "telegram"]
+    assert body["items"][0]["text"] == "hello from web"
+    assert body["items"][2]["text"] == "hello from telegram"
+
+
+def test_app_chat_history_excludes_unlinked_telegram_turns_from_authenticated_user_transcript() -> None:
+    client, _, _ = _client()
+    repository = client.app.state.memory_repository
+    register_response = client.post(
+        "/app/auth/register",
+        json={
+            "email": "user@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    user_id = register_response.json()["user"]["id"]
+    base_time = datetime(2026, 4, 26, 12, 0, tzinfo=timezone.utc)
+    repository.recent_memory = [
+        {
+            "event_id": "evt-app-owned",
+            "source": "api",
+            "user_id": user_id,
+            "event_timestamp": base_time,
+            "summary": "App-owned turn.",
+            "payload": {
+                "event": "keep this in my app transcript",
+                "expression": "staying in your app transcript",
+                "response_language": "en",
+            },
+            "importance": 0.7,
+        },
+        {
+            "event_id": "evt-unlinked-telegram",
+            "source": "telegram",
+            "user_id": "raw-telegram-user-777",
+            "event_timestamp": base_time + timedelta(minutes=1),
+            "summary": "Unlinked telegram turn.",
+            "payload": {
+                "event": "this should not leak into the app user transcript",
+                "expression": "it stays isolated",
+                "response_language": "en",
+            },
+            "importance": 0.65,
+        },
+    ]
+
+    response = client.get("/app/chat/history")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert [item["message_id"] for item in body["items"]] == [
+        "evt-app-owned:user",
+        "evt-app-owned:assistant",
+    ]
+    assert all(item["channel"] == "api" for item in body["items"])
 
 
 def test_app_chat_message_runs_runtime_under_authenticated_user() -> None:
@@ -5018,6 +5318,34 @@ def test_app_chat_message_runs_runtime_under_authenticated_user() -> None:
     assert runtime.last_event is not None
     assert runtime.last_event.meta.user_id == user_id
     assert response.json()["reply"]["message"] == "Test reply"
+
+
+def test_app_chat_message_localizes_runtime_timestamp_from_profile_utc_offset() -> None:
+    client, runtime, _ = _client()
+    register_response = client.post(
+        "/app/auth/register",
+        json={
+            "email": "user@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    user_id = register_response.json()["user"]["id"]
+    settings_response = client.patch(
+        "/app/me/settings",
+        json={"utc_offset": "UTC+02:00"},
+    )
+
+    assert settings_response.status_code == 200
+
+    response = client.post(
+        "/app/chat/message",
+        json={"text": "ktora godzina?"},
+    )
+
+    assert response.status_code == 200
+    assert runtime.last_event is not None
+    assert runtime.last_event.meta.user_id == user_id
+    assert runtime.last_event.timestamp.utcoffset() == timedelta(hours=2)
 
 
 def test_app_personality_overview_uses_authenticated_user() -> None:
@@ -5299,6 +5627,7 @@ def test_event_endpoint_confirms_telegram_link_code_and_updates_tools_overview()
     assert telegram_client.calls[-1] == {
         "chat_id": "123",
         "text": "Telegram is now linked to your AION account.",
+        "parse_mode": None,
     }
 
     overview = client.get("/app/tools/overview")
@@ -5373,4 +5702,5 @@ def test_event_endpoint_rejects_expired_telegram_link_code() -> None:
     assert telegram_client.calls[-1] == {
         "chat_id": "123",
         "text": "This Telegram link code is invalid or has already been used.",
+        "parse_mode": None,
     }

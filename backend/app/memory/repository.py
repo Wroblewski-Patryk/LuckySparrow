@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, timedelta, timezone
+from typing import Any
 
 from sqlalchemy import and_, delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -43,6 +44,7 @@ from app.memory.models import (
     AionTheta,
     Base,
 )
+from app.utils.utc_offset import DEFAULT_UTC_OFFSET, normalize_utc_offset
 
 
 class MemoryRepository:
@@ -214,6 +216,7 @@ class MemoryRepository:
                 user_id=target_user_id,
                 preferred_language="en",
                 ui_language="system",
+                utc_offset=DEFAULT_UTC_OFFSET,
                 language_confidence=0.0,
                 language_source="default",
             )
@@ -229,6 +232,8 @@ class MemoryRepository:
             target_row.language_source = source_row.language_source
         if str(target_row.ui_language or "system").strip() == "system" and str(source_row.ui_language or "").strip():
             target_row.ui_language = source_row.ui_language
+        if normalize_utc_offset(target_row.utc_offset) == DEFAULT_UTC_OFFSET:
+            target_row.utc_offset = normalize_utc_offset(source_row.utc_offset)
         await session.delete(source_row)
 
     async def _merge_theta_state(
@@ -1047,12 +1052,13 @@ class MemoryRepository:
 
         return self._serialize_memory(row)
 
-    async def get_recent_for_user(self, user_id: str, limit: int = 5) -> list[dict]:
+    async def get_recent_for_user(self, user_id: str, limit: int = 5, offset: int = 0) -> list[dict]:
         async with self.session_factory() as session:
             statement = (
                 select(AionMemory)
                 .where(AionMemory.user_id == user_id)
                 .order_by(AionMemory.id.desc())
+                .offset(max(0, int(offset)))
                 .limit(limit)
             )
             result = await session.execute(statement)
@@ -1065,6 +1071,29 @@ class MemoryRepository:
             }
             for row in rows
         ]
+
+    async def get_recent_chat_transcript_for_user(self, user_id: str, limit: int = 10) -> list[dict[str, Any]]:
+        normalized_limit = max(1, int(limit))
+        batch_size = max(normalized_limit, 10)
+        offset = 0
+        transcript_items: list[dict[str, Any]] = []
+
+        while len(transcript_items) < normalized_limit:
+            batch = await self.get_recent_for_user(user_id=user_id, limit=batch_size, offset=offset)
+            if not batch:
+                break
+            for memory_item in batch:
+                transcript_items.extend(self._project_memory_to_transcript_items(memory_item))
+            offset += len(batch)
+            if len(batch) < batch_size:
+                break
+
+        transcript_items.sort(
+            key=lambda item: (self._coerce_datetime(item.get("timestamp")) or datetime.min.replace(tzinfo=timezone.utc))
+        )
+        if len(transcript_items) > normalized_limit:
+            transcript_items = transcript_items[-normalized_limit:]
+        return transcript_items
 
     async def get_proactive_scheduler_candidates(
         self,
@@ -2529,6 +2558,7 @@ class MemoryRepository:
                     user_id=user_id,
                     preferred_language=language_code,
                     ui_language="system",
+                    utc_offset=DEFAULT_UTC_OFFSET,
                     language_confidence=confidence,
                     language_source=source,
                 )
@@ -2556,6 +2586,7 @@ class MemoryRepository:
             "user_id": row.user_id,
             "preferred_language": row.preferred_language,
             "ui_language": row.ui_language,
+            "utc_offset": normalize_utc_offset(row.utc_offset),
             "language_confidence": row.language_confidence,
             "language_source": row.language_source,
             "updated_at": row.updated_at,
@@ -2576,6 +2607,7 @@ class MemoryRepository:
                     user_id=user_id,
                     preferred_language=normalized_language,
                     ui_language="system",
+                    utc_offset=DEFAULT_UTC_OFFSET,
                     language_confidence=1.0,
                     language_source=source,
                 )
@@ -2590,6 +2622,7 @@ class MemoryRepository:
             "user_id": row.user_id,
             "preferred_language": row.preferred_language,
             "ui_language": row.ui_language,
+            "utc_offset": normalize_utc_offset(row.utc_offset),
             "language_confidence": row.language_confidence,
             "language_source": row.language_source,
             "telegram_chat_id": row.telegram_chat_id,
@@ -2616,12 +2649,38 @@ class MemoryRepository:
                     user_id=user_id,
                     preferred_language="en",
                     ui_language=normalized_ui_language,
+                    utc_offset=DEFAULT_UTC_OFFSET,
                     language_confidence=0.0,
                     language_source="default",
                 )
                 session.add(row)
             else:
                 row.ui_language = normalized_ui_language
+            await session.commit()
+            await session.refresh(row)
+        return self._serialize_profile(row) or {}
+
+    async def set_user_profile_utc_offset(
+        self,
+        *,
+        user_id: str,
+        utc_offset: str,
+    ) -> dict:
+        normalized_utc_offset = normalize_utc_offset(utc_offset)
+        async with self.session_factory() as session:
+            row = await session.get(AionProfile, user_id)
+            if row is None:
+                row = AionProfile(
+                    user_id=user_id,
+                    preferred_language="en",
+                    ui_language="system",
+                    utc_offset=normalized_utc_offset,
+                    language_confidence=0.0,
+                    language_source="default",
+                )
+                session.add(row)
+            else:
+                row.utc_offset = normalized_utc_offset
             await session.commit()
             await session.refresh(row)
         return self._serialize_profile(row) or {}
@@ -2641,6 +2700,7 @@ class MemoryRepository:
                     user_id=user_id,
                     preferred_language="en",
                     ui_language="system",
+                    utc_offset=DEFAULT_UTC_OFFSET,
                     language_confidence=0.0,
                     language_source="default",
                 )
@@ -2653,6 +2713,7 @@ class MemoryRepository:
             "user_id": row.user_id,
             "preferred_language": row.preferred_language,
             "ui_language": row.ui_language,
+            "utc_offset": normalize_utc_offset(row.utc_offset),
             "language_confidence": row.language_confidence,
             "language_source": row.language_source,
             "telegram_chat_id": row.telegram_chat_id,
@@ -2703,6 +2764,7 @@ class MemoryRepository:
                     user_id=user_id,
                     preferred_language="en",
                     ui_language="system",
+                    utc_offset=DEFAULT_UTC_OFFSET,
                     language_confidence=0.0,
                     language_source="default",
                 )
@@ -3297,6 +3359,56 @@ class MemoryRepository:
             "importance": row.importance,
         }
 
+    def _project_memory_to_transcript_items(self, memory_item: dict[str, Any]) -> list[dict[str, Any]]:
+        payload = memory_item.get("payload")
+        if not isinstance(payload, dict):
+            payload = {}
+
+        event_id = str(memory_item.get("event_id", "") or "").strip()
+        timestamp = self._coerce_datetime(memory_item.get("event_timestamp") or memory_item.get("timestamp"))
+        channel = self._normalize_transcript_channel(memory_item.get("source"))
+        event_text = str(payload.get("event", "") or "").strip()
+        expression_text = str(payload.get("expression", "") or "").strip()
+        response_language = str(payload.get("response_language", "") or payload.get("language", "") or "").strip()
+        items: list[dict[str, Any]] = []
+
+        if event_text:
+            items.append(
+                {
+                    "message_id": f"{event_id}:user",
+                    "event_id": event_id,
+                    "role": "user",
+                    "text": event_text,
+                    "channel": channel,
+                    "timestamp": timestamp,
+                }
+            )
+
+        if expression_text:
+            metadata: dict[str, Any] | None = None
+            if response_language:
+                metadata = {"language": response_language}
+            items.append(
+                {
+                    "message_id": f"{event_id}:assistant",
+                    "event_id": event_id,
+                    "role": "assistant",
+                    "text": expression_text,
+                    "channel": channel,
+                    "timestamp": timestamp,
+                    "metadata": metadata,
+                }
+            )
+
+        return items
+
+    @staticmethod
+    def _normalize_transcript_channel(source: Any) -> str:
+        normalized = str(source or "").strip().lower()
+        if normalized == "telegram":
+            return "telegram"
+        return "api"
+
     def _serialize_goal(self, row: AionGoal) -> dict:
         return {
             "id": row.id,
@@ -3752,6 +3864,7 @@ class MemoryRepository:
             "user_id": row.user_id,
             "preferred_language": row.preferred_language,
             "ui_language": row.ui_language,
+            "utc_offset": normalize_utc_offset(row.utc_offset),
             "language_confidence": row.language_confidence,
             "language_source": row.language_source,
             "telegram_chat_id": row.telegram_chat_id,

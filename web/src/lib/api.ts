@@ -19,6 +19,7 @@ export type AppAuthUser = {
 export type AppSettings = {
   preferred_language?: string | null;
   ui_language?: string | null;
+  utc_offset?: string | null;
   proactive_opt_in?: boolean | null;
 };
 
@@ -39,11 +40,13 @@ export type AppResetDataResponse = {
 };
 
 export type AppChatHistoryEntry = {
+  message_id: string;
   event_id: string;
-  source: string;
-  summary: string;
-  event_timestamp: string;
-  payload?: Record<string, unknown> | null;
+  role: "user" | "assistant";
+  text: string;
+  channel: string;
+  timestamp: string;
+  metadata?: Record<string, unknown> | null;
 };
 
 export type AppChatHistoryResponse = {
@@ -200,6 +203,7 @@ export const api = {
   patchSettings(body: {
     preferred_language?: string | null;
     ui_language?: string | null;
+    utc_offset?: string | null;
     proactive_opt_in?: boolean | null;
     display_name?: string | null;
   }): Promise<AppSettings> {

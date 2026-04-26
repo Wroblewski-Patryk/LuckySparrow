@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -414,7 +414,18 @@ async def test_expression_answers_name_question_from_identity_display_name() -> 
 async def test_expression_answers_time_question_from_event_timestamp() -> None:
     agent = ExpressionAgent(openai_client=ReplyOpenAI())
     event = _event("ktora godzina?")
-    event = event.model_copy(update={"timestamp": datetime(2026, 4, 25, 21, 22, tzinfo=timezone.utc)})
+    event = event.model_copy(
+        update={
+            "timestamp": datetime(
+                2026,
+                4,
+                25,
+                23,
+                22,
+                tzinfo=timezone(timedelta(hours=2), name="UTC+02:00"),
+            )
+        }
+    )
     result = await agent.run(
         event,
         _perception(language="pl"),
@@ -424,4 +435,4 @@ async def test_expression_answers_time_question_from_event_timestamp() -> None:
         _motivation(),
     )
 
-    assert result.message == "W czasie tego turnu jest 2026-04-25 21:22:00 UTC."
+    assert result.message == "W czasie tego turnu jest 2026-04-25 23:22:00 UTC+02:00."

@@ -139,3 +139,4 @@ def test_alembic_head_includes_ui_language_on_profile(tmp_path, monkeypatch) -> 
 
     assert "preferred_language" in profile_columns
     assert "ui_language" in profile_columns
+    assert "utc_offset" in profile_columns

@@ -56,6 +56,7 @@ class AppLoginRequest(BaseModel):
 class AppSettingsPatchRequest(BaseModel):
     preferred_language: str | None = Field(default=None, min_length=2, max_length=8)
     ui_language: str | None = Field(default=None, min_length=2, max_length=16)
+    utc_offset: str | None = Field(default=None, min_length=1, max_length=16)
     proactive_opt_in: bool | None = None
     display_name: str | None = Field(default=None, max_length=120)
 
@@ -77,6 +78,7 @@ class AppAuthUserResponse(BaseModel):
 class AppSettingsResponse(BaseModel):
     preferred_language: str | None = None
     ui_language: str | None = None
+    utc_offset: str | None = None
     proactive_opt_in: bool | None = None
 
 
@@ -99,11 +101,13 @@ class AppMeResponse(BaseModel):
 
 
 class AppChatHistoryEntry(BaseModel):
+    message_id: str
     event_id: str
-    source: str
-    summary: str
-    event_timestamp: Any
-    payload: dict[str, Any] | None = None
+    role: str
+    text: str
+    channel: str
+    timestamp: Any
+    metadata: dict[str, Any] | None = None
 
 
 class AppChatHistoryResponse(BaseModel):

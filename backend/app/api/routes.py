@@ -103,6 +103,7 @@ from app.memory.embeddings import embedding_strategy_snapshot, normalize_embeddi
 from app.memory.repository import MemoryRepository
 from app.reflection.worker import ReflectionWorker
 from app.utils.language import language_continuity_policy_snapshot
+from app.utils.utc_offset import DEFAULT_UTC_OFFSET, normalize_utc_offset, utc_offset_timezone
 from app.workers.scheduler import SchedulerWorker
 
 router = APIRouter()
@@ -227,8 +228,16 @@ def _app_settings_payload(*, profile: dict | None, preferences: dict | None) -> 
     return {
         "preferred_language": profile.get("preferred_language"),
         "ui_language": profile.get("ui_language", "system"),
+        "utc_offset": profile.get("utc_offset", DEFAULT_UTC_OFFSET),
         "proactive_opt_in": preferences.get("proactive_opt_in"),
     }
+
+
+def _event_with_user_utc_offset(event, profile: dict | None):
+    offset_value = normalize_utc_offset((profile or {}).get("utc_offset"))
+    return event.model_copy(
+        update={"timestamp": event.timestamp.astimezone(utc_offset_timezone(offset_value))}
+    )
 
 
 async def _require_app_auth(request: Request) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -893,6 +902,10 @@ async def _handle_event_request(
         payload,
         default_user_id=default_user_id,
     )
+    normalized_user_id = str(event.meta.user_id or "").strip()
+    if normalized_user_id and normalized_user_id != "anonymous":
+        profile = await _memory_repository_from_request(request).get_user_profile(normalized_user_id)
+        event = _event_with_user_utc_offset(event, profile)
     attention_coordinator = _attention_coordinator_from_request(request)
     turn_decision = await attention_coordinator.prepare_event(event)
     if not turn_decision.should_process:
@@ -1409,6 +1422,11 @@ async def app_patch_me_settings(
             user_id=user_id,
             ui_language=body.ui_language,
         )
+    if body.utc_offset is not None:
+        await memory_repository.set_user_profile_utc_offset(
+            user_id=user_id,
+            utc_offset=body.utc_offset,
+        )
     if body.proactive_opt_in is not None:
         await memory_repository.upsert_conclusion(
             user_id=user_id,
@@ -1456,25 +1474,14 @@ async def app_reset_me_data(
 @router.get("/app/chat/history", response_model=AppChatHistoryResponse)
 async def app_chat_history(
     request: Request,
-    limit: int = Query(default=20, ge=1, le=100),
+    limit: int = Query(default=10, ge=1, le=100),
 ) -> dict[str, Any]:
     user, _ = await _require_app_auth(request)
-    items = await _memory_repository_from_request(request).get_recent_for_user(
+    items = await _memory_repository_from_request(request).get_recent_chat_transcript_for_user(
         user_id=str(user["id"]),
         limit=limit,
     )
-    return {
-        "items": [
-            {
-                "event_id": item["event_id"],
-                "source": item["source"],
-                "summary": item["summary"],
-                "event_timestamp": item["event_timestamp"],
-                "payload": item.get("payload"),
-            }
-            for item in items
-        ]
-    }
+    return {"items": items}
 
 
 @router.post("/app/chat/message", response_model=AppChatMessageResponse)

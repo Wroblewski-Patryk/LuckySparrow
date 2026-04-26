@@ -222,17 +222,24 @@ continuity and learned runtime preferences.
 4. a future `ui_language` field may shape only first-party shell copy,
    navigation labels, and client chrome; it must not directly override
    expression language, perception language, or memory-language continuity
-5. `response_style`, `collaboration_preference`, and `preferred_role` remain
+5. if a first-party client needs explicit local-time truth for "what date or
+   hour is it for me right now", it may persist one profile-owned `utc_offset`
+   setting and runtime may localize the current-turn timestamp from that value
+   before cognitive stages consume turn truth
+6. profile-owned `utc_offset` is limited to explicit offset continuity only; it
+   must not introduce a parallel region-timezone, DST-rule, calendar, or
+   scheduling subsystem
+7. `response_style`, `collaboration_preference`, and `preferred_role` remain
    conclusion-owned learned preferences and must not be copied into profile
    storage as identity fields
-6. relation fallback cues may influence stage-level tie-break behavior, but
+8. relation fallback cues may influence stage-level tie-break behavior, but
    they must not rewrite identity-owned profile continuity
-7. runtime visibility should expose the shared policy owner through
+9. runtime visibility should expose the shared policy owner through
    `/health.identity` and `system_debug.adaptive_state.identity_policy`
-8. language continuity should also expose one explicit posture snapshot with
+10. language continuity should also expose one explicit posture snapshot with
    precedence order, supported language codes, and current event-level
    continuity diagnostics through runtime debug
-9. multilingual posture remains explicit and bounded to currently supported
+11. multilingual posture remains explicit and bounded to currently supported
    runtime language codes until a broader language model is intentionally added
 
 ---
@@ -272,6 +279,71 @@ This preserves the architecture boundary:
 - settings and linked-channel continuity stay profile-owned
 - runtime continuity stays explicitly resettable without turning "clear my
   data" into account deletion
+
+---
+
+## Shared App Chat Transcript Contract
+
+First-party app chat and linked Telegram continuity now freeze one explicit
+app-facing transcript posture for `/app/chat/history`.
+
+Contract rules:
+
+1. `/app/chat/history` is a transcript surface for exchanged messages, not a
+   memory-inspection surface for summarized memory entries
+2. transcript continuity remains backend-owned by the shared authenticated
+   `user_id`; linked Telegram joins the same continuity owner only after the
+   user explicitly links that channel
+3. the frozen product-facing default window is the latest `10` exchanged
+   messages
+4. transcript items render in chronological order from oldest to newest so
+   app clients can place the newest messages at the bottom of the thread
+5. each message item must stay bounded to one app-facing shape:
+   - `message_id`
+   - `event_id`
+   - `role`
+   - `text`
+   - `channel`
+   - `timestamp`
+   - optional bounded `metadata` only when product UX genuinely needs it
+6. app-facing transcript items must not expose raw memory summaries, raw
+   episodic payloads, or memory-specific inspection fields such as `source`,
+   `summary`, or arbitrary stored payload blobs as the durable client
+   contract
+7. transcript projection must reuse existing episodic turn memory and action
+   results; it must not introduce a second durable chat store
+8. future pagination may widen the envelope with explicit paging metadata, but
+   it must not reopen continuity ownership or replace the frozen item shape
+9. web and future mobile remain thin `/app/*` clients over this same
+   transcript contract; Telegram transport specifics stay in action and
+   integration layers rather than the client contract
+
+Illustrative contract shape:
+
+```json
+{
+  "items": [
+    {
+      "message_id": "msg-1",
+      "event_id": "evt-1",
+      "role": "user",
+      "text": "hello",
+      "channel": "api",
+      "timestamp": "2026-04-26T09:12:00Z",
+      "metadata": {
+        "delivery_state": "final"
+      }
+    }
+  ]
+}
+```
+
+This preserves the architecture boundary:
+
+- one continuity owner across linked app and Telegram turns
+- one backend-projected transcript instead of split client-local versus memory
+  views
+- one reusable app-facing contract for web now and mobile later
 
 ---
 
@@ -593,6 +665,41 @@ Rules:
    other external reads:
    - no credential bypass
    - no hidden-auth browsing
+
+### Foreground Capability And Time Awareness Contract
+
+Foreground turns may receive bounded awareness of already-approved runtime
+truth, but that awareness must not become a second execution or authorization
+engine.
+
+Contract rules:
+
+1. the active foreground turn may receive only bounded awareness of:
+   - current turn time derived from normalized event timestamp
+   - active planned-work posture already owned by runtime continuity
+   - approved bounded tool families and their current readiness posture
+2. this awareness is visibility-only input for context, planning, and
+   expression; it must not by itself trigger side effects or bypass normal
+   intent selection
+3. foreground awareness may summarize whether the runtime can currently:
+   - answer from continuity already loaded for the turn
+   - use bounded search/page-read capability through approved tool slices
+   - reason about due planned work and current time
+4. foreground awareness must not:
+   - grant tool authorization outside existing connector permission gates
+   - create a second scheduler or delivery path outside planned-work and
+     attention ownership
+   - imply organizer or channel-specific extension posture is part of the core
+     cognition contract
+5. any later external read, mutation, or delivery still flows through:
+   - planning intent selection
+   - expression handoff
+   - action-owned execution
+6. foreground awareness may improve truthful replies about time, memory
+   continuity, and available bounded capability, but the source of truth stays
+   below the same runtime-owned health, continuity, and connector surfaces
+
+This contract freezes what the active turn may know, not a new way to execute.
    - no direct mutations in external systems
    - no second planning or side-effect engine outside action
 7. any durable learning produced by a research window still goes only through
@@ -1354,6 +1461,40 @@ Foreground-awareness guardrails:
    planning or action subsystem
 3. downstream stages may use it for truthful answers and tool selection, but
    execution authority still stays in planning and action
+
+---
+
+## Channel-Aware Delivery Constraint Contract
+
+Channel-aware delivery belongs below expression, inside action and integration
+delivery ownership.
+
+Contract rules:
+
+1. expression may still choose message content, tone, and structure, but it
+   must not own Telegram length splitting, markdown escape policy, or
+   transport-specific retry behavior
+2. action remains the owner of delivery execution and may hand off one bounded
+   delivery envelope to integration routing
+3. integration delivery may adapt one prepared response for the selected
+   transport, including:
+   - bounded segmentation for channel message-length limits
+   - bounded formatting normalization required by the selected transport
+   - explicit fallback to plain text when transport formatting is unsafe
+4. channel-aware delivery must not:
+   - introduce a second cognition path outside planning -> expression -> action
+   - make Telegram-specific limits a planning concern
+   - change the semantic intent of the prepared response
+5. transport adaptation is allowed to change only delivery shape, such as:
+   - message chunk boundaries
+   - safe markdown or plain-text formatting posture
+   - per-message delivery ordering inside one response handoff
+6. the same delivery contract must remain portable to later first-party app
+   channels; Telegram is only the first channel that needs stronger adaptation
+   proof
+
+This contract freezes channel adaptation as delivery behavior, not channel-
+specific reasoning.
 
 ---
 

@@ -2351,14 +2351,20 @@ async def test_memory_repository_can_persist_ui_language_separately_from_preferr
         user_id="u-1",
         ui_language="de",
     )
+    profile = await repository.set_user_profile_utc_offset(
+        user_id="u-1",
+        utc_offset="UTC+02:00",
+    )
 
     assert profile["preferred_language"] == "pl"
     assert profile["ui_language"] == "de"
+    assert profile["utc_offset"] == "UTC+02:00"
 
     roundtrip = await repository.get_user_profile("u-1")
     assert roundtrip is not None
     assert roundtrip["preferred_language"] == "pl"
     assert roundtrip["ui_language"] == "de"
+    assert roundtrip["utc_offset"] == "UTC+02:00"
 
     await engine.dispose()
 
@@ -2519,6 +2525,10 @@ async def test_memory_repository_resets_single_user_runtime_data_and_preserves_m
     await repository.set_user_profile_ui_language(
         user_id="usr_reset",
         ui_language="de",
+    )
+    await repository.set_user_profile_utc_offset(
+        user_id="usr_reset",
+        utc_offset="UTC+02:00",
     )
     await repository.set_user_telegram_link(
         user_id="usr_reset",
@@ -2745,11 +2755,59 @@ async def test_memory_repository_resets_single_user_runtime_data_and_preserves_m
     assert profile is not None
     assert profile["preferred_language"] == "pl"
     assert profile["ui_language"] == "de"
+    assert profile["utc_offset"] == "UTC+02:00"
     assert profile["telegram_chat_id"] == "123"
     assert preferences["proactive_opt_in"] is True
     assert "response_style" not in preferences
     assert len(sessions) == 2
     assert all(row.revoked_at is not None for row in sessions)
+
+    await engine.dispose()
+
+
+async def test_memory_repository_projects_recent_chat_transcript_in_chronological_order(tmp_path) -> None:
+    database_path = tmp_path / "memory-chat-transcript.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    base_time = datetime(2026, 4, 26, 9, 0, tzinfo=timezone.utc)
+    for index in range(6):
+        await repository.write_episode(
+            event_id=f"evt-{index}",
+            trace_id=f"trace-{index}",
+            source="telegram" if index % 2 else "api",
+            user_id="usr-chat",
+            event_timestamp=base_time + timedelta(minutes=index),
+            summary=f"Episode {index}",
+            payload={
+                "event": f"user message {index}",
+                "expression": f"assistant reply {index}",
+                "response_language": "en",
+            },
+            importance=0.5,
+        )
+
+    items = await repository.get_recent_chat_transcript_for_user(user_id="usr-chat", limit=10)
+
+    assert [item["message_id"] for item in items] == [
+        "evt-1:user",
+        "evt-1:assistant",
+        "evt-2:user",
+        "evt-2:assistant",
+        "evt-3:user",
+        "evt-3:assistant",
+        "evt-4:user",
+        "evt-4:assistant",
+        "evt-5:user",
+        "evt-5:assistant",
+    ]
+    assert items[0]["timestamp"] == base_time + timedelta(minutes=1)
+    assert items[-1]["timestamp"] == base_time + timedelta(minutes=5)
+    assert items[0]["channel"] == "telegram"
+    assert items[2]["channel"] == "api"
+    assert items[1]["metadata"] == {"language": "en"}
 
     await engine.dispose()
 

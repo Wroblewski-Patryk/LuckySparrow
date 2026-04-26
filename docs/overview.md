@@ -23,7 +23,7 @@ The repository already ships a real multi-stage runtime, not just a skeleton:
 - `POST /app/auth/logout`
 - `GET /app/me`
 - `PATCH /app/me/settings`
-- `GET /app/chat/history`
+- `GET /app/chat/history` as a shared message transcript surface
 - `POST /app/chat/message`
 - `GET /app/personality/overview`
 - `GET /app/tools/overview`
@@ -77,6 +77,11 @@ Important current-runtime notes:
   policy-gated transitional surfaces
 - first-party product clients now authenticate through backend-owned sessions
   instead of relying on `X-AION-User-Id` as their primary identity boundary
+- profile-owned app settings now separate shell locale from local-time
+  continuity:
+  - `ui_language` shapes only first-party shell copy
+  - `utc_offset` lets runtime localize the current-turn timestamp so replies
+    about "today", date, or hour can reflect the user's explicit local offset
 - the `web` tools screen is now a thin client over backend-owned tools truth:
   - integral capabilities such as internal chat, web search, and web browser
     are exposed as always-on product posture
@@ -149,10 +154,10 @@ What is already live:
 
 What is still planned or intentionally deferred:
 
-- provider-owned embedding strategy and retrieval tuning beyond deterministic fallback
+- retrieval tuning and rollout-hardening beyond the current provider-backed baseline
 - finishing migration leftovers around orchestration boundaries
 - separate reflection worker process
-- provider-backed execution adapters for calendar/task/drive connectors
+- connector execution expansion beyond the current bounded ClickUp, Calendar, and Drive slices
 - connector capability-expansion proposals
 
 Near-term planning now also makes two coordination boundaries explicit:

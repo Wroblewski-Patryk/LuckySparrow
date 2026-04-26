@@ -2,6 +2,21 @@
 
 Last updated: 2026-04-26
 
+## Fresh Profile Local-Time Fix (2026-04-26)
+
+- fresh user-reported local-time drift now seeds one bounded continuity fix
+  through `PRJ-732`
+- `PRJ-732` is now complete:
+  - authenticated profile settings now persist one explicit `utc_offset`
+    value in `aion_profile`
+  - `/app/me/settings` and the web settings screen now expose that offset as
+    bounded `UTC±HH:MM` user input
+  - runtime now localizes current-turn timestamp truth from the stored profile
+    offset before the personality answers date or time questions
+  - focused validation passed:
+    - backend targeted suite passed
+    - web production build passed
+
 ## Fresh Data Reset Analysis (2026-04-25)
 
 - fresh user product and ops analysis now seeds one bounded destructive-data
@@ -96,6 +111,21 @@ Last updated: 2026-04-26
   - the next web visual lane is now explicit and execution-ready
   - the detailed rollout plan now prioritizes dashboard foundation first and
     `personality` second, both on top of one reusable component system
+- implementation progress on 2026-04-26:
+  - `PRJ-724..PRJ-727` are complete locally:
+    - the web shell now has one dashboard-first visual foundation with shared
+      motif-aware surfaces and background primitives in `web/src/index.css`
+    - `/chat` now acts as the authenticated front door with a motif-led hero,
+      transcript-first continuity panel, cognitive-flow rail, and route-entry
+      cards for deeper modules
+    - `settings`, `tools`, and `personality` now reuse the same shared surface
+      language instead of sitting in the previous flatter shell styling
+    - focused validation passed:
+      - `Push-Location .\web; npm run build; Pop-Location`
+  - `PRJ-728` is now the next `READY` slice:
+    - capture screenshot proof across desktop, tablet, and mobile
+    - verify loading, empty, error, and success states against the new shell
+    - review keyboard, touch, pointer, contrast, and reduced-motion posture
 
 ## Current Active Lane
 

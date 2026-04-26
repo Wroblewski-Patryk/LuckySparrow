@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import {
   ApiError,
   api,
@@ -14,23 +14,64 @@ import {
 type RoutePath = "/login" | "/chat" | "/settings" | "/personality" | "/tools";
 type AuthMode = "login" | "register";
 type UiLanguageCode = "system" | "en" | "pl" | "de";
-type SessionMessage =
-  | { id: string; role: "user"; text: string }
-  | { id: string; role: "assistant"; text: string; meta?: string };
+type ResolvedUiLanguageCode = Exclude<UiLanguageCode, "system">;
+type UtcOffsetOption = {
+  value: string;
+  label: string;
+};
 
 const BUILD_REVISION = String(import.meta.env.VITE_APP_BUILD_REVISION ?? "dev");
 const RESET_DATA_CONFIRMATION_TEXT = "RESET MY DATA";
 const ROUTES: RoutePath[] = ["/chat", "/settings", "/tools", "/personality"];
 const UI_LANGUAGE_OPTIONS: Array<{
   value: UiLanguageCode;
-  flag: string;
-  label: Record<Exclude<UiLanguageCode, "system">, string>;
+  iconToken: string;
+  nativeLabel: string;
+  label: Record<ResolvedUiLanguageCode, string>;
+  fallbackLabel: ResolvedUiLanguageCode | "browser";
 }> = [
-  { value: "system", flag: "🌐", label: { en: "System", pl: "System", de: "System" } },
-  { value: "en", flag: "🇺🇸", label: { en: "English", pl: "Angielski", de: "Englisch" } },
-  { value: "pl", flag: "🇵🇱", label: { en: "Polish", pl: "Polski", de: "Polnisch" } },
-  { value: "de", flag: "🇩🇪", label: { en: "German", pl: "Niemiecki", de: "Deutsch" } },
+  {
+    value: "system",
+    iconToken: "AUTO",
+    nativeLabel: "System",
+    label: { en: "System default", pl: "Domyślne systemu", de: "Systemstandard" },
+    fallbackLabel: "browser",
+  },
+  {
+    value: "en",
+    iconToken: "EN",
+    nativeLabel: "English",
+    label: { en: "English", pl: "Angielski", de: "Englisch" },
+    fallbackLabel: "en",
+  },
+  {
+    value: "pl",
+    iconToken: "PL",
+    nativeLabel: "Polski",
+    label: { en: "Polish", pl: "Polski", de: "Polnisch" },
+    fallbackLabel: "pl",
+  },
+  {
+    value: "de",
+    iconToken: "DE",
+    nativeLabel: "Deutsch",
+    label: { en: "German", pl: "Niemiecki", de: "Deutsch" },
+    fallbackLabel: "de",
+  },
 ];
+
+const UTC_OFFSET_OPTIONS: UtcOffsetOption[] = Array.from({ length: 105 }, (_, index) => {
+  const totalMinutes = -12 * 60 + index * 15;
+  const sign = totalMinutes >= 0 ? "+" : "-";
+  const absoluteMinutes = Math.abs(totalMinutes);
+  const hours = Math.floor(absoluteMinutes / 60);
+  const minutes = absoluteMinutes % 60;
+  const value = `UTC${sign}${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+  return {
+    value,
+    label: `(UTC${sign}${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")})`,
+  };
+});
 
 const UI_COPY = {
   en: {
@@ -43,9 +84,9 @@ const UI_COPY = {
     } satisfies Record<RoutePath, string>,
     routeDescriptions: {
       "/login": "Authenticate into the product shell.",
-      "/chat": "Conversation-first workspace with recent continuity and live runtime replies.",
-      "/settings": "Profile, interface language, and proactive preferences backed by backend truth.",
-      "/tools": "Tools and channels framed around state, action, and progress instead of raw backend wording.",
+      "/chat": "One shared conversation thread with your latest exchanged messages and fresh replies from AION.",
+      "/settings": "Profile, interface language, and proactive preferences in one clear place.",
+      "/tools": "See what is ready, what needs attention, and what you can use next.",
       "/personality": "Product-facing overview of identity, knowledge, planning, and capabilities.",
     } satisfies Record<RoutePath, string>,
     common: {
@@ -56,6 +97,7 @@ const UI_COPY = {
       signOut: "Sign out",
       build: "build",
       uiLanguage: "UI language",
+      utcOffset: "UTC offset",
       conversationLanguage: "Conversation language",
       proactive: "Proactive",
       on: "On",
@@ -65,20 +107,26 @@ const UI_COPY = {
       loading: "Loading...",
       interfaceOnly: "Interface only",
       details: "Details",
-      inspectPayload: "Inspect raw payload",
+      inspectPayload: "View details",
       noData: "No data yet.",
       user: "You",
       assistant: "AION",
-      sourceOfTruth: "Source of truth",
+      sourceOfTruth: "Current value",
       notSet: "not set",
       system: "System",
+      stateLoadingTitle: "Getting things ready",
+      stateEmptyTitle: "Nothing to show yet",
+      stateSuccessTitle: "Done",
+      stateErrorTitle: "Something needs attention",
+      stateDetailLabel: "Details",
     },
     auth: {
       badge: "AION Web v2",
-      heroTitle: "A mobile-first shell for the personality.",
+      heroTitle: "A calmer place to continue the conversation.",
       heroBody:
-        "Login, chat, settings, tools, and personality insights now share one cleaner product shell built on the existing backend.",
+        "Sign in to pick up where you left off, adjust your preferences, and keep AION close without digging through setup screens.",
       sessionEntry: "Session entry",
+      trustTitle: "What you can expect",
       login: "Log in",
       register: "Create account",
       email: "Email",
@@ -88,24 +136,40 @@ const UI_COPY = {
       createAccount: "Create account",
       tabsLogin: "Login",
       tabsRegister: "Register",
+      trustCards: [
+        {
+          title: "Fast return to your workspace",
+          body: "Your chat, settings, and linked tools stay one sign-in away.",
+        },
+        {
+          title: "A clear place to manage preferences",
+          body: "Profile details, language, and proactive follow-ups stay easy to reach.",
+        },
+        {
+          title: "Built for privacy and control",
+          body: "You can reset runtime continuity later without deleting the account itself.",
+        },
+      ],
     },
     chat: {
       eyebrow: "Conversation",
       title: "Talk to the personality",
-      subtitle: "Keep the conversation front and center. Continuity stays available without pushing the chat off screen.",
+      subtitle: "See the latest shared conversation first, whether the recent turns came from the app or a linked channel.",
       emptyThread:
-        "Start the conversation here. Recent continuity stays available below, but the main thread remains the primary surface.",
+        "Start the conversation here. New turns will appear in this shared thread as soon as they are exchanged.",
       placeholder: "Send a message to AION...",
-      composerHint: "Replies come from the existing backend runtime via `/app/chat/message`.",
+      composerHint: "Replies land back in this same transcript, so you can stay focused on one conversation.",
       send: "Send message",
       sending: "Sending...",
-      continuity: "Continuity",
-      timeline: "Recent memory",
-      noHistory: "No persisted conversation events yet.",
-      sessionCount: "Current session",
-      memoryCount: "Memory items",
+      thread: "Thread",
+      latestMessages: "Latest messages",
+      noHistory: "No shared messages yet.",
+      transcriptCount: "Transcript items",
+      activeChannel: "Recent channels",
       latestLanguage: "Live language",
-      payload: "Event payload",
+      messageDetails: "Message details",
+      channel: "Channel",
+      pending: "Sending now",
     },
     settings: {
       eyebrow: "Settings",
@@ -116,13 +180,16 @@ const UI_COPY = {
       uiLanguageTitle: "Interface language",
       uiLanguageBody: "Changes labels, copy, and navigation in the app shell only.",
       uiLanguageHelp: "This does not control the language used when talking with AION.",
+      utcOffsetTitle: "Local time offset",
+      utcOffsetBody: "Sets the explicit UTC offset used when AION reasons about the current date and time for your profile.",
+      utcOffsetHelp: "Choose the offset that matches your current place, for example Switzerland or Poland in winter is usually UTC+01:00.",
       conversationTitle: "Conversation language",
       conversationBody: "AION adapts live from context, history, and the current conversation.",
       proactiveTitle: "Proactive follow-ups",
-      proactiveBody: "Let AION send bounded proactive nudges when runtime policy allows it.",
-      saveHint: "Settings are persisted through `/app/me/settings`.",
-      conversationRuntimeOwned: "Runtime-owned and adaptive",
-      savedState: "Saved in backend truth",
+      proactiveBody: "Let AION send occasional follow-ups when your account settings allow it.",
+      saveHint: "Save your changes when you are ready.",
+      conversationRuntimeOwned: "Adaptive and context-aware",
+      savedState: "Ready to save",
       resetTitle: "Reset runtime data",
       resetBody:
         "Clear learned runtime continuity, memory, planning state, and queue state for this account without deleting the account or reconfiguring linked tools.",
@@ -143,8 +210,8 @@ const UI_COPY = {
       integral: "Always on",
       ready: "Ready now",
       linkRequired: "Needs linking",
-      loading: "Loading tools overview from backend.",
-      empty: "No tools overview payload is loaded yet.",
+      loading: "Loading your tools overview.",
+      empty: "Your tools overview will appear here.",
       currentStatus: "Current status",
       nextStep: "Next step",
       technicalDetails: "Technical details",
@@ -169,13 +236,13 @@ const UI_COPY = {
     personality: {
       eyebrow: "Personality",
       title: "Personality overview",
-      subtitle: "High-level insight first, raw payload only when you want to inspect it.",
+      subtitle: "High-level insight first, with extra detail available only when you want it.",
       goals: "Goals",
       tasks: "Tasks",
       knowledge: "Knowledge",
       preferences: "Preferences",
       filter: "Filter sections",
-      loading: "Loading personality overview from backend.",
+      loading: "Loading personality overview.",
       empty: "No matching overview sections for this filter.",
       highlights: "Highlights",
     },
@@ -184,9 +251,9 @@ const UI_COPY = {
     routes: { "/login": "Logowanie", "/chat": "Czat", "/settings": "Ustawienia", "/tools": "Narzędzia", "/personality": "Osobowość" },
     routeDescriptions: {
       "/login": "Zaloguj się do powłoki produktu.",
-      "/chat": "Widok rozmowy ustawiony mobile-first z pamięcią pod ręką.",
-      "/settings": "Profil, język interfejsu i zgoda na proaktywność oparte o backend truth.",
-      "/tools": "Narzędzia i kanały pokazane przez stan, akcję i gotowość zamiast surowego backendowego słownictwa.",
+      "/chat": "Jeden wspólny wątek rozmowy z ostatnimi wiadomościami i świeżymi odpowiedziami AION.",
+      "/settings": "Profil, język interfejsu i proaktywność w jednym prostym miejscu.",
+      "/tools": "Zobacz, co jest gotowe, co wymaga uwagi i z czego możesz skorzystać dalej.",
       "/personality": "Produktowy przegląd tożsamości, wiedzy, planowania i możliwości.",
     },
     common: {
@@ -197,6 +264,7 @@ const UI_COPY = {
       signOut: "Wyloguj",
       build: "build",
       uiLanguage: "Język UI",
+      utcOffset: "Offset UTC",
       conversationLanguage: "Język rozmowy",
       proactive: "Proaktywność",
       on: "Wł.",
@@ -206,20 +274,26 @@ const UI_COPY = {
       loading: "Ładowanie...",
       interfaceOnly: "Tylko interfejs",
       details: "Szczegóły",
-      inspectPayload: "Pokaż surowy payload",
+      inspectPayload: "Pokaż szczegóły",
       noData: "Brak danych.",
       user: "Ty",
       assistant: "AION",
-      sourceOfTruth: "Źródło prawdy",
+      sourceOfTruth: "Bieżąca wartość",
       notSet: "brak",
       system: "System",
+      stateLoadingTitle: "Przygotowuję widok",
+      stateEmptyTitle: "Na razie nic tu nie ma",
+      stateSuccessTitle: "Gotowe",
+      stateErrorTitle: "Coś wymaga uwagi",
+      stateDetailLabel: "Szczegóły",
     },
     auth: {
       badge: "AION Web v2",
-      heroTitle: "Mobile-first shell dla osobowości.",
+      heroTitle: "Spokojne miejsce, żeby wrócić do rozmowy.",
       heroBody:
-        "Logowanie, czat, ustawienia, narzędzia i wgląd w osobowość działają teraz w jednej, czystszej powłoce produktu nad istniejącym backendem.",
+        "Zaloguj się, aby wrócić do czatu, ustawić preferencje i mieć AION blisko bez przedzierania się przez techniczny ekran startowy.",
       sessionEntry: "Wejście do sesji",
+      trustTitle: "Czego możesz się spodziewać",
       login: "Zaloguj się",
       register: "Załóż konto",
       email: "Email",
@@ -229,24 +303,40 @@ const UI_COPY = {
       createAccount: "Utwórz konto",
       tabsLogin: "Logowanie",
       tabsRegister: "Rejestracja",
+      trustCards: [
+        {
+          title: "Szybki powrót do workspace'u",
+          body: "Czat, ustawienia i podpięte narzędzia są dostępne zaraz po zalogowaniu.",
+        },
+        {
+          title: "Jeden prosty panel preferencji",
+          body: "Profil, język i proaktywne follow-upy pozostają łatwe do znalezienia i zmiany.",
+        },
+        {
+          title: "Prywatność i kontrola po Twojej stronie",
+          body: "Później możesz zresetować continuity runtime'u bez usuwania samego konta.",
+        },
+      ],
     },
     chat: {
       eyebrow: "Rozmowa",
       title: "Porozmawiaj z osobowością",
-      subtitle: "Rozmowa jest na pierwszym planie. Ciągłość pozostaje dostępna, ale nie spycha czatu z ekranu.",
+      subtitle: "Najpierw widzisz wspólną rozmowę, niezależnie od tego, czy ostatnie wiadomości przyszły z aplikacji czy z podpiętego kanału.",
       emptyThread:
-        "Zacznij rozmowę tutaj. Ostatnia ciągłość jest dostępna niżej, ale główny wątek pozostaje najważniejszą powierzchnią.",
+        "Zacznij rozmowę tutaj. Nowe wiadomości pojawią się w tym samym wspólnym wątku zaraz po wymianie.",
       placeholder: "Napisz wiadomość do AION...",
-      composerHint: "Odpowiedzi pochodzą z istniejącego runtime backendu przez `/app/chat/message`.",
+      composerHint: "Odpowiedzi wracają do tego samego transcriptu, żeby cały dialog został w jednym miejscu.",
       send: "Wyślij wiadomość",
       sending: "Wysyłanie...",
-      continuity: "Ciągłość",
-      timeline: "Ostatnia pamięć",
-      noHistory: "Brak zapisanych zdarzeń rozmowy.",
-      sessionCount: "Bieżąca sesja",
-      memoryCount: "Elementy pamięci",
+      thread: "Wątek",
+      latestMessages: "Ostatnie wiadomości",
+      noHistory: "Nie ma jeszcze wspólnych wiadomości.",
+      transcriptCount: "Elementy transcriptu",
+      activeChannel: "Ostatnie kanały",
       latestLanguage: "Język live",
-      payload: "Payload zdarzenia",
+      messageDetails: "Szczegóły wiadomości",
+      channel: "Kanał",
+      pending: "Wysyłanie",
     },
     settings: {
       eyebrow: "Ustawienia",
@@ -257,13 +347,16 @@ const UI_COPY = {
       uiLanguageTitle: "Język interfejsu",
       uiLanguageBody: "Zmienia etykiety, copy i nawigację tylko w powłoce aplikacji.",
       uiLanguageHelp: "To nie steruje językiem rozmowy z AION.",
+      utcOffsetTitle: "Lokalny offset czasu",
+      utcOffsetBody: "Ustawia jawny offset UTC, którego AION używa przy wnioskowaniu o bieżącej dacie i godzinie dla Twojego profilu.",
+      utcOffsetHelp: "Wybierz offset zgodny z Twoim aktualnym miejscem. Na przykład Polska lub Szwajcaria zimą to zwykle UTC+01:00.",
       conversationTitle: "Język rozmowy",
       conversationBody: "AION dopasowuje go live na podstawie kontekstu, historii i bieżącej rozmowy.",
       proactiveTitle: "Proaktywne follow-upy",
-      proactiveBody: "Pozwól AION wysyłać ograniczone proaktywne przypomnienia, gdy pozwala na to polityka runtime.",
-      saveHint: "Ustawienia zapisują się przez `/app/me/settings`.",
-      conversationRuntimeOwned: "Sterowane przez runtime i adaptacyjne",
-      savedState: "Zapisane w backend truth",
+      proactiveBody: "Pozwól AION wysyłać okazjonalne follow-upy, gdy pozwalają na to ustawienia Twojego konta.",
+      saveHint: "Zapisz zmiany, gdy będziesz gotowy.",
+      conversationRuntimeOwned: "Adaptacyjne i oparte na kontekście",
+      savedState: "Gotowe do zapisania",
       resetTitle: "Reset danych runtime",
       resetBody:
         "Wyczysc wyuczona ciaglosc runtime, pamiec, stan planowania i kolejki dla tego konta bez usuwania konta ani ponownej konfiguracji podpietych narzedzi.",
@@ -284,8 +377,8 @@ const UI_COPY = {
       integral: "Zawsze aktywne",
       ready: "Gotowe teraz",
       linkRequired: "Wymaga podpięcia",
-      loading: "Ładowanie widoku narzędzi z backendu.",
-      empty: "Brak załadowanego payloadu narzędzi.",
+      loading: "Ładowanie przeglądu narzędzi.",
+      empty: "Tutaj pojawi się przegląd Twoich narzędzi.",
       currentStatus: "Obecny stan",
       nextStep: "Następny krok",
       technicalDetails: "Szczegóły techniczne",
@@ -310,13 +403,13 @@ const UI_COPY = {
     personality: {
       eyebrow: "Osobowość",
       title: "Przegląd osobowości",
-      subtitle: "Najpierw wgląd produktowy, a surowy payload tylko wtedy, gdy chcesz go sprawdzić.",
+      subtitle: "Najpierw najważniejsze informacje, a dodatkowe szczegóły tylko wtedy, gdy ich potrzebujesz.",
       goals: "Cele",
       tasks: "Zadania",
       knowledge: "Wiedza",
       preferences: "Preferencje",
       filter: "Filtruj sekcje",
-      loading: "Ładowanie przeglądu osobowości z backendu.",
+      loading: "Ładowanie przeglądu osobowości.",
       empty: "Brak sekcji pasujących do filtra.",
       highlights: "Najważniejsze punkty",
     },
@@ -325,9 +418,9 @@ const UI_COPY = {
     routes: { "/login": "Login", "/chat": "Chat", "/settings": "Einstellungen", "/tools": "Tools", "/personality": "Persönlichkeit" },
     routeDescriptions: {
       "/login": "Melde dich in der Produkthülle an.",
-      "/chat": "Konversationsfokus mit mobile-first Layout und sofort sichtbarer Kontinuität.",
-      "/settings": "Profil, Oberflächensprache und proaktive Präferenzen mit Backend-Truth als Grundlage.",
-      "/tools": "Tools und Kanäle über Status, Aktion und Fortschritt statt roher Backend-Terminologie.",
+      "/chat": "Ein gemeinsamer Gesprächsthread mit den letzten Nachrichten und neuen Antworten von AION.",
+      "/settings": "Profil, Oberflächensprache und proaktive Präferenzen an einem klaren Ort.",
+      "/tools": "Sieh, was bereit ist, was Aufmerksamkeit braucht und was du als Nächstes nutzen kannst.",
       "/personality": "Produktorientierter Überblick über Identität, Wissen, Planung und Fähigkeiten.",
     },
     common: {
@@ -338,6 +431,7 @@ const UI_COPY = {
       signOut: "Abmelden",
       build: "build",
       uiLanguage: "UI-Sprache",
+      utcOffset: "UTC-Offset",
       conversationLanguage: "Gesprächssprache",
       proactive: "Proaktiv",
       on: "An",
@@ -347,20 +441,26 @@ const UI_COPY = {
       loading: "Lädt...",
       interfaceOnly: "Nur Oberfläche",
       details: "Details",
-      inspectPayload: "Rohdaten anzeigen",
+      inspectPayload: "Details anzeigen",
       noData: "Noch keine Daten.",
       user: "Du",
       assistant: "AION",
-      sourceOfTruth: "Quelle der Wahrheit",
+      sourceOfTruth: "Aktueller Wert",
       notSet: "nicht gesetzt",
       system: "System",
+      stateLoadingTitle: "Ansicht wird vorbereitet",
+      stateEmptyTitle: "Hier ist noch nichts zu sehen",
+      stateSuccessTitle: "Erledigt",
+      stateErrorTitle: "Etwas braucht Aufmerksamkeit",
+      stateDetailLabel: "Details",
     },
     auth: {
       badge: "AION Web v2",
-      heroTitle: "Eine mobile-first Hülle für die Persönlichkeit.",
+      heroTitle: "Ein ruhiger Ort, um das Gespräch fortzusetzen.",
       heroBody:
-        "Login, Chat, Einstellungen, Tools und Persönlichkeits-Einblicke teilen jetzt eine klarere Produkthülle über dem bestehenden Backend.",
+        "Melde dich an, um zum Chat zurückzukehren, Einstellungen anzupassen und AION ohne technischen Ballast direkt griffbereit zu haben.",
       sessionEntry: "Sitzung",
+      trustTitle: "Was dich erwartet",
       login: "Einloggen",
       register: "Konto erstellen",
       email: "E-Mail",
@@ -370,24 +470,40 @@ const UI_COPY = {
       createAccount: "Konto erstellen",
       tabsLogin: "Login",
       tabsRegister: "Registrieren",
+      trustCards: [
+        {
+          title: "Schnell zurück im Workspace",
+          body: "Chat, Einstellungen und verbundene Tools sind nach dem Login direkt da.",
+        },
+        {
+          title: "Ein klarer Ort für deine Präferenzen",
+          body: "Profil, Sprache und proaktive Follow-ups bleiben leicht erreichbar.",
+        },
+        {
+          title: "Mehr Privatsphäre und Kontrolle",
+          body: "Später kannst du die Runtime-Kontinuität zurücksetzen, ohne das Konto zu löschen.",
+        },
+      ],
     },
     chat: {
       eyebrow: "Gespräch",
       title: "Sprich mit der Persönlichkeit",
-      subtitle: "Die Unterhaltung steht im Vordergrund. Kontinuität bleibt sichtbar, verdrängt den Chat aber nicht.",
+      subtitle: "Du siehst zuerst den gemeinsamen Gesprächsverlauf, egal ob die letzten Nachrichten aus der App oder aus einem verknüpften Kanal kamen.",
       emptyThread:
-        "Starte die Unterhaltung hier. Die letzte Kontinuität bleibt darunter verfügbar, aber der Haupt-Thread bleibt die primäre Fläche.",
+        "Starte die Unterhaltung hier. Neue Nachrichten erscheinen direkt in diesem gemeinsamen Thread, sobald sie ausgetauscht wurden.",
       placeholder: "Sende eine Nachricht an AION...",
-      composerHint: "Antworten kommen aus der bestehenden Backend-Runtime über `/app/chat/message`.",
+      composerHint: "Antworten landen wieder in diesem selben Transkript, damit die ganze Unterhaltung an einem Ort bleibt.",
       send: "Nachricht senden",
       sending: "Senden...",
-      continuity: "Kontinuität",
-      timeline: "Letzter Verlauf",
-      noHistory: "Noch keine gespeicherten Gesprächsereignisse.",
-      sessionCount: "Aktuelle Sitzung",
-      memoryCount: "Erinnerungseinträge",
+      thread: "Thread",
+      latestMessages: "Letzte Nachrichten",
+      noHistory: "Noch keine gemeinsamen Nachrichten.",
+      transcriptCount: "Transkript-Einträge",
+      activeChannel: "Letzte Kanäle",
       latestLanguage: "Live-Sprache",
-      payload: "Ereignis-Payload",
+      messageDetails: "Nachrichtendetails",
+      channel: "Kanal",
+      pending: "Wird gesendet",
     },
     settings: {
       eyebrow: "Einstellungen",
@@ -398,13 +514,16 @@ const UI_COPY = {
       uiLanguageTitle: "Oberflächensprache",
       uiLanguageBody: "Ändert nur Labels, Copy und Navigation der App-Hülle.",
       uiLanguageHelp: "Das steuert nicht die Sprache des Gesprächs mit AION.",
+      utcOffsetTitle: "Lokaler Zeit-Offset",
+      utcOffsetBody: "Legt den expliziten UTC-Offset fest, den AION für Datum und Uhrzeit deines Profils verwendet.",
+      utcOffsetHelp: "Wähle den Offset passend zu deinem aktuellen Ort. Polen oder die Schweiz im Winter sind zum Beispiel meist UTC+01:00.",
       conversationTitle: "Gesprächssprache",
       conversationBody: "AION passt sie live aus Kontext, Verlauf und aktueller Unterhaltung an.",
       proactiveTitle: "Proaktive Follow-ups",
-      proactiveBody: "Erlaube AION begrenzte proaktive Hinweise, wenn die Runtime-Richtlinie es zulässt.",
-      saveHint: "Einstellungen werden über `/app/me/settings` gespeichert.",
-      conversationRuntimeOwned: "Runtime-gesteuert und adaptiv",
-      savedState: "In Backend-Truth gespeichert",
+      proactiveBody: "Erlaube AION gelegentliche Follow-ups, wenn deine Kontoeinstellungen es zulassen.",
+      saveHint: "Speichere deine Änderungen, wenn du bereit bist.",
+      conversationRuntimeOwned: "Adaptiv und kontextbezogen",
+      savedState: "Bereit zum Speichern",
       resetTitle: "Runtime-Daten zurucksetzen",
       resetBody:
         "Loscht gelernte Runtime-Kontinuitat, Erinnerung, Planungszustand und Warteschlangenstatus fur dieses Konto, ohne das Konto oder verknupfte Tools neu aufzusetzen.",
@@ -425,7 +544,7 @@ const UI_COPY = {
       integral: "Immer aktiv",
       ready: "Jetzt bereit",
       linkRequired: "Benötigt Verknüpfung",
-      loading: "Tool-Übersicht wird aus dem Backend geladen.",
+      loading: "Tool-Übersicht wird geladen.",
       empty: "Noch keine Tool-Übersicht geladen.",
       currentStatus: "Aktueller Status",
       nextStep: "Nächster Schritt",
@@ -451,13 +570,13 @@ const UI_COPY = {
     personality: {
       eyebrow: "Persönlichkeit",
       title: "Persönlichkeitsübersicht",
-      subtitle: "Zuerst produktorientierte Einblicke, Rohdaten nur bei Bedarf.",
+      subtitle: "Zuerst die wichtigsten Einblicke, weitere Details nur dann, wenn du sie sehen willst.",
       goals: "Ziele",
       tasks: "Aufgaben",
       knowledge: "Wissen",
       preferences: "Präferenzen",
       filter: "Sektionen filtern",
-      loading: "Persönlichkeitsübersicht wird aus dem Backend geladen.",
+      loading: "Persönlichkeitsübersicht wird geladen.",
       empty: "Keine passenden Sektionen für diesen Filter.",
       highlights: "Highlights",
     },
@@ -493,7 +612,7 @@ function normalizeUiLanguage(value: string | null | undefined): UiLanguageCode {
   return "system";
 }
 
-function resolveUiLanguage(value: UiLanguageCode): Exclude<UiLanguageCode, "system"> {
+function resolveUiLanguage(value: UiLanguageCode): ResolvedUiLanguageCode {
   if (value !== "system") {
     return value;
   }
@@ -505,6 +624,20 @@ function resolveUiLanguage(value: UiLanguageCode): Exclude<UiLanguageCode, "syst
     return "de";
   }
   return "en";
+}
+
+function uiLanguageMetadata(value: UiLanguageCode) {
+  return UI_LANGUAGE_OPTIONS.find((option) => option.value === value) ?? UI_LANGUAGE_OPTIONS[0];
+}
+
+function normalizeUtcOffset(value: string | null | undefined) {
+  const normalized = String(value ?? "").trim().toUpperCase();
+  return UTC_OFFSET_OPTIONS.find((option) => option.value === normalized)?.value ?? "UTC+00:00";
+}
+
+function utcOffsetOption(value: string | null | undefined) {
+  const normalized = normalizeUtcOffset(value);
+  return UTC_OFFSET_OPTIONS.find((option) => option.value === normalized) ?? UTC_OFFSET_OPTIONS[48];
 }
 
 function formatTimestamp(value: string | undefined, locale: string | undefined) {
@@ -537,16 +670,51 @@ function stringValue(value: unknown, fallback = "not set") {
   return fallback;
 }
 
-function routeDescription(route: RoutePath, locale: Exclude<UiLanguageCode, "system">) {
+function transcriptRoleLabel(role: AppChatHistoryEntry["role"], copy: (typeof UI_COPY)[ResolvedUiLanguageCode]) {
+  return role === "user" ? copy.common.user : copy.common.assistant;
+}
+
+function transcriptChannelLabel(channel: string) {
+  if (!channel) {
+    return "unknown";
+  }
+  return channel.replaceAll("_", " ");
+}
+
+function transcriptMetadataSummary(entry: AppChatHistoryEntry) {
+  if (!entry.metadata) {
+    return null;
+  }
+
+  const language = stringValue(entry.metadata.language, "").trim();
+  const tone = stringValue(entry.metadata.tone, "").trim();
+  const runtimeRole = stringValue(entry.metadata.runtime_role, "").trim();
+  const actionStatus = stringValue(entry.metadata.action_status, "").trim();
+
+  const parts = [
+    language ? `lang ${language}` : null,
+    tone ? `tone ${tone}` : null,
+    runtimeRole ? `role ${runtimeRole}` : null,
+    actionStatus ? `action ${actionStatus}` : null,
+  ].filter(Boolean);
+
+  return parts.length > 0 ? parts.join(" | ") : null;
+}
+
+function routeDescription(route: RoutePath, locale: ResolvedUiLanguageCode) {
   return UI_COPY[locale].routeDescriptions[route];
 }
 
-function routeLabel(route: RoutePath, locale: Exclude<UiLanguageCode, "system">) {
+function routeLabel(route: RoutePath, locale: ResolvedUiLanguageCode) {
   return UI_COPY[locale].routes[route];
 }
 
-function localeLanguageLabel(option: (typeof UI_LANGUAGE_OPTIONS)[number], locale: Exclude<UiLanguageCode, "system">) {
+function localeLanguageLabel(option: (typeof UI_LANGUAGE_OPTIONS)[number], locale: ResolvedUiLanguageCode) {
   return option.label[locale];
+}
+
+function localeOptionDisplay(option: (typeof UI_LANGUAGE_OPTIONS)[number], locale: ResolvedUiLanguageCode) {
+  return `${option.iconToken} ${option.nativeLabel}${localeLanguageLabel(option, locale) === option.nativeLabel ? "" : ` · ${localeLanguageLabel(option, locale)}`}`;
 }
 
 function titleCaseFromStatus(value: string) {
@@ -600,15 +768,15 @@ function summaryLines(sectionKey: string, payload: unknown): string[] {
     const profile = (record.profile as Record<string, unknown> | undefined) ?? {};
     const preferenceSummary = (record.preference_summary as Record<string, unknown> | undefined) ?? {};
     return [
-      `Conversation continuity language: ${stringValue(profile.preferred_language, "unknown")}`,
-      `Resolved learned preferences: ${stringValue(preferenceSummary.learned_preference_count, "0")}`,
+      `Preferred conversation language: ${stringValue(profile.preferred_language, "unknown")}`,
+      `Learned preferences available: ${stringValue(preferenceSummary.learned_preference_count, "0")}`,
     ];
   }
   if (sectionKey === "learned_knowledge") {
     const knowledgeSummary = (record.knowledge_summary as Record<string, unknown> | undefined) ?? {};
     return [
-      `Semantic conclusions: ${stringValue(knowledgeSummary.semantic_conclusion_count, "0")}`,
-      `Affective conclusions: ${stringValue(knowledgeSummary.affective_conclusion_count, "0")}`,
+      `Patterns captured: ${stringValue(knowledgeSummary.semantic_conclusion_count, "0")}`,
+      `Mood-aware takeaways: ${stringValue(knowledgeSummary.affective_conclusion_count, "0")}`,
     ];
   }
   if (sectionKey === "planning_state") {
@@ -621,24 +789,213 @@ function summaryLines(sectionKey: string, payload: unknown): string[] {
   if (sectionKey === "role_skill_state") {
     const selectionSummary = (record.selection_visibility_summary as Record<string, unknown> | undefined) ?? {};
     return [
-      `Catalog skills: ${stringValue(selectionSummary.catalog_skill_count, "0")}`,
-      `Runtime surface: ${stringValue(selectionSummary.runtime_selection_surface, "system_debug")}`,
+      `Skills currently listed: ${stringValue(selectionSummary.catalog_skill_count, "0")}`,
+      `Current selection view: ${stringValue(selectionSummary.runtime_selection_surface, "available")}`,
     ];
   }
   if (sectionKey === "capability_catalog") {
     const posture = (record.tool_and_connector_posture as Record<string, unknown> | undefined) ?? {};
     return [
-      `Organizer stack state: ${stringValue(posture.organizer_stack_state, "unknown")}`,
-      `Selectable tool families: ${Array.isArray(posture.selectable_tool_families) ? posture.selectable_tool_families.length : 0}`,
+      `Organizer setup: ${stringValue(posture.organizer_stack_state, "unknown")}`,
+      `Tool families available: ${Array.isArray(posture.selectable_tool_families) ? posture.selectable_tool_families.length : 0}`,
     ];
   }
   if (sectionKey === "api_readiness") {
     return [
       `Product stage: ${stringValue(record.product_stage, "unknown")}`,
-      `Inspection path: ${stringValue(record.internal_inspection_path, "/internal/state/inspect")}`,
+      `Internal checks available: ${stringValue(record.internal_inspection_path, "yes")}`,
     ];
   }
   return [prettyJson(payload).slice(0, 140)];
+}
+
+function StatePanel({
+  tone,
+  title,
+  body,
+  loading = false,
+}: {
+  tone: "neutral" | "success" | "error";
+  title: string;
+  body: string;
+  loading?: boolean;
+}) {
+  const toneClasses =
+    tone === "error"
+      ? "border-error/30 bg-error/5 text-base-900"
+      : tone === "success"
+        ? "border-success/30 bg-success/10 text-base-900"
+        : "border-base-300 bg-base-200 text-base-900";
+
+  return (
+    <div className={`rounded-2xl border px-4 py-5 ${toneClasses}`}>
+      <div className="flex items-start gap-3">
+        {loading ? <span className="loading loading-spinner loading-sm mt-0.5 text-primary" /> : null}
+        <div>
+          <p className="text-sm font-semibold">{title}</p>
+          <p className="mt-1 text-sm leading-7 text-base-800">{body}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeedbackBanner({
+  tone,
+  title,
+  body,
+  detail,
+  detailLabel,
+}: {
+  tone: "success" | "error";
+  title: string;
+  body: string;
+  detail?: string | null;
+  detailLabel: string;
+}) {
+  const toneClasses =
+    tone === "error"
+      ? "border-error/40 bg-error/8 text-base-900"
+      : "border-success/40 bg-success/12 text-base-900";
+
+  return (
+    <div className={`mb-4 rounded-[1.5rem] border px-4 py-4 shadow-sm ${toneClasses}`}>
+      <p className="text-sm font-semibold">{title}</p>
+      <p className="mt-1 text-sm leading-7 text-base-800">{body}</p>
+      {detail ? (
+        <details className="mt-3">
+          <summary className="cursor-pointer text-sm font-medium text-base-900">{detailLabel}</summary>
+          <p className="mt-2 break-words rounded-xl bg-base-100/80 px-3 py-3 text-sm leading-7 text-base-800">
+            {detail}
+          </p>
+        </details>
+      ) : null}
+    </div>
+  );
+}
+
+function MetricCard({
+  eyebrow,
+  value,
+  detail,
+  accent = "default",
+}: {
+  eyebrow: string;
+  value: string;
+  detail: string;
+  accent?: "default" | "teal" | "gold";
+}) {
+  const accentClasses =
+    accent === "teal"
+      ? "border-[#8eb8b2]/30 bg-[#eff7f5]"
+      : accent === "gold"
+        ? "border-[#d2b07f]/30 bg-[#fcf6ea]"
+        : "border-base-300 bg-base-100";
+
+  return (
+    <article className={`rounded-[1.5rem] border p-4 shadow-sm ${accentClasses}`}>
+      <p className="text-xs uppercase tracking-[0.22em] text-base-800">{eyebrow}</p>
+      <p className="mt-3 font-display text-3xl text-base-900">{value}</p>
+      <p className="mt-2 text-sm leading-7 text-base-800">{detail}</p>
+    </article>
+  );
+}
+
+function ModuleEntryCard({
+  label,
+  title,
+  body,
+  meta,
+  onClick,
+}: {
+  label: string;
+  title: string;
+  body: string;
+  meta: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="aion-panel-soft group rounded-[1.6rem] p-4 text-left transition duration-200 hover:-translate-y-0.5 hover:border-[#7ea79f]/35"
+      onClick={onClick}
+      type="button"
+    >
+      <p className="text-[11px] uppercase tracking-[0.24em] text-base-800">{label}</p>
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-display text-2xl text-base-900">{title}</h3>
+          <p className="mt-2 text-sm leading-7 text-base-800">{body}</p>
+        </div>
+        <span className="aion-chip rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-base-900">
+          {meta}
+        </span>
+      </div>
+      <div className="mt-4 flex items-center justify-between text-sm text-base-800">
+        <span>Open space</span>
+        <span className="font-semibold text-base-900 transition group-hover:translate-x-1">→</span>
+      </div>
+    </button>
+  );
+}
+
+function FlowRail({
+  items,
+}: {
+  items: Array<{
+    eyebrow: string;
+    title: string;
+    body: string;
+  }>;
+}) {
+  return (
+    <div className="grid gap-4">
+      {items.map((item) => (
+        <article key={item.title} className="aion-flow-line pl-8">
+          <span className="absolute left-0 top-1 flex h-5 w-5 items-center justify-center rounded-full border border-[#8eb8b2]/35 bg-[#f6faf8] text-[10px] font-semibold text-[#567671]">
+            •
+          </span>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-base-800">{item.eyebrow}</p>
+          <h4 className="mt-1 font-display text-xl text-base-900">{item.title}</h4>
+          <p className="mt-2 text-sm leading-7 text-base-800">{item.body}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function MotifFigurePanel({
+  title,
+  body,
+  highlights,
+}: {
+  title: string;
+  body: string;
+  highlights: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <div className="aion-panel aion-halo aion-motif-panel rounded-[2rem] p-5">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center">
+        <div className="aion-figure">
+          <div className="aion-figure-grid" />
+        </div>
+        <div className="space-y-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.24em] text-base-800">Embodied cognition</p>
+            <h3 className="mt-2 font-display text-3xl text-base-900">{title}</h3>
+            <p className="mt-3 text-sm leading-7 text-base-800">{body}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {highlights.map((item) => (
+              <div key={item.label} className="aion-chip rounded-[1.3rem] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-base-800">{item.label}</p>
+                <p className="mt-2 text-sm font-semibold leading-6 text-base-900">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
@@ -652,7 +1009,7 @@ export default function App() {
   const [history, setHistory] = useState<AppChatHistoryEntry[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [sessionMessages, setSessionMessages] = useState<SessionMessage[]>([]);
+  const [pendingChatMessage, setPendingChatMessage] = useState<AppChatHistoryEntry | null>(null);
   const [chatText, setChatText] = useState("");
   const [overview, setOverview] = useState<AppPersonalityOverviewResponse | null>(null);
   const [overviewLoading, setOverviewLoading] = useState(false);
@@ -671,12 +1028,17 @@ export default function App() {
   const [settingsDraft, setSettingsDraft] = useState({
     displayName: "",
     uiLanguage: "system" as UiLanguageCode,
+    utcOffset: "UTC+00:00",
     proactiveOptIn: false,
   });
   const [savingSettings, setSavingSettings] = useState(false);
   const [resetConfirmationText, setResetConfirmationText] = useState("");
   const [resettingData, setResettingData] = useState(false);
   const [accountPanelOpen, setAccountPanelOpen] = useState(false);
+  const transcriptContainerRef = useRef<HTMLDivElement | null>(null);
+  const transcriptMessageRefs = useRef<Record<string, HTMLArticleElement | null>>({});
+  const initialTranscriptScrollDoneRef = useRef(false);
+  const pendingAssistantScrollIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const onPopState = () => {
@@ -705,6 +1067,7 @@ export default function App() {
         setSettingsDraft({
           displayName: snapshot.user.display_name ?? "",
           uiLanguage: normalizeUiLanguage(snapshot.settings.ui_language),
+          utcOffset: normalizeUtcOffset(snapshot.settings.utc_offset),
           proactiveOptIn: Boolean(snapshot.settings.proactive_opt_in),
         });
         if (route === "/login") {
@@ -748,6 +1111,9 @@ export default function App() {
 
   useEffect(() => {
     if (!me || route !== "/chat") {
+      setPendingChatMessage(null);
+      initialTranscriptScrollDoneRef.current = false;
+      pendingAssistantScrollIdRef.current = null;
       return;
     }
 
@@ -777,8 +1143,44 @@ export default function App() {
     };
   }, [me, route]);
 
+  const transcriptItems = useMemo(
+    () => (pendingChatMessage ? [...history, pendingChatMessage] : history),
+    [history, pendingChatMessage],
+  );
+
   useEffect(() => {
-    if (!me || route !== "/personality" || overview) {
+    if (route !== "/chat") {
+      transcriptMessageRefs.current = {};
+      return;
+    }
+
+    const container = transcriptContainerRef.current;
+    if (!container || transcriptItems.length === 0) {
+      return;
+    }
+
+    if (!initialTranscriptScrollDoneRef.current) {
+      container.scrollTop = container.scrollHeight;
+      initialTranscriptScrollDoneRef.current = true;
+      return;
+    }
+
+    const pendingAssistantScrollId = pendingAssistantScrollIdRef.current;
+    if (!pendingAssistantScrollId) {
+      return;
+    }
+
+    const target = transcriptMessageRefs.current[pendingAssistantScrollId];
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({ block: "start", behavior: "smooth" });
+    pendingAssistantScrollIdRef.current = null;
+  }, [route, transcriptItems]);
+
+  useEffect(() => {
+    if (!me || (route !== "/personality" && route !== "/chat") || overview) {
       return;
     }
 
@@ -809,7 +1211,7 @@ export default function App() {
   }, [me, route, overview]);
 
   useEffect(() => {
-    if (!me || route !== "/tools" || toolsOverview) {
+    if (!me || (route !== "/tools" && route !== "/chat") || toolsOverview) {
       return;
     }
 
@@ -848,37 +1250,37 @@ export default function App() {
       {
         key: "identity_state",
         title: "Identity",
-        subtitle: "Profile, learned preferences, and identity policy context.",
+        subtitle: "Profile details, learned preferences, and how AION recognizes you.",
         payload: overview.identity_state,
       },
       {
         key: "learned_knowledge",
         title: "Learned Knowledge",
-        subtitle: "Semantic conclusions, affective conclusions, relations, and reflective growth.",
+        subtitle: "Patterns, relationships, and growth that AION has picked up over time.",
         payload: overview.learned_knowledge,
       },
       {
         key: "planning_state",
         title: "Planning",
-        subtitle: "Goals, tasks, milestones, pending proposals, and continuity summaries.",
+        subtitle: "Goals, tasks, milestones, and the work AION is currently tracking.",
         payload: overview.planning_state,
       },
       {
         key: "role_skill_state",
         title: "Role + Skills",
-        subtitle: "Role-policy boundaries, skill metadata, and selection visibility.",
+        subtitle: "Current role posture, available skills, and what AION can draw from right now.",
         payload: overview.role_skill_state,
       },
       {
         key: "capability_catalog",
         title: "Capability Catalog",
-        subtitle: "Approved tool families, authorization posture, and client-safe catalog truth.",
+        subtitle: "Available tool families, access posture, and what is safe to expose in the product.",
         payload: overview.capability_catalog,
       },
       {
         key: "api_readiness",
         title: "API Readiness",
-        subtitle: "Backend readiness posture for first-party surfaces and future clients.",
+        subtitle: "Service readiness for the current workspace and later product surfaces.",
         payload: overview.api_readiness,
       },
     ];
@@ -906,20 +1308,96 @@ export default function App() {
   const selectedUiLanguage = normalizeUiLanguage(
     route === "/settings" ? settingsDraft.uiLanguage : me?.settings.ui_language ?? settingsDraft.uiLanguage,
   );
+  const selectedUtcOffset = normalizeUtcOffset(
+    route === "/settings" ? settingsDraft.utcOffset : me?.settings.utc_offset ?? settingsDraft.utcOffset,
+  );
   const resolvedUiLanguage = resolveUiLanguage(selectedUiLanguage);
+  const selectedUiLanguageMetadata = uiLanguageMetadata(selectedUiLanguage);
+  const selectedUtcOffsetMetadata = utcOffsetOption(selectedUtcOffset);
   const copy = UI_COPY[resolvedUiLanguage];
+  const recentChannelsLabel = useMemo(() => {
+    const recentChannels = Array.from(new Set(history.map((item) => item.channel))).filter(Boolean);
+    return recentChannels.length > 0 ? recentChannels.join(" • ") : copy.common.noData;
+  }, [copy.common.noData, history]);
   const currentUserLabel = me?.user.display_name || me?.user.email || "Account";
   const accountSummaryItems = [
     {
       label: copy.common.uiLanguage,
-      value: localeLanguageLabel(
-        UI_LANGUAGE_OPTIONS.find((option) => option.value === selectedUiLanguage) ?? UI_LANGUAGE_OPTIONS[0],
-        resolvedUiLanguage,
-      ),
+      value: localeOptionDisplay(selectedUiLanguageMetadata, resolvedUiLanguage),
+    },
+    {
+      label: copy.common.utcOffset,
+      value: selectedUtcOffsetMetadata.value,
     },
     {
       label: copy.common.proactive,
       value: Boolean(me?.settings.proactive_opt_in) ? copy.common.on : copy.common.off,
+    },
+  ];
+  const successBody = toast ?? null;
+  const errorBody = error ? error.split("\n")[0] : null;
+  const errorDetail = error && errorBody !== error ? error : null;
+  const latestAssistantMessage =
+    [...transcriptItems].reverse().find((entry) => entry.role === "assistant")?.text ?? copy.chat.emptyThread;
+  const dashboardFlowItems = [
+    {
+      eyebrow: "Foreground",
+      title: "Event to context",
+      body: "New turns are normalized first, then anchored in perception and context before anything is expressed.",
+    },
+    {
+      eyebrow: "Decision",
+      title: "Motivation, role, planning",
+      body: "AION chooses the right posture, priorities, and plan instead of replying from an empty shell.",
+    },
+    {
+      eyebrow: "Continuity",
+      title: "Expression, action, memory, reflection",
+      body: "Replies land in the shared transcript while memory and reflection keep continuity alive in the background.",
+    },
+  ];
+  const dashboardModuleCards = [
+    {
+      route: "/personality" as const,
+      label: "Identity map",
+      title: routeLabel("/personality", resolvedUiLanguage),
+      body: routeDescription("/personality", resolvedUiLanguage),
+      meta: overviewLoading ? copy.common.loading : `${overviewSections.length || 0} layers`,
+    },
+    {
+      route: "/tools" as const,
+      label: "Capability layer",
+      title: routeLabel("/tools", resolvedUiLanguage),
+      body: routeDescription("/tools", resolvedUiLanguage),
+      meta:
+        toolsLoading || !toolsOverview
+          ? copy.common.loading
+          : `${Number(toolsOverview.summary.provider_ready_count ?? 0)} ready`,
+    },
+    {
+      route: "/settings" as const,
+      label: "Personal shell",
+      title: routeLabel("/settings", resolvedUiLanguage),
+      body: routeDescription("/settings", resolvedUiLanguage),
+      meta: localeLanguageLabel(selectedUiLanguageMetadata, resolvedUiLanguage),
+    },
+  ];
+  const motifHighlights = [
+    {
+      label: "Identity",
+      value: currentUserLabel,
+    },
+    {
+      label: "Planning",
+      value: `${stringValue(planningSummary?.active_goal_count, "0")} goals in motion`,
+    },
+    {
+      label: "Knowledge",
+      value: `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} learned patterns`,
+    },
+    {
+      label: "Channels",
+      value: recentChannelsLabel,
     },
   ];
 
@@ -958,10 +1436,11 @@ export default function App() {
       setSettingsDraft({
         displayName: snapshot.user.display_name ?? "",
         uiLanguage: normalizeUiLanguage(snapshot.settings.ui_language),
+        utcOffset: normalizeUtcOffset(snapshot.settings.utc_offset),
         proactiveOptIn: Boolean(snapshot.settings.proactive_opt_in),
       });
       setAuthForm({ email: authForm.email, password: "", displayName: authForm.displayName });
-      setToast(authMode === "login" ? "Session restored." : "Account created and session started.");
+      setToast(authMode === "login" ? "You're back in." : "Your account is ready.");
       startTransition(() => {
         navigate("/chat");
         setRoute("/chat");
@@ -981,8 +1460,8 @@ export default function App() {
       setToolsOverview(null);
       setTelegramLinkStart(null);
       setHistory([]);
-      setSessionMessages([]);
-      setToast("Signed out.");
+      setPendingChatMessage(null);
+      setToast("You have been signed out.");
       startTransition(() => {
         navigate("/login");
         setRoute("/login");
@@ -1007,11 +1486,9 @@ export default function App() {
       setToolsOverview(null);
       setTelegramLinkStart(null);
       setHistory([]);
-      setSessionMessages([]);
+      setPendingChatMessage(null);
       setResetConfirmationText("");
-      setToast(
-        `${copy.settings.resetSuccess} ${summary.total_deleted_records} cleared, ${summary.revoked_session_count} sessions revoked.`,
-      );
+      setToast(`${copy.settings.resetSuccess} ${summary.total_deleted_records} items cleared.`);
       startTransition(() => {
         navigate("/login");
         setRoute("/login");
@@ -1036,15 +1513,17 @@ export default function App() {
       const nextSettings: AppSettings = await api.patchSettings({
         display_name: settingsDraft.displayName || null,
         ui_language: settingsDraft.uiLanguage,
+        utc_offset: settingsDraft.utcOffset,
         proactive_opt_in: settingsDraft.proactiveOptIn,
       });
       const freshMe = await refreshMe();
       setSettingsDraft({
         displayName: freshMe.user.display_name ?? "",
         uiLanguage: normalizeUiLanguage(nextSettings.ui_language),
+        utcOffset: normalizeUtcOffset(nextSettings.utc_offset),
         proactiveOptIn: Boolean(nextSettings.proactive_opt_in),
       });
-      setToast("Settings saved.");
+      setToast("Your changes have been saved.");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Failed to save settings.");
     } finally {
@@ -1061,32 +1540,31 @@ export default function App() {
 
     setSendingMessage(true);
     setError(null);
-    setSessionMessages((messages) => [
-      ...messages,
-      { id: `local-user-${Date.now()}`, role: "user", text },
-    ]);
     setChatText("");
 
     try {
       const reply = await api.sendChatMessage(text);
-      setSessionMessages((messages) => [
-        ...messages,
-        {
-          id: reply.event_id,
-          role: "assistant",
-          text: reply.reply.message,
-          meta: [
-            reply.reply.language,
-            reply.runtime?.role ? `role ${reply.runtime.role}` : null,
-            reply.runtime?.action_status ? `action ${reply.runtime.action_status}` : null,
-          ]
-            .filter(Boolean)
-            .join(" | "),
+      const pendingMessageId = `${reply.event_id}:assistant`;
+      pendingAssistantScrollIdRef.current = pendingMessageId;
+      setPendingChatMessage({
+        message_id: pendingMessageId,
+        event_id: reply.event_id,
+        role: "assistant",
+        text: reply.reply.message,
+        channel: reply.reply.channel,
+        timestamp: new Date().toISOString(),
+        metadata: {
+          language: reply.reply.language,
+          tone: reply.reply.tone,
+          runtime_role: reply.runtime?.role ?? null,
+          action_status: reply.runtime?.action_status ?? null,
         },
-      ]);
+      });
       const freshHistory = await api.getChatHistory();
       setHistory(freshHistory.items);
+      setPendingChatMessage(null);
     } catch (caught) {
+      setPendingChatMessage(null);
       setError(caught instanceof Error ? caught.message : "Message delivery failed.");
     } finally {
       setSendingMessage(false);
@@ -1115,7 +1593,7 @@ export default function App() {
       if (toolId === "telegram" && !nextValue) {
         setTelegramLinkStart(null);
       }
-      setToast("Tool preferences saved to backend memory.");
+      setToast("Your tool choices have been saved.");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Failed to save tool preference.");
     } finally {
@@ -1132,7 +1610,7 @@ export default function App() {
       const nextOverview = await api.getToolsOverview();
       setTelegramLinkStart(linkStart);
       setToolsOverview(nextOverview);
-      setToast("Telegram link code generated.");
+      setToast("Your Telegram link code is ready.");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Failed to start Telegram linking.");
     } finally {
@@ -1143,12 +1621,13 @@ export default function App() {
   if (initializing) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-base-100 px-6 text-base-content">
-        <div className="flex max-w-md flex-col items-center gap-4 rounded-[2rem] border border-base-300 bg-base-100/90 px-8 py-10 text-center shadow-halo">
-          <span className="loading loading-spinner loading-lg text-primary" />
-          <h1 className="font-display text-3xl text-base-900">Preparing AION Web</h1>
-          <p className="text-sm leading-7 text-base-800">
-            Checking your backend-owned session and loading the first-party workspace.
-          </p>
+        <div className="w-full max-w-md">
+          <StatePanel
+            tone="neutral"
+            title={copy.common.stateLoadingTitle}
+            body="Checking your session and opening your workspace."
+            loading
+          />
         </div>
       </div>
     );
@@ -1157,13 +1636,11 @@ export default function App() {
   if (!me) {
     return (
       <div className="min-h-screen bg-base-100 text-base-content">
-        <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8 lg:px-10">
+        <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-6 sm:px-6 md:px-8 md:py-8 xl:px-10">
           <header className="mb-8 overflow-hidden rounded-[2rem] border border-base-300 bg-hero-glow shadow-halo">
-            <div className="grid gap-8 px-6 py-8 lg:grid-cols-[1.2fr_0.9fr] lg:px-10">
+            <div className="grid gap-6 px-5 py-6 md:gap-8 md:px-8 md:py-8 lg:grid-cols-[1.2fr_0.9fr] xl:px-10">
               <div className="space-y-5">
-                <span className="badge badge-lg border-none bg-base-900 px-4 py-3 font-display text-signal-gold">
-                  {copy.auth.badge}
-                </span>
+                <p className="text-sm uppercase tracking-[0.24em] text-base-900">{copy.auth.badge}</p>
                 <div className="space-y-3">
                   <h1 className="font-display text-4xl leading-tight text-base-900 md:text-6xl">
                     {copy.auth.heroTitle}
@@ -1172,39 +1649,47 @@ export default function App() {
                     {copy.auth.heroBody}
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <div className="badge badge-outline badge-lg">backend / web / mobile</div>
-                  <div className="badge badge-outline badge-lg">first-party auth</div>
-                  <div className="badge badge-outline badge-lg">daisyUI shell</div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {copy.auth.trustCards.map((card) => (
+                    <article key={card.title} className="rounded-[1.5rem] bg-base-100/75 p-4 backdrop-blur">
+                      <p className="font-display text-lg text-base-900">{card.title}</p>
+                      <p className="mt-2 text-sm leading-7 text-base-800">{card.body}</p>
+                    </article>
+                  ))}
                 </div>
               </div>
 
               <div className="grid gap-4 rounded-[1.5rem] border border-base-300 bg-base-100/80 p-4 backdrop-blur">
-                {[
-                  ["Login + Register", "Backend-owned session cookie and identity mapping."],
-                  ["Chat Workspace", "Primary conversation surface with continuity."],
-                  ["Inspector", "Identity, memory, plans, and capabilities."],
-                ].map(([title, body]) => (
-                  <div key={title} className="rounded-2xl bg-base-200 p-4">
-                    <p className="font-display text-xl text-base-900">{title}</p>
-                    <p className="mt-2 text-sm leading-7 text-base-800">{body}</p>
+                <div className="rounded-2xl bg-base-200 p-5">
+                  <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.auth.trustTitle}</p>
+                  <div className="mt-4 grid gap-3">
+                    {copy.auth.trustCards.map((card, index) => (
+                      <div key={card.title} className="rounded-[1.25rem] bg-base-100 px-4 py-4">
+                        <div className="flex items-start gap-3">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-base-900 font-display text-sm text-signal-gold">
+                            {index + 1}
+                          </span>
+                          <div>
+                            <p className="font-display text-xl text-base-900">{card.title}</p>
+                            <p className="mt-2 text-sm leading-7 text-base-800">{card.body}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </header>
 
-          <main className="grid gap-6 lg:grid-cols-[1.05fr_1.15fr]">
+          <main className="grid gap-5 md:gap-6 lg:grid-cols-[1.05fr_1.15fr]">
             <section className="rounded-[2rem] border border-base-300 bg-base-200 p-6">
-              <div className="mb-6 flex items-center justify-between gap-3">
+              <div className="mb-6">
                 <div>
                   <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.auth.sessionEntry}</p>
                   <h2 className="font-display text-3xl text-base-900">
                     {authMode === "login" ? copy.auth.login : copy.auth.register}
                   </h2>
-                </div>
-                <div className="badge badge-outline">
-                  {copy.common.build} {BUILD_REVISION.slice(0, 12)}
                 </div>
               </div>
 
@@ -1274,9 +1759,15 @@ export default function App() {
                 </button>
               </form>
 
-              {error ? (
-                <div className="alert alert-error mt-4">
-                  <span>{error}</span>
+              {errorBody ? (
+                <div className="mt-4">
+                  <FeedbackBanner
+                    tone="error"
+                    title={copy.common.stateErrorTitle}
+                    body={errorBody}
+                    detail={errorDetail}
+                    detailLabel={copy.common.stateDetailLabel}
+                  />
                 </div>
               ) : null}
             </section>
@@ -1284,26 +1775,23 @@ export default function App() {
             <section className="grid gap-4">
               {[
                 {
-                  title: "Auth + Settings",
-                  body: "Ownable profile and preference layer backed by `/app/me` and `/app/me/settings`.",
+                  title: "Continue in one place",
+                  body: "Move from sign-in straight into chat, settings, tools, and personality context without a fragmented shell.",
                 },
                 {
-                  title: "Chat",
-                  body: "Main product surface for messaging the personality through `/app/chat/message`.",
+                  title: "Stay oriented",
+                  body: "The product keeps the main actions close so returning to AION feels lightweight instead of procedural.",
                 },
                 {
-                  title: "Personality Inspector",
-                  body: "Structured sections from `/app/personality/overview` instead of raw debug endpoints.",
+                  title: "Keep ownership",
+                  body: "Your account remains yours: preferences are editable and runtime data can be reset later when needed.",
                 },
               ].map((section) => (
                 <article
                   key={section.title}
                   className="rounded-[1.75rem] border border-base-300 bg-base-100 p-6 transition-transform duration-200 hover:-translate-y-1"
                 >
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <h2 className="font-display text-2xl text-base-900">{section.title}</h2>
-                    <span className="badge badge-outline">Live contract</span>
-                  </div>
+                  <h2 className="mb-3 font-display text-2xl text-base-900">{section.title}</h2>
                   <p className="text-sm leading-7 text-base-800">{section.body}</p>
                 </article>
               ))}
@@ -1315,16 +1803,16 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 pb-24 pt-4 sm:px-6 lg:px-10 lg:pb-8">
-        <header className="sticky top-3 z-20 mb-4 rounded-[1.75rem] border border-base-300 bg-base-100/90 shadow-sm backdrop-blur">
+    <div className="aion-shell min-h-screen text-base-content">
+      <div className="mx-auto flex min-h-screen max-w-[88rem] flex-col px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-10">
+        <header className="aion-panel sticky top-3 z-20 mb-4 rounded-[2rem]">
           <div className="flex flex-wrap items-center gap-3 px-4 py-4 sm:px-5">
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="badge border-none bg-base-900 px-3 py-3 font-display text-signal-gold">AION Web</span>
-                <span className="badge badge-outline hidden sm:inline-flex">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="rounded-full bg-base-900 px-4 py-2 font-display text-sm text-signal-gold shadow-sm">AION Web</div>
+                <p className="hidden text-xs uppercase tracking-[0.18em] text-base-800 sm:block">
                   {copy.common.build} {BUILD_REVISION.slice(0, 12)}
-                </span>
+                </p>
               </div>
               <div className="mt-3">
                 <p className="text-xs uppercase tracking-[0.24em] text-base-800">{copy.common.workspace}</p>
@@ -1332,7 +1820,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="hidden lg:flex lg:flex-wrap lg:gap-2">
+            <div className="hidden md:flex md:flex-wrap md:gap-2">
               {ROUTES.map((entry) => (
                 <button
                   key={entry}
@@ -1357,9 +1845,9 @@ export default function App() {
           </div>
 
           {accountPanelOpen ? (
-            <div className="border-t border-base-300 px-4 py-4 sm:px-5">
+            <div className="border-t border-base-300/80 px-4 py-4 sm:px-5">
               <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-                <div className="rounded-[1.4rem] bg-base-200 p-4">
+                <div className="aion-panel-soft rounded-[1.4rem] p-4">
                   <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.common.signedInAs}</p>
                   <p className="mt-2 font-display text-2xl text-base-900">{currentUserLabel}</p>
                   <p className="mt-1 text-sm text-base-800">{me.user.email}</p>
@@ -1367,7 +1855,7 @@ export default function App() {
                 <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto]">
                   <div className="grid gap-3 sm:grid-cols-2">
                     {accountSummaryItems.map((item) => (
-                      <div key={item.label} className="rounded-[1.4rem] bg-base-200 p-4">
+                      <div key={item.label} className="aion-panel-soft rounded-[1.4rem] p-4">
                         <p className="text-xs uppercase tracking-[0.18em] text-base-800">{item.label}</p>
                         <p className="mt-2 text-base font-semibold text-base-900">{item.value}</p>
                       </div>
@@ -1382,154 +1870,269 @@ export default function App() {
           ) : null}
         </header>
 
-        <section className="mb-4 rounded-[1.5rem] border border-base-300 bg-base-200/80 px-4 py-4 shadow-sm sm:px-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
+        <section className="aion-panel-soft mb-5 rounded-[1.75rem] px-4 py-4 sm:px-5 md:px-6">
+          <div className="flex flex-wrap items-start justify-between gap-4 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
             <div className="max-w-3xl">
               <p className="text-xs uppercase tracking-[0.24em] text-base-800">{copy.common.currentSurface}</p>
               <p className="mt-2 text-sm leading-7 text-base-800 sm:text-base">
                 {routeDescription(route, resolvedUiLanguage)}
               </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {accountSummaryItems.map((item) => (
+                  <span key={item.label} className="aion-chip-ghost rounded-full px-3 py-1 text-xs font-medium">
+                    {item.label}: {item.value}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="badge badge-outline">{routeLabel(route, resolvedUiLanguage)}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="aion-chip rounded-[1rem] px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-base-800">{copy.common.currentSurface}</p>
+                <p className="mt-1 text-sm font-semibold text-base-900">{routeLabel(route, resolvedUiLanguage)}</p>
+              </div>
+              <div className="hidden md:grid md:min-w-[10rem] md:grid-cols-2 md:gap-2 xl:hidden">
+                {accountSummaryItems.slice(0, 2).map((item) => (
+                  <div key={item.label} className="aion-chip rounded-[1rem] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-base-800">{item.label}</p>
+                    <p className="mt-1 text-sm font-semibold text-base-900">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
-        {toast ? (
-          <div className="alert alert-success mb-4">
-            <span>{toast}</span>
-          </div>
+        {successBody ? (
+          <FeedbackBanner
+            tone="success"
+            title={copy.common.stateSuccessTitle}
+            body={successBody}
+            detailLabel={copy.common.stateDetailLabel}
+          />
         ) : null}
 
-        {error ? (
-          <div className="alert alert-error mb-4">
-            <span>{error}</span>
-          </div>
+        {errorBody ? (
+          <FeedbackBanner
+            tone="error"
+            title={copy.common.stateErrorTitle}
+            body={errorBody}
+            detail={errorDetail}
+            detailLabel={copy.common.stateDetailLabel}
+          />
         ) : null}
 
         <main className="flex-1">
           {route === "/chat" ? (
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.8fr)]">
-              <section className="rounded-[2rem] border border-base-300 bg-base-100 p-5 shadow-sm">
-                <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
-                  <div className="max-w-2xl">
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.chat.eyebrow}</p>
-                    <h2 className="font-display text-3xl text-base-900">{copy.chat.title}</h2>
-                    <p className="mt-3 text-sm leading-7 text-base-800">{copy.chat.subtitle}</p>
-                  </div>
-                  <div className="grid min-w-[12rem] gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                    <div className="rounded-[1.3rem] bg-base-200 p-3">
-                      <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.chat.sessionCount}</p>
-                      <p className="mt-2 text-xl font-semibold text-base-900">{sessionMessages.length}</p>
-                    </div>
-                    <div className="rounded-[1.3rem] bg-base-200 p-3">
-                      <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.chat.memoryCount}</p>
-                      <p className="mt-2 text-xl font-semibold text-base-900">{history.length}</p>
-                    </div>
-                    <div className="rounded-[1.3rem] bg-base-200 p-3">
-                      <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.chat.latestLanguage}</p>
-                      <p className="mt-2 text-xl font-semibold text-base-900">
-                        {stringValue(me.settings.preferred_language, copy.common.system)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            <section className="grid gap-6">
+              <MotifFigurePanel title={copy.chat.title} body={copy.chat.subtitle} highlights={motifHighlights} />
 
-                <div className="mb-4 flex max-h-[32rem] min-h-[22rem] flex-col gap-4 overflow-y-auto rounded-[1.6rem] bg-base-200 p-4">
-                  {sessionMessages.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-base-300 bg-base-100 p-5 text-sm leading-7 text-base-800">
-                      {copy.chat.emptyThread}
-                    </div>
-                  ) : null}
-                  {sessionMessages.map((message) => (
-                    <article
-                      key={message.id}
-                      className={`max-w-[92%] rounded-[1.5rem] px-4 py-3 text-sm leading-7 shadow-sm sm:max-w-[85%] ${
-                        message.role === "user"
-                          ? "ml-auto bg-base-900 text-base-100"
-                          : "border border-base-300 bg-base-100 text-base-900"
-                      }`}
-                    >
-                      <p className="mb-2 text-xs uppercase tracking-[0.22em] opacity-70">
-                        {message.role === "user" ? copy.common.user : copy.common.assistant}
-                      </p>
-                      <p>{message.text}</p>
-                      {"meta" in message && message.meta ? (
-                        <p className="mt-2 text-xs opacity-70">{message.meta}</p>
-                      ) : null}
-                    </article>
-                  ))}
-                </div>
-
-                <form
-                  className="sticky bottom-[4.5rem] rounded-[1.6rem] border border-base-300 bg-base-100/95 p-4 shadow-sm backdrop-blur lg:bottom-0"
-                  onSubmit={(event) => void handleSendMessage(event)}
-                >
-                  <textarea
-                    className="textarea textarea-bordered h-28 w-full"
-                    placeholder={copy.chat.placeholder}
-                    value={chatText}
-                    onChange={(event) => setChatText(event.target.value)}
-                  />
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm text-base-800">{copy.chat.composerHint}</p>
-                    <button className="btn btn-primary" disabled={sendingMessage} type="submit">
-                      {sendingMessage ? copy.chat.sending : copy.chat.send}
-                    </button>
-                  </div>
-                </form>
-              </section>
-
-              <aside className="rounded-[2rem] border border-base-300 bg-base-200 p-5">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.chat.continuity}</p>
-                    <h2 className="font-display text-2xl text-base-900">{copy.chat.timeline}</h2>
-                  </div>
-                  {historyLoading ? <span className="loading loading-dots loading-sm text-primary" /> : null}
-                </div>
-
-                <div className="space-y-3">
-                  {history.length === 0 ? (
-                    <div className="rounded-2xl bg-base-100 p-4 text-sm text-base-800">{copy.chat.noHistory}</div>
-                  ) : null}
-                  {history.map((item) => (
-                    <article key={item.event_id} className="rounded-2xl bg-base-100 p-4 text-sm shadow-sm">
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <span className="badge badge-outline">{item.source}</span>
-                        <span className="text-xs text-base-800">
-                          {formatTimestamp(item.event_timestamp, resolvedUiLanguage)}
-                        </span>
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,0.9fr)]">
+                <div className="grid gap-6">
+                  <section className="aion-panel rounded-[2rem] p-5">
+                    <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+                      <div className="max-w-2xl">
+                        <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.chat.thread}</p>
+                        <h2 className="font-display text-3xl text-base-900">{copy.chat.latestMessages}</h2>
+                        <p className="mt-3 text-sm leading-7 text-base-800">
+                          {latestAssistantMessage}
+                        </p>
                       </div>
-                      <p className="font-semibold text-base-900">{item.summary}</p>
-                      {item.payload ? (
-                        <details className="collapse collapse-arrow mt-3 rounded-box border border-base-300 bg-base-100">
-                          <summary className="collapse-title min-h-0 px-4 py-3 text-sm font-medium text-base-900">
-                            {copy.chat.payload}
-                          </summary>
-                          <div className="collapse-content px-4 pb-4">
-                            <pre className="overflow-x-auto rounded-xl bg-base-200 p-3 text-xs leading-6 text-base-900">
-                              {prettyJson(item.payload)}
-                            </pre>
-                          </div>
-                        </details>
+                      {historyLoading ? <span className="loading loading-dots loading-sm text-primary" /> : null}
+                    </div>
+
+                    <div className="mb-4 grid gap-3 md:grid-cols-3">
+                      <MetricCard
+                        eyebrow={copy.chat.transcriptCount}
+                        value={String(transcriptItems.length)}
+                        detail="One shared transcript across the app and linked channels."
+                        accent="gold"
+                      />
+                      <MetricCard
+                        eyebrow={copy.chat.activeChannel}
+                        value={recentChannelsLabel}
+                        detail="Continuity stays visible even when recent turns arrived elsewhere."
+                        accent="teal"
+                      />
+                      <MetricCard
+                        eyebrow={copy.chat.latestLanguage}
+                        value={stringValue(me.settings.preferred_language, copy.common.system)}
+                        detail="The shell keeps the latest visible posture while runtime adapts live."
+                      />
+                    </div>
+
+                    <div
+                      ref={transcriptContainerRef}
+                      className="aion-metadata-grid flex max-h-[34rem] min-h-[22rem] flex-col gap-4 overflow-y-auto rounded-[1.6rem] border border-base-300/70 bg-white/70 p-4 md:min-h-[28rem]"
+                    >
+                      {historyLoading && transcriptItems.length === 0 ? (
+                        <StatePanel
+                          tone="neutral"
+                          title={copy.common.stateLoadingTitle}
+                          body={copy.common.loading}
+                          loading
+                        />
                       ) : null}
-                    </article>
-                  ))}
+                      {!historyLoading && transcriptItems.length === 0 ? (
+                        <StatePanel tone="neutral" title={copy.common.stateEmptyTitle} body={copy.chat.emptyThread} />
+                      ) : null}
+                      {transcriptItems.map((message) => {
+                        const metadataSummary = transcriptMetadataSummary(message);
+                        const isUser = message.role === "user";
+                        const isPending = pendingChatMessage?.message_id === message.message_id;
+
+                        return (
+                          <article
+                            key={message.message_id}
+                            ref={(node) => {
+                              transcriptMessageRefs.current[message.message_id] = node;
+                            }}
+                            className={`max-w-[94%] rounded-[1.6rem] px-4 py-4 text-sm leading-7 shadow-sm sm:max-w-[86%] ${
+                              isUser
+                                ? "ml-auto bg-base-900 text-base-100"
+                                : "border border-base-300/80 bg-white/88 text-base-900"
+                            }`}
+                          >
+                            <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] opacity-75">
+                              <span>{transcriptRoleLabel(message.role, copy)}</span>
+                              <span className={`rounded-full px-2.5 py-1 ${isUser ? "bg-base-100/12" : "bg-base-200"}`}>
+                                {copy.chat.channel}: {transcriptChannelLabel(message.channel)}
+                              </span>
+                              {isPending ? (
+                                <span className={`rounded-full px-2.5 py-1 ${isUser ? "bg-base-100/12" : "bg-warning/15"}`}>
+                                  {copy.chat.pending}
+                                </span>
+                              ) : null}
+                              <span>{formatTimestamp(message.timestamp, resolvedUiLanguage)}</span>
+                            </div>
+                            <p>{message.text}</p>
+                            {metadataSummary ? (
+                              <p className={`mt-2 text-xs ${isUser ? "text-base-100/70" : "text-base-800"}`}>
+                                {metadataSummary}
+                              </p>
+                            ) : null}
+                            {message.metadata ? (
+                              <details className={`collapse collapse-arrow mt-3 rounded-box border ${isUser ? "border-base-100/15 bg-base-100/10" : "border-base-300 bg-base-100"}`}>
+                                <summary className="collapse-title min-h-0 px-4 py-3 text-sm font-medium">
+                                  {copy.chat.messageDetails}
+                                </summary>
+                                <div className="collapse-content px-4 pb-4">
+                                  <pre className={`overflow-x-auto rounded-xl p-3 text-xs leading-6 ${isUser ? "bg-base-100/10 text-base-100" : "bg-base-200 text-base-900"}`}>
+                                    {prettyJson(message.metadata)}
+                                  </pre>
+                                </div>
+                              </details>
+                            ) : null}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  <form
+                    className="aion-panel sticky bottom-[4.5rem] rounded-[2rem] p-4 md:bottom-0"
+                    onSubmit={(event) => void handleSendMessage(event)}
+                  >
+                    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm uppercase tracking-[0.24em] text-base-800">Composer</p>
+                        <h3 className="font-display text-2xl text-base-900">{copy.chat.send}</h3>
+                      </div>
+                      <span className="aion-chip rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-base-900">
+                        Safe first action
+                      </span>
+                    </div>
+                    <textarea
+                      className="textarea textarea-bordered h-28 w-full bg-white/85"
+                      placeholder={copy.chat.placeholder}
+                      value={chatText}
+                      onChange={(event) => setChatText(event.target.value)}
+                    />
+                    <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                      <p className="max-w-2xl text-sm text-base-800">{copy.chat.composerHint}</p>
+                      <button className="btn btn-primary" disabled={sendingMessage} type="submit">
+                        {sendingMessage ? copy.chat.sending : copy.chat.send}
+                      </button>
+                    </div>
+                    {!historyLoading && history.length === 0 ? (
+                      <p className="mt-3 text-sm text-base-800">{copy.chat.noHistory}</p>
+                    ) : null}
+                  </form>
                 </div>
-              </aside>
-            </div>
+
+                <aside className="grid gap-6">
+                  <section className="aion-panel-soft rounded-[2rem] p-5">
+                    <div className="mb-4">
+                      <p className="text-sm uppercase tracking-[0.24em] text-base-800">Cognitive flow</p>
+                      <h3 className="font-display text-2xl text-base-900">One readable runtime story</h3>
+                      <p className="mt-3 text-sm leading-7 text-base-800">
+                        The dashboard shows the foreground path as a calm orientation rail, not as a debug screen.
+                      </p>
+                    </div>
+                    <FlowRail items={dashboardFlowItems} />
+                  </section>
+
+                  <section className="aion-panel-soft rounded-[2rem] p-5">
+                    <div className="mb-4">
+                      <p className="text-sm uppercase tracking-[0.24em] text-base-800">Continuity pulse</p>
+                      <h3 className="font-display text-2xl text-base-900">What AION is carrying forward</h3>
+                    </div>
+                    <div className="grid gap-3">
+                      <MetricCard
+                        eyebrow="Goals"
+                        value={stringValue(planningSummary?.active_goal_count, "0")}
+                        detail="Tracked priorities stay visible before you dive deeper into planning detail."
+                        accent="gold"
+                      />
+                      <MetricCard
+                        eyebrow="Knowledge"
+                        value={stringValue(knowledgeSummary?.semantic_conclusion_count, "0")}
+                        detail="Learned patterns remain present as supportive context rather than noise."
+                        accent="teal"
+                      />
+                      <MetricCard
+                        eyebrow="Preferences"
+                        value={stringValue(preferenceSummary?.learned_preference_count, "0")}
+                        detail="Personal preferences shape tone and continuity without needing manual micromanagement."
+                      />
+                    </div>
+                  </section>
+
+                  <section className="aion-panel-soft rounded-[2rem] p-5">
+                    <div className="mb-4">
+                      <p className="text-sm uppercase tracking-[0.24em] text-base-800">Next spaces</p>
+                      <h3 className="font-display text-2xl text-base-900">Build from one shell</h3>
+                      <p className="mt-3 text-sm leading-7 text-base-800">
+                        These modules now inherit the same visual language instead of branching into separate mini apps.
+                      </p>
+                    </div>
+                    <div className="grid gap-3">
+                      {dashboardModuleCards.map((card) => (
+                        <ModuleEntryCard
+                          key={card.route}
+                          label={card.label}
+                          title={card.title}
+                          body={card.body}
+                          meta={card.meta}
+                          onClick={() => changeRoute(card.route)}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                </aside>
+              </div>
+            </section>
           ) : null}
 
           {route === "/settings" ? (
-            <section className="rounded-[2rem] border border-base-300 bg-base-100 p-5 shadow-sm">
+            <section className="aion-panel rounded-[2rem] p-5">
               <div className="mb-6 max-w-3xl">
                 <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.settings.eyebrow}</p>
                 <h2 className="font-display text-3xl text-base-900">{copy.settings.title}</h2>
                 <p className="mt-3 text-sm leading-7 text-base-800">{copy.settings.subtitle}</p>
               </div>
 
-              <form className="grid gap-4 xl:grid-cols-2" onSubmit={(event) => void handleSaveSettings(event)}>
-                <section className="rounded-[1.6rem] border border-base-300 bg-base-200 p-4">
+              <form className="grid gap-4 md:grid-cols-2" onSubmit={(event) => void handleSaveSettings(event)}>
+                <section className="aion-panel-soft rounded-[1.6rem] p-4">
                   <p className="text-sm uppercase tracking-[0.2em] text-base-800">{copy.settings.profileTitle}</p>
                   <h3 className="mt-2 font-display text-2xl text-base-900">{copy.auth.displayName}</h3>
                   <p className="mt-2 text-sm leading-7 text-base-800">{copy.settings.profileBody}</p>
@@ -1545,13 +2148,16 @@ export default function App() {
                   </label>
                 </section>
 
-                <section className="rounded-[1.6rem] border border-base-300 bg-base-200 p-4">
+                <section className="aion-panel-soft rounded-[1.6rem] p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-sm uppercase tracking-[0.2em] text-base-800">{copy.settings.uiLanguageTitle}</p>
                       <h3 className="mt-2 font-display text-2xl text-base-900">{copy.common.uiLanguage}</h3>
                     </div>
-                    <div className="badge badge-outline">{copy.common.interfaceOnly}</div>
+                    <div className="aion-chip rounded-[1rem] px-3 py-2">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-base-800">{copy.common.details}</p>
+                      <p className="mt-1 text-sm font-semibold text-base-900">{copy.common.interfaceOnly}</p>
+                    </div>
                   </div>
                   <p className="mt-2 text-sm leading-7 text-base-800">{copy.settings.uiLanguageBody}</p>
                   <label className="form-control mt-4">
@@ -1567,7 +2173,7 @@ export default function App() {
                     >
                       {UI_LANGUAGE_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
-                          {option.flag} {localeLanguageLabel(option, resolvedUiLanguage)}
+                          {localeOptionDisplay(option, resolvedUiLanguage)}
                         </option>
                       ))}
                     </select>
@@ -1575,25 +2181,50 @@ export default function App() {
                   <p className="mt-3 text-sm text-base-800">{copy.settings.uiLanguageHelp}</p>
                 </section>
 
-                <section className="rounded-[1.6rem] border border-base-300 bg-base-200 p-4">
+                <section className="aion-panel-soft rounded-[1.6rem] p-4">
+                  <p className="text-sm uppercase tracking-[0.2em] text-base-800">{copy.settings.utcOffsetTitle}</p>
+                  <h3 className="mt-2 font-display text-2xl text-base-900">{copy.common.utcOffset}</h3>
+                  <p className="mt-2 text-sm leading-7 text-base-800">{copy.settings.utcOffsetBody}</p>
+                  <label className="form-control mt-4">
+                    <select
+                      className="select select-bordered"
+                      value={settingsDraft.utcOffset}
+                      onChange={(event) =>
+                        setSettingsDraft((draft) => ({
+                          ...draft,
+                          utcOffset: normalizeUtcOffset(event.target.value),
+                        }))
+                      }
+                    >
+                      {UTC_OFFSET_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <p className="mt-3 text-sm text-base-800">{copy.settings.utcOffsetHelp}</p>
+                </section>
+
+                <section className="aion-panel-soft rounded-[1.6rem] p-4">
                   <p className="text-sm uppercase tracking-[0.2em] text-base-800">{copy.settings.conversationTitle}</p>
                   <h3 className="mt-2 font-display text-2xl text-base-900">{copy.common.conversationLanguage}</h3>
                   <p className="mt-2 text-sm leading-7 text-base-800">{copy.settings.conversationBody}</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[1.2rem] bg-base-100 p-4">
+                    <div className="aion-chip rounded-[1.2rem] p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.common.sourceOfTruth}</p>
                       <p className="mt-2 text-base font-semibold text-base-900">
                         {stringValue(me.settings.preferred_language, copy.common.notSet)}
                       </p>
                     </div>
-                    <div className="rounded-[1.2rem] bg-base-100 p-4">
+                    <div className="aion-chip rounded-[1.2rem] p-4">
                       <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.common.details}</p>
-                      <p className="mt-2 text-base font-semibold text-base-900">{copy.settings.conversationRuntimeOwned}</p>
+                      <p className="mt-2 text-base font-semibold text-base-900">{selectedUtcOffsetMetadata.value}</p>
                     </div>
                   </div>
                 </section>
 
-                <section className="rounded-[1.6rem] border border-base-300 bg-base-200 p-4">
+                <section className="aion-panel-soft rounded-[1.6rem] p-4">
                   <p className="text-sm uppercase tracking-[0.2em] text-base-800">{copy.settings.proactiveTitle}</p>
                   <h3 className="mt-2 font-display text-2xl text-base-900">{copy.common.proactive}</h3>
                   <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-[1.2rem] bg-base-100 px-4 py-4">
@@ -1612,7 +2243,7 @@ export default function App() {
                   </label>
                 </section>
 
-                <section className="rounded-[1.6rem] border border-error/40 bg-error/5 p-4 xl:col-span-2">
+                <section className="rounded-[1.6rem] border border-error/40 bg-error/5 p-4 md:col-span-2 shadow-sm">
                   <p className="text-sm uppercase tracking-[0.2em] text-error">{copy.settings.resetTitle}</p>
                   <h3 className="mt-2 font-display text-2xl text-base-900">{copy.settings.resetAction}</h3>
                   <p className="mt-3 max-w-4xl text-sm leading-7 text-base-900">{copy.settings.resetBody}</p>
@@ -1649,8 +2280,8 @@ export default function App() {
                   </div>
                 </section>
 
-                <div className="xl:col-span-2">
-                  <div className="sticky bottom-[4.5rem] rounded-[1.6rem] border border-base-300 bg-base-100/95 p-4 shadow-sm backdrop-blur lg:bottom-0">
+                <div className="md:col-span-2">
+                  <div className="aion-panel sticky bottom-[4.5rem] rounded-[1.6rem] p-4 md:bottom-0">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-base-900">{copy.settings.savedState}</p>
@@ -1668,37 +2299,37 @@ export default function App() {
 
           {route === "/tools" ? (
             <div className="grid gap-6">
-              <section className="rounded-[2rem] border border-base-300 bg-base-100 p-5 shadow-sm">
+              <section className="aion-panel rounded-[2rem] p-5">
                 <div className="mb-5 max-w-3xl">
                   <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.tools.eyebrow}</p>
                   <h2 className="font-display text-3xl text-base-900">{copy.tools.title}</h2>
                   <p className="mt-3 text-sm leading-7 text-base-800">{copy.tools.subtitle}</p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 {[
                   {
                     title: copy.tools.groupCount,
                     value: stringValue(toolsOverview?.summary.total_groups, "0"),
-                    note: "Grouped backend-owned categories",
+                    note: "Clear groups for the tools you can browse here",
                   },
                   {
                     title: copy.tools.integral,
                     value: stringValue(toolsOverview?.summary.integral_enabled_count, "0"),
-                    note: "Always-on product capabilities",
+                    note: "Capabilities that stay available as part of the product",
                   },
                   {
                     title: copy.tools.ready,
                     value: stringValue(toolsOverview?.summary.provider_ready_count, "0"),
-                    note: "Tools with a live provider path today",
+                    note: "Tools that are ready to use today",
                   },
                   {
                     title: copy.tools.linkRequired,
                     value: stringValue(toolsOverview?.summary.link_required_count, "0"),
-                    note: "Channels awaiting user identity linking",
+                    note: "Channels waiting for a quick linking step",
                   },
                 ].map((card) => (
-                  <article key={card.title} className="rounded-[1.75rem] border border-base-300 bg-base-100 p-5 shadow-sm">
+                  <article key={card.title} className="aion-panel-soft rounded-[1.75rem] p-5">
                     <p className="text-sm uppercase tracking-[0.22em] text-base-800">{card.title}</p>
                     <p className="mt-3 font-display text-4xl text-base-900">{card.value}</p>
                     <p className="mt-2 text-sm text-base-800">{card.note}</p>
@@ -1707,49 +2338,54 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="rounded-[2rem] border border-base-300 bg-base-100 p-5 shadow-sm">
+              <section className="aion-panel rounded-[2rem] p-5">
                 <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
                   <div>
                     <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.tools.eyebrow}</p>
                     <h2 className="font-display text-3xl text-base-900">{copy.tools.title}</h2>
                   </div>
-                  <div className="badge badge-outline">
-                    {toolsOverview ? `${toolsOverview.summary.total_items} items` : "backend snapshot"}
+                  <div className="aion-chip rounded-[1rem] px-3 py-2">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-base-800">{copy.tools.groupCount}</p>
+                    <p className="mt-1 text-sm font-semibold text-base-900">
+                      {toolsOverview ? `${toolsOverview.summary.total_items} items` : "workspace snapshot"}
+                    </p>
                   </div>
                 </div>
 
                 {toolsLoading ? (
-                  <div className="flex items-center gap-3 rounded-2xl bg-base-200 px-4 py-5 text-base-900">
-                    <span className="loading loading-spinner loading-sm text-primary" />
-                    {copy.tools.loading}
-                  </div>
+                  <StatePanel tone="neutral" title={copy.common.stateLoadingTitle} body={copy.tools.loading} loading />
                 ) : null}
 
                 {!toolsLoading && !toolsOverview ? (
-                  <div className="rounded-2xl bg-base-200 px-4 py-5 text-sm text-base-800">
-                    {copy.tools.empty}
-                  </div>
+                  <StatePanel tone="neutral" title={copy.common.stateEmptyTitle} body={copy.tools.empty} />
                 ) : null}
 
                 <div className="grid gap-5">
                   {toolsOverview?.groups.map((group) => (
-                    <article key={group.id} className="rounded-[1.6rem] border border-base-300 bg-base-200 p-4">
+                    <article key={group.id} className="aion-panel-soft rounded-[1.6rem] p-4">
                       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <h3 className="font-display text-2xl text-base-900">{group.title}</h3>
                           <p className="mt-1 max-w-3xl text-sm leading-7 text-base-800">{group.description}</p>
                         </div>
-                        <span className="badge badge-outline">{group.item_count} items</span>
+                        <div className="rounded-[1rem] bg-base-100 px-3 py-2">
+                          <p className="text-[10px] uppercase tracking-[0.18em] text-base-800">{copy.tools.groupCount}</p>
+                          <p className="mt-1 text-sm font-semibold text-base-900">{group.item_count} items</p>
+                        </div>
                       </div>
 
-                      <div className="grid gap-4 xl:grid-cols-2">
+                      <div className="grid gap-4 lg:grid-cols-2">
                         {group.items.map((item) => (
                           <section key={item.id} className="rounded-[1.4rem] border border-base-300 bg-base-100 p-4">
                             <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                               <div>
                                 <div className="flex flex-wrap items-center gap-2">
                                   <h4 className="font-display text-xl text-base-900">{item.label}</h4>
-                                  {item.integral ? <span className="badge badge-primary">Integral</span> : null}
+                                  {item.integral ? (
+                                    <span className="rounded-full bg-primary/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+                                      {copy.tools.integral}
+                                    </span>
+                                  ) : null}
                                 </div>
                                 <p className="mt-2 text-sm leading-7 text-base-800">{item.description}</p>
                               </div>
@@ -1891,7 +2527,10 @@ export default function App() {
                                     <div className="mt-3 flex flex-wrap gap-2">
                                       {item.capabilities.length > 0 ? (
                                         item.capabilities.map((capability) => (
-                                          <span key={capability} className="badge badge-outline">
+                                          <span
+                                            key={capability}
+                                            className="rounded-full border border-base-300 bg-base-100 px-3 py-1 text-xs font-medium text-base-900"
+                                          >
                                             {capability}
                                           </span>
                                         ))
@@ -1905,7 +2544,10 @@ export default function App() {
                                     <div className="mt-3 flex flex-wrap gap-2">
                                       {item.source_of_truth.length > 0 ? (
                                         item.source_of_truth.map((source) => (
-                                          <span key={source} className="badge badge-ghost">
+                                          <span
+                                            key={source}
+                                            className="rounded-full bg-base-100 px-3 py-1 text-xs font-medium text-base-800"
+                                          >
                                             {source}
                                           </span>
                                         ))
@@ -1929,7 +2571,7 @@ export default function App() {
 
           {route === "/personality" ? (
             <div className="grid gap-6">
-              <section className="rounded-[2rem] border border-base-300 bg-base-100 p-5 shadow-sm">
+              <section className="aion-panel rounded-[2rem] p-5">
                 <div className="mb-5 max-w-3xl">
                   <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.personality.eyebrow}</p>
                   <h2 className="font-display text-3xl text-base-900">{copy.personality.title}</h2>
@@ -1941,25 +2583,25 @@ export default function App() {
                   {
                     title: copy.personality.goals,
                     value: stringValue(planningSummary?.active_goal_count, "0"),
-                    note: "Active goals in planning continuity",
+                    note: "Goals AION is currently following",
                   },
                   {
                     title: copy.personality.tasks,
                     value: stringValue(planningSummary?.active_task_count, "0"),
-                    note: "Current tracked task count",
+                    note: "Tasks currently being tracked",
                   },
                   {
                     title: copy.personality.knowledge,
                     value: stringValue(knowledgeSummary?.semantic_conclusion_count, "0"),
-                    note: "Semantic conclusions stored",
+                    note: "Learned patterns kept available",
                   },
                   {
                     title: copy.personality.preferences,
                     value: stringValue(preferenceSummary?.learned_preference_count, "0"),
-                    note: "Resolved runtime preference keys",
+                    note: "Preferences AION has picked up",
                   },
                 ].map((card) => (
-                  <article key={card.title} className="rounded-[1.75rem] border border-base-300 bg-base-100 p-5 shadow-sm">
+                  <article key={card.title} className="aion-panel-soft rounded-[1.75rem] p-5">
                     <p className="text-sm uppercase tracking-[0.22em] text-base-800">{card.title}</p>
                     <p className="mt-3 font-display text-4xl text-base-900">{card.value}</p>
                     <p className="mt-2 text-sm text-base-800">{card.note}</p>
@@ -1968,7 +2610,7 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="rounded-[2rem] border border-base-300 bg-base-100 p-5 shadow-sm">
+              <section className="aion-panel rounded-[2rem] p-5">
                 <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
                   <div>
                     <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.personality.eyebrow}</p>
@@ -1985,29 +2627,34 @@ export default function App() {
                 </div>
 
                 {overviewLoading ? (
-                  <div className="flex items-center gap-3 rounded-2xl bg-base-200 px-4 py-5 text-base-900">
-                    <span className="loading loading-spinner loading-sm text-primary" />
-                    {copy.personality.loading}
-                  </div>
+                  <StatePanel
+                    tone="neutral"
+                    title={copy.common.stateLoadingTitle}
+                    body={copy.personality.loading}
+                    loading
+                  />
                 ) : null}
 
                 {!overviewLoading && overviewSections.length === 0 ? (
-                  <div className="rounded-2xl bg-base-200 px-4 py-5 text-sm text-base-800">
-                    {copy.personality.empty}
-                  </div>
+                  <StatePanel tone="neutral" title={copy.common.stateEmptyTitle} body={copy.personality.empty} />
                 ) : null}
 
-                <div className="grid gap-4 xl:grid-cols-2">
+                <div className="grid gap-4 lg:grid-cols-2">
                   {overviewSections.map((section) => (
-                    <article key={section.key} className="rounded-[1.6rem] border border-base-300 bg-base-200 p-4">
+                    <article key={section.key} className="aion-panel-soft rounded-[1.6rem] p-4">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <div>
                           <h3 className="font-display text-2xl text-base-900">{section.title}</h3>
                           <p className="mt-1 text-sm leading-7 text-base-800">{section.subtitle}</p>
                         </div>
-                        <span className="badge badge-outline">{section.key}</span>
+                        <div className="aion-chip rounded-[1rem] px-3 py-2 text-right">
+                          <p className="text-[10px] uppercase tracking-[0.18em] text-base-800">{copy.common.details}</p>
+                          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-base-900">
+                            {section.key}
+                          </p>
+                        </div>
                       </div>
-                      <div className="rounded-2xl bg-base-100 p-4">
+                      <div className="aion-chip rounded-2xl p-4">
                         <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.personality.highlights}</p>
                         <div className="mt-3 space-y-2">
                           {summaryLines(section.key, section.payload).map((line) => (
@@ -2033,7 +2680,7 @@ export default function App() {
           ) : null}
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-base-300 bg-base-100/95 px-3 py-3 backdrop-blur lg:hidden">
+        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-base-300 bg-base-100/95 px-3 py-3 backdrop-blur md:hidden">
           <div className="mx-auto grid max-w-lg grid-cols-4 gap-2">
             {ROUTES.map((entry) => (
               <button

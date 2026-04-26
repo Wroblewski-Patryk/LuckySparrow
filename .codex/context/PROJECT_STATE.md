@@ -10,6 +10,16 @@ Last updated: 2026-04-26
   user preferences over time
 - Commercial model: TBD
 - Current phase: no-UI V1 baseline achieved in repo; core-V1 time-aware planning revision now active before later organizer-tool onboarding
+- 2026-04-26: `PRJ-732` is now complete:
+  - `aion_profile` now carries one profile-owned `utc_offset` setting for
+    explicit local-time continuity
+  - authenticated `/app/me/settings` and the web settings surface now persist
+    bounded `UTC±HH:MM` values without adding a broader timezone subsystem
+  - runtime now localizes current-turn timestamp truth from the stored offset
+    before date/time-sensitive replies are generated
+  - focused validation passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_memory_repository.py tests/test_expression_agent.py tests/test_schema_baseline.py; Pop-Location`
+    - `Push-Location .\web; npm run build; Pop-Location`
 - 2026-04-26: `PRJ-723` is now complete:
   - the repository now has one approved visual motif snapshot at
     `docs/ux/assets/aion-visual-motif-reference.png`
@@ -19,6 +29,25 @@ Last updated: 2026-04-26
     `docs/planning/dashboard-foundation-and-personality-visual-system-plan.md`
   - the visual implementation queue now runs through `PRJ-731`, starting with
     dashboard foundation and then `personality` on shared primitives
+- 2026-04-26: `PRJ-724..PRJ-727` are now complete locally:
+  - `web/src/index.css` now exposes one shared AION visual layer with warm
+    background treatment, reusable glass surfaces, chips, flow rails, and
+    motif-oriented decorative primitives
+  - `web/src/App.tsx` now uses that shared system to turn `/chat` into a
+    dashboard-first front door with:
+    - motif-led hero
+    - transcript-first continuity panel
+    - cognitive-flow sidebar
+    - reusable module-entry cards for `personality`, `tools`, and `settings`
+  - `settings`, `tools`, and `personality` now inherit the same shared surface
+    grammar instead of reading like older independent screens
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+      -> build passed
+- 2026-04-26: `PRJ-728` remains the next UX verification slice:
+  - screenshot proof, accessibility review, and breakpoint audit still need to
+    be captured against the new dashboard-first shell before the lane is fully
+    closed
 - 2026-04-25: `PRJ-707` is now complete:
   - the GUI-language selector now rests on one shared locale metadata model
     carrying value, native label, localized label, icon token, and explicit
