@@ -232,25 +232,31 @@ coherent.
 
 ### New Queue
 
-The next web visual lane is now seeded through `PRJ-728`.
+The next web visual lane is now seeded through `PRJ-731`.
 
 Execution order:
 
 1. `PRJ-723` Freeze AION Visual Motif And V1 Web UX Direction
-2. `PRJ-724` Shared Visual Tokens And Shell Background System
-3. `PRJ-725` Public Entry And Authenticated Shell Motif Integration
-4. `PRJ-726` Personality And Tools Route Motif Implementation
-5. `PRJ-727` Chat And Settings Lightweight Motif Integration
-6. `PRJ-728` Responsive Proof, Accessibility Review, And Context Sync
+2. `PRJ-724` Freeze Dashboard-First Visual System And Component Contract
+3. `PRJ-725` Shared Tokens, Surfaces, And Motif Infrastructure
+4. `PRJ-726` Authenticated Dashboard Shell And Responsive Layout Foundation
+5. `PRJ-727` Dashboard Continuity, Flow, And Module Entry Sections
+6. `PRJ-728` Dashboard Proof Across States, Accessibility, And Breakpoints
+7. `PRJ-729` Freeze Personality Module Information Architecture And Motif Mapping
+8. `PRJ-730` Personality Module Implementation On Shared Visual Foundations
+9. `PRJ-731` Cross-Module Proof, Design Memory Update, And Future-App Baseline Sync
 
 Why this order:
 
-- freeze the motif first so later implementation reuses one shared direction
-- move shared tokens and surfaces before route-specific polish
-- update the shell framing before deep route compositions
-- let `personality` and `tools` carry the richest expression of the motif
-- keep `chat` and `settings` calmer and more supportive
-- finish with proof across states, breakpoints, and accessibility posture
+- freeze the motif and shared contract first so implementation reuses one
+  system
+- create the dashboard as the reusable authenticated front door before deep
+  module specialization
+- make the dashboard expressive, but still stylistically anchored in the first
+  approved motif image
+- prove the dashboard baseline before adding the richest module
+- then build `personality` as the flagship module on top of shared primitives
+- finish with cross-module proof so later apps can extend the same baseline
 
 ## Tasks
 

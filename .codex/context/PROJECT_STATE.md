@@ -15,8 +15,10 @@ Last updated: 2026-04-26
     `docs/ux/assets/aion-visual-motif-reference.png`
   - `docs/ux/aion-visual-motif-system.md` now freezes the embodied cognition
     design language for future web-first rollout
-  - `docs/planning/web-ux-ui-productization-plan.md` now seeds the next visual
-    implementation lane through `PRJ-728`
+  - the visual lane is now expanded into a dashboard-first system plan:
+    `docs/planning/dashboard-foundation-and-personality-visual-system-plan.md`
+  - the visual implementation queue now runs through `PRJ-731`, starting with
+    dashboard foundation and then `personality` on shared primitives
 - 2026-04-25: `PRJ-707` is now complete:
   - the GUI-language selector now rests on one shared locale metadata model
     carrying value, native label, localized label, icon token, and explicit

@@ -70,7 +70,7 @@ Last updated: 2026-04-26
 ## Fresh Visual Motif Planning (2026-04-26)
 
 - fresh user-approved design direction now seeds one bounded UX/UI lane through
-  `PRJ-728`
+  `PRJ-731`
 - the approved direction keeps the current product and architecture boundaries:
   - backend-owned `/app/*` contracts stay unchanged
   - route topology stays intact unless a later task explicitly changes it
@@ -81,16 +81,21 @@ Last updated: 2026-04-26
   - `docs/ux/aion-visual-motif-system.md`
 - planned execution order for this lane:
   - `PRJ-723` Freeze AION Visual Motif And V1 Web UX Direction
-  - `PRJ-724` Shared Visual Tokens And Shell Background System
-  - `PRJ-725` Public Entry And Authenticated Shell Motif Integration
-  - `PRJ-726` Personality And Tools Route Motif Implementation
-  - `PRJ-727` Chat And Settings Lightweight Motif Integration
-  - `PRJ-728` Responsive Proof, Accessibility Review, And Context Sync
+  - `PRJ-724` Freeze Dashboard-First Visual System And Component Contract
+  - `PRJ-725` Shared Tokens, Surfaces, And Motif Infrastructure
+  - `PRJ-726` Authenticated Dashboard Shell And Responsive Layout Foundation
+  - `PRJ-727` Dashboard Continuity, Flow, And Module Entry Sections
+  - `PRJ-728` Dashboard Proof Across States, Accessibility, And Breakpoints
+  - `PRJ-729` Freeze Personality Module Information Architecture And Motif Mapping
+  - `PRJ-730` Personality Module Implementation On Shared Visual Foundations
+  - `PRJ-731` Cross-Module Proof, Design Memory Update, And Future-App Baseline Sync
 - `PRJ-723` is now complete:
   - the concept image is stored in the repository as the approved UX snapshot
   - the motif, constraints, route translation rules, and future asset family
     are now documented in `docs/ux/aion-visual-motif-system.md`
   - the next web visual lane is now explicit and execution-ready
+  - the detailed rollout plan now prioritizes dashboard foundation first and
+    `personality` second, both on top of one reusable component system
 
 ## Current Active Lane
 
