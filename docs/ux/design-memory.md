@@ -37,10 +37,18 @@
   When the flagship dashboard starts feeling flat, add bespoke raster artwork
   to the intention card and the lower summary band before piling on more CSS
   decoration.
+- Dashboard cognition field:
+  When the central dashboard hero still feels too generic, add one dedicated
+  scenic atmosphere asset behind the figure and use light connective ornament
+  before adding more standalone cards.
 - Integrated composer tray:
   Keep the main chat input, send control, and low-priority support actions
   inside one shared tray so the conversation footer reads like one premium
   surface instead of stacked unrelated controls.
+- Brand logotype and font pairing:
+  Use the canonical bird logotype SVG with `Cormorant Garamond` for major
+  headers and `Inter` for operational UI, instead of mixing unrelated display
+  and body families across routes.
 
 ## Reuse Notes
 

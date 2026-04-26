@@ -10,6 +10,48 @@ Last updated: 2026-04-26
   user preferences over time
 - Commercial model: TBD
 - Current phase: no-UI V1 baseline achieved in repo; core-V1 time-aware planning revision now active before later organizer-tool onboarding
+- 2026-04-26: the canonical brand typography and logotype baseline is now
+  frozen locally:
+  - the approved web brand pair is now:
+    - `Cormorant Garamond` for logotype and flagship headers
+    - `Inter` for operational UI and body copy
+  - the provided bird logotype assets are now stored in:
+    - `docs/ux/assets/aion-logotype-canonical.svg`
+    - `docs/ux/assets/aion-logotype-preview.png`
+    - `web/public/aion-logotype.svg`
+    - `web/public/aion-logotype-preview.png`
+  - the web shell now reuses the canonical SVG logotype in the authenticated
+    rail and compact mobile header instead of the previous text-only lockup
+  - UX source-of-truth docs are now updated in:
+    - `docs/ux/brand-personality-tokens.md`
+    - `docs/ux/aion-visual-motif-system.md`
+    - `docs/ux/design-memory.md`
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+- 2026-04-26: the repo now also freezes the next communication-expansion lane
+  around canonical multi-channel conversation and relational outreach:
+  - internal authenticated app chat remains the canonical conversation owner
+  - linked Telegram is now explicitly treated as ingress/egress mirror over
+    the same user continuity after account linking
+  - long transport-limited replies may segment on Telegram, but the canonical
+    app reply remains the semantic source of truth
+  - proactive propagation is now approved as relation-sensitive and adaptive,
+    not fixed to one global silence timeout
+  - one execution-ready implementation plan now lives in:
+    - `docs/planning/canonical-multi-channel-conversation-and-relational-outreach-plan.md`
+  - the seeded execution queue is:
+    - `PRJ-750` Freeze canonical multi-channel conversation contract
+    - `PRJ-751` Freeze relational outreach governance contract
+    - `PRJ-752` Add channel-affinity and response-cadence adaptive outputs
+    - `PRJ-753` Add sleep and quiet-pattern inference boundary
+    - `PRJ-754` Add explicit user channel-preference posture
+    - `PRJ-755` Canonicalize linked-channel ingress into app-owned continuity
+    - `PRJ-756` Mirror linked-channel replies from one canonical answer
+    - `PRJ-757` Preserve canonical semantics during transport segmentation
+    - `PRJ-758` Add channel-choice policy for proactive outreach
+    - `PRJ-759` Add adaptive silence interpretation
+    - `PRJ-760` Preserve mandatory reply posture for user-authored turns
+    - `PRJ-761..PRJ-763` proof, observability, and rollout sync
 - 2026-04-26: the proactive transcript-truth and conscious outbound
   governance repair lane is now complete locally:
   - scheduler-owned wakeups now persist bounded transcript visibility markers
@@ -77,6 +119,25 @@ Last updated: 2026-04-26
     - dashboard scenic closure
   - focused validation passed:
     - `Push-Location .\web; npm run build; Pop-Location`
+- 2026-04-26: another flagship-shell convergence pass is now complete locally:
+  - the shared shell utility bar now moves closer to the canonical route
+    controls through:
+    - memory continuity signal
+    - conversation language signal
+    - linked-channel signal
+  - dashboard now has one dedicated hero-stage atmosphere asset in:
+    - `docs/ux/assets/aion-dashboard-hero-atmosphere-reference-v1.png`
+    - `web/public/aion-dashboard-hero-atmosphere-reference-v1.png`
+  - `web/src/App.tsx` and `web/src/index.css` now use that asset to deepen:
+    - the central cognition field
+    - the embodied-figure stage
+    - the perceived connection between flanking dashboard signals and the
+      center stage
+  - chat now has one softer ambient canvas overlay and personality now has
+    explicit callout connectors so the three flagship routes read more like
+    one family
+  - design memory is now updated with:
+    - dashboard cognition field
 - 2026-04-26: `PRJ-733` is now complete:
   - the approved canonical web-screen set is now stored in:
     - `docs/ux/assets/aion-landing-canonical-reference-v1.png`

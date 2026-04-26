@@ -145,3 +145,28 @@ This task is now active. The first execution pass added:
 
 Remaining work is still mainly visual parity quality, not architecture or
 backend contract shape.
+
+Latest implementation pass in this task:
+
+- shared shell utility chrome now moves closer to the canonical references
+  through:
+  - continuity
+  - language
+  - linked-channel signal pills
+- dashboard now has a dedicated hero-stage atmosphere asset:
+  - `docs/ux/assets/aion-dashboard-hero-atmosphere-reference-v1.png`
+  - `web/public/aion-dashboard-hero-atmosphere-reference-v1.png`
+- dashboard hero stage now adds:
+  - scenic cognition-field depth
+  - a lower figure caption
+  - stronger perceived connective detail from signal cards toward the figure
+- chat now gets a calmer ambient shell overlay instead of relying only on
+  panel styling
+- personality now gets explicit connective callout lines so the hero reads
+  more like one embodied system and less like floating cards
+
+Next smallest remaining parity slice after this pass:
+
+- browser-verified proportion tuning for dashboard hero stage
+- cognitive-flow band simplification if it still reads too modular
+- post-deploy screenshot comparison for dashboard, chat, and personality

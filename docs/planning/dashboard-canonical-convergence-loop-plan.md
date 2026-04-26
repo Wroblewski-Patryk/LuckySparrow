@@ -219,6 +219,25 @@ One additional local pass is now complete:
 This reduces the "CSS-only flattening" problem, but does not yet close the
 hero-stage atmosphere gap or the deploy-backed screenshot parity gap.
 
+One further local pass is now also complete:
+
+- dedicated dashboard hero-stage atmosphere artwork now exists in:
+  - `docs/ux/assets/aion-dashboard-hero-atmosphere-reference-v1.png`
+  - `web/public/aion-dashboard-hero-atmosphere-reference-v1.png`
+- the dashboard hero stage now uses that artwork to strengthen:
+  - the central cognition field around the figure
+  - the ceremonial feel of the flagship overview
+  - the perceived connection between side metrics and the embodied center
+- the shared shell now also exposes a more canonical utility-signal band
+  through continuity, language, and linked-channel posture
+
+This narrows the shell-depth and hero-atmosphere gaps, but the route still
+needs:
+
+- final proportion and spacing polish after browser proof
+- authenticated deployed screenshot comparison
+- one more pass on the cognitive-flow band if it still reads too modular
+
 ## Related Sources
 
 - `docs/ux/canonical-web-screen-reference-set.md`

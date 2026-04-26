@@ -26,21 +26,62 @@ approved flagship experience.
 
 ## Route Intent Clarification
 
-The current route topology remains acceptable:
+The current route topology is now explicit and accepted:
 
-- `chat` is still the main product conversation route
+- `dashboard` is now the first authenticated route and the flagship overview
+- `chat` is the main product conversation route
 - `personality` is still the richest embodied explanation route
-- the canonical dashboard reference should influence the authenticated shell
-  framing and route-preview posture even without introducing a new top-level
-  route in this lane
 
-This means "dashboard parity" in the current lane should be interpreted as:
+This means dashboard parity in the current lane should be interpreted as:
 
 - stronger flagship shell framing
-- more ceremonial but usable preview panels
+- a dashboard hero stage that feels scenic, connected, and ceremonial
 - richer route-entry posture
-- shared premium structure that can later support a dedicated dashboard route
-  if product IA expands
+- shared premium structure that also uplifts `chat` and `personality`
+
+## Current Implemented Baseline
+
+- shared authenticated shell with left rail and desktop utility bar
+- first-class `dashboard` route
+- first-class `chat` route with transcript-first workspace and portrait panel
+- first-class `personality` preview with embodied figure and anchored callouts
+- route-specific raster artwork already exists for:
+  - chat portrait background
+  - dashboard intention card
+  - dashboard summary band
+  - personality figure
+
+## Current Highest-Value Remaining Drift
+
+### Shared Shell
+
+- the top utility band still needs to feel more canonical and less generic
+- the shell canvas should feel like one flagship environment, not a route host
+- editorial spacing between shell chrome and route bodies still needs polish
+
+### Dashboard
+
+- the hero stage needs stronger connective detail between figure and signal
+  cards
+- the atmosphere around the figure needs more bespoke scenic depth
+- the cognitive-flow band should read more like one instrument and less like a
+  set of stacked cards
+
+### Chat
+
+- the route is directionally strong, but still needs more calm flagship
+  cohesion from the shared shell
+- the transcript area should remain primary while the surrounding atmosphere
+  becomes more premium
+- the route still needs final parity proof after deploy
+
+### Personality
+
+- the route now has the right structure, but still needs more visual
+  connectedness between figure and callouts
+- the hero stage should feel more ceremonial and less like panels sitting on a
+  background
+- side insight panels still need final material and spacing polish
 
 ## Current Gap Matrix
 
@@ -155,6 +196,11 @@ Purpose:
 - unify the three flagship surfaces after the larger structural changes land
 
 Scope:
+- shared shell signal-bar convergence
+- dashboard hero-stage connective ornament
+- dashboard cognitive-flow rhythm cleanup
+- calmer chat atmosphere inside the same shell
+- stronger personality callout-to-figure connectedness
 - typography refinement
 - panel edge refinement
 - route chip and pill consistency
@@ -187,6 +233,9 @@ The lane is complete when:
 
 ## Remaining Risk
 
-- polishing shell details without sufficiently upgrading `personality`
+- polishing shell details without sufficiently upgrading the dashboard hero
+  stage
 - treating `chat` as done before post-deploy screenshot proof
 - overbuilding dashboard motifs into `chat` instead of keeping it intimate
+- flattening premium route atmosphere back into CSS-only gradients when a
+  bespoke raster layer is the cleaner answer

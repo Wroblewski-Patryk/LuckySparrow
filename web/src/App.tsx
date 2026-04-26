@@ -1139,6 +1139,10 @@ function ShellNavButton({
   );
 }
 
+function AionWordmark({ className = "" }: { className?: string }) {
+  return <img alt="AION" className={`aion-wordmark ${className}`.trim()} src="/aion-logotype.svg" />;
+}
+
 function ChatFlowStage({
   label,
   title,
@@ -1184,11 +1188,17 @@ function ChatFeatureCard({
 function ShellUtilityBar({
   currentSurface,
   currentUserLabel,
+  continuityState,
+  conversationLanguage,
+  linkedChannels,
   accountPanelOpen,
   onAccountClick,
 }: {
   currentSurface: string;
   currentUserLabel: string;
+  continuityState: string;
+  conversationLanguage: string;
+  linkedChannels: string;
   accountPanelOpen: boolean;
   onAccountClick: () => void;
 }) {
@@ -1201,19 +1211,28 @@ function ShellUtilityBar({
           <p className="aion-utility-context-copy">{currentSurface}</p>
         </div>
       </div>
-      <div className="aion-utility-search">
-        <span className="aion-utility-search-icon">⌕</span>
-        <span className="aion-utility-search-copy">Search AION or ask anything...</span>
-        <span className="aion-utility-search-shortcut">⌘K</span>
+      <div className="aion-utility-signal-group">
+        <div className="aion-utility-signal">
+          <span className="aion-utility-signal-label">Memory continuity</span>
+          <span className="aion-utility-signal-value">{continuityState}</span>
+        </div>
+        <div className="aion-utility-signal">
+          <span className="aion-utility-signal-label">Language</span>
+          <span className="aion-utility-signal-value">{conversationLanguage}</span>
+        </div>
+        <div className="aion-utility-signal">
+          <span className="aion-utility-signal-label">Linked channels</span>
+          <span className="aion-utility-signal-value">{linkedChannels}</span>
+        </div>
       </div>
       <div className="aion-utility-actions">
         <button className="aion-utility-pill" type="button">
           <span className="aion-utility-pill-dot" />
-          Focus mode
+          Workspace live
         </button>
         <button className="aion-utility-pill" type="button">
           ✧
-          Quick capture
+          Reflection ready
         </button>
         <button className="aion-utility-icon-pill" type="button" aria-label="Notifications">
           3
@@ -1599,6 +1618,12 @@ export default function App() {
   const latestAssistantMessage =
     [...transcriptItems].reverse().find((entry) => entry.role === "assistant")?.text ?? copy.chat.emptyThread;
   const latestUserMessage = [...transcriptItems].reverse().find((entry) => entry.role === "user")?.text ?? "";
+  const shellContinuityState =
+    transcriptItems.length > 0 || pendingChatMessage ? copy.common.on : copy.common.loading;
+  const shellConversationLanguage =
+    latestLanguageLabel === copy.common.noData ? "Adaptive" : latestLanguageLabel;
+  const shellLinkedChannels =
+    recentChannelsLabel === copy.common.noData ? "Web shell" : recentChannelsLabel;
   const dashboardFlowItems = [
     {
       eyebrow: "Foreground",
@@ -2459,7 +2484,7 @@ export default function App() {
         <div className="aion-shell-frame grid gap-4 xl:grid-cols-[14.5rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <div>
-              <div className="font-display text-[1.75rem] uppercase tracking-[0.42em] text-base-900">AION</div>
+              <AionWordmark className="w-[10.75rem]" />
               <p className="mt-2 text-sm text-base-800">Your conscious companion</p>
             </div>
 
@@ -2504,7 +2529,9 @@ export default function App() {
 
               <section className="aion-panel-soft aion-rail-story rounded-[1.8rem] p-4">
                 <p className="text-base font-semibold leading-7 text-base-900">“Clarity is the lamp that makes the path.”</p>
-                <p className="mt-4 text-xs uppercase tracking-[0.2em] text-base-800">AION</p>
+                <div className="mt-4">
+                  <AionWordmark className="w-[4.8rem]" />
+                </div>
               </section>
             </div>
           </aside>
@@ -2513,6 +2540,9 @@ export default function App() {
             <ShellUtilityBar
               currentSurface={routeLabel(route, resolvedUiLanguage)}
               currentUserLabel={currentUserLabel}
+              continuityState={shellContinuityState}
+              conversationLanguage={shellConversationLanguage}
+              linkedChannels={shellLinkedChannels}
               accountPanelOpen={accountPanelOpen}
               onAccountClick={() => setAccountPanelOpen((value) => !value)}
             />
@@ -2521,7 +2551,9 @@ export default function App() {
               <div className="flex flex-wrap items-center gap-3 px-4 py-4 sm:px-5">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-3">
-                    <div className="rounded-full bg-base-900 px-4 py-2 font-display text-sm text-signal-gold shadow-sm">AION</div>
+                    <div className="aion-wordmark-mobile-badge">
+                      <AionWordmark className="w-[5.75rem]" />
+                    </div>
                     <p className="text-xs uppercase tracking-[0.18em] text-base-800">
                       {copy.common.build} {BUILD_REVISION.slice(0, 12)}
                     </p>
@@ -2643,12 +2675,19 @@ export default function App() {
                     </div>
 
                     <div className="aion-dashboard-figure-stage">
+                      <div className="aion-dashboard-figure-atmosphere" aria-hidden="true" />
                       <div className="aion-dashboard-figure-halo" aria-hidden="true" />
                       <img
                         className="aion-dashboard-figure-image"
                         src="/aion-personality-figure-reference-v1.png"
                         alt="Embodied AION overview"
                       />
+                      <div className="aion-dashboard-figure-caption">
+                        <p className="aion-dashboard-figure-caption-label">Embodied cognition field</p>
+                        <p className="aion-dashboard-figure-caption-copy">
+                          Identity, memory, planning, and reflection staying visible in one calm orchestration space.
+                        </p>
+                      </div>
                       <div className="aion-dashboard-figure-badge">
                         <span className="aion-dashboard-figure-badge-core">✦</span>
                       </div>

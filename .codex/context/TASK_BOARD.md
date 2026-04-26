@@ -2,6 +2,61 @@
 
 Last updated: 2026-04-26
 
+## Fresh Canonical Brand Typography And Logotype Baseline (2026-04-26)
+
+- fresh user direction now freezes one canonical first-party brand baseline for
+  web UX/UI:
+  - `Cormorant Garamond` for header and logo treatment
+  - `Inter` for body and operational UI
+  - the provided bird logotype SVG is the canonical shell logotype source
+- `PRJ-765` is now complete locally:
+  - canonical brand docs now record the font pairing, logotype asset, and
+    usage rules in:
+    - `docs/ux/brand-personality-tokens.md`
+    - `docs/ux/aion-visual-motif-system.md`
+    - `docs/ux/design-memory.md`
+    - `docs/README.md`
+    - `docs/architecture/architecture-source-of-truth.md`
+  - the provided logo assets are now stored in:
+    - `docs/ux/assets/aion-logotype-canonical.svg`
+    - `docs/ux/assets/aion-logotype-preview.png`
+    - `web/public/aion-logotype.svg`
+    - `web/public/aion-logotype-preview.png`
+  - the web shell now uses the canonical SVG logotype in the authenticated
+    desktop rail and compact mobile header
+  - the first-party typography baseline now uses:
+    - `Cormorant Garamond` as `font-display`
+    - `Inter` as the shared UI/body family
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+
+## Fresh Canonical Multi-Channel Conversation And Relational Outreach Plan (2026-04-26)
+
+- user direction now resolves the previously open cross-channel policy gate:
+  - the authenticated app chat is the canonical conversation owner
+  - linked Telegram is an ingress/egress mirror over the same continuity after
+    explicit linking
+  - user-authored Telegram turns should enter canonical app continuity and
+    receive mirrored replies on both app truth and Telegram transport
+  - proactive propagation may adapt by relation and channel fit, but silent
+    internal wakeups remain allowed
+  - transport adaptation may segment long Telegram delivery, but it must
+    preserve one canonical reply meaning
+- `PRJ-764` is now complete:
+  - architecture and ops truth are updated for canonical multi-channel
+    conversation and relational outreach
+  - one execution-ready plan now lives in:
+    - `docs/planning/canonical-multi-channel-conversation-and-relational-outreach-plan.md`
+  - the execution queue is now grouped into:
+    - Group A: contract freeze
+    - Group B: channel-fit memory and preference inputs
+    - Group C: canonical ingress and mirrored egress
+    - Group D: relational proactive channel choice
+    - Group E: observability, testing, and rollout proof
+- the next smallest execution slice in this lane is now `PRJ-750`:
+  - freeze the canonical multi-channel conversation contract in implementation
+    truth and tests before channel-behavior code changes
+
 ## Fresh Proactive Transcript Truth And Conscious Outbound Governance Plan (2026-04-26)
 
 - fresh production analysis now confirms one runtime-truth drift in the
@@ -92,6 +147,20 @@ Last updated: 2026-04-26
   - the next most valuable dashboard gap remains:
     - hero-stage connective detail and atmosphere
     - real authenticated screenshot parity on deploy
+- one further flagship-route pass is now complete locally:
+  - the shared utility bar now carries canonical-style continuity, language,
+    and linked-channel signals instead of a more generic search-first posture
+  - dashboard now includes a dedicated hero-stage atmosphere asset plus
+    stronger scenic captioning and connective ornament
+  - chat now has a calmer ambient overlay
+  - personality now has explicit callout connectors to strengthen the
+    embodied-system reading
+- the next most valuable remaining route-family gap is now:
+  - browser-verified proportion tuning for the dashboard hero stage
+  - possible cognitive-flow de-modularization if the band still feels too
+    component-like after deploy
+  - authenticated deployed screenshot parity for `dashboard`, `chat`, and
+    `personality`
 
 ## Fresh Canonical Screen-Set Freeze (2026-04-26)
 
