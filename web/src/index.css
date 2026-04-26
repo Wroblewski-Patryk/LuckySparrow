@@ -51,6 +51,15 @@ body {
   position: relative;
 }
 
+.aion-shell-frame {
+  position: relative;
+  align-items: start;
+}
+
+.aion-shell-stage {
+  position: relative;
+}
+
 .aion-shell::before {
   content: "";
   position: fixed;
@@ -214,16 +223,53 @@ body {
 }
 
 .aion-utility-bar {
+  grid-template-columns: minmax(13rem, 0.72fr) minmax(0, 1.2fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
+  gap: 1.15rem;
+  padding: 0.95rem 1.15rem;
   border: 1px solid rgba(88, 67, 52, 0.08);
-  border-radius: 1.7rem;
+  border-radius: 1.9rem;
   background:
-    linear-gradient(180deg, rgba(255, 252, 247, 0.86), rgba(247, 239, 228, 0.7));
-  box-shadow: 0 18px 42px rgba(78, 58, 43, 0.05);
-  backdrop-filter: blur(16px);
+    linear-gradient(180deg, rgba(255, 252, 247, 0.92), rgba(247, 239, 228, 0.76));
+  box-shadow: 0 22px 46px rgba(78, 58, 43, 0.06);
+  backdrop-filter: blur(20px);
+}
+
+.aion-utility-context {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.aion-utility-context-emblem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(197, 145, 78, 0.26);
+  background: linear-gradient(180deg, rgba(255, 251, 245, 0.92), rgba(248, 237, 218, 0.88));
+  color: #c48947;
+  font-size: 1rem;
+  box-shadow: 0 10px 24px rgba(197, 145, 78, 0.1);
+}
+
+.aion-utility-context-label {
+  margin: 0;
+  color: rgba(110, 98, 88, 0.82);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.aion-utility-context-copy {
+  margin: 0.18rem 0 0;
+  color: var(--aion-ink);
+  font-size: 0.96rem;
+  font-weight: 600;
 }
 
 .aion-utility-search {
@@ -257,6 +303,21 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+
+.aion-utility-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border: 1px solid rgba(88, 67, 52, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 251, 245, 0.82);
+  color: #5f8f93;
+  font-size: 0.8rem;
+  font-weight: 800;
+  box-shadow: 0 10px 20px rgba(78, 58, 43, 0.04);
 }
 
 .aion-utility-pill {
@@ -319,12 +380,18 @@ body {
   position: sticky;
   top: 1.25rem;
   border: 1px solid rgba(88, 67, 52, 0.08);
-  border-radius: 2rem;
-  padding: 1.35rem 1.1rem;
+  border-radius: 2.2rem;
+  padding: 1.55rem 1.25rem;
   background:
-    linear-gradient(180deg, rgba(255, 251, 245, 0.82), rgba(247, 239, 228, 0.66));
-  box-shadow: 0 20px 46px rgba(78, 58, 43, 0.06);
-  backdrop-filter: blur(16px);
+    linear-gradient(180deg, rgba(255, 251, 245, 0.88), rgba(247, 239, 228, 0.72));
+  box-shadow: 0 22px 54px rgba(78, 58, 43, 0.065);
+  backdrop-filter: blur(20px);
+}
+
+.aion-rail-story {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.72), transparent 0 38%),
+    linear-gradient(180deg, rgba(255, 251, 245, 0.82), rgba(245, 234, 220, 0.74));
 }
 
 .aion-nav-button {
@@ -369,13 +436,13 @@ body {
 
 .aion-chat-workspace {
   border: 1px solid rgba(88, 67, 52, 0.08);
-  border-radius: 2rem;
-  padding: 1.1rem 1.15rem 1.2rem;
+  border-radius: 2.25rem;
+  padding: 1.3rem 1.35rem 1.25rem;
   background:
-    radial-gradient(circle at 86% 16%, rgba(255, 255, 255, 0.72), transparent 0 18%),
-    radial-gradient(circle at 82% 52%, rgba(197, 145, 78, 0.12), transparent 0 24%),
-    linear-gradient(180deg, rgba(255, 251, 245, 0.88), rgba(244, 235, 223, 0.74));
-  box-shadow: 0 24px 60px rgba(78, 58, 43, 0.07);
+    radial-gradient(circle at 83% 14%, rgba(255, 255, 255, 0.78), transparent 0 20%),
+    radial-gradient(circle at 72% 48%, rgba(197, 145, 78, 0.13), transparent 0 26%),
+    linear-gradient(180deg, rgba(255, 251, 245, 0.92), rgba(244, 235, 223, 0.76));
+  box-shadow: 0 28px 70px rgba(78, 58, 43, 0.08);
   overflow: hidden;
 }
 
@@ -387,6 +454,25 @@ body {
   margin-bottom: 1.1rem;
   padding: 0.25rem 0.15rem 1rem;
   border-bottom: 1px solid rgba(88, 67, 52, 0.08);
+}
+
+.aion-chat-headline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.aion-chat-headline-emblem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 1px solid rgba(197, 145, 78, 0.22);
+  background: linear-gradient(180deg, rgba(255, 251, 245, 0.94), rgba(248, 237, 218, 0.86));
+  color: #c48947;
+  box-shadow: 0 12px 24px rgba(197, 145, 78, 0.12);
 }
 
 .aion-chat-topbar-controls {
@@ -558,15 +644,45 @@ body {
 
 .aion-chat-composer {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
   gap: 0.75rem;
-  align-items: end;
   padding: 0.8rem;
   border: 1px solid rgba(88, 67, 52, 0.1);
   border-radius: 1.65rem;
   background:
     linear-gradient(180deg, rgba(255, 252, 247, 0.94), rgba(249, 243, 234, 0.9));
   box-shadow: 0 18px 32px rgba(78, 58, 43, 0.05);
+}
+
+.aion-chat-composer-primary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.aion-chat-input-stack {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.aion-chat-composer-support {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0 0.2rem 0.15rem;
+}
+
+.aion-chat-support-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.1rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(88, 67, 52, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 251, 245, 0.68);
+  color: var(--aion-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .aion-chat-icon-button,
@@ -731,7 +847,7 @@ body {
   display: grid;
   gap: 1rem;
   margin-top: 0.5rem;
-  padding: 1.2rem 1.35rem;
+  padding: 1.35rem 1.5rem;
 }
 
 .aion-feature-card {
@@ -765,6 +881,46 @@ body {
   display: grid;
   gap: 1.4rem;
   padding: 1.25rem;
+}
+
+.aion-route-hero-personality {
+  position: relative;
+  overflow: hidden;
+}
+
+.aion-route-hero-personality::after {
+  content: "";
+  position: absolute;
+  inset: auto 2rem -2.4rem auto;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(111, 149, 146, 0.14), transparent 68%);
+  pointer-events: none;
+}
+
+.aion-personality-preview-nav {
+  background:
+    linear-gradient(180deg, rgba(255, 251, 245, 0.82), rgba(248, 239, 226, 0.72));
+}
+
+.aion-personality-preview-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(88, 67, 52, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 251, 245, 0.72);
+  color: var(--aion-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.aion-personality-preview-tab-active {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--aion-ink);
+  box-shadow: 0 12px 24px rgba(78, 58, 43, 0.05);
 }
 
 .aion-personality-hero-stage {
@@ -948,7 +1104,7 @@ body {
 
 @media (min-width: 900px) {
   .aion-chat-stage {
-    grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.88fr);
+    grid-template-columns: minmax(0, 1.03fr) minmax(24rem, 0.97fr);
     align-items: start;
   }
 
@@ -972,6 +1128,10 @@ body {
   }
 
   .aion-chat-composer {
+    padding: 0.75rem;
+  }
+
+  .aion-chat-composer-primary {
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
 

@@ -1012,14 +1012,16 @@ function RouteHeroPanel({
   title,
   body,
   chips,
+  className = "",
 }: {
   eyebrow: string;
   title: string;
   body: string;
   chips: string[];
+  className?: string;
 }) {
   return (
-    <section className="aion-panel aion-halo rounded-[2rem] p-5">
+    <section className={`aion-panel aion-halo rounded-[2rem] p-5 ${className}`}>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)] lg:items-end">
         <div className="max-w-3xl">
           <p className="text-sm uppercase tracking-[0.24em] text-base-800">{eyebrow}</p>
@@ -1168,16 +1170,25 @@ function ChatFeatureCard({
 }
 
 function ShellUtilityBar({
+  currentSurface,
   currentUserLabel,
   accountPanelOpen,
   onAccountClick,
 }: {
+  currentSurface: string;
   currentUserLabel: string;
   accountPanelOpen: boolean;
   onAccountClick: () => void;
 }) {
   return (
-    <header className="aion-utility-bar hidden xl:flex">
+    <header className="aion-utility-bar hidden xl:grid">
+      <div className="aion-utility-context">
+        <span className="aion-utility-context-emblem">✦</span>
+        <div className="min-w-0">
+          <p className="aion-utility-context-label">AION workspace</p>
+          <p className="aion-utility-context-copy">{currentSurface}</p>
+        </div>
+      </div>
       <div className="aion-utility-search">
         <span className="aion-utility-search-icon">⌕</span>
         <span className="aion-utility-search-copy">Search AION or ask anything...</span>
@@ -1191,6 +1202,9 @@ function ShellUtilityBar({
         <button className="aion-utility-pill" type="button">
           ✧
           Quick capture
+        </button>
+        <button className="aion-utility-icon-pill" type="button" aria-label="Notifications">
+          3
         </button>
         <button
           className={`aion-utility-account ${accountPanelOpen ? "aion-utility-account-active" : ""}`}
@@ -1743,6 +1757,7 @@ export default function App() {
     },
   ];
   const chatQuickActions = ["Plan my day", "Summarize yesterday", "What did I learn?", "Check my goals"];
+  const chatComposerTools = ["Attach", "Voice", "Memory", "Tools"];
   const chatCurrentFocus =
     stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "Project planning" : "Conversation continuity";
   const chatFlowMoments = [
@@ -1899,6 +1914,7 @@ export default function App() {
     { title: "Completed reflection cycle", when: "5h ago" },
     { title: "Learned preference captured", when: "Yesterday" },
   ];
+  const personalityPreviewTabs = ["Overview", "Knowledge", "Skills", "Memories", "Settings"];
 
   function changeRoute(nextRoute: RoutePath) {
     startTransition(() => {
@@ -2304,7 +2320,7 @@ export default function App() {
   return (
     <div className="aion-shell min-h-screen text-base-content">
       <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-8">
-        <div className="grid gap-4 xl:grid-cols-[12.5rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame grid gap-4 xl:grid-cols-[14.5rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <div>
               <div className="font-display text-[1.75rem] uppercase tracking-[0.42em] text-base-900">AION</div>
@@ -2325,10 +2341,10 @@ export default function App() {
             </nav>
 
             <div className="mt-auto grid gap-3">
-              <section className="aion-panel-soft rounded-[1.8rem] p-4">
+              <section className="aion-panel-soft aion-rail-story rounded-[1.8rem] p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-base-800">Current posture</p>
-                <p className="mt-2 text-base font-semibold text-base-900">All systems aligned</p>
-                <p className="mt-2 text-sm leading-6 text-base-800">AION is ready for a calm, continuous conversation.</p>
+                <p className="mt-2 text-base font-semibold text-base-900">Clarity is the lamp that makes the path.</p>
+                <p className="mt-3 text-sm leading-6 text-base-800">AION is ready for a calm, continuous conversation.</p>
               </section>
 
               <section className="aion-panel-soft rounded-[1.8rem] p-4">
@@ -2349,8 +2365,9 @@ export default function App() {
             </div>
           </aside>
 
-          <div className="grid gap-4">
+          <div className="aion-shell-stage grid gap-4">
             <ShellUtilityBar
+              currentSurface={routeLabel(route, resolvedUiLanguage)}
               currentUserLabel={currentUserLabel}
               accountPanelOpen={accountPanelOpen}
               onAccountClick={() => setAccountPanelOpen((value) => !value)}
@@ -2445,8 +2462,11 @@ export default function App() {
             <section className="grid gap-4">
               <section className="aion-chat-workspace">
                 <div className="aion-chat-topbar">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-3">
+                  <div className="aion-chat-headline">
+                    <span className="aion-chat-headline-emblem">✦</span>
+                    <div>
+                    <p className="text-xs uppercase tracking-[0.24em] text-[#8d785f]">Active conversation</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
                       <h2 className="font-display text-3xl text-base-900">{routeLabel("/chat", resolvedUiLanguage)}</h2>
                       <span className="inline-flex items-center gap-2 text-sm text-[#5f8f93]">
                         <span className="h-2 w-2 rounded-full bg-[#79b7b9]" />
@@ -2454,6 +2474,7 @@ export default function App() {
                       </span>
                     </div>
                     <p className="mt-2 text-sm leading-7 text-base-800">{routeDescription("/chat", resolvedUiLanguage)}</p>
+                    </div>
                   </div>
                   <div className="aion-chat-topbar-controls">
                     {chatTopControls.map((item) => (
@@ -2462,14 +2483,6 @@ export default function App() {
                         <span className="aion-chat-control-badge">{item.value}</span>
                       </div>
                     ))}
-                    <button
-                      className={`aion-chat-control-pill ${accountPanelOpen ? "border-[#7ea79f]/45" : ""}`}
-                      onClick={() => setAccountPanelOpen((value) => !value)}
-                      type="button"
-                    >
-                      <span className="aion-chat-control-label">{copy.common.account}</span>
-                      <span className="aion-chat-control-badge">{currentUserLabel}</span>
-                    </button>
                   </div>
                 </div>
 
@@ -2546,21 +2559,32 @@ export default function App() {
                         ))}
                       </div>
                       <form className="aion-chat-composer" onSubmit={(event) => void handleSendMessage(event)}>
-                        <button className="aion-chat-icon-button" type="button" aria-label="Add context">
-                          +
-                        </button>
-                        <textarea
-                          className="aion-chat-input"
-                          placeholder={copy.chat.placeholder}
-                          value={chatText}
-                          onChange={(event) => setChatText(event.target.value)}
-                        />
-                        <button className="aion-chat-icon-button hidden sm:inline-flex" type="button" aria-label="Voice input">
-                          M
-                        </button>
-                        <button className="aion-chat-send" disabled={sendingMessage} type="submit">
-                          {sendingMessage ? "..." : ">"}
-                        </button>
+                        <div className="aion-chat-composer-primary">
+                          <button className="aion-chat-icon-button" type="button" aria-label="Add context">
+                            +
+                          </button>
+                          <div className="aion-chat-input-stack">
+                            <textarea
+                              className="aion-chat-input"
+                              placeholder={copy.chat.placeholder}
+                              value={chatText}
+                              onChange={(event) => setChatText(event.target.value)}
+                            />
+                            <div className="aion-chat-composer-support">
+                              {chatComposerTools.map((tool) => (
+                                <button key={tool} className="aion-chat-support-button" type="button">
+                                  {tool}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <button className="aion-chat-icon-button hidden sm:inline-flex" type="button" aria-label="Voice input">
+                            M
+                          </button>
+                          <button className="aion-chat-send" disabled={sendingMessage} type="submit">
+                            {sendingMessage ? "..." : ">"}
+                          </button>
+                        </div>
                       </form>
                       <p className="px-2 text-sm text-base-800">{copy.chat.composerHint}</p>
                     </div>
@@ -3104,7 +3128,21 @@ export default function App() {
                   `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} patterns`,
                   `${stringValue(preferenceSummary?.learned_preference_count, "0")} preferences`,
                 ]}
+                className="aion-route-hero aion-route-hero-personality"
               />
+
+              <section className="aion-panel-soft aion-personality-preview-nav rounded-[1.8rem] p-3">
+                <div className="flex flex-wrap gap-2">
+                  {personalityPreviewTabs.map((tab, index) => (
+                    <span
+                      key={tab}
+                      className={`aion-personality-preview-tab ${index === 0 ? "aion-personality-preview-tab-active" : ""}`}
+                    >
+                      {tab}
+                    </span>
+                  ))}
+                </div>
+              </section>
 
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(22rem,0.74fr)]">
                 <div className="grid gap-6">

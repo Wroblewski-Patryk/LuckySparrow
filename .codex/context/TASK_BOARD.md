@@ -98,6 +98,18 @@ Last updated: 2026-04-26
     - final shared premium polish across `dashboard-first shell + chat + personality`
     - responsive desktop/tablet/mobile proof
     - post-deploy screenshot comparison against the canonical assets
+  - one more premium polish pass is now complete locally:
+    - the shared shell now has calmer flagship framing with richer utility-bar context
+    - the left rail now reads more like a narrative premium surface and less
+      like a utility-only sidebar
+    - `chat` now has a cleaner canonical hierarchy through:
+      - lighter route headline treatment
+      - less duplicate account chrome
+      - a more integrated composer tray with embedded support actions
+    - `personality` now has one extra canonical cue:
+      - a preview-tab strip that strengthens the route's overview posture
+    - focused validation passed:
+      - `Push-Location .\web; npm run build; Pop-Location`
 
 ## Fresh Profile Local-Time Fix (2026-04-26)
 

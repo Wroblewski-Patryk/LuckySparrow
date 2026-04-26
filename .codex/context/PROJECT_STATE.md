@@ -175,6 +175,21 @@ Last updated: 2026-04-26
     - cross-route premium polish
     - responsive proof
     - post-deploy screenshot parity
+- 2026-04-26: one additional flagship-shell premium pass is now complete locally:
+  - the shared authenticated frame now has calmer flagship chrome and stronger
+    editorial posture through:
+    - richer utility-bar context
+    - softer left-rail storytelling
+    - wider desktop shell proportions
+  - `chat` now moves closer to the canonical route through:
+    - lighter topbar hierarchy
+    - removal of duplicate account chrome inside the route body
+    - a more integrated composer tray with embedded support actions
+  - `personality` now carries a more canonical preview posture through:
+    - a dedicated preview-tab strip above the embodied overview
+    - stronger visual continuity between the route hero and the main figure stage
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
 - 2026-04-25: `PRJ-707` is now complete:
   - the GUI-language selector now rests on one shared locale metadata model
     carrying value, native label, localized label, icon token, and explicit
