@@ -4158,3 +4158,12 @@ Last updated: 2026-04-28
   - validation after this pass:
     - `Push-Location .\web; npm run build; Pop-Location`
     - result: passed
+- 2026-04-28: a dashboard-specific compaction pass then reduced one of the
+  biggest remaining canonical drifts:
+  - conversation-channel status was folded into the guidance column instead of
+    occupying its own full-width band
+  - dashboard flow notes were reduced so the route finishes more like one
+    composed flagship overview
+  - validation after this pass:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed

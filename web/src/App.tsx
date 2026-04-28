@@ -2864,6 +2864,27 @@ export default function App() {
                     ))}
                   </div>
 
+                  <section
+                    className={`aion-dashboard-channel-status aion-dashboard-channel-status-compact aion-dashboard-channel-status-${dashboardConversationStatus.tone}`}
+                  >
+                    <div className="aion-dashboard-channel-status-copy">
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-base-800">Conversation channel</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <p className="font-display text-xl text-base-900">{dashboardConversationStatus.title}</p>
+                        <span className="aion-dashboard-channel-status-pill">{dashboardConversationStatus.label}</span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-base-800">{dashboardConversationStatus.body}</p>
+                    </div>
+                    <div className="aion-dashboard-channel-status-facts aion-dashboard-channel-status-facts-compact">
+                      {dashboardConversationStatus.facts.slice(0, 2).map((fact) => (
+                        <div key={fact.label} className="aion-dashboard-channel-status-fact aion-dashboard-channel-status-fact-compact">
+                          <p>{fact.label}</p>
+                          <strong>{fact.value}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
                   <section className="aion-dashboard-recent-panel aion-dashboard-recent-panel-compact">
                     <div className="mb-4 flex items-center justify-between gap-3">
                       <div>
@@ -2896,27 +2917,6 @@ export default function App() {
                     </p>
                   </section>
                 </aside>
-              </section>
-
-              <section className={`aion-panel aion-dashboard-channel-status aion-dashboard-channel-status-${dashboardConversationStatus.tone}`}>
-                <div className="aion-dashboard-channel-status-copy">
-                  <p className="text-sm uppercase tracking-[0.22em] text-base-800">Conversation channel</p>
-                  <div className="mt-2 flex flex-wrap items-center gap-3">
-                    <h3 className="font-display text-2xl text-base-900">{dashboardConversationStatus.title}</h3>
-                    <span className="aion-dashboard-channel-status-pill">{dashboardConversationStatus.label}</span>
-                  </div>
-                  <p className="mt-3 max-w-3xl text-sm leading-7 text-base-800">
-                    {dashboardConversationStatus.body}
-                  </p>
-                </div>
-                <div className="aion-dashboard-channel-status-facts">
-                  {dashboardConversationStatus.facts.map((fact) => (
-                    <div key={fact.label} className="aion-dashboard-channel-status-fact">
-                      <p>{fact.label}</p>
-                      <strong>{fact.value}</strong>
-                    </div>
-                  ))}
-                </div>
               </section>
 
               <section className="aion-panel aion-dashboard-flow-panel aion-dashboard-flow-panel-bridge">
@@ -2952,7 +2952,7 @@ export default function App() {
                   </aside>
                 </div>
                 <div className="aion-dashboard-flow-notes">
-                  {dashboardFlowItems.map((item) => (
+                  {dashboardFlowItems.slice(0, 2).map((item) => (
                     <article key={item.title} className="aion-dashboard-flow-note">
                       <p className="text-[11px] uppercase tracking-[0.2em] text-base-800">{item.eyebrow}</p>
                       <p className="mt-2 text-base font-semibold text-base-900">{item.title}</p>

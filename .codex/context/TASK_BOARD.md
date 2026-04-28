@@ -11260,3 +11260,17 @@ Fresh One-Screen Read And Embodied Continuity Pass (2026-04-28)
   - dashboard proof for lower-half drag versus canonical one-screen pacing
   - chat proof for preview state and long transcript density
   - personality proof for hero-to-timeline continuity and mobile balance
+
+Fresh Dashboard Compaction Pass (2026-04-28)
+
+- `dashboard` conversation-channel state now lives inside the guidance column
+  as a compact support surface instead of a full-width second band
+- `dashboard` flow notes were reduced to a tighter two-card finish so the
+  route holds a more canonical one-screen feel
+- validation after this pass:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+- next smallest parity loop after deploy:
+  - dashboard screenshot proof for total route height and flagship hierarchy
+  - chat screenshot proof for transcript-first balance
+  - personality screenshot proof for embodied-map calmness

@@ -404,3 +404,14 @@ Latest one-screen-read-and-embodied-continuity pass now also complete:
 - validation after this pass:
   - `Push-Location .\web; npm run build; Pop-Location`
   - result: passed on 2026-04-28
+
+Latest dashboard-compaction pass now also complete:
+
+- `dashboard` now removes one of the biggest sources of vertical drift:
+  - conversation-channel status was folded into the guidance column as a
+    compact support surface instead of a full-width second section
+  - flow notes were reduced to a tighter two-card ending under the live flow
+  - the route now holds its flagship hierarchy more like one overview screen
+- validation after this pass:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed on 2026-04-28
