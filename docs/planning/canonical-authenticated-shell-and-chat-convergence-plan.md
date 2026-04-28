@@ -20,7 +20,7 @@ visual direction. The remaining gap is compositional fidelity:
 
 ## Canonical Inputs
 
-- `docs/ux/assets/aion-chat-canonical-reference-v2.png`
+- `docs/ux/assets/aion-chat-canonical-reference-v4.png`
 - `docs/ux/assets/aion-dashboard-canonical-reference-v2.png`
 - `docs/ux/assets/aion-personality-canonical-reference-v1.png`
 - `docs/ux/aion-visual-motif-system.md`

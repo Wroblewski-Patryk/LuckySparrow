@@ -162,7 +162,7 @@ The motif should support the route through framing, not dominate it.
 
 Canonical implementation target:
 
-- `docs/ux/assets/aion-chat-canonical-reference-v2.png`
+- `docs/ux/assets/aion-chat-canonical-reference-v4.png`
 
 - timeline rails can echo transcript continuity
 - the main figure should appear as a background anchor or side illustration

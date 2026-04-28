@@ -1,6 +1,24 @@
 # TASK_BOARD
 
-Last updated: 2026-04-27
+Last updated: 2026-04-28
+
+## Fresh Chat Canonical Reference V4 Freeze (2026-04-28)
+
+- user direction now replaces the active canonical `chat` visual target with a
+  more precise approved snapshot:
+  - source:
+    - `C:\Users\wrobl\Desktop\UIUX\aion - chat - v4.png`
+  - canonical repo asset:
+    - `docs/ux/assets/aion-chat-canonical-reference-v4.png`
+- `PRJ-769` is complete as a docs-and-asset source-of-truth slice:
+  - `docs/ux/canonical-web-screen-reference-set.md` now points the `chat`
+    route target at v4
+  - active shell/chat convergence plans now use v4 as the `chat` comparison
+    input
+  - `PRJ-743` design-source references now point future parity work at v4
+- implementation was intentionally not changed in this slice; the next
+  smallest UX loop should compare the live `chat` route against v4 before
+  making crop, spacing, support-column, composer, or shell-density changes
 
 ## Fresh Flagship Canonical Calm-Down Pass (2026-04-27)
 

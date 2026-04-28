@@ -1,8 +1,19 @@
 # PROJECT_STATE
 
-Last updated: 2026-04-27
+Last updated: 2026-04-28
 
 ## Product Snapshot
+
+- 2026-04-28: the active canonical `chat` screen target is now the supplied v4
+  approved snapshot:
+  - canonical asset:
+    - `docs/ux/assets/aion-chat-canonical-reference-v4.png`
+  - source image:
+    - `C:\Users\wrobl\Desktop\UIUX\aion - chat - v4.png`
+  - UX source-of-truth and active convergence plans now point future `chat`
+    parity work at v4 instead of the previous v2 reference
+  - this was a docs-and-asset target freeze only; no web implementation files
+    were changed by this slice
 
 - 2026-04-27: the first Aviary web-brand repair pass is now complete locally:
   - active user-facing `AION` product naming in the shell source has been
@@ -42,6 +53,24 @@ Last updated: 2026-04-27
       currently requires `>= v22.22.0`
     - until that runtime is upgraded, live parity loops should continue using
       manual deploy review and the stored production screenshot evidence
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+
+- 2026-04-28: one more canonical flagship hero-stage pass is now complete
+  locally:
+  - dashboard hero now has:
+    - stronger card-to-figure connective tension
+    - a slightly larger center scene
+    - a calmer desktop split that favors the embodied stage over the guidance
+      column
+  - chat portrait support now has:
+    - a warmer crop
+    - a lower planning inset
+    - a slightly more transcript-first desktop balance
+  - personality hero now has:
+    - a taller figure stage
+    - clearer connector endpoints
+    - stronger callout visibility around the embodied map
   - focused validation passed:
     - `Push-Location .\web; npm run build; Pop-Location`
 

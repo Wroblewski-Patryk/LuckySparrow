@@ -17,7 +17,7 @@ convergence queue for:
   - `https://aviary.luckysparrow.ch`
 - canonical references compared:
   - `docs/ux/assets/aion-dashboard-canonical-reference-v2.png`
-  - `docs/ux/assets/aion-chat-canonical-reference-v2.png`
+  - `docs/ux/assets/aion-chat-canonical-reference-v4.png`
   - `docs/ux/assets/aion-personality-canonical-reference-v1.png`
 - authenticated screenshots captured on 2026-04-26:
   - `.codex/artifacts/production-audit-2026-04-26/dashboard-desktop.png`

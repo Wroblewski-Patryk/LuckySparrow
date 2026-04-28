@@ -87,7 +87,7 @@ comparison.
 - Design source type: approved_snapshot
 - Design source reference:
   - `docs/ux/assets/aion-dashboard-canonical-reference-v2.png`
-  - `docs/ux/assets/aion-chat-canonical-reference-v2.png`
+  - `docs/ux/assets/aion-chat-canonical-reference-v4.png`
   - `docs/ux/assets/aion-personality-canonical-reference-v1.png`
 - Stitch used: no
 - Experience-quality bar reviewed: yes

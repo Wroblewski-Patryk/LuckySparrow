@@ -56,17 +56,21 @@ They define the UX/UI target that future implementation should move toward.
 ### Chat
 
 - Asset:
-  - `docs/ux/assets/aion-chat-canonical-reference-v2.png`
+  - `docs/ux/assets/aion-chat-canonical-reference-v4.png`
 - Role:
   - premium conversation target for the main product experience
 - Must preserve:
-  - conversation-first hierarchy
-  - strong breathing room
-  - subtle but emotionally resonant AION presence
-  - minimal, useful right-column support context
-  - beautiful bottom composer and contextual action chips
+  - conversation-first hierarchy inside the authenticated product shell
+  - left navigation, top utility controls, transcript, embodied stage, and
+    cognitive context as one composed workspace
+  - a strong central AION presence that supports the dialogue without
+    displacing the message thread
+  - right-column cognitive context with intent, motivation, goal, memory,
+    suggested actions, and proactive check-in hierarchy
+  - bottom composer with mode tabs, attachments, voice, and send affordance
+    integrated into one premium tray
 
-![AION chat canonical reference](./assets/aion-chat-canonical-reference-v2.png)
+![AION chat canonical reference](./assets/aion-chat-canonical-reference-v4.png)
 
 ## Route Translation Rules
 
