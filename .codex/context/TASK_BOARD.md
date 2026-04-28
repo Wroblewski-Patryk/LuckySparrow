@@ -30,6 +30,30 @@ Last updated: 2026-04-28
     configured but silent
   - task file:
     - `.codex/tasks/PRJ-770-plan-dashboard-conversation-channel-status-banner.md`
+- deeper production verification narrowed the runtime diagnosis further:
+  - local session does not have `TELEGRAM_BOT_TOKEN` or
+    `TELEGRAM_WEBHOOK_SECRET`, so Telegram API `getWebhookInfo` cannot be run
+    from this shell without operator-provided secrets
+  - a synthetic Telegram-shaped request without the webhook secret was sent to
+    production `/event`
+  - expected result was observed:
+    - response: `403 Invalid Telegram webhook secret token.`
+    - `/health.conversation_channels.telegram.ingress_attempts=1`
+    - `/health.conversation_channels.telegram.ingress_rejections=1`
+    - `/health.conversation_channels.telegram.last_ingress.state=rejected`
+    - `/health.conversation_channels.telegram.last_ingress.reason=invalid_webhook_secret`
+  - this proves production `/event` recognizes Telegram webhook payloads and
+    updates telemetry when Telegram-shaped traffic reaches the app
+  - therefore the likely incident boundary is upstream of runtime processing:
+    Telegram webhook URL, webhook secret parity, bot/chat selection, or proxy
+    delivery from Telegram into the production host
+- `PRJ-773` is now BLOCKED on secret-backed provider access:
+  - run `backend/scripts/run_telegram_mode_smoke.ps1` or `.sh` with the
+    production bot token, webhook secret, and known chat id
+  - choose the smallest repair from the captured `getWebhookInfo` and listen
+    probe evidence
+  - task file:
+    - `.codex/tasks/PRJ-773-verify-production-telegram-webhook-and-plan-repair.md`
 
 ## Fresh Chat Canonical Reference V4 Freeze (2026-04-28)
 
@@ -11054,3 +11078,18 @@ Fresh Shell Tiering Pass (2026-04-28)
   - dashboard recent/intention relationship and lower-column pacing
   - chat support-column spacing against the portrait crop
   - personality mobile crop and side-panel compression
+
+Final Flagship Detail Loop Freeze (2026-04-28)
+
+- a detailed last-mile checklist now lives in:
+  - `docs/planning/final-flagship-canonical-detail-checklist.md`
+- `PRJ-772` is now in progress:
+  - `.codex/tasks/PRJ-772-final-flagship-canonical-detail-loops.md`
+- the latest implementation slice covered:
+  - dashboard lower-rhythm and sidebar pacing
+  - chat support-column hierarchy tightening
+  - personality side-stack ordering and quieter recent-activity closure
+- next smallest parity loop after deploy:
+  - dashboard hero-to-lower transition and scenic closure proportion
+  - chat portrait crop versus support-panel spacing
+  - personality mobile callout compression and side-panel stacking proof

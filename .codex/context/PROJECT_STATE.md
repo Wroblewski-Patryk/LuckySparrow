@@ -20,6 +20,23 @@ Last updated: 2026-04-28
   - `PRJ-770` is now ready to plan and implement a dashboard status signal that
     explains configured-but-silent conversation channels from existing backend
     health truth
+- 2026-04-28: the flagship canonical convergence lane now has a detail-level
+  final checklist in:
+  - `docs/planning/final-flagship-canonical-detail-checklist.md`
+  - `PRJ-772` continues the last-mile execution loop for `dashboard`, `chat`,
+    and `personality` through bounded rhythm, hierarchy, crop, and mobile
+    compression passes instead of any new route topology changes
+  - deeper verification then sent one synthetic Telegram-shaped request without
+    the webhook secret and observed the expected production rejection:
+    - `403 Invalid Telegram webhook secret token.`
+    - `/health.conversation_channels.telegram.ingress_attempts=1`
+    - `/health.conversation_channels.telegram.ingress_rejections=1`
+    - `/health.conversation_channels.telegram.last_ingress.reason=invalid_webhook_secret`
+  - this confirms the production `/event` route and Telegram telemetry work
+    when Telegram-shaped traffic reaches the app
+  - the remaining high-value check is secret-backed Telegram provider
+    inspection (`getWebhookInfo`, listen probe, and restore), captured as
+    `PRJ-773`
 
 - 2026-04-28: the active canonical `chat` screen target is now the supplied v4
   approved snapshot:

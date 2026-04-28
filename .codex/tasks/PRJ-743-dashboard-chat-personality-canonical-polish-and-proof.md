@@ -270,3 +270,22 @@ Latest shell-tiering-and-highlight pass now also complete:
   - the key signal card becomes the anchor tile in the metric grid
   - the remaining summary cards now read as supporting signals instead of four
     equal blocks
+
+Latest rhythm-and-side-stack pass now also complete:
+
+- `dashboard` now tightens the lower editorial rhythm:
+  - guidance cards, recent activity, and the intention surface are now more
+    clearly tiered
+  - the lower trio of cards now carries distinct material roles instead of
+    reading like one repeated family
+  - the summary band now gives slightly more authority back to the scenic side
+- `chat` now further subordinates support context to the transcript:
+  - the support column gap is tighter
+  - the context panel is calmer
+  - the first support card reads as the lead cue while the final card fades
+    into a quieter closing note
+- `personality` now uses a clearer side-stack narrative:
+  - conscious signals still open the stack
+  - highlights now act as the summary anchor
+  - subconscious remains secondary
+  - recent activity now closes the stack as the quietest support block

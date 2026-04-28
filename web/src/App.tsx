@@ -2603,7 +2603,7 @@ export default function App() {
                     <p className="text-sm uppercase tracking-[0.22em] text-base-800">Insights and guidance</p>
                     <h3 className="mt-2 font-display text-2xl text-base-900">Curated for you</h3>
                   </div>
-                  <div className="grid gap-3">
+                  <div className="aion-dashboard-guidance-card-stack">
                     {dashboardGuidanceCards.map((card, index) => (
                       <article
                         key={card.title}
@@ -2626,7 +2626,7 @@ export default function App() {
                     ))}
                   </div>
 
-                  <section className="aion-dashboard-recent-panel">
+                  <section className="aion-dashboard-recent-panel aion-dashboard-recent-panel-compact">
                     <div className="mb-4 flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm uppercase tracking-[0.22em] text-base-800">Recent activity</p>
@@ -2649,7 +2649,7 @@ export default function App() {
                     </div>
                   </section>
 
-                  <section className="aion-dashboard-side-story">
+                  <section className="aion-dashboard-side-story aion-dashboard-side-story-lead">
                     <p className="text-sm uppercase tracking-[0.22em] text-base-800">Today's intention</p>
                     <p className="mt-4 font-display text-2xl leading-tight text-base-900">
                       Create with clarity.
@@ -2703,8 +2703,8 @@ export default function App() {
                 </div>
               </section>
 
-              <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.9fr)]">
-                <article className="aion-panel-soft aion-dashboard-card">
+              <section className="aion-dashboard-lower-grid grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.9fr)]">
+                <article className="aion-panel-soft aion-dashboard-card aion-dashboard-card-primary">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm uppercase tracking-[0.2em] text-base-800">Active goals</p>
@@ -2729,7 +2729,7 @@ export default function App() {
                   </div>
                 </article>
 
-                <article className="aion-panel-soft aion-dashboard-card">
+                <article className="aion-panel-soft aion-dashboard-card aion-dashboard-card-focus">
                   <p className="text-sm uppercase tracking-[0.2em] text-base-800">Current focus</p>
                   <div className="aion-dashboard-focus-orb" aria-hidden="true" />
                   <p className="font-display text-2xl text-base-900">{chatCurrentFocus}</p>
@@ -2741,7 +2741,7 @@ export default function App() {
                   </button>
                 </article>
 
-                <article className="aion-panel-soft aion-dashboard-card">
+                <article className="aion-panel-soft aion-dashboard-card aion-dashboard-card-memory">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm uppercase tracking-[0.2em] text-base-800">Memory growth</p>
@@ -2967,7 +2967,7 @@ export default function App() {
                       </div>
                     </aside>
 
-                    <section className="aion-chat-context-panel">
+                    <section className="aion-chat-context-panel aion-chat-context-panel-curated">
                       <div className="mb-4 flex items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-base-900">Conversation context</p>
@@ -2976,8 +2976,17 @@ export default function App() {
                         <span className="aion-chat-live-dot" />
                       </div>
                       <div className="grid gap-3">
-                        {chatSupportCards.map((card) => (
-                          <article key={card.eyebrow} className="aion-chat-support-card">
+                        {chatSupportCards.map((card, index) => (
+                          <article
+                            key={card.eyebrow}
+                            className={`aion-chat-support-card ${
+                              index === 0
+                                ? "aion-chat-support-card-lead"
+                                : index === chatSupportCards.length - 1
+                                  ? "aion-chat-support-card-quiet"
+                                  : ""
+                            }`}
+                          >
                             <p className="text-[11px] uppercase tracking-[0.18em] text-base-800">{card.eyebrow}</p>
                             <div className="mt-2 flex items-start justify-between gap-3">
                               <h3 className="font-display text-xl text-base-900">{card.title}</h3>
@@ -3526,7 +3535,7 @@ export default function App() {
 
                 </div>
 
-                <div className="grid gap-6">
+                <div className="aion-personality-side-stack">
                   <InsightPanel
                     eyebrow="Conscious layer"
                     title="Active awareness and current cognition"
@@ -3544,45 +3553,10 @@ export default function App() {
                   </InsightPanel>
 
                   <InsightPanel
-                    eyebrow="Subconscious layer"
-                    title="Background patterns and latent knowledge"
-                    body="Longer memory, associations, and learned preferences stay active without crowding the live route."
-                    className="aion-personality-side-panel aion-personality-side-panel-subconscious"
-                  >
-                    <div className="grid gap-3">
-                      {personalitySubconsciousSignals.map((item) => (
-                        <div key={item.label} className="aion-personality-signal-row">
-                          <span className="aion-personality-signal-label">{item.label}</span>
-                          <span className="aion-personality-signal-value">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </InsightPanel>
-
-                  <InsightPanel
-                    eyebrow="Recent activity"
-                    title="Latest internal movement"
-                    body="Recent changes stay readable before the user opens the deeper sections."
-                    className="aion-personality-side-panel aion-personality-side-panel-recent"
-                  >
-                    <div className="grid gap-3">
-                      {personalityRecentActivity.map((item) => (
-                        <div key={item.title} className="aion-personality-activity-row">
-                          <div>
-                            <p className="text-sm font-semibold text-base-900">{item.title}</p>
-                            <p className="mt-1 text-sm text-base-800">{item.when}</p>
-                          </div>
-                          <span className="aion-chip-ghost rounded-full px-3 py-1 text-xs font-medium">View</span>
-                        </div>
-                      ))}
-                    </div>
-                  </InsightPanel>
-
-                  <InsightPanel
                     eyebrow="Highlights"
                     title="Current product signals"
                     body="These summary cards keep the route readable before the user opens any deeper detail."
-                    className="aion-personality-side-panel aion-personality-side-panel-highlight"
+                    className="aion-personality-side-panel aion-personality-side-panel-highlight aion-personality-side-panel-highlight-prominent"
                   >
                     <div className="aion-personality-highlight-grid">
                       {[
@@ -3623,6 +3597,41 @@ export default function App() {
                               : "aion-personality-highlight-card"
                           }
                         />
+                      ))}
+                    </div>
+                  </InsightPanel>
+
+                  <InsightPanel
+                    eyebrow="Subconscious layer"
+                    title="Background patterns and latent knowledge"
+                    body="Longer memory, associations, and learned preferences stay active without crowding the live route."
+                    className="aion-personality-side-panel aion-personality-side-panel-subconscious"
+                  >
+                    <div className="grid gap-3">
+                      {personalitySubconsciousSignals.map((item) => (
+                        <div key={item.label} className="aion-personality-signal-row">
+                          <span className="aion-personality-signal-label">{item.label}</span>
+                          <span className="aion-personality-signal-value">{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </InsightPanel>
+
+                  <InsightPanel
+                    eyebrow="Recent activity"
+                    title="Latest internal movement"
+                    body="Recent changes stay readable before the user opens the deeper sections."
+                    className="aion-personality-side-panel aion-personality-side-panel-recent aion-personality-side-panel-recent-quiet"
+                  >
+                    <div className="grid gap-3">
+                      {personalityRecentActivity.map((item) => (
+                        <div key={item.title} className="aion-personality-activity-row">
+                          <div>
+                            <p className="text-sm font-semibold text-base-900">{item.title}</p>
+                            <p className="mt-1 text-sm text-base-800">{item.when}</p>
+                          </div>
+                          <span className="aion-chip-ghost rounded-full px-3 py-1 text-xs font-medium">View</span>
+                        </div>
                       ))}
                     </div>
                   </InsightPanel>
