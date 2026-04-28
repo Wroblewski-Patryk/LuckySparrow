@@ -85,6 +85,8 @@ route-specific detail loops.
 ## Validation Evidence
 - Tests:
   - `Push-Location .\web; npm run build; Pop-Location`
+  - `Push-Location .\web; npm run build; Pop-Location`
+    - result after proportion-and-density pass: passed on 2026-04-28
 - Manual checks:
   - pending next deploy compare loop
 - Screenshots/logs:
@@ -207,6 +209,13 @@ or `IN_PROGRESS`:
 - Task summary:
   - detailed final-checklist planning was recorded and one new flagship
     hierarchy/rhythm slice was implemented
+  - latest proportion-and-density pass is also validated:
+    - dashboard center-stage authority is stronger through the larger hero
+      figure area and longer signal connectors
+    - chat reserves more desktop width for the transcript and uses more
+      intentional assistant/user bubble widths
+    - personality uses a slightly taller embodied stage with tighter mobile
+      callout compression
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
@@ -216,6 +225,8 @@ or `IN_PROGRESS`:
   - `.codex/context/PROJECT_STATE.md`
 - How tested:
   - `Push-Location .\web; npm run build; Pop-Location`
+  - repeated after the latest proportion-and-density pass:
+    `Push-Location .\web; npm run build; Pop-Location`
 - What is incomplete:
   - deploy-backed screenshot comparison
   - final tablet parity proof

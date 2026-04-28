@@ -324,3 +324,6 @@ Latest proportion-and-density pass now also complete:
   - mobile callouts compress further inward
   - planning, skills, and role are less likely to overpower the figure at
     smaller widths
+- validation after this pass:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed on 2026-04-28
