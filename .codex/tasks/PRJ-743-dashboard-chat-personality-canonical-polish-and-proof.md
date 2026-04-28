@@ -238,3 +238,20 @@ Latest calming-and-compression pass now also complete:
     runtime requires `>= v22.22.0`
   - until that is upgraded, live compare loops should continue using manual
     deploy review plus stored screenshot evidence
+
+Latest hero-stage-and-callout pass now also complete:
+
+- `dashboard` now gives the canonical embodied center more authority:
+  - signal cards use stronger premium material and longer visual connectors
+  - the hero figure stage is larger and carries more internal atmosphere
+  - the desktop stage split now gives more room to the central cognition scene
+- `chat` now moves closer to the canonical portrait posture:
+  - the portrait crop is warmer and less left-heavy
+  - the planning overlay now sits lower and reads more like one calm inset
+  - the desktop support column now yields slightly more space back to the
+    transcript
+- `personality` now improves embodied-map readability:
+  - the figure stage is taller
+  - anchored callouts are brighter and easier to locate
+  - connector endpoints are now more legible, so the route reads more like one
+    symbolic system instead of floating labels

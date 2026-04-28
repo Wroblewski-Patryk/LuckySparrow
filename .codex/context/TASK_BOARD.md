@@ -45,6 +45,27 @@ Last updated: 2026-04-28
     - chat portrait-stage crop and support-column spacing
     - personality callout visibility and stage balance
 
+## Fresh Flagship Hero-Stage Parity Pass (2026-04-28)
+
+- `PRJ-743` received another local convergence slice focused only on the most
+  visual flagship drift:
+  - dashboard hero-stage atmosphere and card connectors
+  - chat portrait crop and support-column posture
+  - personality callout visibility and embodied-stage balance
+- the latest route-family implementation now adds:
+  - stronger connector tension from dashboard signal cards into the center
+  - a larger and more atmospheric dashboard figure stage
+  - a warmer and calmer chat portrait treatment with the planning inset moved
+    lower
+  - clearer connector endpoints and taller ceremonial space in personality
+- the next smallest parity loop after this slice is now:
+  - deploy the latest local shell pass
+  - compare fresh logged-in screenshots against the canonical assets
+  - if drift still remains, focus only on:
+    - dashboard guidance-column tiering
+    - chat topbar/control-pill density
+    - personality right-column hierarchy and mobile crop
+
 ## Fresh Aviary Web Brand Parity Repair Plan (2026-04-27)
 
 - fresh UX audit now confirms the current web implementation still leaks the old
