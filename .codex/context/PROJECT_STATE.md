@@ -4137,3 +4137,14 @@ Last updated: 2026-04-28
   - validation after this pass:
     - `Push-Location .\web; npm run build; Pop-Location`
     - result: passed
+- 2026-04-28: a further flagship material pass then tightened scenic closure
+  and route instrumentation:
+  - `dashboard` now uses a taller and more editorial scenic closure with a
+    calmer copy width
+  - `chat` now joins action tray, composer, and feature strip more tightly so
+    the conversation tool reads as one instrument
+  - `personality` now uses slightly lighter callouts and longer connector
+    lines for a clearer embodied explanation
+  - validation after this pass:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed

@@ -366,3 +366,22 @@ Latest shell-spine-and-route-calm pass now also complete:
 - validation after this pass:
   - `Push-Location .\web; npm run build; Pop-Location`
   - result: passed on 2026-04-28
+
+Latest closure-ceremony-and-composer-unification pass now also complete:
+
+- `dashboard` now closes more like one scenic flagship route:
+  - the lower summary layout is tighter
+  - the scenic closure is taller and cropped more intentionally
+  - summary copy now occupies a calmer, more editorial width
+- `chat` now reads more like one conversation instrument:
+  - the action tray, composer shell, and support buttons are denser and more
+    visually joined
+  - the feature strip is tighter and less card-like
+  - the route keeps more attention on the transcript instead of on UI spacing
+- `personality` now improves embodied-map legibility:
+  - callout cards are slightly lighter
+  - connector lines travel farther and read more explicitly
+  - mobile callouts compress a little more cleanly without feeling bulky
+- validation after this pass:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed on 2026-04-28

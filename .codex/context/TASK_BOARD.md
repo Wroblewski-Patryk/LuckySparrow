@@ -11228,3 +11228,19 @@ Fresh Shell Spine And Route Calm Pass (2026-04-28)
   - dashboard screenshot proof for hero dominance versus sidebar pacing
   - chat proof with a longer real transcript against the support column
   - personality proof for tablet/mobile side-stack calmness
+
+Fresh Closure Ceremony And Composer Unification Pass (2026-04-28)
+
+- `dashboard` scenic closure is now taller, tighter, and more intentionally
+  cropped so the route ends more like one flagship scene
+- `chat` composer, action tray, and feature strip are now denser and more
+  visually unified, reducing the feel of separate stacked widgets
+- `personality` callouts now use slightly lighter cards and longer connector
+  lines, so the embodied explanation reads more explicitly at a glance
+- validation after this pass:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+- next smallest parity loop after deploy:
+  - dashboard proof for one-screen read versus lower-grid drag
+  - chat proof for empty-state and long-transcript elegance
+  - personality proof for connector visibility and mobile ceremonial balance
