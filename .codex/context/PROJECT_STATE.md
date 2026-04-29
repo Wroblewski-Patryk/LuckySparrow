@@ -22,6 +22,12 @@ Last updated: 2026-04-29
   - the main remaining gap for this layout spine is now:
     - deployed screenshot parity and spacing/material tuning
     - explicit route-contract decision for the full canonical nav inventory
+  - the latest local refinement then tightened:
+    - shell gap and rail width
+    - brand-block scale
+    - active-nav readability
+    - support-stack density
+    - quote-signature finish
 
 - 2026-04-29: `PRJ-780` froze the authenticated sidebar as its own canonical
   layout target:

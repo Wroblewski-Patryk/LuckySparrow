@@ -2872,7 +2872,7 @@ export default function App() {
           />
 
           <div className="aion-shell-window-body">
-        <div className="aion-shell-frame grid gap-4 xl:grid-cols-[14.25rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-4 xl:grid-cols-[13.6rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <SidebarBrandBlock />
 
@@ -2921,7 +2921,7 @@ export default function App() {
               <section className="aion-panel-soft aion-rail-story aion-sidebar-support-card aion-sidebar-quote-card rounded-[1.8rem] p-4">
                 <p className="aion-sidebar-quote-mark">“</p>
                 <p className="aion-sidebar-quote-copy">Clarity is the lamp that makes the path.</p>
-                <p className="aion-sidebar-quote-signature">AVIARY</p>
+                <p className="aion-sidebar-quote-signature">— AVIARY</p>
               </section>
             </div>
           </aside>

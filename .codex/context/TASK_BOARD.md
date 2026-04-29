@@ -26,6 +26,12 @@ Last updated: 2026-04-29
 - highest-value remaining drift after this slice:
   - post-deploy pixel tuning of spacing, icon scale, and support-card proportions
   - explicit decision on full canonical nav inventory beyond current route contracts
+- the latest local refinement narrowed the desktop rail further and tightened:
+  - shell-frame gap
+  - brand lockup scale
+  - active-label contrast
+  - support-card density
+  - quote-signature treatment
 
 ## Fresh Canonical Sidebar Layout Freeze (2026-04-29)
 
