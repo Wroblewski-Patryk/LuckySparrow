@@ -42,6 +42,8 @@ They define the UX/UI target that future implementation should move toward.
   - immediate first-viewport value proposition
   - strong CTA clarity
   - embodied AION presence as trust anchor
+  - premium shell framing without fake browser-window chrome or title-bar
+    ornament
 
 ![AION landing canonical reference](./assets/aion-landing-canonical-reference-v1.png)
 

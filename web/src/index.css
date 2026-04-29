@@ -51,68 +51,6 @@ body {
   color: #1f1a17;
 }
 
-.aion-window-chrome {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(88, 67, 52, 0.1);
-  background:
-    linear-gradient(180deg, rgba(255, 251, 245, 0.96) 0%, rgba(247, 239, 228, 0.84) 100%);
-  padding: 0.95rem 1.35rem;
-}
-
-.aion-window-chrome-lights {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.aion-window-chrome-lights span {
-  width: 0.72rem;
-  height: 0.72rem;
-  border-radius: 999px;
-  border: 1px solid rgba(88, 67, 52, 0.14);
-  background:
-    radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.92), rgba(226, 205, 178, 0.88));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.aion-window-chrome-title {
-  min-width: 0;
-  font-size: 0.74rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(88, 67, 52, 0.74);
-}
-
-.aion-window-chrome-right {
-  min-width: 0;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.aion-window-chrome-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.aion-window-chrome-meta span {
-  border-radius: 999px;
-  border: 1px solid rgba(88, 67, 52, 0.1);
-  background: rgba(255, 252, 247, 0.92);
-  padding: 0.42rem 0.72rem;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(88, 67, 52, 0.76);
-}
-
 .aion-public-shell::before {
   content: "";
   position: fixed;
@@ -131,7 +69,7 @@ body {
 .aion-public-window-body {
   display: grid;
   gap: 2rem;
-  padding: 1.5rem;
+  padding: 1.7rem 1.55rem 1.55rem;
 }
 
 .aion-public-nav {
@@ -418,7 +356,7 @@ body {
 }
 
 .aion-shell-window-body {
-  padding: 1.35rem;
+  padding: 1.5rem 1.35rem 1.35rem;
 }
 
 .aion-shell {
@@ -464,15 +402,6 @@ body {
 }
 
 @media (max-width: 1199px) {
-  .aion-window-chrome {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .aion-window-chrome-right {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
-  }
-
   .aion-public-nav {
     grid-template-columns: minmax(0, 1fr);
     justify-items: start;
@@ -497,15 +426,6 @@ body {
 }
 
 @media (max-width: 899px) {
-  .aion-window-chrome {
-    padding: 0.82rem 1rem;
-  }
-
-  .aion-window-chrome-meta span {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.64rem;
-  }
-
   .aion-public-window-body,
   .aion-shell-window-body {
     padding: 1rem;

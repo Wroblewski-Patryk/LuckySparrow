@@ -82,6 +82,15 @@ If product later wants both a public home and a separate authenticated `/home`
 route, that should be approved as a route-contract expansion, not slipped into
 visual convergence work.
 
+Additional explicit UX decision from deployed review on 2026-04-29:
+
+- fake browser-window chrome is rejected for the flagship shell
+- the shared layout may stay inset and premium, but it should not render
+  decorative window lights, hostnames, build pills, or title bars as a top
+  wrapper around route content
+- layout convergence should now target frame-first composition, not a simulated
+  browser shell metaphor
+
 ## Surface Audit
 
 ### 1. Shared Authenticated Parent Layout
@@ -132,7 +141,7 @@ Implementation implications:
 
 Canonical target:
 
-- browser-window framing
+- frame-first flagship landing without fake browser chrome
 - editorial hero first
 - navigation integrated into the public shell
 - strong trust posture before auth mechanics
@@ -146,7 +155,8 @@ Current drift:
 
 - current public layout is still a login/register product entry, not a landing
   page with authentication nested inside the broader trust narrative
-- no browser-window shell metaphor
+- deployed review proved the fake browser-window shell metaphor is unwanted and
+  should be removed rather than refined
 - no public global nav
 - no canonical feature rail, review/social proof strip, or bottom trust band
 - hero currently centers copy and generic trust cards, while canonical landing
@@ -166,8 +176,8 @@ Implementation implications:
   auth panel
 - authentication form should become one module inside the landing composition,
   not the whole page structure
-- browser frame, nav, hero, feature strip, proof strip, and trust band should
-  be introduced as distinct reusable sections
+- public nav, hero, feature strip, proof strip, and trust band should be
+  introduced as distinct reusable sections without adding a fake browser header
 
 ### 3. Public Home / Landing
 

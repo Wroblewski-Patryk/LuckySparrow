@@ -41,10 +41,10 @@
   When the central dashboard hero still feels too generic, add one dedicated
   scenic atmosphere asset behind the figure and use light connective ornament
   before adding more standalone cards.
-- Window-chrome shell framing:
-  Use one premium browser-like top chrome to frame both the public landing and
-  the authenticated shell so flagship routes feel like composed product
-  environments, not bare app containers.
+- Frame-first flagship shell:
+  Keep the public and authenticated shells premium, inset, and composed, but
+  do not simulate browser controls, title bars, or fake window chrome as part
+  of the canonical layout.
 - Canonical authenticated sidebar spine:
   Use one narrow premium rail with brand block, icon-led module stack, system
   health card, signed-in identity card, and quiet aphorism closure as the

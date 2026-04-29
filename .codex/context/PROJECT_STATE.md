@@ -4,6 +4,26 @@ Last updated: 2026-04-29
 
 ## Product Snapshot
 
+- 2026-04-29: `PRJ-782` removed the rejected fake window chrome from the
+  flagship shell:
+  - deployed public-home review confirmed that the browser-like top chrome was
+    a mismatch and should not survive as part of the canonical layout
+  - `web/src/App.tsx` now lets both the public landing and authenticated shell
+    begin directly inside the framed canvas without a simulated title bar
+  - `web/src/index.css` no longer carries the `aion-window-chrome*` styling
+    family and slightly rebalances shell-body padding after the cleanup
+  - design source-of-truth now explicitly says the canonical layout should
+    remain premium and inset but must not simulate browser controls or title
+    bars:
+    - `docs/planning/layout-dashboard-public-home-canonical-master-audit.md`
+    - `docs/ux/design-memory.md`
+    - `docs/ux/canonical-web-screen-reference-set.md`
+  - focused validation pending in this slice will confirm the shell still
+    reads premium after the cleanup
+  - the next highest-value visual gaps remain:
+    - public home hero parity
+    - dashboard structural parity after the frame cleanup
+
 - 2026-04-29: `PRJ-781` implemented the first canonical desktop sidebar spine
   pass:
   - the authenticated rail now uses a sidebar-specific brand block instead of

@@ -1376,28 +1376,6 @@ function SidebarBrandBlock() {
   );
 }
 
-function WindowChrome({
-  title,
-  rightSlot,
-  className = "",
-}: {
-  title: string;
-  rightSlot?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`aion-window-chrome ${className}`.trim()}>
-      <div className="aion-window-chrome-lights" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="aion-window-chrome-title">{title}</div>
-      <div className="aion-window-chrome-right">{rightSlot}</div>
-    </div>
-  );
-}
-
 function ChatFlowStage({
   label,
   title,
@@ -2615,16 +2593,6 @@ export default function App() {
       <div className="aion-public-shell min-h-screen text-base-content">
         <div className="mx-auto max-w-[112rem] px-4 py-4 sm:px-5 md:px-6 md:py-5 xl:px-7">
           <section className="aion-public-window aion-panel overflow-hidden rounded-[2.35rem]">
-            <WindowChrome
-              title="aviary.luckysparrow.ch"
-              rightSlot={
-                <div className="aion-window-chrome-meta">
-                  <span>{publicHomeSurface.proofLine}</span>
-                  <span>{copy.auth.trustTitle}</span>
-                </div>
-              }
-            />
-
             <div className="aion-public-window-body">
               <header className="aion-public-nav">
                 <AviaryWordmark compact />
@@ -2859,18 +2827,6 @@ export default function App() {
     <div className="aion-shell min-h-screen text-base-content">
       <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-7">
         <section className="aion-shell-window aion-panel overflow-hidden rounded-[2.35rem]">
-          <WindowChrome
-            title={`aviary workspace / ${routeLabel(route, resolvedUiLanguage)}`}
-            rightSlot={
-              <div className="aion-window-chrome-meta">
-                <span>
-                  {copy.common.build} {BUILD_REVISION.slice(0, 12)}
-                </span>
-                <span>{currentUserLabel}</span>
-              </div>
-            }
-          />
-
           <div className="aion-shell-window-body">
         <div className="aion-shell-frame aion-shell-frame-canonical grid gap-4 xl:grid-cols-[13.6rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">

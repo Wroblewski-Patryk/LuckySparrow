@@ -2,6 +2,29 @@
 
 Last updated: 2026-04-29
 
+## Fresh Flagship Frame Cleanup Pass (2026-04-29)
+
+- `PRJ-782` is now IN_PROGRESS as the next layout-convergence slice:
+  - `.codex/tasks/PRJ-782-remove-window-chrome-and-audit-layout-frame-drift.md`
+- a deployed public-home audit confirmed one explicit mismatch:
+  - the shared `WindowChrome` wrapper is unwanted shell ornament and should
+    not be part of the canonical flagship layout
+- `web/src/App.tsx` now:
+  - removes `WindowChrome` from both the public and authenticated shell
+    branches
+  - keeps the premium framed shell while letting route content start directly
+    inside the layout canvas
+- `web/src/index.css` now:
+  - removes obsolete `aion-window-chrome*` styling
+  - slightly rebalances shell-body padding after the chrome removal
+- source-of-truth updates now record the new direction:
+  - `docs/planning/layout-dashboard-public-home-canonical-master-audit.md`
+  - `docs/ux/design-memory.md`
+  - `docs/ux/canonical-web-screen-reference-set.md`
+- highest-value remaining drift after this slice:
+  - public home hero still needs deeper canonical parity
+  - dashboard still needs a new post-shell structural pass
+
 ## Fresh Canonical Sidebar Desktop Spine Pass (2026-04-29)
 
 - `PRJ-781` is now IN_PROGRESS as the first implementation slice after the
