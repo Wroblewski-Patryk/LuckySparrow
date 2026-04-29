@@ -11,6 +11,26 @@ They define the UX/UI target that future implementation should move toward.
 
 ## Approved Canonical Screen Set
 
+### Authenticated Sidebar Layout
+
+- Asset:
+  - `docs/ux/assets/aviary-sidebar-layout-canonical-reference-v1.png`
+- Role:
+  - canonical left-sidebar target for the authenticated parent layout that
+    hosts dashboard, chat, personality, and future module routes
+- Must preserve:
+  - narrow premium rail proportion with calm vertical rhythm
+  - top brand lockup with companion subtitle
+  - one soft active-pill selection treatment
+  - icon-led primary navigation stack
+  - bottom support stack:
+    - system health card
+    - signed-in identity card
+    - aphorism closure card
+  - warm editorial material, not enterprise chrome
+
+![Aviary authenticated sidebar canonical reference](./assets/aviary-sidebar-layout-canonical-reference-v1.png)
+
 ### Public Landing
 
 - Asset:

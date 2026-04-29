@@ -4,6 +4,25 @@ Last updated: 2026-04-29
 
 ## Product Snapshot
 
+- 2026-04-29: `PRJ-780` froze the authenticated sidebar as its own canonical
+  layout target:
+  - canonical asset:
+    - `docs/ux/assets/aviary-sidebar-layout-canonical-reference-v1.png`
+  - canonical UX reference updated in:
+    - `docs/ux/canonical-web-screen-reference-set.md`
+  - detailed shell planning audit added in:
+    - `docs/planning/sidebar-layout-canonical-convergence-plan.md`
+  - the frozen target establishes:
+    - a narrow premium rail
+    - brand block with subtitle
+    - icon-led nav stack
+    - bottom support stack of system health, identity, and aphorism closure
+  - the most important planning mismatch is now explicit:
+    - the canonical sidebar includes more modules than the current route contract
+  - recommended next implementation order:
+    - sidebar visual spine pass using current routes
+    - later explicit decision on route expansion for the full canonical nav inventory
+
 - 2026-04-29: `PRJ-778` captured a planning-grade analysis for the reported
   short-term memory / proactive cadence drift:
   - user evidence showed repeated proactive Telegram-style check-ins every
@@ -12,13 +31,26 @@ Last updated: 2026-04-29
   - current runtime already loads more than one memory item
     (`RuntimeOrchestrator.MEMORY_LOAD_LIMIT=12`), so increasing the recent
     window to 25 may be a secondary tuning option but is not the core fix
-  - likely root cause is preference propagation:
-    - narrow explicit proactive preference phrase detection
+  - deeper analysis narrowed the likely root cause to relation/reflection
+    propagation rather than phrase detection alone:
+    - `persist_episode()` writes `proactive_preference_update`, but
+      `extract_episode_fields()` does not expose it to reflection
+    - relation updates currently cover delivery reliability, collaboration
+      dynamic, and support intensity, but not contact cadence, interruption
+      tolerance, or interaction rituals such as repeated greetings
     - older `proactive_opt_in=true` can remain the scheduler candidate driver
-    - no durable greeting-style preference currently shapes expression
-  - the approved repair path should reuse existing preference/conclusion,
-    planning intent, action persistence, proactive guard, and expression
-    owners rather than introducing a new short-term memory subsystem
+      because there is no stronger communication-boundary relation for
+      proactive cadence
+  - the approved repair path should reuse existing relation/conclusion,
+    reflection, planning intent, action persistence, proactive guard, and
+    expression owners rather than introducing a new short-term memory subsystem
+  - external research grounding supports a five-layer model for Aviary
+    continuity:
+    - bounded working context
+    - episodic memory
+    - semantic/conclusion memory
+    - user-specific communication-boundary relation model
+    - policy/procedural consumers for proactive delivery and expression
   - plan artifact:
     - `.codex/tasks/PRJ-778-plan-short-term-memory-and-proactive-style-respect.md`
 

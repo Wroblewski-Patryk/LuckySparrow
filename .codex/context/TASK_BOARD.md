@@ -2,6 +2,26 @@
 
 Last updated: 2026-04-29
 
+## Fresh Canonical Sidebar Layout Freeze (2026-04-29)
+
+- `PRJ-780` is now READY as a planning slice:
+  - `.codex/tasks/PRJ-780-freeze-canonical-sidebar-layout-and-plan-shell-convergence.md`
+- the supplied sidebar image is now frozen as the canonical authenticated rail:
+  - `docs/ux/assets/aviary-sidebar-layout-canonical-reference-v1.png`
+- UX source of truth now explicitly records this sidebar in:
+  - `docs/ux/canonical-web-screen-reference-set.md`
+- a detailed shell-planning audit now exists in:
+  - `docs/planning/sidebar-layout-canonical-convergence-plan.md`
+- key drift captured for future implementation:
+  - current rail is too wide and too panel-like
+  - current nav uses token letters and secondary descriptions instead of
+    icon-led one-line rows
+  - current support stack diverges in health-card, identity-card, and quote-card anatomy
+  - canonical sidebar shows more modules than the current route contract
+- recommended next implementation lane:
+  - sidebar desktop shell pass using current route contracts only
+  - explicit later decision on route expansion for the full canonical nav inventory
+
 ## Fresh Short-Term Memory And Proactive Style Respect Plan (2026-04-29)
 
 - `PRJ-778` is now READY as a planning slice:
@@ -9,22 +29,36 @@ Last updated: 2026-04-29
 - fresh user evidence showed repeated proactive Telegram-style check-ins every
   ~30 minutes on 2026-04-29, despite user instructions not to write that often
   and not to greet on every message
-- planning analysis found the likely issue is not simply a one-message context
-  window:
+- deeper planning analysis found the likely issue is not simply a one-message
+  context window or missing phrase exception:
   - foreground runtime already loads `RuntimeOrchestrator.MEMORY_LOAD_LIMIT=12`
   - proactive scheduler candidate selection is driven by persisted
     `proactive_opt_in` truth plus candidate state
-  - current phrase detection is too narrow for natural Polish instructions such
-    as "nie pisz do mnie co pol godziny"
-  - greeting repetition has no explicit durable style preference owner yet
-- recommended implementation should reuse existing preference/conclusion,
-  planning intent, action persistence, proactive guard, and expression paths
-  rather than introducing a new short-term memory subsystem
+  - `persist_episode()` writes `proactive_preference_update`, but
+    `extract_episode_fields()` does not expose that field to reflection
+  - relation updates currently cover delivery reliability, collaboration
+    dynamic, and support intensity, but not contact cadence, interruption
+    tolerance, or interaction rituals such as repeated greetings
+- recommended implementation should reuse existing relation/conclusion,
+  reflection, planning intent, action persistence, proactive guard, and
+  expression paths rather than introducing a new short-term memory subsystem
+- external research grounding now supports the layered model:
+  - working context is a bounded integration workspace
+  - episodic memory records what happened
+  - reflection derives higher-level state
+  - communication common ground must be updated as interaction proceeds
+  - interruption timing should be governed by context and user boundaries, not
+    fixed cadence
 - next smallest implementation slice:
-  - detect explicit cadence opt-down/opt-out phrases
-  - persist them through existing action-owned conclusion writes
-  - make proactive candidate/guard logic honor newer explicit preference truth
-  - add a focused greeting-style preference consumed by expression
+  - freeze the communication-boundary contract in docs before code
+  - expose missing episode fields to reflection
+  - add a bounded communication-relation model for cadence/interruption/rituals
+  - add a model-assisted communication-boundary extractor with deterministic
+    fallback and allowlisted outputs
+  - persist explicit user communication instructions through existing typed
+    relation-owned writes
+  - make proactive candidate/guard logic honor high-confidence relation truth
+  - make expression consume interaction-ritual relation truth
   - cover the reported multi-turn behavior with tests
 
 ## Fresh Dashboard Structural Convergence Pass (2026-04-29)

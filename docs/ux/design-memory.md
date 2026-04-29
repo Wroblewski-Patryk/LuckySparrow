@@ -45,6 +45,11 @@
   Use one premium browser-like top chrome to frame both the public landing and
   the authenticated shell so flagship routes feel like composed product
   environments, not bare app containers.
+- Canonical authenticated sidebar spine:
+  Use one narrow premium rail with brand block, icon-led module stack, system
+  health card, signed-in identity card, and quiet aphorism closure as the
+  reusable left spine for authenticated routes instead of route-local or
+  analytics-style sidebars.
 - Landing-first public entry:
   Keep authentication as one conversion module inside a broader trust-led
   landing story with hero, embodied motif, feature strip, and trust closure
