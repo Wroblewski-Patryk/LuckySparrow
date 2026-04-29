@@ -2538,6 +2538,17 @@ def test_health_endpoint_exposes_external_scheduler_cutover_proof_when_recent_ru
             "trigger": "external_proactive",
             "entrypoint_owner": "external_scheduler",
             "idempotency_baseline": "single_tick_candidate_evaluation_per_invocation",
+            "decision_reason_counts": {"task_blocked_selected_high_trust": 1},
+            "delivery_guard_reason_counts": {"delivery_allowed": 1},
+            "decision_evidence": [
+                {
+                    "user_id": "123456",
+                    "trigger": "task_blocked",
+                    "action_status": "success",
+                    "decision_reason": "task_blocked_selected_high_trust",
+                    "delivery_guard_reason": "delivery_allowed",
+                }
+            ],
         },
     )
 
@@ -2552,6 +2563,15 @@ def test_health_endpoint_exposes_external_scheduler_cutover_proof_when_recent_ru
     assert policy["maintenance_run_evidence"]["evidence_state"] == "recent_external_run_evidence"
     assert policy["proactive_run_evidence"]["recent_success"] is True
     assert policy["proactive_run_evidence"]["evidence_state"] == "recent_external_run_evidence"
+    assert body["proactive"]["scheduler_tick_summary"]["decision_reason_counts"] == {
+        "task_blocked_selected_high_trust": 1,
+    }
+    assert body["proactive"]["scheduler_tick_summary"]["delivery_guard_reason_counts"] == {
+        "delivery_allowed": 1,
+    }
+    assert body["proactive"]["scheduler_tick_summary"]["decision_evidence"][0]["decision_reason"] == (
+        "task_blocked_selected_high_trust"
+    )
     assert (
         policy["duplicate_protection_posture"]["maintenance_entrypoint_idempotency_baseline"]
         == "single_tick_summary_per_invocation"

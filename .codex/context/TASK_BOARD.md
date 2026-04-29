@@ -95,6 +95,36 @@ Last updated: 2026-04-29
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
   - result: `980 passed in 105.96s`
 
+## Fresh Proactive And Subconscious Decision Evidence (2026-04-29)
+
+- `PRJ-792` is now DONE:
+  - `.codex/tasks/PRJ-792-proactive-and-subconscious-decision-evidence.md`
+- implemented:
+  - proactive scheduler tick summaries now include:
+    - `decision_reason_counts`
+    - `delivery_guard_reason_counts`
+    - bounded `decision_evidence`
+  - evidence records candidate trigger, action status, actions, decision
+    reason, delivery-guard reason, decision score, interrupt posture, and
+    recent/unanswered counters
+  - evidence is exposed through the existing `/health.proactive.scheduler_tick_summary`
+    surface after a proactive tick runs
+  - evidence intentionally avoids candidate text and chat id
+- validation passed:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py -k "proactive"; Pop-Location`
+    - result: `4 passed, 15 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "external_scheduler_cutover_proof"; Pop-Location`
+    - result: `1 passed, 116 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "proactive"; Pop-Location`
+    - result: `5 passed, 102 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+    - result: `981 passed in 106.20s`
+- next backend slices remain:
+  - `PRJ-789` memory repository domain interface extraction
+  - `PRJ-790` planning intent builder extraction
+  - `PRJ-791` action domain executor extraction
+  - `PRJ-793` governed affective assessment rollout
+
 ## Fresh Communication Boundary Backfill And Health Contract (2026-04-29)
 
 - `PRJ-783` is now DONE as the architecture-completion slice after

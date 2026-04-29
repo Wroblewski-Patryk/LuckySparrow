@@ -84,6 +84,26 @@ Last updated: 2026-04-29
     - run `python scripts/run_communication_boundary_backfill_once.py --dry-run --limit 500`
       and then the write run from the Coolify app shell
 
+- 2026-04-29: `PRJ-792` expanded proactive/subconscious decision evidence:
+  - `backend/app/workers/scheduler.py` now records bounded proactive tick
+    evidence in the existing scheduler summary:
+    - decision reason counts
+    - delivery guard reason counts
+    - per-candidate decision evidence capped to five items
+  - `/health.proactive.scheduler_tick_summary` now exposes the same evidence
+    after a proactive tick runs
+  - the evidence path avoids candidate text and chat id while preserving the
+    operator-visible reason for delivery or suppression
+  - validation passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py -k "proactive"; Pop-Location`
+      - result: `4 passed, 15 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "external_scheduler_cutover_proof"; Pop-Location`
+      - result: `1 passed, 116 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "proactive"; Pop-Location`
+      - result: `5 passed, 102 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+      - result: `981 passed in 106.20s`
+
 - 2026-04-29: `PRJ-784` pushed the public landing first viewport materially
   closer to the canonical landing:
   - `web/src/App.tsx` now removes the extra hero kicker, uses a real embodied

@@ -200,10 +200,19 @@ class FakeMemoryRepository:
 
 
 class FakeRuntime:
-    def __init__(self, *, status: str = "success", actions: list[str] | None = None):
+    def __init__(
+        self,
+        *,
+        status: str = "success",
+        actions: list[str] | None = None,
+        proactive_decision=None,
+        proactive_delivery_guard=None,
+    ):
         self.calls: list[dict] = []
         self.status = status
-        self.actions = list(actions or ["send_telegram_message"])
+        self.actions = list(["send_telegram_message"] if actions is None else actions)
+        self.proactive_decision = proactive_decision
+        self.proactive_delivery_guard = proactive_delivery_guard
 
     async def run(self, event):
         self.calls.append(
@@ -217,10 +226,18 @@ class FakeRuntime:
         )
 
         class Result:
-            def __init__(self, status: str, actions: list[str]):
+            def __init__(self, status: str, actions: list[str], proactive_decision, proactive_delivery_guard):
                 self.action_result = type("ActionResult", (), {"status": status, "actions": actions})()
+                self.plan = type(
+                    "Plan",
+                    (),
+                    {
+                        "proactive_decision": proactive_decision,
+                        "proactive_delivery_guard": proactive_delivery_guard,
+                    },
+                )()
 
-        return Result(self.status, self.actions)
+        return Result(self.status, self.actions, self.proactive_decision, self.proactive_delivery_guard)
 
 
 async def test_scheduler_worker_reflection_tick_runs_in_deferred_mode() -> None:
@@ -660,7 +677,18 @@ async def test_scheduler_worker_external_proactive_tick_runs_when_execution_mode
             "recent_user_activity": "active",
         }
     ]
-    runtime = FakeRuntime()
+    runtime = FakeRuntime(
+        proactive_decision={
+            "reason": "task_blocked_selected_high_trust",
+            "should_interrupt": True,
+            "decision_score": 0.61,
+            "output_type": "warning",
+        },
+        proactive_delivery_guard={
+            "allowed": True,
+            "reason": "delivery_allowed",
+        },
+    )
     scheduler = SchedulerWorker(
         memory_repository=repository,  # type: ignore[arg-type]
         reflection_worker=reflection_worker,  # type: ignore[arg-type]
@@ -687,6 +715,24 @@ async def test_scheduler_worker_external_proactive_tick_runs_when_execution_mode
         "messages_delivered": 1,
         "delivery_blocked": 0,
         "failures": 0,
+        "decision_reason_counts": {"task_blocked_selected_high_trust": 1},
+        "delivery_guard_reason_counts": {"delivery_allowed": 1},
+        "decision_evidence": [
+            {
+                "user_id": "123456",
+                "trigger": "task_blocked",
+                "action_status": "success",
+                "actions": ["send_telegram_message"],
+                "decision_reason": "task_blocked_selected_high_trust",
+                "should_interrupt": True,
+                "decision_score": 0.61,
+                "output_type": "warning",
+                "delivery_guard_allowed": True,
+                "delivery_guard_reason": "delivery_allowed",
+                "recent_outbound_count": 0,
+                "unanswered_proactive_count": 0,
+            }
+        ],
     }
     assert runtime.calls == [
         {
@@ -745,7 +791,18 @@ async def test_scheduler_worker_proactive_tick_emits_bounded_scheduler_events() 
             "recent_user_activity": "active",
         }
     ]
-    runtime = FakeRuntime()
+    runtime = FakeRuntime(
+        proactive_decision={
+            "reason": "task_blocked_selected_high_trust",
+            "should_interrupt": True,
+            "decision_score": 0.61,
+            "output_type": "warning",
+        },
+        proactive_delivery_guard={
+            "allowed": True,
+            "reason": "delivery_allowed",
+        },
+    )
     scheduler = SchedulerWorker(
         memory_repository=repository,  # type: ignore[arg-type]
         reflection_worker=reflection_worker,  # type: ignore[arg-type]
@@ -769,6 +826,24 @@ async def test_scheduler_worker_proactive_tick_emits_bounded_scheduler_events() 
         "messages_delivered": 1,
         "delivery_blocked": 0,
         "failures": 0,
+        "decision_reason_counts": {"task_blocked_selected_high_trust": 1},
+        "delivery_guard_reason_counts": {"delivery_allowed": 1},
+        "decision_evidence": [
+            {
+                "user_id": "123456",
+                "trigger": "task_blocked",
+                "action_status": "success",
+                "actions": ["send_telegram_message"],
+                "decision_reason": "task_blocked_selected_high_trust",
+                "should_interrupt": True,
+                "decision_score": 0.61,
+                "output_type": "warning",
+                "delivery_guard_allowed": True,
+                "delivery_guard_reason": "delivery_allowed",
+                "recent_outbound_count": 0,
+                "unanswered_proactive_count": 0,
+            }
+        ],
     }
     assert runtime.calls == [
         {
@@ -777,6 +852,70 @@ async def test_scheduler_worker_proactive_tick_emits_bounded_scheduler_events() 
             "chat_id": 123456,
             "trigger": "task_blocked",
             "planned_work_due": None,
+        }
+    ]
+
+
+async def test_scheduler_worker_proactive_summary_exposes_guard_block_evidence() -> None:
+    reflection_worker = FakeReflectionWorker(running=False)
+    repository = FakeMemoryRepository()
+    repository.proactive_candidates = [
+        {
+            "user_id": "123456",
+            "chat_id": 123456,
+            "trigger": "time_checkin",
+            "text": "time check-in follow up",
+            "recent_outbound_count": 0,
+            "unanswered_proactive_count": 0,
+            "recent_user_activity": "idle",
+        }
+    ]
+    runtime = FakeRuntime(
+        status="noop",
+        actions=[],
+        proactive_decision={
+            "reason": "time_checkin_selected",
+            "should_interrupt": True,
+            "decision_score": 0.44,
+            "output_type": "reminder",
+        },
+        proactive_delivery_guard={
+            "allowed": False,
+            "reason": "contact_cadence_on_demand",
+        },
+    )
+    scheduler = SchedulerWorker(
+        memory_repository=repository,  # type: ignore[arg-type]
+        reflection_worker=reflection_worker,  # type: ignore[arg-type]
+        enabled=True,
+        reflection_runtime_mode="deferred",
+        reflection_interval_seconds=900,
+        maintenance_interval_seconds=3600,
+        proactive_enabled=True,
+        proactive_interval_seconds=1800,
+    )
+    scheduler.set_runtime(runtime)
+
+    summary = await scheduler.run_proactive_tick_once(reason="test_proactive_blocked")
+
+    assert summary["messages_delivered"] == 0
+    assert summary["delivery_blocked"] == 1
+    assert summary["decision_reason_counts"] == {"time_checkin_selected": 1}
+    assert summary["delivery_guard_reason_counts"] == {"contact_cadence_on_demand": 1}
+    assert summary["decision_evidence"] == [
+        {
+            "user_id": "123456",
+            "trigger": "time_checkin",
+            "action_status": "noop",
+            "actions": [],
+            "decision_reason": "time_checkin_selected",
+            "should_interrupt": True,
+            "decision_score": 0.44,
+            "output_type": "reminder",
+            "delivery_guard_allowed": False,
+            "delivery_guard_reason": "contact_cadence_on_demand",
+            "recent_outbound_count": 0,
+            "unanswered_proactive_count": 0,
         }
     ]
 

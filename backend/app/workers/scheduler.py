@@ -623,6 +623,9 @@ class SchedulerWorker:
         delivery_blocked = 0
         failures = 0
         events_emitted = 0
+        decision_evidence: list[dict[str, Any]] = []
+        decision_reason_counts: dict[str, int] = {}
+        delivery_guard_reason_counts: dict[str, int] = {}
         for candidate in candidates:
             proactive_event = build_scheduler_event(
                 subsource=SCHEDULER_PROACTIVE_TICK,
@@ -644,6 +647,14 @@ class SchedulerWorker:
                 result = await self.runtime.run(proactive_event)
             except Exception:
                 failures += 1
+                evidence = self._proactive_decision_evidence(
+                    candidate=candidate,
+                    action_status="fail",
+                    failure_reason="runtime_exception",
+                )
+                decision_evidence.append(evidence)
+                self._increment_reason_count(decision_reason_counts, evidence.get("decision_reason"))
+                self._increment_reason_count(delivery_guard_reason_counts, evidence.get("delivery_guard_reason"))
                 continue
             events_emitted += 1
             if result.action_result.status == "success" and "send_telegram_message" in result.action_result.actions:
@@ -652,6 +663,10 @@ class SchedulerWorker:
                 delivery_blocked += 1
             elif result.action_result.status == "fail":
                 failures += 1
+            evidence = self._proactive_decision_evidence(candidate=candidate, result=result)
+            decision_evidence.append(evidence)
+            self._increment_reason_count(decision_reason_counts, evidence.get("decision_reason"))
+            self._increment_reason_count(delivery_guard_reason_counts, evidence.get("delivery_guard_reason"))
 
         summary = {
             "executed": True,
@@ -662,6 +677,9 @@ class SchedulerWorker:
             "messages_delivered": messages_delivered,
             "delivery_blocked": delivery_blocked,
             "failures": failures,
+            "decision_reason_counts": decision_reason_counts,
+            "delivery_guard_reason_counts": delivery_guard_reason_counts,
+            "decision_evidence": decision_evidence[:5],
         }
         self._last_proactive_tick_at = now
         self._last_proactive_summary = summary
@@ -767,6 +785,9 @@ class SchedulerWorker:
         delivery_blocked = 0
         failures = 0
         events_emitted = 0
+        decision_evidence: list[dict[str, Any]] = []
+        decision_reason_counts: dict[str, int] = {}
+        delivery_guard_reason_counts: dict[str, int] = {}
         for candidate in candidates:
             proactive_event = build_scheduler_event(
                 subsource=SCHEDULER_PROACTIVE_TICK,
@@ -788,6 +809,14 @@ class SchedulerWorker:
                 result = await self.runtime.run(proactive_event)
             except Exception:
                 failures += 1
+                evidence = self._proactive_decision_evidence(
+                    candidate=candidate,
+                    action_status="fail",
+                    failure_reason="runtime_exception",
+                )
+                decision_evidence.append(evidence)
+                self._increment_reason_count(decision_reason_counts, evidence.get("decision_reason"))
+                self._increment_reason_count(delivery_guard_reason_counts, evidence.get("delivery_guard_reason"))
                 continue
             events_emitted += 1
             if result.action_result.status == "success" and "send_telegram_message" in result.action_result.actions:
@@ -796,6 +825,10 @@ class SchedulerWorker:
                 delivery_blocked += 1
             elif result.action_result.status == "fail":
                 failures += 1
+            evidence = self._proactive_decision_evidence(candidate=candidate, result=result)
+            decision_evidence.append(evidence)
+            self._increment_reason_count(decision_reason_counts, evidence.get("decision_reason"))
+            self._increment_reason_count(delivery_guard_reason_counts, evidence.get("delivery_guard_reason"))
 
         summary = {
             "executed": True,
@@ -808,6 +841,9 @@ class SchedulerWorker:
             "messages_delivered": messages_delivered,
             "delivery_blocked": delivery_blocked,
             "failures": failures,
+            "decision_reason_counts": decision_reason_counts,
+            "delivery_guard_reason_counts": delivery_guard_reason_counts,
+            "decision_evidence": decision_evidence[:5],
         }
         self._last_proactive_tick_at = now
         self._last_proactive_summary = summary
@@ -859,6 +895,48 @@ class SchedulerWorker:
             "last_proactive_summary": dict(self._last_proactive_summary or {}),
             "proactive_policy": proactive_policy,
         }
+
+    def _proactive_decision_evidence(
+        self,
+        *,
+        candidate: dict[str, Any],
+        result: Any | None = None,
+        action_status: str | None = None,
+        failure_reason: str | None = None,
+    ) -> dict[str, Any]:
+        action_result = getattr(result, "action_result", None)
+        plan = getattr(result, "plan", None)
+        decision = getattr(plan, "proactive_decision", None)
+        guard = getattr(plan, "proactive_delivery_guard", None)
+        actions = getattr(action_result, "actions", []) if action_result is not None else []
+        evidence = {
+            "user_id": str(candidate.get("user_id", "")),
+            "trigger": str(candidate.get("trigger", "time_checkin") or "time_checkin"),
+            "action_status": str(action_status or getattr(action_result, "status", "unknown")),
+            "actions": [str(item) for item in actions] if isinstance(actions, list) else [],
+            "decision_reason": self._object_field(decision, "reason", default="decision_not_available"),
+            "should_interrupt": self._object_field(decision, "should_interrupt", default=None),
+            "decision_score": self._object_field(decision, "decision_score", default=None),
+            "output_type": self._object_field(decision, "output_type", default=None),
+            "delivery_guard_allowed": self._object_field(guard, "allowed", default=None),
+            "delivery_guard_reason": self._object_field(guard, "reason", default="guard_not_available"),
+            "recent_outbound_count": int(candidate.get("recent_outbound_count", 0) or 0),
+            "unanswered_proactive_count": int(candidate.get("unanswered_proactive_count", 0) or 0),
+        }
+        if failure_reason:
+            evidence["failure_reason"] = failure_reason
+        return evidence
+
+    def _object_field(self, obj: Any, field: str, *, default: Any = None) -> Any:
+        if obj is None:
+            return default
+        if isinstance(obj, dict):
+            return obj.get(field, default)
+        return getattr(obj, field, default)
+
+    def _increment_reason_count(self, counts: dict[str, int], reason: Any) -> None:
+        key = str(reason or "unknown")
+        counts[key] = counts.get(key, 0) + 1
 
     async def _run_loop(self) -> None:
         while not self._stop_event.is_set():
