@@ -2691,10 +2691,11 @@ export default function App() {
                         {copy.auth.enterWorkspace}
                       </button>
                     </div>
-                    <div className="aion-public-pillar-row">
-                      {publicHomeSurface.pillars.slice(0, 3).map((pillar) => (
-                        <span key={pillar.title} className="aion-public-pillar-pill">
-                          {pillar.title}
+                    <div className="aion-public-micro-proof-row">
+                      {publicHomeSurface.trustBand.slice(0, 3).map((item) => (
+                        <span key={item} className="aion-public-micro-proof-item">
+                          <span className="aion-public-micro-proof-dot" aria-hidden="true" />
+                          {item}
                         </span>
                       ))}
                     </div>

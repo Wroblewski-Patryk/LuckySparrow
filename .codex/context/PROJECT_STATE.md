@@ -4,6 +4,26 @@ Last updated: 2026-04-29
 
 ## Product Snapshot
 
+- 2026-04-29: `PRJ-800G` started the next production-driven public-home parity loop:
+  - `web/src/App.tsx` now:
+    - replaces the hero feature-pill row with a lighter micro-proof row based on existing trust-band items
+  - `web/src/index.css` now:
+    - calms and shortens the hero headline block
+    - tightens bridge-band sizing and typography
+    - gives the first viewport a lighter CTA follow-up closer to the canonical landing
+  - result so far:
+    - the landing first viewport is materially closer to canonical rhythm
+    - deploy-side screenshot proof is still required before this slice can be called closed
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800G-public-home-production-parity-slice.md`
+  - parity evidence used:
+    - `.codex/artifacts/prod-login-live-2026-04-29.png`
+    - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
+  - highest-value next steps:
+    - compare the deployed `/login` landing after push
+    - continue the next dashboard and public-home parity loop from live evidence
+
 - 2026-04-29: `PRJ-800F` started the next dashboard editorial parity loop:
   - `web/src/App.tsx` now:
     - trims dashboard signal-note copy to support a calmer, more canonical read

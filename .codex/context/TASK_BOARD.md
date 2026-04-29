@@ -2,6 +2,28 @@
 
 Last updated: 2026-04-29
 
+## Fresh Public-Home Production Parity Slice (2026-04-29)
+
+- `PRJ-800G` is now IN_PROGRESS as the next production-driven home refinement:
+  - `.codex/tasks/PRJ-800G-public-home-production-parity-slice.md`
+- purpose:
+  - bring the landing first viewport closer to canonical rhythm using the live
+    `/login` screenshot as the parity source
+- implemented in this slice:
+  - shortened and calmed the hero headline block
+  - replaced the heavier hero feature pills with a lighter micro-proof row
+    based on existing trust-band content
+  - compressed the overlapping feature bridge to feel less tall and less text-heavy
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800G-public-home-production-parity-slice.md`
+- parity evidence used:
+  - `.codex/artifacts/prod-login-live-2026-04-29.png`
+  - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
+- remaining work before DONE:
+  - deploy-side screenshot proof for this exact slice
+  - then continue the next public-home/dashboard micro-tuning loop
+
 ## Fresh Dashboard Editorial Parity Slice (2026-04-29)
 
 - `PRJ-800F` is now IN_PROGRESS as the next dashboard closure loop:
