@@ -56,6 +56,45 @@ Last updated: 2026-04-29
   - `PRJ-793` governed affective assessment rollout
   - `PRJ-794` runtime script entrypoint and ops consistency audit
 
+## Fresh Backend Continuity Validation And Ops Hardening (2026-04-29)
+
+- `PRJ-787` is now DONE:
+  - `.codex/tasks/PRJ-787-backend-continuity-behavior-validation-expansion.md`
+  - `backend/tests/test_runtime_pipeline.py` now includes behavior scenarios
+    for:
+    - stored memory influencing later context
+    - communication-boundary relations reaching expression
+    - cross-user memory isolation under prompt-injection-style pressure
+  - behavior validation CI gate passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python scripts\run_behavior_validation.py --gate-mode ci --artifact-path artifacts\behavior_validation\prj785-report.json; Pop-Location`
+    - result: `18 passed`, `gate_status=pass`
+- `PRJ-788` is now DONE:
+  - `.codex/tasks/PRJ-788-health-surface-ownership-refactor.md`
+  - `backend/app/api/health_response.py` now owns final `/health` response
+    assembly while the existing route keeps snapshot collection for this first
+    behavior-neutral slice
+  - focused health regression passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "health"; Pop-Location`
+    - result: `51 passed, 66 deselected`
+- `PRJ-794` is now DONE:
+  - `.codex/tasks/PRJ-794-runtime-script-entrypoint-and-ops-consistency.md`
+  - backend operator scripts that import `app.*` now bootstrap the backend root
+    before imports when executed as direct files
+  - operator script help regression passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "backend_operator_scripts_expose_help"; Pop-Location`
+    - result: `8 passed, 42 deselected`
+- `PRJ-786` remains a production-ops follow-up:
+  - local session does not expose `DATABASE_URL`/production DB credentials
+  - run from Coolify shell:
+    - `python scripts/run_communication_boundary_backfill_once.py --dry-run --limit 500`
+    - `python scripts/run_communication_boundary_backfill_once.py --limit 500`
+- `PRJ-789..PRJ-793` remain intentionally separate backend slices:
+  - repository, planning, and action extraction should not be bundled into the
+    same commit as behavior validation and ops hardening
+- full backend gate passed after the slice:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+  - result: `980 passed in 105.96s`
+
 ## Fresh Communication Boundary Backfill And Health Contract (2026-04-29)
 
 - `PRJ-783` is now DONE as the architecture-completion slice after

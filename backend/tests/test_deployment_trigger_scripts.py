@@ -20,6 +20,16 @@ BACKEND_ROOT = ROOT / "backend"
 TRIGGER_SCRIPT_PATH = BACKEND_ROOT / "scripts" / "trigger_coolify_deploy_webhook.py"
 RELEASE_SMOKE_PS1_PATH = BACKEND_ROOT / "scripts" / "run_release_smoke.ps1"
 PYTHON_EXE = ROOT / ".venv" / "Scripts" / "python.exe"
+BACKEND_SCRIPT_ENTRYPOINTS = [
+    "export_incident_evidence_bundle.py",
+    "run_behavior_validation.py",
+    "run_communication_boundary_backfill_once.py",
+    "run_maintenance_tick_once.py",
+    "run_proactive_tick_once.py",
+    "run_reflection_queue_once.py",
+    "run_user_data_cleanup.py",
+    "trigger_coolify_deploy_webhook.py",
+]
 LOCAL_REPO_HEAD_SHA = subprocess.run(
     ["git", "rev-parse", "HEAD"],
     cwd=ROOT,
@@ -143,6 +153,22 @@ ORGANIZER_DAILY_USE_BLOCKED_WORKFLOWS = [
 
 def _powershell_exe() -> str | None:
     return shutil.which("powershell") or shutil.which("pwsh")
+
+
+@pytest.mark.parametrize("script_name", BACKEND_SCRIPT_ENTRYPOINTS)
+def test_backend_operator_scripts_expose_help_from_backend_working_directory(script_name: str) -> None:
+    script_path = BACKEND_ROOT / "scripts" / script_name
+    completed = subprocess.run(
+        [sys.executable, str(script_path), "--help"],
+        cwd=BACKEND_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert "usage:" in completed.stdout.lower()
 
 
 def _organizer_tool_activation_snapshot() -> dict[str, object]:

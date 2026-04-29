@@ -57,6 +57,33 @@ Last updated: 2026-04-29
     - `PRJ-793` governed affective assessment rollout
     - `PRJ-794` runtime script entrypoint and ops consistency audit
 
+- 2026-04-29: first backend improvement slices from the `PRJ-785` audit are
+  complete:
+  - `PRJ-787` expands behavior validation with runtime scenarios proving:
+    - stored memory can influence later context
+    - communication-boundary relations reach expression
+    - cross-user memory is filtered under prompt-injection-style pressure
+  - `PRJ-788` extracts final `/health` response assembly into
+    `backend/app/api/health_response.py` without changing health snapshot
+    collection or the health contract
+  - `PRJ-794` hardens direct operator script help entrypoints from the
+    documented `backend/` working directory
+  - validation passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "runtime_behavior_validation_covers_memory_boundary_and_cross_user_safety"; Pop-Location`
+      - result: `1 passed, 106 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "health"; Pop-Location`
+      - result: `51 passed, 66 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "backend_operator_scripts_expose_help"; Pop-Location`
+      - result: `8 passed, 42 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python scripts\run_behavior_validation.py --gate-mode ci --artifact-path artifacts\behavior_validation\prj785-report.json; Pop-Location`
+      - result: `18 passed`, `gate_status=pass`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+      - result: `980 passed in 105.96s`
+  - production backfill follow-up remains operator-bound:
+    - this local session does not expose production `DATABASE_URL`
+    - run `python scripts/run_communication_boundary_backfill_once.py --dry-run --limit 500`
+      and then the write run from the Coolify app shell
+
 - 2026-04-29: `PRJ-784` pushed the public landing first viewport materially
   closer to the canonical landing:
   - `web/src/App.tsx` now removes the extra hero kicker, uses a real embodied

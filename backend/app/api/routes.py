@@ -30,6 +30,7 @@ from app.api.schemas import (
     EventRuntimeResponse,
     SetWebhookRequest,
 )
+from app.api.health_response import HealthResponseSections, build_health_response
 from app.core.attention import (
     AttentionTurnCoordinator,
     attention_coordination_readiness_snapshot,
@@ -1218,45 +1219,43 @@ async def health(request: Request) -> dict[str, Any]:
         skill_registry=skill_registry_snapshot(),
         connectors=connectors,
     )
-    return {
-        "status": "ok",
-        "runtime_policy": runtime_policy,
-        "release_readiness": release_readiness,
-        "v1_readiness": v1_readiness,
-        "api_readiness": api_readiness,
-        "capability_catalog": capability_catalog,
-        "runtime_topology": topology_policy,
-        "observability": observability,
-        "identity": {
+    return build_health_response(
+        HealthResponseSections(
+            runtime_policy=runtime_policy,
+            release_readiness=release_readiness,
+            v1_readiness=v1_readiness,
+            api_readiness=api_readiness,
+            capability_catalog=capability_catalog,
+            runtime_topology=topology_policy,
+            observability=observability,
+            identity={
             **identity_policy_snapshot(),
             "language_continuity": language_continuity_policy_snapshot(),
             "adaptive_governance": adaptive_identity_governance_snapshot(),
-        },
-        "affective": {
+            },
+            affective={
             **affective_input_policy_snapshot(),
             "assessment_policy": affective_assessment_policy_snapshot(settings),
-        },
-        "memory_retrieval": memory_retrieval_snapshot,
-        "planning_governance": planning_governance_snapshot(),
-        "learned_state": learned_state,
-        "connectors": connectors,
-        "deployment": deployment,
-        "conversation_channels": {
-            "telegram": telegram_channel,
-        },
-        "scheduler": {
+            },
+            memory_retrieval=memory_retrieval_snapshot,
+            planning_governance=planning_governance_snapshot(),
+            learned_state=learned_state,
+            connectors=connectors,
+            deployment=deployment,
+            telegram_channel=telegram_channel,
+            scheduler={
             "healthy": scheduler_healthy,
             **scheduler_snapshot,
-        },
-        "proactive": {
+            },
+            proactive={
             **proactive_policy,
             "enabled": proactive_enabled,
             "scheduler_tick_summary": dict(scheduler_snapshot.get("last_proactive_summary", {})),
             "last_tick_at": scheduler_snapshot.get("last_proactive_tick_at"),
-        },
-        "role_skill": role_skill_policy,
-        "attention": attention_snapshot,
-        "reflection": {
+            },
+            role_skill=role_skill_policy,
+            attention=attention_snapshot,
+            reflection={
             "healthy": reflection_healthy,
             "runtime_mode": reflection_runtime_mode,
             "deployment_readiness": reflection_deployment_readiness,
@@ -1266,8 +1265,9 @@ async def health(request: Request) -> dict[str, Any]:
             "worker": reflection_snapshot,
             "adaptive_outputs": dict(reflection_snapshot.get("adaptive_output_summary", {})),
             "tasks": reflection_stats,
-        },
-    }
+            },
+        )
+    )
 
 
 @router.post("/app/auth/register", response_model=AppMeResponse)
