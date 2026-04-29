@@ -2349,6 +2349,11 @@ export default function App() {
     pl: "Spokojna struktura. Osobista obecnosc.",
     de: "Ruhige Struktur. Personliche Prasenz.",
   } satisfies Record<ResolvedUiLanguageCode, string>;
+  const publicSessionIntro = {
+    en: "Sign in or create an account to continue with memory, planning, and calm guidance.",
+    pl: "Zaloguj sie lub utworz konto, aby wrocic do pamieci, planowania i spokojnego prowadzenia.",
+    de: "Melde dich an oder erstelle ein Konto, um mit Erinnerung, Planung und ruhiger Begleitung weiterzumachen.",
+  } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicQuote = {
     en: "Powerful by design. Personal by nature.",
     pl: "Mocny z zalozenia. Osobisty z natury.",
@@ -2368,6 +2373,7 @@ export default function App() {
     heroTitle: publicHeroTitle[resolvedUiLanguage],
     heroBody: publicHeroBody[resolvedUiLanguage],
     proofBridgeLead: publicProofBridgeLead[resolvedUiLanguage],
+    sessionIntro: publicSessionIntro[resolvedUiLanguage],
     quote: publicQuote[resolvedUiLanguage],
     subquote: publicSubquote[resolvedUiLanguage],
   };
@@ -2760,6 +2766,15 @@ export default function App() {
                   </div>
                 </section>
 
+                <section className="aion-public-trust-band">
+                  {publicHomeSurface.trustBand.map((item) => (
+                    <article key={item} className="aion-public-trust-item">
+                      <span className="aion-public-trust-dot" aria-hidden="true" />
+                      <p>{item}</p>
+                    </article>
+                  ))}
+                </section>
+
                 <section className="aion-public-story-grid">
                   <aside className="aion-public-proof-column">
                     <article className="aion-panel-soft aion-public-quote-card rounded-[2rem] p-6">
@@ -2804,7 +2819,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <p className="aion-public-auth-intro">{copy.auth.heroBody}</p>
+                    <p className="aion-public-auth-intro">{publicHomeSurface.sessionIntro}</p>
 
                     <form className="space-y-4" onSubmit={(event) => void handleAuthSubmit(event)}>
                       <label className="form-control w-full">
@@ -2871,15 +2886,6 @@ export default function App() {
                       </div>
                     ) : null}
                   </section>
-                </section>
-
-                <section className="aion-public-trust-band">
-                  {publicHomeSurface.trustBand.map((item) => (
-                    <article key={item} className="aion-public-trust-item">
-                      <span className="aion-public-trust-dot" aria-hidden="true" />
-                      <p>{item}</p>
-                    </article>
-                  ))}
                 </section>
               </main>
             </div>

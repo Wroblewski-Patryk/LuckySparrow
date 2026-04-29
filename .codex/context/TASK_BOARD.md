@@ -1,10 +1,33 @@
 # TASK_BOARD
 
-Last updated: 2026-04-29
+Last updated: 2026-04-30
+
+## Fresh Public-Home Lower Story And Auth Priority Pass (2026-04-30)
+
+- `PRJ-800L` is now IN_PROGRESS as the next landing refinement slice:
+  - `.codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md`
+- purpose:
+  - keep the first landing screen product-first by promoting the dark trust
+    closure and demoting the lower auth block into a quieter continuation
+- implemented in this slice:
+  - moved the trust band directly under the bridge, closer to the canonical
+    first-screen closure
+  - narrowed and softened the auth panel so it reads less like a co-equal hero
+    companion
+  - tightened the lower proof/auth region into a calmer editorial follow-up
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md .codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+- parity evidence:
+  - `.codex/artifacts/prod-login-live-after-prj800k.png`
+  - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
+- remaining work before DONE:
+  - deploy-side confirmation for this exact lower-story/auth-priority slice
+  - then decide whether `home` is finally calm enough to return focus to `dashboard`
 
 ## Fresh Public-Home Hero Content Canonical Pass (2026-04-29)
 
-- `PRJ-800K` is now IN_PROGRESS as the next landing refinement slice:
+- `PRJ-800K` is now DONE as the previous landing hero-content slice:
   - `.codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
 - purpose:
   - bring the hero message itself closer to canonical posture after the
@@ -17,12 +40,13 @@ Last updated: 2026-04-29
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800J-public-home-first-viewport-live-closure-pass.md .codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
 - parity evidence:
-  - `.codex/artifacts/prod-login-live-after-prj800j.png`
+  - `.codex/artifacts/prod-login-live-after-prj800k.png`
   - `.codex/artifacts/local-login-after-prj800k.png`
   - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
-- remaining work before DONE:
-  - deploy-side confirmation for this exact slice
-  - then decide whether `home` needs one final lower-story pass or we return to `dashboard`
+- closed with parity evidence:
+  - `.codex/artifacts/prod-login-live-after-prj800k.png`
+  - `.codex/artifacts/local-login-after-prj800k.png`
+  - the next remaining landing drift is intentionally carried into `PRJ-800L`
 
 ## Fresh Public-Home First Viewport Live Closure Pass (2026-04-29)
 

@@ -1,63 +1,61 @@
 # Task
 
 ## Header
-- ID: PRJ-800K
-- Title: Public home hero content canonical pass
+- ID: PRJ-800L
+- Title: Public home lower story and auth priority pass
 - Task Type: design
 - Current Stage: verification
-- Status: DONE
+- Status: IN_PROGRESS
 - Owner: Frontend Builder
-- Depends on: PRJ-800J
+- Depends on: PRJ-800K
 - Priority: P1
 
 ## Context
-Fresh production evidence after `PRJ-800J` shows that the public landing first
-viewport is now structurally calmer, but it still drifts from the canonical
-landing because the hero message itself is too long and too slogan-like for the
-reference composition.
+Fresh production evidence after `PRJ-800K` confirms that the public landing
+hero itself is now materially calmer and closer to the canonical reference.
+The remaining drift is no longer in the headline.
 
-The remaining gap is no longer just spacing. It is the relationship between:
+It is now concentrated in the next read below the hero:
 
-- hero title length
-- hero body density
-- the shared persona stage
+- the dark trust closure appears too late
+- the lower story and auth surfaces arrive too early as a two-column screen
+- the auth panel still reads too co-equal with the editorial proof column
 
-The canonical landing uses a short introductory lead and lets the figure stage
-carry more of the emotional authority. This task moves the public landing
-toward that contract without inventing new route systems.
+The canonical landing keeps the first screen focused on one flagship scene and
+lets session entry behave as a quieter continuation below it. This slice moves
+the public landing toward that hierarchy without inventing a new public-entry
+system.
 
 ## Goal
-Bring the public-home hero closer to canonical parity by shortening the hero
-title, moving more meaning into calmer supporting copy, and rebalancing the
-first viewport around that lighter narrative center.
+Bring the public landing closer to canonical first-screen parity by moving the
+trust closure directly under the bridge, demoting auth visual priority, and
+turning the lower story into a calmer editorial continuation.
 
 ## Deliverable For This Stage
 A focused implementation pass in `web/src/App.tsx` and `web/src/index.css`
-that changes hero content and matching first-viewport proportions for the
-public landing.
+that changes the lower landing structure and its visual hierarchy, plus synced
+repo truth for the next parity loop.
 
 ## Scope
 - `web/src/App.tsx`
 - `web/src/index.css`
-- `.codex/tasks/PRJ-800J-public-home-first-viewport-live-closure-pass.md`
 - `.codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
+- `.codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md`
 - `.codex/context/TASK_BOARD.md`
 - `.codex/context/PROJECT_STATE.md`
 
 ## Implementation Plan
-1. Close `PRJ-800J` with the current production evidence.
-2. Introduce a shorter canonical hero-title contract for public-home copy.
-3. Rebalance the supporting body copy and CTA rhythm around that lighter title.
-4. Tune first-viewport proportions so the persona stage benefits from the new
-   lighter hero message.
-5. Validate, record parity evidence, and sync repo truth.
+1. Close `PRJ-800K` with the fresh production proof for the exact hero-content slice.
+2. Reorder the public-home post-hero sequence so the trust closure supports the first-screen read before lower auth surfaces.
+3. Demote the auth panel through calmer copy, narrower proportion, and softer support-card treatment.
+4. Tighten the lower proof region so it reads more editorial and less like a second app screen.
+5. Validate, record the remaining parity gap honestly, and sync repo truth.
 
 ## Acceptance Criteria
-- The public landing hero title is materially shorter and closer to the
-  canonical landing posture.
-- The hero body remains informative without reintroducing heavy text density.
-- The first viewport reads more as one flagship scene around the shared persona.
-- Validation passes and repo truth reflects the slice.
+- The trust closure now arrives before the lower story/auth section.
+- The auth panel reads as a supporting session-entry module instead of a co-equal flagship block.
+- The lower landing section is visually calmer and less likely to intrude into the first-screen read.
+- Validation passes and repo truth reflects the new remaining gap accurately.
 
 ## Constraints
 - use existing systems and approved mechanisms
@@ -67,8 +65,9 @@ public landing.
 - stay within the declared current stage unless explicit approval changes it
 
 ## Definition of Done
-- [x] `PRJ-800J` is closed honestly with deploy proof.
-- [x] Public-home hero content is lighter and more canonical.
+- [x] `PRJ-800K` is closed honestly with deploy proof.
+- [x] Trust closure is structurally promoted above the lower story/auth region.
+- [x] The auth panel is visually demoted and shortened.
 - [x] Validation and source-of-truth updates match the changed scope.
 
 ## Stage Exit Criteria
@@ -86,16 +85,15 @@ public landing.
 ## Validation Evidence
 - Tests:
   - `Push-Location .\web; npm run build; Pop-Location`
-  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800J-public-home-first-viewport-live-closure-pass.md .codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md .codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
 - Manual checks:
-  - compared fresh production evidence after `PRJ-800J` against the canonical landing
-  - captured a new local preview screenshot after the hero-content pass
+  - compared the deployed `PRJ-800K` landing screenshot against the canonical landing
+  - identified lower-story and auth-priority drift as the dominant remaining landing gap
 - Screenshots/logs:
   - production evidence: `.codex/artifacts/prod-login-live-after-prj800k.png`
-  - local proof: `.codex/artifacts/local-login-after-prj800k.png`
   - canonical target: `docs/ux/assets/aion-landing-canonical-reference-v1.png`
 - High-risk checks:
-  - kept the slice inside the existing public-home system and shared persona stage
+  - kept the slice within the existing public-home route structure and shared persona motif
 
 ## Architecture Evidence (required for architecture-impacting tasks)
 - Architecture source reviewed:
@@ -109,29 +107,29 @@ public landing.
 
 ## UX/UI Evidence (required for UX tasks)
 - Design source type: approved_snapshot
-- Design source reference: `.codex/artifacts/prod-login-live-after-prj800j.png`
+- Design source reference: `.codex/artifacts/prod-login-live-after-prj800k.png`
 - Canonical visual target: `docs/ux/assets/aion-landing-canonical-reference-v1.png`
 - Fidelity target: pixel_close
 - Stitch used: no
 - Experience-quality bar reviewed: yes
 - Visual-direction brief reviewed: yes
-- Existing shared pattern reused: shared persona motif panel, public shell, public bridge band
+- Existing shared pattern reused: shared persona motif panel, public shell, public trust band
 - New shared pattern introduced: no
 - Design-memory entry reused: `docs/ux/design-memory.md`
 - Design-memory update required: no
 - Visual gap audit completed: yes
-- Background or decorative asset strategy: reuse the current shared persona and route atmosphere assets
+- Background or decorative asset strategy: reuse the current shared persona and landing atmosphere assets
 - Canonical asset extraction required: no
 - Screenshot comparison pass completed: yes
 - Remaining mismatches:
-  - the lower story and auth-priority still remain for a later landing pass
+  - deploy-side proof is still needed for this exact lower-story/auth-priority slice
+  - dashboard remains the next major flagship drift after this landing pass
 - State checks: loading | empty | error | success
 - Responsive checks: desktop | tablet | mobile
 - Input-mode checks: touch | pointer | keyboard
-- Accessibility checks: existing buttons and links keep their prior semantics
+- Accessibility checks: existing buttons, links, and form controls keep their prior semantics
 - Parity evidence:
   - `.codex/artifacts/prod-login-live-after-prj800k.png`
-  - `.codex/artifacts/local-login-after-prj800k.png`
   - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
 
 ## Deployment / Ops Evidence (required for runtime or infra tasks)
@@ -139,7 +137,7 @@ public landing.
 - Env or secret changes: none
 - Health-check impact: none
 - Smoke steps updated: not needed
-- Rollback note: revert this slice if public-home message hierarchy regresses
+- Rollback note: revert this slice if the public entry loses clear access to login/register
 
 ## Review Checklist (mandatory)
 - [x] Current stage is declared and respected.
@@ -154,8 +152,8 @@ public landing.
 - [ ] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
-This slice is still confined to public-home parity. It should not spill into
-dashboard or authenticated shell work in the same cycle.
+This slice intentionally stays within the landing route. It should not spill
+into dashboard parity or authenticated-shell tuning in the same cycle.
 
 ## Production-Grade Required Contract
 
@@ -198,26 +196,26 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
 ## Result Report
 
 - Task summary:
-  - shortened the landing hero into a more canonical introductory lead
-  - moved more meaning into calmer supporting body copy
-  - rebalanced the first viewport around the lighter hero message and shared persona stage
+  - moved the dark trust closure directly below the bridge so the landing first read stays product-first
+  - shortened and visually demoted the auth panel so it behaves more like a supporting session-entry block
+  - tightened the lower proof/auth region into a calmer editorial continuation
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
-  - `.codex/tasks/PRJ-800J-public-home-first-viewport-live-closure-pass.md`
   - `.codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
+  - `.codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md`
   - `.codex/context/TASK_BOARD.md`
   - `.codex/context/PROJECT_STATE.md`
 - How tested:
   - `Push-Location .\web; npm run build; Pop-Location`
   - focused `git diff --check`
-  - production screenshot comparison
-  - local preview screenshot comparison
+  - production screenshot comparison against the canonical landing
 - What is incomplete:
-  - later lower-story/auth-priority tuning if landing still drifts
+  - deploy-side confirmation for this exact lower-story/auth-priority slice
+  - later dashboard parity remains the next major flagship loop
 - Next steps:
-  - carry the remaining public-home drift into a dedicated lower-story/auth-priority pass
-  - then return to dashboard parity once the landing first-screen read is calmer
+  - inspect deployed `/` and `/login` after this push
+  - if the landing first-screen read is finally calm enough, return to `dashboard`
 - Decisions made:
-  - used a shorter canonical hero lead instead of fighting the layout with a long slogan
-  - preserved the shared persona as the primary emotional anchor
+  - promoted trust closure instead of inventing a new public-home section
+  - used calmer hierarchy and proportion changes instead of adding new decorative systems

@@ -1,30 +1,51 @@
 # PROJECT_STATE
 
-Last updated: 2026-04-29
+Last updated: 2026-04-30
 
 ## Product Snapshot
 
-- 2026-04-29: `PRJ-800K` started the next public-home hero-content pass:
+- 2026-04-30: `PRJ-800L` started the next public-home lower-story and auth-priority pass:
+  - `web/src/App.tsx` now:
+    - moves the trust band directly below the public bridge
+    - uses a shorter session-entry intro for the auth module
+  - `web/src/index.css` now:
+    - demotes the auth panel through calmer proportion, padding, and material
+    - narrows the lower story/auth grid and shortens the proof-card stack
+    - brings the dark trust closure closer to the canonical first-screen rhythm
+  - result so far:
+    - the first landing screen should now stay product-first longer instead of
+      revealing the auth panel too early
+    - deploy-side confirmation is still required for this exact slice
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md .codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+  - parity evidence used:
+    - `.codex/artifacts/prod-login-live-after-prj800k.png`
+    - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
+  - highest-value next steps:
+    - confirm this exact lower-story/auth-priority slice on production
+    - if the landing finally settles, return immediately to `dashboard` parity
+
+- 2026-04-29: `PRJ-800K` completed the public-home hero-content pass:
   - `web/src/App.tsx` now:
     - introduces a shorter public-home hero title contract
     - moves supporting meaning into calmer hero body copy
   - `web/src/index.css` now:
     - rebalances the first viewport around the lighter hero message
     - lets the shared persona stage carry more of the flagship authority
-  - result so far:
+  - result:
     - the landing hero is materially closer to the canonical introductory
-      posture in local proof
-    - deploy-side confirmation is still required for this exact slice
+      posture in both local proof and fresh production evidence
   - focused validation passed:
     - `Push-Location .\web; npm run build; Pop-Location`
     - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800J-public-home-first-viewport-live-closure-pass.md .codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
   - parity evidence used:
-    - `.codex/artifacts/prod-login-live-after-prj800j.png`
+    - `.codex/artifacts/prod-login-live-after-prj800k.png`
     - `.codex/artifacts/local-login-after-prj800k.png`
     - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
   - highest-value next steps:
-    - confirm this exact hero-content slice on production
-    - then either close public-home or return to dashboard parity
+    - carry the remaining lower-story/auth-priority drift into a dedicated landing pass
+    - then return to dashboard parity on a calmer public-home base
 
 - 2026-04-29: `PRJ-800J` completed the next first-viewport-only landing closure loop:
   - `web/src/index.css` now:
