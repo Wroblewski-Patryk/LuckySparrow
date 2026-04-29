@@ -1306,6 +1306,32 @@ def test_health_endpoint_returns_ok() -> None:
     assert body["proactive"]["policy_owner"] == "proactive_runtime_policy"
     assert body["proactive"]["enabled"] is False
     assert body["proactive"]["production_baseline_state"] == "disabled_by_policy"
+    assert body["proactive"]["communication_boundary_contract"] == {
+        "policy_owner": "communication_boundary_relation_policy",
+        "relation_source": "aion_relation",
+        "minimum_confidence": 0.68,
+        "relation_types": {
+            "contact_cadence_preference": [
+                "on_demand",
+                "low_frequency",
+                "scheduled_only",
+                "open_to_checkins",
+            ],
+            "interruption_tolerance": ["low", "medium", "high"],
+            "interaction_ritual_preference": [
+                "avoid_repeated_greeting",
+                "warm_opening_ok",
+            ],
+        },
+        "consumers": [
+            "planning_maintain_relation_intent",
+            "reflection_relation_updates",
+            "proactive_candidate_selection",
+            "proactive_delivery_guard",
+            "expression_interaction_ritual",
+        ],
+        "historical_backfill_entrypoint": "scripts/run_communication_boundary_backfill_once.py",
+    }
     assert body["proactive"]["anti_spam_contract"]["delivery_guard_recent_outbound_limit_default"] == 2
     assert body["proactive"]["anti_spam_contract"]["attention_gate_recent_outbound_limit_default"] == 3
     assert body["scheduler"]["external_owner_policy"]["policy_owner"] == "external_scheduler_cadence_policy"

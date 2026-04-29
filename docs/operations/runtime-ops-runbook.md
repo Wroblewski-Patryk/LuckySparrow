@@ -121,6 +121,31 @@ cadence posture:
 
 Use `/health.proactive` together with `/health.scheduler.last_proactive_summary`
 when triaging why proactive outreach is quiet, blocked, or actively delivering.
+`/health.proactive.communication_boundary_contract` exposes the relation-owned
+communication-boundary policy used by planning, reflection, proactive
+candidate selection, proactive delivery guardrails, and expression ritual
+handling.
+
+Communication-boundary historical backfill:
+
+- purpose:
+  - promote existing user-authored episodic instructions such as "do not
+    message me every 30 minutes" or "do not greet me every message" into the
+    same relation-owned communication-boundary truth used by new turns
+- dry run:
+  - `python scripts/run_communication_boundary_backfill_once.py --dry-run --limit 500`
+- write run:
+  - `python scripts/run_communication_boundary_backfill_once.py --limit 500`
+- optional user-scoped run:
+  - `python scripts/run_communication_boundary_backfill_once.py --user-id <user_id> --limit 500`
+- expected output:
+  - JSON with `scanned_events`, `matched_events`, `relations_upserted`,
+    `users_affected`, and relation type/value summaries
+- ownership:
+  - the script is a bounded ops/backfill entrypoint
+  - it writes only through `MemoryRepository.upsert_relation`
+  - it does not create a new memory store or bypass the action/reflection
+    relation model
 
 Transcript-truth triage rule for proactive incidents:
 

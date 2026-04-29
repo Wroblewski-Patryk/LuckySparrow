@@ -4,6 +4,30 @@ Last updated: 2026-04-29
 
 ## Product Snapshot
 
+- 2026-04-29: `PRJ-783` completed the communication-boundary architecture
+  repair with historical backfill and health visibility:
+  - `PRJ-778` made new turns model communication boundaries correctly
+  - `PRJ-783` adds the missing ops bridge for existing episodic evidence that
+    may predate the new relation model
+  - `MemoryRepository.backfill_communication_boundary_relations(...)` scans
+    bounded user-authored API/Telegram episodes and writes only through
+    `upsert_relation`
+  - `backend/scripts/run_communication_boundary_backfill_once.py` supports:
+    - `--dry-run`
+    - `--limit`
+    - `--user-id`
+  - `/health.proactive.communication_boundary_contract` now exposes the
+    relation-owned policy, allowed relation families, consumers, and backfill
+    entrypoint
+  - `docs/operations/runtime-ops-runbook.md` now documents production backfill
+    usage
+  - validation passed:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_communication_boundary.py tests/test_memory_repository.py tests/test_api_routes.py -q; Pop-Location`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+    - `971 passed in 100.49s`
+  - production follow-up after deploy:
+    - run the communication-boundary backfill dry-run and write-run
+
 - 2026-04-29: `PRJ-782` removed the rejected fake window chrome from the
   flagship shell:
   - deployed public-home review confirmed that the browser-like top chrome was

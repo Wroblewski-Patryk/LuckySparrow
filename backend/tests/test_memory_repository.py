@@ -3002,6 +3002,47 @@ async def test_memory_repository_blocks_scheduler_candidate_when_contact_cadence
     await engine.dispose()
 
 
+async def test_memory_repository_backfills_communication_boundary_relations_from_existing_episodes(tmp_path) -> None:
+    database_path = tmp_path / "memory-boundary-backfill.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    now = datetime.now(timezone.utc)
+    await repository.write_episode(
+        event_id="evt-boundary-backfill",
+        trace_id="trace-boundary-backfill",
+        source="telegram",
+        user_id="usr-boundary-backfill",
+        event_timestamp=now,
+        summary="User boundary instruction",
+        payload={
+            "event": "Nie pisz do mnie co pol godziny i nie musisz sie witac co wiadomosc.",
+            "event_visibility": "transcript",
+            "memory_kind": "episodic",
+        },
+        importance=0.7,
+    )
+
+    dry_run = await repository.backfill_communication_boundary_relations(dry_run=True)
+    summary = await repository.backfill_communication_boundary_relations()
+    relations = await repository.get_user_relations(user_id="usr-boundary-backfill", limit=5)
+
+    assert dry_run["relations_upserted"] == 0
+    assert dry_run["matched_events"] == 1
+    assert summary["relations_upserted"] == 2
+    assert {
+        (relation["relation_type"], relation["relation_value"], relation["source"])
+        for relation in relations
+    } >= {
+        ("contact_cadence_preference", "low_frequency", "communication_boundary_backfill"),
+        ("interaction_ritual_preference", "avoid_repeated_greeting", "communication_boundary_backfill"),
+    }
+
+    await engine.dispose()
+
+
 async def test_memory_repository_cleans_runtime_data_for_all_users_while_preserving_auth_and_profiles(tmp_path) -> None:
     database_path = tmp_path / "memory-runtime-cleanup-all-users.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")

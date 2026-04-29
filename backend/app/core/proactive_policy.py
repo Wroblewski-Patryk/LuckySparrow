@@ -2,6 +2,20 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.communication.boundary import (
+    CONTACT_CADENCE_RELATION,
+    CONTACT_LOW_FREQUENCY,
+    CONTACT_ON_DEMAND,
+    CONTACT_OPEN_TO_CHECKINS,
+    CONTACT_SCHEDULED_ONLY,
+    INTERACTION_RITUAL_RELATION,
+    INTERRUPTION_HIGH,
+    INTERRUPTION_LOW,
+    INTERRUPTION_MEDIUM,
+    INTERRUPTION_TOLERANCE_RELATION,
+    RITUAL_AVOID_REPEATED_GREETING,
+    RITUAL_WARM_OPENING_OK,
+)
 from app.core.adaptive_policy import (
     PROACTIVE_ATTENTION_RECENT_OUTBOUND_LIMIT,
     PROACTIVE_ATTENTION_UNANSWERED_LIMIT,
@@ -51,6 +65,36 @@ def proactive_runtime_policy_snapshot(
         "delivery_channel_baseline": "telegram_direct_message",
         "delivery_target_baseline": "recent_telegram_chat_or_numeric_user_id_fallback",
         "candidate_selection_baseline": "opted_in_users_with_active_work_or_time_checkin",
+        "communication_boundary_contract": {
+            "policy_owner": "communication_boundary_relation_policy",
+            "relation_source": "aion_relation",
+            "minimum_confidence": 0.68,
+            "relation_types": {
+                CONTACT_CADENCE_RELATION: [
+                    CONTACT_ON_DEMAND,
+                    CONTACT_LOW_FREQUENCY,
+                    CONTACT_SCHEDULED_ONLY,
+                    CONTACT_OPEN_TO_CHECKINS,
+                ],
+                INTERRUPTION_TOLERANCE_RELATION: [
+                    INTERRUPTION_LOW,
+                    INTERRUPTION_MEDIUM,
+                    INTERRUPTION_HIGH,
+                ],
+                INTERACTION_RITUAL_RELATION: [
+                    RITUAL_AVOID_REPEATED_GREETING,
+                    RITUAL_WARM_OPENING_OK,
+                ],
+            },
+            "consumers": [
+                "planning_maintain_relation_intent",
+                "reflection_relation_updates",
+                "proactive_candidate_selection",
+                "proactive_delivery_guard",
+                "expression_interaction_ritual",
+            ],
+            "historical_backfill_entrypoint": "scripts/run_communication_boundary_backfill_once.py",
+        },
         "anti_spam_contract": {
             "delivery_guard_recent_outbound_limit_default": ProactiveDeliveryGuard.DEFAULT_RECENT_OUTBOUND_LIMIT,
             "delivery_guard_unanswered_limit_default": ProactiveDeliveryGuard.DEFAULT_UNANSWERED_LIMIT,

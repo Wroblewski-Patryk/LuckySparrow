@@ -5,7 +5,10 @@ from typing import Any
 from sqlalchemy import and_, delete, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from app.communication.boundary import proactive_boundary_block_reason
+from app.communication.boundary import (
+    extract_communication_boundary_signals,
+    proactive_boundary_block_reason,
+)
 from app.core.contracts import MemoryLayerKind
 from app.core.reflection_scope_policy import (
     GLOBAL_SCOPE_KEY,
@@ -732,6 +735,73 @@ class MemoryRepository:
             reverse=True,
         )
         return sorted_rows[:limit]
+
+    async def backfill_communication_boundary_relations(
+        self,
+        *,
+        user_id: str | None = None,
+        limit: int = 500,
+        dry_run: bool = False,
+    ) -> dict[str, Any]:
+        normalized_limit = max(1, min(5000, int(limit)))
+        where_clauses = [AionMemory.source.in_(["api", "telegram"])]
+        if user_id is not None and str(user_id).strip():
+            where_clauses.append(AionMemory.user_id == str(user_id).strip())
+
+        async with self.session_factory() as session:
+            result = await session.execute(
+                select(AionMemory)
+                .where(*where_clauses)
+                .order_by(AionMemory.event_timestamp.desc(), AionMemory.id.desc())
+                .limit(normalized_limit)
+            )
+            rows = list(result.scalars().all())
+
+        scanned = 0
+        matched_events = 0
+        relations_upserted = 0
+        users: set[str] = set()
+        relation_types: set[str] = set()
+        relation_values: set[str] = set()
+        for row in rows:
+            scanned += 1
+            payload = row.payload if isinstance(row.payload, dict) else {}
+            event_text = str(payload.get("event", "") or "").strip()
+            if not event_text:
+                continue
+            signals = extract_communication_boundary_signals(event_text)
+            if not signals:
+                continue
+            matched_events += 1
+            users.add(str(row.user_id))
+            for signal in signals:
+                relation_types.add(signal.relation_type)
+                relation_values.add(f"{signal.relation_type}:{signal.relation_value}")
+                if dry_run:
+                    continue
+                await self.upsert_relation(
+                    user_id=str(row.user_id),
+                    relation_type=signal.relation_type,
+                    relation_value=signal.relation_value,
+                    confidence=signal.confidence,
+                    source="communication_boundary_backfill",
+                    supporting_event_id=str(row.event_id),
+                    evidence_count=1,
+                    decay_rate=0.02,
+                )
+                relations_upserted += 1
+
+        return {
+            "policy_owner": "communication_boundary_backfill",
+            "dry_run": bool(dry_run),
+            "limit": normalized_limit,
+            "scanned_events": scanned,
+            "matched_events": matched_events,
+            "relations_upserted": relations_upserted,
+            "users_affected": len(users),
+            "relation_types": sorted(relation_types),
+            "relation_values": sorted(relation_values),
+        }
 
     async def upsert_semantic_embedding(
         self,

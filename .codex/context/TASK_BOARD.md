@@ -2,6 +2,53 @@
 
 Last updated: 2026-04-29
 
+## Fresh Communication Boundary Backfill And Health Contract (2026-04-29)
+
+- `PRJ-783` is now DONE as the architecture-completion slice after
+  `PRJ-778`:
+  - `.codex/tasks/PRJ-783-implement-communication-boundary-backfill-and-health-contract.md`
+- purpose:
+  - close the gap where historical user-authored episode text may already
+    contain communication-boundary instructions that predate the new relation
+    model
+- implemented locally:
+  - `MemoryRepository.backfill_communication_boundary_relations(...)`
+  - `backend/scripts/run_communication_boundary_backfill_once.py`
+  - `/health.proactive.communication_boundary_contract`
+  - operations runbook instructions for dry-run, user-scoped, and write runs
+- validation passed:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_communication_boundary.py tests/test_memory_repository.py tests/test_api_routes.py -q; Pop-Location`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+  - `971 passed in 100.49s`
+- deployment follow-up:
+  - after deploy, run the production backfill dry-run and write-run from the
+    app container or equivalent Coolify shell
+
+## Fresh Public Home First-Viewport Pass (2026-04-29)
+
+- `PRJ-784` is now IN_PROGRESS as the next landing-convergence slice:
+  - `.codex/tasks/PRJ-784-public-home-first-viewport-canonical-pass.md`
+- `web/src/App.tsx` now:
+  - removes the extra public hero kicker
+  - replaces the abstract right-side motif treatment with a real embodied
+    figure stage using the approved figure asset
+  - integrates the cognition cards directly into that stage
+  - upgrades the first strip under the hero into a connected bridge band with
+    proof/trust pills
+- `web/src/index.css` now:
+  - rebalances first-viewport hero proportions
+  - adds landing-specific figure-stage styling and anchored note positioning
+  - restyles the feature strip into a calmer bridge band
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-784-public-home-first-viewport-canonical-pass.md`
+- fresh screenshot evidence captured:
+  - `.codex/artifacts/local-public-home-hero-pass-v2-2026-04-29.png`
+- highest-value remaining drift after this slice:
+  - the hero still needs a closer match to the canonical bust-scale composition
+  - the lower public story grid still feels more product-panel than editorial landing
+  - dashboard remains the next structural route pass once public-home parity is steadier
+
 ## Fresh Flagship Frame Cleanup Pass (2026-04-29)
 
 - `PRJ-782` is now IN_PROGRESS as the next layout-convergence slice:
