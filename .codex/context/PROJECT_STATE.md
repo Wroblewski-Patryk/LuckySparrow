@@ -4,6 +4,29 @@ Last updated: 2026-04-29
 
 ## Product Snapshot
 
+- 2026-04-29: `PRJ-800A` completed the first execution slice from the
+  `layout + sidebar + home + dashboard` canonical parity ledger:
+  - `web/src/App.tsx` now:
+    - tightens the authenticated shell frame and stage gap
+    - demotes the desktop utility bar from generic control strip toward calmer
+      premium framing
+    - moves desktop account expansion into a compact anchored popover instead
+      of a wide admin panel
+  - `web/src/index.css` now:
+    - softens shell padding and frame chrome
+    - rebuilds utility-bar density, account posture, and rail-to-canvas rhythm
+    - introduces compact shell account popover styling
+  - result:
+    - the authenticated shell reads less like `app chrome + page cards`
+    - route composition is less interrupted before any route-level redesign
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/App.tsx web/src/index.css .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md .codex/tasks/PRJ-800A-authenticated-shell-frame-exactness-pass.md`
+  - highest-value next steps:
+    - deploy screenshot tuning for shell exactness
+    - sidebar pixel-close refinement
+    - then public-home and dashboard structural convergence
+
 - 2026-04-29: `PRJ-801` added a micro parity checklist on top of the master
   ledger for `layout + sidebar + home + dashboard`:
   - checklist artifact:

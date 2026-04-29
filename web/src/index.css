@@ -455,7 +455,7 @@ body {
 }
 
 .aion-shell-window-body {
-  padding: 1.5rem 1.35rem 1.35rem;
+  padding: 1.2rem 1.05rem 1.05rem;
 }
 
 .aion-shell {
@@ -468,7 +468,7 @@ body {
 }
 
 .aion-shell-frame-canonical {
-  gap: 1rem;
+  gap: 0.78rem;
 }
 
 .aion-shell-stage {
@@ -483,9 +483,9 @@ body {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 18% 0%, rgba(255, 250, 243, 0.78), transparent 0 22%),
-    radial-gradient(circle at 86% 14%, rgba(111, 149, 146, 0.08), transparent 0 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 22%);
+    radial-gradient(circle at 18% 0%, rgba(255, 250, 243, 0.64), transparent 0 18%),
+    radial-gradient(circle at 84% 12%, rgba(111, 149, 146, 0.06), transparent 0 16%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 18%);
 }
 
 .aion-shell::before {
@@ -810,17 +810,18 @@ body {
 }
 
 .aion-utility-bar {
-  grid-template-columns: auto minmax(29rem, 1fr) auto;
+  grid-template-columns: auto minmax(25rem, 1fr) auto;
   align-items: center;
-  gap: 1rem;
-  padding: 0.8rem 0.95rem;
-  border: 1px solid rgba(88, 67, 52, 0.08);
-  border-radius: 1.9rem;
+  gap: 0.8rem;
+  min-height: 4.3rem;
+  padding: 0.68rem 0.78rem;
+  border: 1px solid rgba(88, 67, 52, 0.06);
+  border-radius: 1.6rem;
   background:
-    linear-gradient(180deg, rgba(255, 252, 247, 0.92), rgba(247, 239, 228, 0.76));
+    linear-gradient(180deg, rgba(255, 252, 247, 0.88), rgba(247, 239, 228, 0.68));
   box-shadow:
-    0 22px 46px rgba(78, 58, 43, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+    0 16px 34px rgba(78, 58, 43, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(20px);
 }
 
@@ -835,14 +836,26 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.6rem;
-  height: 2.6rem;
+  width: 2.35rem;
+  height: 2.35rem;
   border-radius: 999px;
   border: 1px solid rgba(197, 145, 78, 0.26);
   background: linear-gradient(180deg, rgba(255, 251, 245, 0.92), rgba(248, 237, 218, 0.88));
-  color: #c48947;
-  font-size: 1rem;
-  box-shadow: 0 10px 24px rgba(197, 145, 78, 0.1);
+  color: transparent;
+  font-size: 0;
+  box-shadow: 0 8px 18px rgba(197, 145, 78, 0.08);
+}
+
+.aion-utility-context-emblem-core {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255, 253, 249, 0.96), transparent 0 38%),
+    linear-gradient(180deg, rgba(205, 159, 103, 0.96), rgba(168, 125, 73, 0.92));
+  box-shadow:
+    0 0 0 0.24rem rgba(205, 159, 103, 0.12),
+    0 4px 10px rgba(168, 125, 73, 0.2);
 }
 
 .aion-utility-context-label {
@@ -857,20 +870,18 @@ body {
 .aion-utility-context-copy {
   margin: 0.18rem 0 0;
   color: var(--aion-ink);
-  font-size: 0.96rem;
+  font-size: 0.92rem;
   font-weight: 600;
 }
 
 .aion-utility-search {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 0.72rem;
-  min-height: 3.15rem;
-  padding: 0.68rem 0.88rem;
-  border: 1px solid rgba(88, 67, 52, 0.08);
-  border-radius: 1.2rem;
-  background: rgba(255, 251, 245, 0.82);
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(88, 67, 52, 0.06);
+  border-radius: 1.12rem;
+  background: rgba(255, 251, 245, 0.7);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
 }
 
@@ -880,14 +891,18 @@ body {
   background: transparent;
   color: var(--aion-muted);
   font: inherit;
+  font-size: 0.88rem;
+  line-height: 1.55;
   outline: none;
+}
+
+.aion-utility-search input::placeholder {
+  color: rgba(110, 98, 88, 0.84);
 }
 
 .aion-utility-search-icon,
 .aion-utility-search-shortcut {
-  color: rgba(110, 98, 88, 0.76);
-  font-size: 0.82rem;
-  font-weight: 600;
+  display: none;
 }
 
 .aion-utility-signal-group {
@@ -929,22 +944,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.6rem;
-}
-
-.aion-utility-icon-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.85rem;
-  height: 2.85rem;
-  border: 1px solid rgba(88, 67, 52, 0.08);
-  border-radius: 999px;
-  background: rgba(255, 251, 245, 0.82);
-  color: #5f8f93;
-  font-size: 0.8rem;
-  font-weight: 800;
-  box-shadow: 0 10px 20px rgba(78, 58, 43, 0.04);
+  gap: 0.48rem;
 }
 
 .aion-utility-pill {
@@ -961,54 +961,102 @@ body {
   font-weight: 500;
 }
 
+.aion-utility-actions > .aion-utility-pill:first-child {
+  gap: 0.55rem;
+  min-height: 2.5rem;
+  padding: 0.48rem 0.82rem;
+  border-color: rgba(88, 67, 52, 0.06);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 245, 0.9), rgba(247, 239, 228, 0.72));
+  font-size: 0;
+  box-shadow: 0 10px 18px rgba(78, 58, 43, 0.04);
+}
+
+.aion-utility-actions > .aion-utility-pill:first-child::after {
+  content: "Shared memory on";
+  color: var(--aion-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.aion-utility-actions > .aion-utility-pill:nth-child(2),
+.aion-utility-actions > .aion-utility-icon-pill {
+  display: none;
+}
+
 .aion-utility-pill-dot {
-  width: 0.55rem;
-  height: 0.55rem;
+  width: 0.48rem;
+  height: 0.48rem;
   border-radius: 999px;
   background: #6ea29d;
-  box-shadow: 0 0 0 0.2rem rgba(110, 162, 157, 0.12);
+  box-shadow: 0 0 0 0.18rem rgba(110, 162, 157, 0.12);
 }
 
 .aion-utility-account {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
-  min-height: 2.8rem;
-  padding: 0.42rem 0.56rem;
-  border: 1px solid rgba(88, 67, 52, 0.08);
+  gap: 0.62rem;
+  min-height: 2.68rem;
+  padding: 0.34rem 0.42rem;
+  border: 1px solid rgba(88, 67, 52, 0.06);
   border-radius: 999px;
-  background: rgba(255, 251, 245, 0.8);
+  background: rgba(255, 251, 245, 0.84);
   color: var(--aion-ink);
+  box-shadow: 0 8px 18px rgba(78, 58, 43, 0.04);
 }
 
 .aion-utility-account-active {
-  border-color: rgba(126, 167, 159, 0.26);
+  border-color: rgba(126, 167, 159, 0.24);
+  box-shadow:
+    0 12px 22px rgba(78, 58, 43, 0.05),
+    0 0 0 0.18rem rgba(126, 167, 159, 0.08);
 }
 
 .aion-utility-account-avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  overflow: hidden;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(122, 161, 157, 0.86), rgba(174, 197, 186, 0.48));
-  color: white;
-  font-size: 0.82rem;
-  font-weight: 700;
+  border: 1px solid rgba(88, 67, 52, 0.06);
+  background: rgba(255, 248, 239, 0.88);
+  box-shadow: 0 8px 16px rgba(78, 58, 43, 0.05);
+}
+
+.aion-utility-account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 16%;
+  transform: scale(1.26);
 }
 
 .aion-utility-account-copy {
-  font-size: 0.9rem;
+  display: grid;
+  gap: 0.05rem;
+  text-align: left;
+}
+
+.aion-utility-account-name {
+  font-size: 0.88rem;
   font-weight: 600;
+}
+
+.aion-utility-account-email {
+  color: rgba(110, 98, 88, 0.76);
+  font-size: 0.72rem;
+  line-height: 1.3;
 }
 
 .aion-app-rail {
   position: sticky;
-  top: 1rem;
+  top: 0.82rem;
   border: 1px solid rgba(88, 67, 52, 0.065);
   border-radius: 1.9rem;
-  padding: 1rem 0.82rem 0.9rem;
+  padding: 0.92rem 0.76rem 0.84rem;
   background:
     radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.72), transparent 0 34%),
     linear-gradient(180deg, rgba(255, 252, 247, 0.94), rgba(246, 238, 227, 0.78));
@@ -1265,8 +1313,112 @@ body {
   pointer-events: none;
 }
 
-.aion-desktop-account-panel {
-  border-radius: 1.8rem;
+.aion-shell-toolbar {
+  position: relative;
+  z-index: 8;
+}
+
+.aion-shell-account-popover {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  width: min(23rem, 100%);
+  border-color: rgba(88, 67, 52, 0.07);
+  background:
+    linear-gradient(180deg, rgba(255, 251, 245, 0.96), rgba(246, 238, 227, 0.9));
+  box-shadow:
+    0 24px 48px rgba(78, 58, 43, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.aion-shell-account-card {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.aion-shell-account-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.aion-shell-account-portrait {
+  display: inline-flex;
+  width: 4rem;
+  height: 4rem;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(88, 67, 52, 0.08);
+  background: rgba(255, 248, 239, 0.94);
+  box-shadow: 0 12px 22px rgba(78, 58, 43, 0.06);
+}
+
+.aion-shell-account-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  transform: scale(1.28);
+}
+
+.aion-shell-account-label {
+  margin: 0;
+  color: rgba(110, 98, 88, 0.78);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.aion-shell-account-name {
+  margin: 0.3rem 0 0;
+  color: var(--aion-ink);
+  font-family: var(--font-display, ui-serif);
+  font-size: 1.45rem;
+  line-height: 1.05;
+}
+
+.aion-shell-account-email {
+  margin: 0.3rem 0 0;
+  color: rgba(110, 98, 88, 0.84);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.aion-shell-account-facts {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.aion-shell-account-fact {
+  border: 1px solid rgba(88, 67, 52, 0.06);
+  border-radius: 1.2rem;
+  background: rgba(255, 252, 247, 0.78);
+  padding: 0.76rem 0.86rem;
+}
+
+.aion-shell-account-fact-label {
+  margin: 0;
+  color: rgba(110, 98, 88, 0.78);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.aion-shell-account-fact-value {
+  margin: 0.26rem 0 0;
+  color: var(--aion-ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.aion-shell-account-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
 }
 
 .aion-chat-workspace {

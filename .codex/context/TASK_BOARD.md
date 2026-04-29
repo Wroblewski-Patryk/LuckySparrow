@@ -2,6 +2,27 @@
 
 Last updated: 2026-04-29
 
+## Fresh Authenticated Shell Frame Exactness Pass (2026-04-29)
+
+- `PRJ-800A` is now DONE as the first execution slice from the master parity
+  ledger:
+  - `.codex/tasks/PRJ-800A-authenticated-shell-frame-exactness-pass.md`
+- purpose:
+  - calm the authenticated parent shell before deeper route-level parity work
+- implemented:
+  - the desktop utility bar now behaves more like premium framing and less
+    like generic app chrome
+  - the shell gap and rail-to-canvas relationship were tightened
+  - the wide desktop account panel was replaced with a compact anchored
+    popover that no longer interrupts route composition
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md .codex/tasks/PRJ-800A-authenticated-shell-frame-exactness-pass.md`
+- highest-value remaining drift after this slice:
+  - deploy screenshot tuning for the authenticated shell frame
+  - sidebar pixel-close refinement on top of the calmer shell
+  - structural convergence of `public home` and `dashboard`
+
 ## Fresh Layout Sidebar Home Dashboard Micro Parity Checklist (2026-04-29)
 
 - `PRJ-801` is now DONE as a planning supplement to `PRJ-800`:

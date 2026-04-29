@@ -1416,11 +1416,13 @@ function ChatFeatureCard({
 function ShellUtilityBar({
   currentSurface,
   currentUserLabel,
+  currentUserEmail,
   accountPanelOpen,
   onAccountClick,
 }: {
   currentSurface: string;
   currentUserLabel: string;
+  currentUserEmail: string;
   accountPanelOpen: boolean;
   onAccountClick: () => void;
 }) {
@@ -1433,9 +1435,14 @@ function ShellUtilityBar({
           <p className="aion-utility-context-copy">{currentSurface}</p>
         </div>
       </div>
-      <label className="aion-utility-search" aria-label="Search workspace">
+      <label className="aion-utility-search" aria-label="Workspace continuity frame">
         <span className="aion-utility-search-icon">⌕</span>
-        <input readOnly type="text" value="" placeholder="Search Aviary or ask anything..." />
+        <input
+          readOnly
+          type="text"
+          value=""
+          placeholder="One calm shell for memory, planning, and the next meaningful action."
+        />
         <span className="aion-utility-search-shortcut">⌘K</span>
       </label>
       <div className="aion-utility-actions">
@@ -1455,8 +1462,13 @@ function ShellUtilityBar({
           onClick={onAccountClick}
           type="button"
         >
-          <span className="aion-utility-account-avatar">{currentUserLabel.slice(0, 1).toUpperCase()}</span>
-          <span className="aion-utility-account-copy">{currentUserLabel}</span>
+          <span className="aion-utility-account-avatar" aria-hidden="true">
+            <img alt="" src={CANONICAL_PERSONA_FIGURE_SRC} />
+          </span>
+          <span className="aion-utility-account-copy">
+            <span className="aion-utility-account-name">{currentUserLabel}</span>
+            <span className="aion-utility-account-email">{currentUserEmail}</span>
+          </span>
         </button>
       </div>
     </header>
@@ -2873,7 +2885,7 @@ export default function App() {
       <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-7">
         <section className="aion-shell-window aion-panel overflow-hidden rounded-[2.35rem]">
           <div className="aion-shell-window-body">
-        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-4 xl:grid-cols-[13.6rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[12.55rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <SidebarBrandBlock />
 
@@ -2927,38 +2939,51 @@ export default function App() {
             </div>
           </aside>
 
-          <div className="aion-shell-stage grid gap-4">
-            <ShellUtilityBar
-              currentSurface={routeLabel(route, resolvedUiLanguage)}
-              currentUserLabel={currentUserLabel}
-              accountPanelOpen={accountPanelOpen}
-              onAccountClick={() => setAccountPanelOpen((value) => !value)}
-            />
+          <div className="aion-shell-stage grid gap-3">
+            <div className="aion-shell-toolbar hidden xl:block">
+              <ShellUtilityBar
+                currentSurface={routeLabel(route, resolvedUiLanguage)}
+                currentUserLabel={currentUserLabel}
+                currentUserEmail={me.user.email}
+                accountPanelOpen={accountPanelOpen}
+                onAccountClick={() => setAccountPanelOpen((value) => !value)}
+              />
 
-            {accountPanelOpen ? (
-              <section className="aion-panel-soft aion-desktop-account-panel hidden rounded-[1.8rem] p-4 xl:block">
-                <div className="grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-                  <div className="aion-panel-soft rounded-[1.4rem] p-4">
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.common.signedInAs}</p>
-                    <p className="mt-2 font-display text-2xl text-base-900">{currentUserLabel}</p>
-                    <p className="mt-1 text-sm text-base-800">{me.user.email}</p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
-                    <div className="grid gap-3 sm:grid-cols-2">
+              {accountPanelOpen ? (
+                <section className="aion-panel-soft aion-shell-account-popover rounded-[1.8rem] p-4">
+                  <div className="aion-shell-account-card">
+                    <div className="aion-shell-account-header">
+                      <span className="aion-shell-account-portrait" aria-hidden="true">
+                        <img alt="" src={CANONICAL_PERSONA_FIGURE_SRC} />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="aion-shell-account-label">{copy.common.signedInAs}</p>
+                        <p className="aion-shell-account-name">{currentUserLabel}</p>
+                        <p className="aion-shell-account-email">{me.user.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="aion-shell-account-facts">
                       {accountSummaryItems.map((item) => (
-                        <div key={item.label} className="aion-panel-soft rounded-[1.4rem] p-4">
-                          <p className="text-xs uppercase tracking-[0.18em] text-base-800">{item.label}</p>
-                          <p className="mt-2 text-base font-semibold text-base-900">{item.value}</p>
+                        <div key={item.label} className="aion-shell-account-fact">
+                          <p className="aion-shell-account-fact-label">{item.label}</p>
+                          <p className="aion-shell-account-fact-value">{item.value}</p>
                         </div>
                       ))}
                     </div>
-                    <button className="btn btn-outline sm:self-end" onClick={() => void handleLogout()} type="button">
-                      {copy.common.signOut}
-                    </button>
+
+                    <div className="aion-shell-account-actions">
+                      <button className="btn btn-outline" onClick={() => changeRoute("/settings")} type="button">
+                        {copy.routes["/settings"]}
+                      </button>
+                      <button className="btn btn-ghost border border-base-300" onClick={() => void handleLogout()} type="button">
+                        {copy.common.signOut}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </section>
-            ) : null}
+                </section>
+              ) : null}
+            </div>
 
             <header className="aion-panel rounded-[2rem] xl:hidden">
               <div className="flex flex-wrap items-center gap-3 px-4 py-4 sm:px-5">
