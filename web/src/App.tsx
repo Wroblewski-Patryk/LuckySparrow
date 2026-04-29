@@ -2303,25 +2303,25 @@ export default function App() {
   } satisfies Record<ResolvedUiLanguageCode, Array<{ title: string; body: string }>>;
   const publicFeaturePillars = {
     en: [
-      { title: "Deep understanding", body: "Understands your current state, values, and pace." },
-      { title: "Memory that grows", body: "Important insights are remembered and reused." },
-      { title: "Clarity and focus", body: "Helps you decide calmly and move with intention." },
-      { title: "Plans and execution", body: "Turns ideas into structure and next actions." },
-      { title: "Companion for life", body: "Present in your journey of work and growth." },
+      { title: "Deep understanding", body: "Understands your state and pace." },
+      { title: "Memory that grows", body: "Important insights stay available." },
+      { title: "Clarity and focus", body: "Helps you decide with intention." },
+      { title: "Plans and execution", body: "Turns ideas into next steps." },
+      { title: "Companion for life", body: "Present in work and growth." },
     ],
     pl: [
-      { title: "Glebokie zrozumienie", body: "Rozumie Twoj stan, wartosci i rytm." },
-      { title: "Pamiec, ktora rosnie", body: "Wazne wnioski sa zapamietywane i wracaja." },
-      { title: "Jasnosc i skupienie", body: "Pomaga wybierac spokojnie i dzialac z intencja." },
-      { title: "Plan i wykonanie", body: "Zamienia pomysly w strukture i kolejne kroki." },
-      { title: "Towarzysz na co dzien", body: "Obecny w pracy, refleksji i rozwoju." },
+      { title: "Glebokie zrozumienie", body: "Rozumie Twoj stan i rytm." },
+      { title: "Pamiec, ktora rosnie", body: "Wazne wnioski zostaja i wracaja." },
+      { title: "Jasnosc i skupienie", body: "Pomaga wybierac z intencja." },
+      { title: "Plan i wykonanie", body: "Zamienia pomysly w kolejne kroki." },
+      { title: "Towarzysz na co dzien", body: "Obecny w pracy i rozwoju." },
     ],
     de: [
-      { title: "Tiefes Verstehen", body: "Versteht deinen Zustand, deine Werte und dein Tempo." },
-      { title: "Wachsende Erinnerung", body: "Wichtige Einsichten bleiben verfugbar." },
-      { title: "Klarheit und Fokus", body: "Hilft ruhig zu entscheiden und bewusst zu handeln." },
-      { title: "Plan und Ausfuhrung", body: "Macht aus Ideen Struktur und nachste Schritte." },
-      { title: "Begleiter im Alltag", body: "Prasent in Arbeit, Reflexion und Wachstum." },
+      { title: "Tiefes Verstehen", body: "Versteht Zustand und Tempo." },
+      { title: "Wachsende Erinnerung", body: "Wichtige Einsichten bleiben nah." },
+      { title: "Klarheit und Fokus", body: "Hilft bewusst zu entscheiden." },
+      { title: "Plan und Ausfuhrung", body: "Macht aus Ideen nachste Schritte." },
+      { title: "Begleiter im Alltag", body: "Prasent in Arbeit und Wachstum." },
     ],
   } satisfies Record<ResolvedUiLanguageCode, Array<{ title: string; body: string }>>;
   const publicTrustBandItems = {
@@ -2334,15 +2334,20 @@ export default function App() {
     pl: "Zaufany przez uwaznych ludzi na calym swiecie",
     de: "Vertraut von achtsamen Menschen weltweit",
   } satisfies Record<ResolvedUiLanguageCode, string>;
+  const publicProofBridgeLead = {
+    en: "Calm structure. Personal presence.",
+    pl: "Spokojna struktura. Osobista obecnosc.",
+    de: "Ruhige Struktur. Personliche Prasenz.",
+  } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicQuote = {
     en: "Powerful by design. Personal by nature.",
     pl: "Mocny z zalozenia. Osobisty z natury.",
     de: "Kraftvoll im Design. Personlich im Wesen.",
   } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicSubquote = {
-    en: "Aviary helps hold memory, plan with calm, and move with meaningful intention.",
-    pl: "Aviary pomaga trzymac pamiec, planowac spokojnie i poruszac sie z intencja.",
-    de: "Aviary hilft, Erinnerung zu halten, ruhig zu planen und mit Intention voranzugehen.",
+    en: "Aviary helps hold memory, plan calmly, and move with intention.",
+    pl: "Aviary pomaga pamietac, planowac spokojnie i dzialac z intencja.",
+    de: "Aviary hilft zu erinnern, ruhig zu planen und bewusst zu handeln.",
   } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicHomeSurface = {
     nav: publicNavLabels[resolvedUiLanguage],
@@ -2350,6 +2355,7 @@ export default function App() {
     pillars: publicFeaturePillars[resolvedUiLanguage],
     trustBand: publicTrustBandItems[resolvedUiLanguage],
     proofLine: publicProofLine[resolvedUiLanguage],
+    proofBridgeLead: publicProofBridgeLead[resolvedUiLanguage],
     quote: publicQuote[resolvedUiLanguage],
     subquote: publicSubquote[resolvedUiLanguage],
   };
@@ -2729,11 +2735,11 @@ export default function App() {
                     <div className="aion-public-proof-bridge-copy">
                       <p className="aion-public-section-label">{publicHomeSurface.proofLine}</p>
                       <p className="aion-public-proof-bridge-body">
-                        {publicHomeSurface.quote}
+                        {publicHomeSurface.proofBridgeLead}
                       </p>
                     </div>
                     <div className="aion-public-proof-bridge-list">
-                      {publicHomeSurface.trustBand.map((item) => (
+                      {publicHomeSurface.trustBand.slice(0, 3).map((item) => (
                         <span key={item} className="aion-public-proof-bridge-pill">
                           {item}
                         </span>

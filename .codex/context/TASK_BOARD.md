@@ -2,6 +2,30 @@
 
 Last updated: 2026-04-29
 
+## Fresh Public-Home Live Hero And Bridge Parity Pass (2026-04-29)
+
+- `PRJ-800I` is now IN_PROGRESS as the next live-driven landing refinement:
+  - `.codex/tasks/PRJ-800I-public-home-live-hero-bridge-parity-pass.md`
+- purpose:
+  - reduce remaining first-viewport drift after the landing-first entry fix by
+    calming hero copy, re-centering the shared persona stage, and simplifying
+    the bridge band
+- implemented in this slice:
+  - shortened public-home bridge and feature-strip copy where text density was
+    creating visual heaviness
+  - tightened hero proportions so the left copy column yields more authority to
+    the shared persona scene
+  - repositioned and softened motif notes and persona crop for a more composed
+    canonical tableau
+  - removed the repeated hero quote from the bridge band and replaced it with a
+    shorter editorial lead plus a lighter pill cluster
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800I-public-home-live-hero-bridge-parity-pass.md`
+- remaining work before DONE:
+  - deploy-side screenshot proof for `/` and `/login`
+  - one more micro-pass if live evidence still shows hero or bridge-band drift
+
 ## Fresh Public Entry Landing-First Fix (2026-04-29)
 
 - `PRJ-800H` is now DONE as the structural public-entry correction:

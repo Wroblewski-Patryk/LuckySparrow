@@ -4,6 +4,34 @@ Last updated: 2026-04-29
 
 ## Product Snapshot
 
+- 2026-04-29: `PRJ-800I` started the next live-driven landing parity loop:
+  - `web/src/App.tsx` now:
+    - shortens the public-home feature-strip copy
+    - replaces bridge-band quote repetition with a calmer editorial lead
+    - reduces bridge-band pill density
+  - `web/src/index.css` now:
+    - calms hero-copy scale and width
+    - gives more first-viewport authority to the shared persona stage
+    - re-centers the persona crop and softens motif-note scale and placement
+    - compresses the bridge band so it reads more like one continuation of the
+      hero
+  - result so far:
+    - the public landing is materially closer to the canonical first-viewport
+      rhythm on the code side
+    - deploy-side screenshot proof is still required before the slice can be
+      called closed
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800I-public-home-live-hero-bridge-parity-pass.md`
+  - parity evidence used:
+    - `.codex/artifacts/prod-login-live-after-prj800h-healthy.png`
+    - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
+  - highest-value next steps:
+    - compare the deployed `/` and `/login` landing against the canonical
+      reference
+    - then continue the next dashboard/public-home parity loop from live
+      evidence
+
 - 2026-04-29: `PRJ-800H` completed the structural public-entry correction:
   - `web/src/App.tsx` now:
     - resolves `/` to the public landing route instead of private dashboard entry
