@@ -7,6 +7,65 @@ This plan translates the repo analysis into an execution roadmap that brings the
 The goal is not to add more features first.
 The goal is to make the current AION runtime more correct, more inspectable, and easier to extend without architectural drift.
 
+## Planned On 2026-04-30 For Skill-Guided Bounded Action Execution
+
+Fresh user direction now resolves the near-term tool-orchestration concept:
+
+- skills are reusable strategies, not executable side-effect owners
+- tools are bounded capabilities executed only by action
+- skills may declare approved tool bindings
+- planning should prepare the most detailed model plan it can from the current
+  context
+- action may execute a bounded loop that observes tool results, adjusts the
+  next step inside the approved plan, and stops with explicit completion or
+  blocker state
+- the first implementation target is stronger orchestration over existing
+  search, browser, and ClickUp paths rather than adding new provider families
+
+### Fresh Gap Snapshot
+
+Observed from the current repo:
+
+- `knowledge_search.search_web` and `web_browser.read_page` are already
+  provider-backed and ready without credentials
+- ClickUp already has provider-backed create/list/update paths when configured
+- `/app/tools/overview` already exposes backend-owned tool truth
+- but tools overview does not yet expose skill-tool bindings
+- skill metadata does not yet describe `website_review`, `web_research`, or
+  ClickUp task-management strategies as tool-aware capabilities
+- action can execute multiple connector intents, but it does not yet expose a
+  first-class execute-observe-adjust loop with bounded observations and stop
+  conditions
+
+### New Queue
+
+- `PRJ-803` Freeze skill-guided bounded action loop plan. (complete)
+  - Result:
+    - `docs/architecture/16_agent_contracts.md` now records the action-owned
+      bounded execution loop contract
+    - `docs/planning/skill-guided-bounded-action-loop-plan.md` records the
+      staged implementation queue
+    - no runtime behavior changed in this planning slice
+
+- `PRJ-804` Expose skill-tool bindings in tools overview.
+- `PRJ-805` Add skill registry metadata for tool-aware skills.
+- `PRJ-806` Introduce action execution observation contract.
+- `PRJ-807` Add bounded read-only action loop for website review.
+- `PRJ-808` Extend the loop to ClickUp read and confirmation-gated mutation.
+- `PRJ-809` Sync runtime docs, ops notes, and behavior evidence.
+
+Why this order:
+
+- make the current tool truth visible first so UI and runtime agree on which
+  skills can use which tools
+- then add metadata-only skill records without granting execution authority
+- then introduce bounded observations before allowing multi-step loops
+- start the loop with read-only website review because search and page-read are
+  already approved
+- only then extend to ClickUp mutation-adjacent flows with confirmation gates
+- leave Gmail and other new provider families for a later connector lane after
+  the loop contract is proven
+
 ## Planned On 2026-04-26 For Canonical Multi-Channel Conversation And Relational Outreach
 
 Fresh user direction now resolves the previously open channel-escalation

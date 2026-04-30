@@ -2,6 +2,32 @@
 
 Last updated: 2026-04-30
 
+- 2026-04-30: `PRJ-803` froze the skill-guided bounded action loop direction:
+  - `docs/architecture/16_agent_contracts.md` now:
+    - defines skills as reusable strategies, tools as action-executed
+      capabilities, and skill-tool bindings as metadata rather than execution
+      authority
+    - allows action to run a bounded execute-observe-adjust loop inside the
+      approved plan, selected skills, permission gates, and max-step policy
+    - records initial bindings for `website_review`, `web_research`, and
+      `clickup_task_management`
+  - `docs/planning/skill-guided-bounded-action-loop-plan.md` now:
+    - stages implementation through tools-overview visibility, skill metadata,
+      bounded observations, website review, ClickUp extension, and evidence
+      sync
+  - `docs/planning/next-iteration-plan.md`, `.codex/context/TASK_BOARD.md`,
+    `docs/planning/open-decisions.md`, and
+    `.codex/tasks/PRJ-803-freeze-skill-guided-bounded-action-loop-plan.md` now
+    record the same plan
+  - result:
+    - future work can make `web_search`, `web_browser`, and ClickUp visible as
+      skill-bound tools before adding new provider families such as Gmail
+  - focused validation:
+    - `git diff --check -- docs/architecture/16_agent_contracts.md docs/planning/skill-guided-bounded-action-loop-plan.md docs/planning/next-iteration-plan.md docs/planning/open-decisions.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md .codex/tasks/PRJ-803-freeze-skill-guided-bounded-action-loop-plan.md`
+  - next smallest useful task:
+    - `PRJ-804` expose skill-tool bindings in `/app/tools/overview` and the
+      web tools UI for search, browser, and ClickUp
+
 - 2026-04-30: `PRJ-800L` continued with a landing-specific hero-art pass:
   - `web/src/App.tsx` now:
     - points the public-home motif stage at

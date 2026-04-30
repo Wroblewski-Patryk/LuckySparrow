@@ -4,6 +4,37 @@
 
 The current repo already works as an MVP slice, but several architecture-level docs describe systems that are not implemented yet. This file keeps the next real decisions visible and tied to the current codebase.
 
+## Resolved On 2026-04-30 - Skill-Guided Tool Use And Bounded Action Loop
+
+This item is no longer open.
+
+Resolved product and architecture direction:
+
+1. skills remain reusable strategy metadata, not direct execution authority
+2. tools remain bounded capabilities executed only by action
+3. skills may declare approved tool bindings, limitations, and side-effect
+   posture
+4. planning should prepare the clearest possible turn goal, constraints,
+   ordered plan, selected skills, allowed tools, and typed domain intents
+5. action may execute a bounded execute-observe-adjust loop inside that
+   approved plan and connector permission posture
+6. the action loop may adjust execution order based on bounded observations,
+   but it must not invent a new goal, widen tool access, bypass confirmation,
+   or persist raw provider payloads
+7. the first target bindings are:
+   - `website_review` with `knowledge_search.search_web` and
+     `web_browser.read_page`
+   - `web_research` with `knowledge_search.search_web` and optional
+     `web_browser.read_page`
+   - `clickup_task_management` with ClickUp list/create/update operations
+8. Gmail and other new provider families should wait until the bounded action
+   loop is proven on existing search, browser, and ClickUp capabilities
+
+Execution now follows:
+
+- `docs/planning/skill-guided-bounded-action-loop-plan.md`
+- `PRJ-804..PRJ-809`
+
 ## Resolved On 2026-04-26 - Canonical Multi-Channel Conversation And Relational Outreach
 
 This item is no longer open.

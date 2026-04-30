@@ -2,6 +2,28 @@
 
 Last updated: 2026-04-30
 
+## Fresh Skill-Guided Bounded Action Loop Plan (2026-04-30)
+
+- `PRJ-803` is now DONE as the planning/architecture freeze:
+  - `.codex/tasks/PRJ-803-freeze-skill-guided-bounded-action-loop-plan.md`
+- purpose:
+  - record the approved direction for skill-guided tool use and bounded
+    action-owned execution loops before runtime implementation starts
+- implemented in this slice:
+  - added the canonical skill-guided bounded action loop contract to
+    `docs/architecture/16_agent_contracts.md`
+  - added the staged implementation plan in
+    `docs/planning/skill-guided-bounded-action-loop-plan.md`
+  - recorded that `web_search`, `web_browser`, and ClickUp are the first
+    skill-tool binding targets
+  - kept Gmail and other new providers deferred until the loop contract is
+    proven on existing tools
+- focused validation:
+  - `git diff --check -- docs/architecture/16_agent_contracts.md docs/planning/skill-guided-bounded-action-loop-plan.md docs/planning/next-iteration-plan.md docs/planning/open-decisions.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md .codex/tasks/PRJ-803-freeze-skill-guided-bounded-action-loop-plan.md`
+- next smallest useful task:
+  - `PRJ-804` expose skill-tool bindings in `/app/tools/overview` and the web
+    tools UI for search, browser, and ClickUp
+
 ## Fresh Landing-Specific Hero Artwork And Viewport Tightening Pass (2026-04-30)
 
 - `PRJ-800L` remains IN_PROGRESS as the only active `home` surface:

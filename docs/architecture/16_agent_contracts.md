@@ -1151,6 +1151,102 @@ Shared boundary rules for that daily-use baseline:
 
 ---
 
+## Skill-Guided Bounded Action Loop Contract
+
+Complex user requests may require several read-only tool steps before AION can
+truthfully answer. This does not move side effects into planning. It extends
+the action layer with one bounded execution loop that can consume a detailed
+plan, selected skills, approved tool bindings, and intermediate observations.
+
+Definitions:
+
+1. skill = reusable execution strategy or cognitive procedure
+2. tool = external or internal capability executed only by action
+3. skill-tool binding = approved metadata that says which tools a skill may
+   consider, not authority to execute those tools by itself
+4. observation = bounded summary of one tool result, produced inside action
+   and safe for later expression, memory, and debugging
+
+Rules:
+
+1. planning remains the owner of the turn goal, constraints, ordered model
+   plan, selected skills, allowed tool families, permission gates, and typed
+   domain intents.
+2. action remains the only owner of tool execution, provider calls, delivery,
+   and durable side effects.
+3. action may run a bounded execute-observe-adjust loop when the plan contains
+   approved read-only or confirmation-gated tool work.
+4. the loop may choose the next step from the current plan, skill guidance,
+   available observations, and approved tool bindings.
+5. the loop may refine execution order inside the approved goal, for example
+   direct page read first when a URL is present or search-first review when the
+   URL is missing or ambiguous.
+6. the loop must not invent a new goal, widen provider access, bypass
+   permission gates, bypass confirmation requirements, or execute a tool that
+   is not allowed by the selected skill/tool contract and connector policy.
+7. read-only steps may execute without per-step confirmation only when the
+   connector policy marks the operation as read-only and the user/tool
+   authorization posture allows it.
+8. mutation steps remain confirmation-gated even when they are part of a
+   multi-step execution plan.
+9. every tool result must be reduced into bounded observation fields before it
+   can influence further execution:
+   - tool id and operation
+   - provider path
+   - source reference
+   - bounded result summary
+   - confidence or blocker
+   - next-step relevance
+10. raw provider payloads, raw HTML, full page dumps, mail bodies, and hidden
+    auth data must not become planning inputs or durable memory records.
+11. loop execution must have explicit stop conditions:
+    - goal satisfied
+    - blocker found
+    - clarification or confirmation required
+    - max step count reached
+    - provider/tool failure
+12. runtime debug and health surfaces should expose the loop policy owner,
+    step count, selected skills, used tools, completion state, and blockers
+    without leaking secrets or raw provider payloads.
+
+Initial approved skill-tool bindings:
+
+1. `website_review`
+   - allowed tools:
+     - `knowledge_search.search_web`
+     - `web_browser.read_page`
+   - execution posture:
+     - read-only
+     - direct URL review
+     - search-first page review when the target page is ambiguous
+   - bounded outputs:
+     - final page URL
+     - page title
+     - requested fact or summary
+     - source note
+     - uncertainty or blocker note
+2. `web_research`
+   - allowed tools:
+     - `knowledge_search.search_web`
+     - optional `web_browser.read_page`
+   - execution posture:
+     - read-only public knowledge lookup
+     - source-backed summary
+3. `clickup_task_management`
+   - allowed tools:
+     - `task_system.clickup_list_tasks`
+     - `task_system.clickup_create_task`
+     - `task_system.clickup_update_task`
+   - execution posture:
+     - read-only task review when enabled and configured
+     - create/update only after explicit confirmation
+
+The first implementation target for this contract is not a new connector. It
+is stronger capability truth and orchestration over the already-approved
+`web_search`, `web_browser`, and ClickUp paths.
+
+---
+
 ## Tool-Grounded Learning Capture Baseline
 
 Approved external reads may become durable learned knowledge only through one
