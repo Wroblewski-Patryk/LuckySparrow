@@ -45,11 +45,17 @@ Last updated: 2026-04-30
     offset
   - executed one more viewport-only compaction pass for top-nav density,
     smaller bridge footprint, narrower trust band, and later auth entry
+  - replaced inline session entry with a true auth modal opened from the
+    landing CTAs and top-nav actions
+  - changed the landing illustration treatment so the persona scene behaves
+    more like scenic stage background than a nested image card
 - focused validation passed:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css docs/ux/design-memory.md docs/ux/canonical-web-screen-reference-set.md .codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
 - remaining work before DONE:
-  - deploy-side screenshot proof for the new landing-specific hero scene
+  - deploy-side screenshot proof for the modal-plus-scenic landing slice
+  - one last home-only judgment on iconography and trust-band rhythm before
+    the route can clear the `95%` gate
 
 ## Fresh Dashboard Route-Corrected Hero Artwork Pass (2026-04-30)
 

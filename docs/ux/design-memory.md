@@ -80,6 +80,14 @@
   Keep authentication as one conversion module inside a broader trust-led
   landing story with hero, embodied motif, feature strip, and trust closure
   instead of making sign-in the whole page.
+- Public auth as modal continuation:
+  On the public landing, session entry should open as a modal layer over the
+  flagship scene instead of appearing as a co-equal inline section beneath the
+  trust closure.
+- Scenic background treatment:
+  When a route-specific hero illustration is meant to behave like atmosphere or
+  stage art, render it as the scenic background layer of the section instead of
+  as an obvious nested image card inside another card.
 - Integrated composer tray:
   Keep the main chat input, send control, and low-priority support actions
   inside one shared tray so the conversation footer reads like one premium

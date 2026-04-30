@@ -35,10 +35,15 @@ Last updated: 2026-04-30
     - keeps the public-home note-card structure but lets it sit on a
       welcoming scenic landing composition instead of the generic shared-figure
       cutout
+    - opens login and register as a modal layer instead of rendering the auth
+      form inline below the trust closure
   - `web/src/index.css` now:
     - tightens hero copy proportions, bridge width, trust-band width, and auth
       continuation spacing for a calmer first-screen read
-    - adds scenic-image handling for the landing motif stage
+    - turns the landing motif illustration into scenic background treatment
+      for the stage instead of an obvious nested image card
+    - styles the new auth modal as a quiet overlay continuation of the public
+      landing rather than a second co-equal screen
   - new canonical-support assets:
     - `docs/ux/assets/aviary-landing-hero-canonical-reference-v1.png`
     - `web/public/aviary-landing-hero-canonical-reference-v1.png`
@@ -53,11 +58,16 @@ Last updated: 2026-04-30
       closure call
     - the newest viewport-only compaction pass further reduced top-nav weight,
       bridge footprint, trust-band width, and early auth exposure
+    - the latest home-only pass removes the biggest remaining structural drift
+      by moving auth into a modal and letting the scenic hero behave more like
+      background-stage art
   - focused validation passed:
     - `Push-Location .\web; npm run build; Pop-Location`
     - `git diff --check -- web/src/App.tsx web/src/index.css docs/ux/design-memory.md docs/ux/canonical-web-screen-reference-set.md .codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
   - highest-value next steps:
     - inspect the deployed `/` and `/login` against the canonical landing
+    - if drift remains, keep the next pass limited to home-only iconography
+      and trust-band rhythm
 
 - 2026-04-30: `PRJ-800F` continued with a route-corrected dashboard hero-art
   swap:

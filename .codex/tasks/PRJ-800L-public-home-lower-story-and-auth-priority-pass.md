@@ -223,11 +223,17 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
     offset so the first viewport reads closer to one canonical scene
   - continued once more with a stronger viewport-only compaction pass for top
     nav density, bridge footprint, trust-band width, and auth-panel delay
+  - replaced the inline login/register section with a true landing modal so
+    session entry no longer competes with the flagship first viewport
+  - changed the landing scenic art from an obvious nested image treatment to a
+    background-stage treatment so the persona scene reads more like atmosphere
+    than a card within a card
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
   - `docs/ux/assets/aviary-landing-hero-canonical-reference-v1.png`
   - `web/public/aviary-landing-hero-canonical-reference-v1.png`
+  - `docs/ux/design-memory.md`
   - `.codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
   - `.codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md`
   - `.codex/context/TASK_BOARD.md`
@@ -236,16 +242,20 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
   - `Push-Location .\web; npm run build; Pop-Location`
   - focused `git diff --check`
   - production screenshot comparison against the canonical landing
+  - local screenshot proof for `/` and `/login` via `vite preview` plus Playwright
 - What is incomplete:
-  - deploy-side confirmation for this exact lower-story/auth-priority slice
-  - final judgement whether the home hero is now above the `95%` gate or
+  - deploy-side confirmation for this exact modal-plus-scenic slice
+  - final judgement whether the home surface is now above the `95%` gate or
     still needs one last micro-pass after live proof
+  - route-specific iconography for trust and proof items is still lighter than
+    the richer canonical feel the user wants
   - later dashboard parity remains the next major flagship loop
 - Next steps:
   - inspect deployed `/` and `/login` after this push
-  - if the landing first-screen read is finally calm enough, return to `dashboard`
   - if live proof still shows drift, keep the next pass limited to home-only
-    crop, spacing, and trust-band rhythm
+    crop, iconography, and trust-band rhythm
+  - only return to `dashboard` after the landing first-screen read clears the
+    `95%` gate
 - Decisions made:
   - promoted trust closure instead of inventing a new public-home section
   - used calmer hierarchy and proportion changes instead of adding new decorative systems

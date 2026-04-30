@@ -571,6 +571,11 @@ function navigate(path: RoutePath) {
     window.history.pushState({}, "", path);
   }
 }
+function navigatePublicEntry(path: "/" | "/login") {
+  if (window.location.pathname !== path) {
+    window.history.pushState({}, "", path);
+  }
+}
 function normalizeUiLanguage(value: string | null | undefined): UiLanguageCode {
   if (value === "en" || value === "pl" || value === "de" || value === "system") {
     return value;
@@ -1058,15 +1063,22 @@ function MotifFigurePanel({
   scenic?: boolean;
 }) {
   return (
-    <div className="aion-panel aion-halo aion-motif-panel aion-landing-motif-panel rounded-[2.15rem] p-4 md:p-5">
-      <div className="aion-landing-motif-stage">
+    <div
+      className={`aion-panel aion-halo aion-motif-panel aion-landing-motif-panel rounded-[2.15rem] p-4 md:p-5 ${
+        scenic ? "aion-landing-motif-panel-scenic" : ""
+      }`}
+    >
+      <div className={`aion-landing-motif-stage ${scenic ? "aion-landing-motif-stage-scenic" : ""}`}>
         <div className="aion-landing-motif-orbit" aria-hidden="true" />
-        <img
-          alt=""
-          aria-hidden="true"
-          className={`aion-landing-motif-art ${scenic ? "aion-landing-motif-art-scene" : ""}`}
-          src={artSrc}
-        />
+        {scenic ? (
+          <div
+            aria-hidden="true"
+            className="aion-landing-motif-scene"
+            style={{ backgroundImage: `url("${artSrc}")` }}
+          />
+        ) : (
+          <img alt="" aria-hidden="true" className="aion-landing-motif-art" src={artSrc} />
+        )}
         {highlights.map((item, index) => (
           <article
             key={item.label}
@@ -1248,6 +1260,15 @@ function ChevronDownIcon() {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <path d="M5 5 15 15" strokeLinecap="round" />
+      <path d="M15 5 5 15" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ShellNavButton({
   label,
   active,
@@ -1410,6 +1431,7 @@ function PersonalityTimelineRow({
 export default function App() {
   const [route, setRoute] = useState<RoutePath>(() => normalizeRoute(window.location.pathname));
   const [authMode, setAuthMode] = useState<AuthMode>("login");
+  const [authModalOpen, setAuthModalOpen] = useState(() => window.location.pathname === "/login");
   const [authBusy, setAuthBusy] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1453,6 +1475,7 @@ export default function App() {
   useEffect(() => {
     const onPopState = () => {
       setRoute(normalizeRoute(window.location.pathname));
+      setAuthModalOpen(window.location.pathname === "/login");
     };
 
     window.addEventListener("popstate", onPopState);
@@ -1462,7 +1485,30 @@ export default function App() {
   useEffect(() => {
     setError(null);
     setAccountPanelOpen(false);
+    if (route !== "/login") {
+      setAuthModalOpen(false);
+    }
   }, [route]);
+
+  useEffect(() => {
+    if (!authModalOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeAuthModal();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [authModalOpen, me]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1493,10 +1539,15 @@ export default function App() {
         if (!(caught instanceof ApiError && caught.status === 401)) {
           setError(caught instanceof Error ? caught.message : "Failed to initialize session.");
         }
-        startTransition(() => {
-          navigate("/login");
-          setRoute("/login");
-        });
+        if (route === "/login") {
+          setAuthModalOpen(window.location.pathname === "/login");
+        } else {
+          startTransition(() => {
+            navigate("/login");
+            setRoute("/login");
+          });
+          setAuthModalOpen(true);
+        }
       } finally {
         if (!cancelled) {
           setInitializing(false);
@@ -2259,6 +2310,21 @@ export default function App() {
     return snapshot;
   }
 
+  function openAuthModal(mode: AuthMode) {
+    setAuthMode(mode);
+    setError(null);
+    setAuthModalOpen(true);
+    navigatePublicEntry("/login");
+  }
+
+  function closeAuthModal() {
+    setAuthModalOpen(false);
+    setError(null);
+    if (!me) {
+      navigatePublicEntry("/");
+    }
+  }
+
   async function handleAuthSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAuthBusy(true);
@@ -2286,6 +2352,7 @@ export default function App() {
       });
       setAuthForm({ email: authForm.email, password: "", displayName: authForm.displayName });
       setToast(authMode === "login" ? "You're back in." : "Your account is ready.");
+      setAuthModalOpen(false);
       startTransition(() => {
         navigate("/dashboard");
         setRoute("/dashboard");
@@ -2307,6 +2374,7 @@ export default function App() {
       setHistory([]);
       setLocalTranscriptItems([]);
       setToast("You have been signed out.");
+      setAuthModalOpen(true);
       startTransition(() => {
         navigate("/login");
         setRoute("/login");
@@ -2334,6 +2402,7 @@ export default function App() {
       setLocalTranscriptItems([]);
       setResetConfirmationText("");
       setToast(`${copy.settings.resetSuccess} ${summary.total_deleted_records} items cleared.`);
+      setAuthModalOpen(true);
       startTransition(() => {
         navigate("/login");
         setRoute("/login");
@@ -2538,20 +2607,14 @@ export default function App() {
                 <div className="aion-public-nav-actions">
                   <button
                     className="aion-public-nav-button aion-public-nav-button-ghost"
-                    onClick={() => {
-                      setAuthMode("login");
-                      document.getElementById("aviary-auth")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
+                    onClick={() => openAuthModal("login")}
                     type="button"
                   >
                     {copy.auth.tabsLogin}
                   </button>
                   <button
                     className="aion-public-nav-button"
-                    onClick={() => {
-                      setAuthMode("register");
-                      document.getElementById("aviary-auth")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
+                    onClick={() => openAuthModal("register")}
                     type="button"
                   >
                     {copy.auth.tabsRegister}
@@ -2567,20 +2630,14 @@ export default function App() {
                     <div className="aion-public-cta-row">
                       <button
                         className="aion-public-cta aion-public-cta-primary"
-                        onClick={() => {
-                          setAuthMode("register");
-                          document.getElementById("aviary-auth")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }}
+                        onClick={() => openAuthModal("register")}
                         type="button"
                       >
                         {copy.auth.createAccount}
                       </button>
                       <button
                         className="aion-public-cta aion-public-cta-secondary"
-                        onClick={() => {
-                          setAuthMode("login");
-                          document.getElementById("aviary-auth")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }}
+                        onClick={() => openAuthModal("login")}
                         type="button"
                       >
                         {copy.auth.enterWorkspace}
@@ -2643,31 +2700,56 @@ export default function App() {
                     </article>
                   ))}
                 </section>
+              </main>
 
-                <section className="aion-public-auth-panel aion-panel-soft" id="aviary-auth">
-                    <div className="aion-public-auth-header">
+              {authModalOpen ? (
+                <div
+                  className="aion-public-auth-modal-backdrop"
+                  onClick={closeAuthModal}
+                  role="presentation"
+                >
+                  <section
+                    aria-labelledby="aviary-auth-title"
+                    aria-modal="true"
+                    className="aion-public-auth-modal-card aion-panel-soft"
+                    id="aviary-auth"
+                    onClick={(event) => event.stopPropagation()}
+                    role="dialog"
+                  >
+                    <div className="aion-public-auth-modal-header">
                       <div>
                         <p className="aion-public-section-label">{copy.auth.sessionEntry}</p>
-                        <h2 className="font-display text-3xl text-base-900">
+                        <h2 className="font-display text-3xl text-base-900" id="aviary-auth-title">
                           {authMode === "login" ? copy.auth.login : copy.auth.register}
                         </h2>
                       </div>
-                      <div className="tabs tabs-boxed w-fit bg-base-100">
-                        <button
-                          className={`tab ${authMode === "login" ? "tab-active" : ""}`}
-                          onClick={() => setAuthMode("login")}
-                          type="button"
-                        >
-                          {copy.auth.tabsLogin}
-                        </button>
-                        <button
-                          className={`tab ${authMode === "register" ? "tab-active" : ""}`}
-                          onClick={() => setAuthMode("register")}
-                          type="button"
-                        >
-                          {copy.auth.tabsRegister}
-                        </button>
-                      </div>
+                      <button
+                        aria-label="Close"
+                        className="aion-public-auth-close"
+                        onClick={closeAuthModal}
+                        type="button"
+                      >
+                        <CloseIcon />
+                      </button>
+                    </div>
+
+                    <div className="aion-public-auth-tabs" role="tablist" aria-label={copy.auth.sessionEntry}>
+                      <button
+                        aria-selected={authMode === "login"}
+                        className={`aion-public-auth-tab ${authMode === "login" ? "is-active" : ""}`}
+                        onClick={() => setAuthMode("login")}
+                        type="button"
+                      >
+                        {copy.auth.tabsLogin}
+                      </button>
+                      <button
+                        aria-selected={authMode === "register"}
+                        className={`aion-public-auth-tab ${authMode === "register" ? "is-active" : ""}`}
+                        onClick={() => setAuthMode("register")}
+                        type="button"
+                      >
+                        {copy.auth.tabsRegister}
+                      </button>
                     </div>
 
                     <p className="aion-public-auth-intro">{publicHomeSurface.sessionIntro}</p>
@@ -2736,8 +2818,9 @@ export default function App() {
                         />
                       </div>
                     ) : null}
-                </section>
-              </main>
+                  </section>
+                </div>
+              ) : null}
             </div>
           </section>
         </div>
