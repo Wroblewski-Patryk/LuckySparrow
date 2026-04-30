@@ -64,6 +64,11 @@ Last updated: 2026-04-30
   - replaced the headline star with the Aviary logomark treatment
   - reduced topbar control-pill density
   - tightened bubble widths and padding for a calmer transcript read
+- implemented in the latest rail-shortening slice:
+  - reduced the related-memory list from three items to two
+  - reduced suggested actions from three items to two
+  - shortened the proactive check-in label and tightened memory/action card
+    spacing so the right rail reads less like a stacked list
 - focused validation:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`

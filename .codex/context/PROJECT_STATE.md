@@ -32,6 +32,8 @@ Last updated: 2026-04-30
       below the composer so the route stays more transcript-first
     - now also swaps the headline star for the Aviary logomark treatment and
       reduces topbar control-pill density
+    - now also shortens the right rail by trimming memory/action inventory and
+      tightening the remaining card spacing
   - `web/src/App.tsx` additionally now:
     - replaces rough chat composer glyphs with explicit SVG icon components
     - restores cleaner role-and-time metadata inside chat bubbles
@@ -47,6 +49,9 @@ Last updated: 2026-04-30
       so the support rail behaves less like a sidebar
     - trims the quick-action row to three chips and removes the extra helper
       sentence below the composer
+    - trims the related-memory list to two items and the suggested-actions
+      list to two items
+    - shortens the proactive check-in action label from `Modify` to `Edit`
   - `web/src/index.css` now also:
     - enlarges the embodied persona crop
     - reduces portrait-note weight and connector length
@@ -54,6 +59,7 @@ Last updated: 2026-04-30
     - tightens topbar, transcript, action-tray, and composer spacing for a
       calmer conversation rhythm
     - reduces chat bubble widths and padding for a calmer canonical read
+    - reduces memory/action card gaps and padding for a shorter rail
   - new implementation task:
     - `.codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md`
   - current evidence sources:

@@ -2377,24 +2377,15 @@ export default function App() {
       body: "Helpful summaries remain close to the thread.",
       when: "Today",
     },
-    {
-      title: recentChannelsLabel === copy.common.noData ? "App-first continuity" : `Linked with ${chatLinkedChannelsStatus}`,
-      body:
-        recentChannelsLabel === copy.common.noData
-          ? "The thread is ready to become the first continuity anchor."
-          : "Posture stays steady across connected touchpoints.",
-      when: recentChannelsLabel === copy.common.noData ? "Now" : "Connected",
-    },
   ];
   const chatSuggestedActions = [
     { title: "Convert this plan to tasks", body: "Create actionable items." },
     { title: "Schedule focus blocks", body: "Protect the next deep-work window." },
-    { title: "Set daily intention", body: "Define today's main outcome." },
   ];
   const chatProactiveCheckIn = {
     title: "Tomorrow 09:00",
     body: "Morning alignment",
-    action: "Modify",
+    action: "Edit",
   };
   const chatPersonaNotes = [
     {

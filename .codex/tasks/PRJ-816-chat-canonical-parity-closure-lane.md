@@ -258,6 +258,11 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
     - replaced the chat headline star with the Aviary logomark treatment
     - reduced topbar control-pill density
     - tightened message-card widths and padding for calmer transcript rhythm
+  - completed one more right-rail shortening pass that:
+    - reduced related-memory items from three to two
+    - reduced suggested actions from three to two
+    - shortened the proactive check-in action label
+    - tightened memory and action card spacing for a less list-heavy rail
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
