@@ -22,6 +22,8 @@ Last updated: 2026-04-30
       ordered-list treatment inside assistant messages
     - now also compresses transcript density, message-card rhythm, portrait
       note spacing, and right-rail pacing for a calmer flagship read
+    - now also performs one more visual-only compression pass on topbar
+      density, stage spacing, portrait authority, and rail calmness
   - `web/src/App.tsx` additionally now:
     - replaces rough chat composer glyphs with explicit SVG icon components
     - restores cleaner role-and-time metadata inside chat bubbles
@@ -29,6 +31,8 @@ Last updated: 2026-04-30
       app-panel drift
     - fixes the chat-specific Polish strings and preview-plan time ranges that
       were still visibly affected by encoding drift
+    - removes the extra topbar description paragraph so the route reads closer
+      to the canonical conversation-first heading
   - new implementation task:
     - `.codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md`
   - current evidence sources:

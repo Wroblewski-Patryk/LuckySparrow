@@ -233,6 +233,11 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
     - replaced rough text glyphs in the composer with real icon components
     - repaired the chat-specific Polish copy that was still visibly mangled by
       encoding drift
+  - completed one more visual-only compression pass that:
+    - removed the extra route-description paragraph from the chat topbar
+    - tightened the topbar pills and stage spacing
+    - gave the embodied panel more authority against the transcript and rail
+    - replaced the remaining rail action glyph with a CSS-owned arrow
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`

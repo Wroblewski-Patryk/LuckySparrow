@@ -39,6 +39,11 @@ Last updated: 2026-04-30
   - replaced rough text glyphs in the composer with real icon components
   - fixed the remaining chat-specific Polish copy and sample-plan text that
     still suffered from encoding drift
+- implemented in the newest compression slice:
+  - removed the extra explanatory paragraph from the chat topbar
+  - tightened control-pill density and stage spacing one more step
+  - increased embodied-stage authority while slightly narrowing the right rail
+  - replaced the last remaining rail action glyph with CSS-owned icon output
 - focused validation:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`

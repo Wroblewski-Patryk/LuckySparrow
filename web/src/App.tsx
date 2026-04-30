@@ -3664,7 +3664,6 @@ export default function App() {
                         {chatActiveSummary}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm leading-7 text-base-800">{routeDescription("/chat", resolvedUiLanguage)}</p>
                     </div>
                   </div>
                   <div className="aion-chat-topbar-controls">
@@ -3800,7 +3799,7 @@ export default function App() {
                           </button>
                         </div>
                       </form>
-                      <p className="px-2 text-sm text-base-800">{copy.chat.composerHint}</p>
+                      <p className="px-2 text-sm text-base-800">Replies return to this same thread.</p>
                     </div>
                   </div>
 
@@ -3920,7 +3919,7 @@ export default function App() {
                               <p className="aion-chat-context-action-title">{item.title}</p>
                               <p className="aion-chat-context-action-body">{item.body}</p>
                             </div>
-                            <span className="aion-chat-context-action-arrow">?</span>
+                            <span className="aion-chat-context-action-arrow" aria-hidden="true" />
                           </button>
                         ))}
                       </div>
