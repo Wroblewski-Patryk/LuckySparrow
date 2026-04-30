@@ -26,6 +26,8 @@ Last updated: 2026-04-30
       density, stage spacing, portrait authority, and rail calmness
     - now also removes the extra `Persona` pill and composer mode-tab row so
       the route reads closer to the canonical conversation-first workspace
+    - now also tightens the right-rail panel rhythm and removes sidebar-like
+      mini-links in favor of calmer support accents
   - `web/src/App.tsx` additionally now:
     - replaces rough chat composer glyphs with explicit SVG icon components
     - restores cleaner role-and-time metadata inside chat bubbles
@@ -37,6 +39,12 @@ Last updated: 2026-04-30
       to the canonical conversation-first heading
     - removes the extra `Persona` control pill and the non-canonical mode tabs
       above the composer tray
+    - replaces several right-rail micro-CTA buttons with calmer status accents
+      so the support rail behaves less like a sidebar
+  - `web/src/index.css` now also:
+    - enlarges the embodied persona crop
+    - reduces portrait-note weight and connector length
+    - compresses right-rail panel padding and spacing
   - new implementation task:
     - `.codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md`
   - current evidence sources:

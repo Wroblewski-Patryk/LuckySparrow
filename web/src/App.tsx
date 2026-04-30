@@ -3844,7 +3844,7 @@ export default function App() {
                     <section className="aion-chat-context-panel aion-chat-context-panel-compact">
                       <div className="mb-4 flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-base-900">Motivation</p>
-                        <button className="aion-chat-context-link" type="button">View details</button>
+                        <span className="aion-chat-support-accent">Aligned</span>
                       </div>
                       <div className="aion-chat-motivation-grid">
                         {chatMotivationMetrics.map((metric) => (
@@ -3871,7 +3871,7 @@ export default function App() {
                     <section className="aion-chat-context-panel aion-chat-context-panel-compact">
                       <div className="mb-4 flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-base-900">Related memory</p>
-                        <button className="aion-chat-context-link" type="button">View all</button>
+                        <span className="aion-chat-support-accent">Recent</span>
                       </div>
                       <div className="aion-chat-memory-list">
                         {chatRelatedMemory.map((item) => (
@@ -3908,7 +3908,7 @@ export default function App() {
                           <p className="aion-chat-checkin-title">{chatProactiveCheckIn.title}</p>
                           <p className="aion-chat-checkin-body">{chatProactiveCheckIn.body}</p>
                         </div>
-                        <button className="aion-chat-context-link" type="button">{chatProactiveCheckIn.action}</button>
+                        <span className="aion-chat-support-accent">{chatProactiveCheckIn.action}</span>
                       </div>
                     </section>
                   </aside>

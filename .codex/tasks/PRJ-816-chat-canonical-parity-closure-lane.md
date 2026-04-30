@@ -243,6 +243,12 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
     - removed the non-canonical mode-tab row above the composer
     - simplified the composer tray so the thread reads less like a tool panel
       and closer to the approved conversation-first reference
+  - completed one more proportion-and-rail pass that:
+    - replaced sidebar-style mini-links in the right rail with calmer status
+      accents
+    - tightened right-rail panel padding and spacing
+    - enlarged the embodied persona crop and reduced portrait-note weight so
+      the central stage carries more of the route authority
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`

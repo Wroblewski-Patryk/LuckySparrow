@@ -49,6 +49,12 @@ Last updated: 2026-04-30
   - removed the mode-tab strip above the composer
   - simplified the composer tray so the route reads less tool-like and closer
     to the canonical conversation workspace
+- implemented in the latest proportion slice:
+  - replaced mini action-links inside the right rail with quieter support
+    accents
+  - tightened the right-rail card rhythm and padding
+  - enlarged the persona crop and reduced portrait-note weight so the central
+    embodied stage reads more authoritatively
 - focused validation:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
