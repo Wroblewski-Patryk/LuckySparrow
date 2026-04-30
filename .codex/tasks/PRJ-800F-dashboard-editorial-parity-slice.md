@@ -197,6 +197,9 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
   - refined the dashboard composition toward the canonical editorial read by
     tightening the hero hierarchy, calming the right rail, and compressing the
     lower closure
+  - continued the same lane by pruning dashboard CTA clutter so the route
+    reads less like an operational control panel and more like one flagship
+    tableau
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`

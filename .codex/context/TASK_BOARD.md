@@ -2,6 +2,27 @@
 
 Last updated: 2026-04-30
 
+## Fresh Dashboard CTA Decluttering Continuation (2026-04-30)
+
+- `PRJ-800F` remains IN_PROGRESS as the current dashboard parity lane:
+  - `.codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md`
+- purpose:
+  - keep removing the last app-like dashboard cues now that non-canonical
+    route sections were already pruned from the broader flagship set
+- implemented in this continuation:
+  - removed secondary CTA clutter from the right editorial rail, flow-phase
+    card, lower goal/focus cards, and scenic closure
+  - reduced guidance-row count so the right rail reads less like stacked
+    workflow widgets
+  - shortened goal and reflection lists to keep the lower dashboard region
+    calmer and more panoramic
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+- remaining work before DONE:
+  - deploy-side screenshot proof for the decluttered dashboard slice
+  - decide whether only micro-level crop/spacing drift remains afterward
+
 ## Fresh Non-Canonical Route Pruning Pass (2026-04-30)
 
 - `PRJ-800M` is now DONE as the flagship section-pruning slice:

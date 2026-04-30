@@ -1848,28 +1848,24 @@ export default function App() {
       body: stringValue(planningSummary?.active_goal_count, "0") === "0"
         ? "Shape one meaningful goal to give the day a stronger center."
         : "Your active goals are ready for a focused work block.",
-      action: "Focus",
     },
     {
       title: "Build momentum",
       body: latestUserMessage
         ? `Stay close to your latest thread: ${truncateText(latestUserMessage, 72)}`
         : "The next message can become the anchor for a clearer plan.",
-      action: "View goal",
     },
     {
       title: "Reflect and integrate",
       body: stringValue(knowledgeSummary?.affective_conclusion_count, "0") === "0"
         ? "A short reflection can start your first layer of deeper learning."
         : "Recent reflections are ready to inform the next response.",
-      action: "Reflect",
     },
     {
       title: "Connection opportunity",
       body: recentChannelsLabel === copy.common.noData
         ? "Link another surface when you want continuity outside the web shell."
         : `Continuity is already alive across: ${recentChannelsLabel}.`,
-      action: "See context",
     },
   ];
   const dashboardCognitiveSteps = [
@@ -1884,7 +1880,6 @@ export default function App() {
     { title: "Build a stronger daily rhythm", value: "72%" },
     { title: "Improve continuity across channels", value: "58%" },
     { title: "Capture reusable insights", value: "41%" },
-    { title: "Shape a more embodied personality", value: "33%" },
   ];
   const dashboardMemoryBars = [
     { label: "Mon", height: "18%" },
@@ -1899,7 +1894,6 @@ export default function App() {
     { title: "Clarity on the next chapter", tag: "Clarity" },
     { title: "Decision framework update", tag: "Growth" },
     { title: "Values realignment", tag: "Alignment" },
-    { title: "Letting go of distractions", tag: "Awareness" },
   ];
   const dashboardCurrentPhase = {
     title: "Reflect",
@@ -3068,7 +3062,7 @@ export default function App() {
                     <p className="text-sm uppercase tracking-[0.22em] text-base-800">Insights and guidance</p>
                     <h3 className="mt-2 font-display text-2xl text-base-900">Curated for you</h3>
                     <div className="aion-dashboard-guidance-list">
-                      {dashboardGuidanceCards.slice(0, 4).map((card, index) => (
+                      {dashboardGuidanceCards.slice(0, 3).map((card, index) => (
                         <article
                           key={card.title}
                           className={`aion-dashboard-guidance-row ${index === 0 ? "aion-dashboard-guidance-row-lead" : ""}`}
@@ -3078,26 +3072,17 @@ export default function App() {
                             <p className="aion-dashboard-guidance-row-title">{card.title}</p>
                             <p className="aion-dashboard-guidance-row-body">{card.body}</p>
                           </div>
-                          <button className="aion-dashboard-mini-action aion-dashboard-mini-action-quiet" type="button">
-                            {card.action}
-                          </button>
                         </article>
                       ))}
                     </div>
-                    <button className="aion-dashboard-action-button aion-dashboard-guidance-cta" type="button">
-                      View all insights
-                    </button>
                   </section>
 
                   <section className="aion-dashboard-recent-panel aion-dashboard-recent-panel-compact">
-                    <div className="mb-4 flex items-center justify-between gap-3">
+                    <div className="mb-4">
                       <div>
                         <p className="text-sm uppercase tracking-[0.22em] text-base-800">Recent activity</p>
                         <h4 className="mt-2 font-display text-xl text-base-900">What just changed</h4>
                       </div>
-                      <button className="aion-dashboard-link" type="button">
-                        View all
-                      </button>
                     </div>
                     <div className="grid gap-3">
                       {personalityRecentActivity.map((item) => (
@@ -3156,23 +3141,15 @@ export default function App() {
                     <p className="text-[11px] uppercase tracking-[0.2em] text-base-800">Current phase</p>
                     <p className="mt-3 font-display text-[2rem] leading-tight text-base-900">{dashboardCurrentPhase.title}</p>
                     <p className="mt-3 text-sm leading-7 text-base-800">{dashboardCurrentPhase.body}</p>
-                    <button className="aion-dashboard-action-button mt-5" type="button">
-                      View full flow
-                    </button>
                   </aside>
                 </div>
               </section>
 
               <section className="aion-dashboard-lower-grid aion-dashboard-lower-grid-condensed grid gap-3 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,0.9fr)]">
                 <article className="aion-panel-soft aion-dashboard-card aion-dashboard-card-primary">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.2em] text-base-800">Active goals</p>
-                      <h3 className="mt-2 font-display text-2xl text-base-900">What is in motion</h3>
-                    </div>
-                    <button className="aion-dashboard-link" type="button">
-                      View all
-                    </button>
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.2em] text-base-800">Active goals</p>
+                    <h3 className="mt-2 font-display text-2xl text-base-900">What is in motion</h3>
                   </div>
                   <div className="mt-5 grid gap-4">
                     {dashboardGoalRows.map((goal) => (
@@ -3196,9 +3173,6 @@ export default function App() {
                   <p className="mt-3 text-sm leading-7 text-base-800">
                     Building a coherent next step from your active conversation, memory, and planning posture.
                   </p>
-                  <button className="aion-dashboard-action-button mt-5" type="button">
-                    Enter focus
-                  </button>
                 </article>
 
                 <article className="aion-panel-soft aion-dashboard-card aion-dashboard-card-memory">
@@ -3279,9 +3253,6 @@ export default function App() {
                         <p className="mt-3 max-w-md text-sm leading-7 text-base-800">
                           Goals, memory, and reflection now hold together in one calmer path.
                         </p>
-                        <button className="aion-dashboard-action-button mt-5" type="button">
-                          See full report
-                        </button>
                       </div>
                     </div>
                   </div>

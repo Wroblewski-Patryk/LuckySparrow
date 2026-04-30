@@ -4,6 +4,30 @@ Last updated: 2026-04-30
 
 ## Product Snapshot
 
+- 2026-04-30: `PRJ-800F` continued with a dashboard CTA-decluttering pass:
+  - `web/src/App.tsx` now:
+    - removes secondary CTA buttons from the guidance rail, current-phase card,
+      goals card, focus card, and scenic closure
+    - trims the guidance list from four rows to three
+    - shortens the lower goals and reflection inventories by one row each
+  - `web/src/index.css` now:
+    - rebalances the guidance rows for a two-column editorial read instead of a
+      token/copy/button widget pattern
+    - tightens the current-phase card and scenic summary copy block
+    - lets the focus card settle as a calmer information surface
+  - result so far:
+    - the dashboard should now read less like an action-heavy control surface
+      and closer to the canonical flagship tableau
+    - deploy-side screenshot proof is still required for this exact
+      decluttering continuation
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+  - highest-value next steps:
+    - inspect deployed `/dashboard` after the CTA-decluttering pass
+    - if the route finally reads as one screen, close `PRJ-800F`; otherwise do
+      one last crop/spacing-only micro-pass
+
 - 2026-04-30: `PRJ-800M` completed the flagship route-pruning pass:
   - `web/src/App.tsx` now:
     - removes the separate bottom feature strip from `chat`

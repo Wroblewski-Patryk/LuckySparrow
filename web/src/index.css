@@ -2628,12 +2628,12 @@ body {
 
 .aion-dashboard-guidance-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.64rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.58rem;
   align-items: start;
   border: 1px solid rgba(88, 67, 52, 0.08);
   border-radius: 1.3rem;
-  padding: 0.74rem 0.8rem;
+  padding: 0.7rem 0.78rem;
   background: rgba(255, 255, 255, 0.78);
   box-shadow:
     0 10px 22px rgba(78, 58, 43, 0.03),
@@ -2688,18 +2688,6 @@ body {
   color: var(--aion-muted);
   font-size: 0.76rem;
   line-height: 1.44;
-}
-
-.aion-dashboard-mini-action-quiet {
-  min-height: 2.2rem;
-  padding-inline: 0.82rem;
-  background: rgba(255, 251, 245, 0.74);
-  font-size: 0.76rem;
-}
-
-.aion-dashboard-guidance-cta {
-  width: 100%;
-  margin-top: 0.1rem;
 }
 
 .aion-rail-health {
@@ -2994,7 +2982,7 @@ body {
 .aion-dashboard-flow-phase {
   border: 1px solid rgba(88, 67, 52, 0.08);
   border-radius: 1.65rem;
-  padding: 0.88rem;
+  padding: 0.82rem 0.86rem;
   background:
     linear-gradient(180deg, rgba(255, 251, 245, 0.9), rgba(244, 235, 223, 0.76));
   box-shadow:
@@ -3010,6 +2998,7 @@ body {
 .aion-dashboard-card-focus {
   background:
     linear-gradient(180deg, rgba(236, 247, 244, 0.76), rgba(255, 251, 245, 0.84));
+  justify-content: start;
 }
 
 .aion-dashboard-card-memory {
@@ -3168,8 +3157,8 @@ body {
 .aion-dashboard-summary-scenic-copy {
   position: relative;
   z-index: 1;
-  max-width: 24rem;
-  padding: 0.96rem;
+  max-width: 18rem;
+  padding: 0.82rem;
 }
 
 .aion-dashboard-summary-harmony,
