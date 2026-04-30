@@ -110,3 +110,13 @@ If implementation and canonical architecture diverge:
 - update `docs/architecture/` only when the intended architecture itself changed
 - record live implementation details in `docs/implementation/` and `docs/overview.md`
 - keep `docs/operations/`, `docs/planning/`, and `.codex/context/` honest about what is already live
+## Template Sync: Shared Agent Standards
+
+Additional cross-project standards synced from `!template`:
+
+- `.agents/workflows/user-collaboration.md`
+- `.agents/workflows/world-class-delivery.md`
+- `docs/governance/world-class-product-engineering-standard.md`
+- `docs/operations/service-reliability-and-observability.md`
+- `docs/security/secure-development-lifecycle.md`
+- `docs/ux/evidence-driven-ux-review.md`

@@ -28,3 +28,10 @@ Translate project truth into executable work for Personality / AION.
   speculative systems too early
 - if a recurring execution pitfall is confirmed, update the learning journal in
   the same task
+
+## Template Sync Rules
+
+- Use .agents/workflows/world-class-delivery.md for substantial product,
+  runtime, release, UX, security, or AI work.
+- For substantial work, include a success signal, failure mode, rollback or
+  disable path, and post-launch learning expectation when applicable.

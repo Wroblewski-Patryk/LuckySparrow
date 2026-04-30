@@ -1455,3 +1455,13 @@ fixes for this repository.
 - Evidence:
   - `.codex/artifacts/prj705-responsive-proof/`
   - `.codex/tasks/PRJ-705-responsive-tier-rules-for-mobile-tablet-and-desktop.md`
+
+### 2026-04-30 - Template world-class delivery standards synced
+
+- Context: The project adopted shared template guidance for user collaboration,
+  evidence-driven UX, reliability, secure development, and post-launch learning.
+- Learning: Agent handoffs are more useful when they include the active source
+  of truth, success signal, validations, residual risks, and next tiny task.
+- Guardrail: Use .agents/workflows/world-class-delivery.md for substantial
+  work and apply reliability/security/UX evidence only when the scope warrants
+  it, rather than adding ceremony to tiny safe changes.
