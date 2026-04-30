@@ -2,6 +2,26 @@
 
 Last updated: 2026-04-30
 
+## Fresh Public Home Live Crop And Closure Pass (2026-04-30)
+
+- `PRJ-820` is now IN_PROGRESS as a bounded `home` polish slice:
+  - `.codex/tasks/PRJ-820-home-live-crop-and-closure-pass.md`
+- purpose:
+  - close the remaining wide-screen drift on `home` by tuning scenic crop,
+    copy width, note-card positions, and the lower closure rhythm
+- implemented in the current slice:
+  - narrowed the desktop public-nav and hero-copy rhythm
+  - shifted the scenic crop toward the canonical right-weighted composition
+  - softened and repositioned the four landing note cards
+  - narrowed and raised `feature bridge` and `trust band` to read more like
+    one continuation
+- focused validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/index.css .codex/tasks/PRJ-820-home-live-crop-and-closure-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+- next smallest useful task:
+  - compare the deployed `home`
+  - if needed, do one final micro-pass only on live note positions and hero crop
+
 ## Fresh Public Home Scenic Crop And Note Polish (2026-04-30)
 
 - `PRJ-819` is now DONE as a bounded `home` polish slice:

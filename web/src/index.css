@@ -88,13 +88,13 @@ body {
   inset: 0 0 auto;
   z-index: 5;
   display: grid;
-  width: min(calc(100% - 2rem), 112rem);
+  width: min(calc(100% - 2.5rem), 108rem);
   margin-inline: auto;
   align-items: center;
   gap: 0.55rem;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  padding: 1.45rem 0 1rem;
-  border-bottom: 1px solid rgba(88, 67, 52, 0.06);
+  padding: 1.55rem 0 1.08rem;
+  border-bottom: 1px solid rgba(88, 67, 52, 0.05);
 }
 
 .aion-public-nav-links {
@@ -191,8 +191,8 @@ body {
   align-content: center;
   align-self: center;
   justify-self: start;
-  width: min(100%, 23rem);
-  padding: 0 0.75rem 0 0.15rem;
+  width: min(100%, 21.5rem);
+  padding: 0 1rem 0 0.3rem;
   position: relative;
   z-index: 2;
   pointer-events: auto;
@@ -305,9 +305,9 @@ body {
   position: relative;
   display: grid;
   gap: 0.52rem;
-  width: min(100%, 53rem);
-  margin: -4.75rem auto 0;
-  padding: 1rem 1.1rem 1.08rem;
+  width: min(100%, 50.5rem);
+  margin: -5.1rem auto 0;
+  padding: 0.94rem 1rem 1rem;
   border-radius: 2rem;
   background:
     radial-gradient(circle at 50% 0%, rgba(255, 254, 251, 0.94), transparent 0 30%),
@@ -326,7 +326,7 @@ body {
 
 .aion-public-feature-card {
   position: relative;
-  padding: 0.24rem 0.3rem 0.28rem;
+  padding: 0.2rem 0.26rem 0.24rem;
   text-align: center;
 }
 
@@ -372,7 +372,7 @@ body {
 }
 
 .aion-public-proof-bridge-copy {
-  max-width: 13.8rem;
+  max-width: 13rem;
 }
 
 .aion-public-proof-bridge-body {
@@ -490,10 +490,10 @@ body {
 .aion-landing-motif-scene {
   position: absolute;
   inset: 0;
-  background-position: center 38%;
+  background-position: 58% 36%;
   background-repeat: no-repeat;
   background-size: cover;
-  transform: scale(1.035);
+  transform: scale(1.05);
   filter: saturate(1.03);
 }
 
@@ -504,7 +504,7 @@ body {
   display: grid;
   align-items: center;
   grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.6fr);
-  padding: 7.6rem 0 5.5rem;
+  padding: 7.3rem 0 5.2rem;
   pointer-events: none;
 }
 
@@ -512,16 +512,16 @@ body {
   position: absolute;
   display: grid;
   gap: 0.24rem;
-  max-width: 8rem;
+  max-width: 7.4rem;
   border: 1px solid rgba(197, 145, 78, 0.12);
   border-radius: 1.38rem;
   background:
     linear-gradient(180deg, rgba(255, 252, 247, 0.88), rgba(250, 243, 233, 0.7));
-  padding: 0.56rem 0.68rem 0.6rem;
+  padding: 0.52rem 0.62rem 0.56rem;
   box-shadow:
-    0 16px 28px rgba(84, 66, 52, 0.04),
+    0 14px 24px rgba(84, 66, 52, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.34);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(12px);
   z-index: 2;
 }
 
@@ -540,23 +540,23 @@ body {
 }
 
 .aion-landing-motif-note-1 {
-  left: 31%;
-  top: 22%;
+  left: 30.4%;
+  top: 21%;
 }
 
 .aion-landing-motif-note-2 {
-  left: 27.4%;
-  top: 50.8%;
+  left: 26.8%;
+  top: 49.4%;
 }
 
 .aion-landing-motif-note-3 {
-  right: 4.2%;
-  top: 18.2%;
+  right: 5.1%;
+  top: 17.4%;
 }
 
 .aion-landing-motif-note-4 {
-  right: 2.2%;
-  top: 46.2%;
+  right: 3.1%;
+  top: 44.8%;
 }
 
 .aion-public-quote {
@@ -572,14 +572,14 @@ body {
   display: grid;
   gap: 0.56rem;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  width: min(100%, 56rem);
-  margin: -0.82rem auto 0;
+  width: min(100%, 54rem);
+  margin: -1rem auto 0;
   border: 1px solid rgba(70, 109, 106, 0.18);
   border-radius: 1.8rem 1.8rem 2rem 2rem;
   background:
     radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 0 28%),
     linear-gradient(180deg, rgba(78, 124, 120, 0.98), rgba(57, 96, 93, 0.98));
-  padding: 0.84rem 1rem;
+  padding: 0.8rem 0.94rem;
   box-shadow: 0 22px 40px rgba(48, 82, 80, 0.16);
   position: relative;
   z-index: 2;
@@ -799,12 +799,12 @@ body {
   }
 
   .aion-public-hero-copy {
-    width: min(100%, 22rem);
+    width: min(100%, 20.8rem);
   }
 
   .aion-public-feature-bridge {
     width: auto;
-    margin: -2.8rem auto 0;
+    margin: -3.2rem auto 0;
   }
 
   .aion-public-hero-title {

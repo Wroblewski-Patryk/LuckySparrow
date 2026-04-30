@@ -2,6 +2,22 @@
 
 Last updated: 2026-04-30
 
+- 2026-04-30: `PRJ-820` opened a final bounded `home` crop-and-closure slice:
+  - `web/src/index.css` now:
+    - narrows the desktop public-nav and hero-copy width so the scenic stage
+      has more authority
+    - shifts the landing-scene crop further right and slightly upward for a
+      more canonical wide-screen read
+    - softens and repositions the four landing note cards
+    - narrows and lifts the `feature bridge` and `trust band` so the lower
+      closure behaves more like one continuation
+  - new implementation task:
+    - `.codex/tasks/PRJ-820-home-live-crop-and-closure-pass.md`
+  - highest-value next steps:
+    - compare the deployed `home`
+    - if needed, spend one final micro-pass only on live crop or note
+      placement drift
+
 - 2026-04-30: `PRJ-819` polished the public `home` scenic read:
   - `web/src/index.css` now:
     - gives the landing hero copy slightly stronger proportions and spacing
