@@ -1,6 +1,29 @@
 # TASK_BOARD
 
-Last updated: 2026-04-30
+Last updated: 2026-05-01
+
+## Fresh Authenticated Sidebar Lockup And Nav Rhythm Pass (2026-05-01)
+
+- `PRJ-826` is now IN_PROGRESS as the first exactness slice of the
+  authenticated sidebar group:
+  - `.codex/tasks/PRJ-826-authenticated-sidebar-lockup-and-nav-rhythm-pass.md`
+- purpose:
+  - narrow and calm the authenticated desktop rail before deeper support-card
+    or route-level parity work resumes
+- implemented in the current slice:
+  - reduced sidebar rail width, internal padding, and shell gap
+  - reduced brand-lockup scale and tightened subtitle posture
+  - tightened nav-row height, icon scale, label rhythm, and active-pill
+    softness
+  - tightened the support-stack density and quiet-button weight
+  - removed visible glyph drift from the shell emblem and quote closure
+- focused validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-826-authenticated-sidebar-lockup-and-nav-rhythm-pass.md`
+- next smallest useful task:
+  - compare the deployed authenticated sidebar
+  - if needed, do one more bounded sidebar slice on health-emblem weight and
+    bottom-stack closure rhythm
 
 ## Fresh Authenticated Shell Canvas Opening Pass (2026-04-30)
 

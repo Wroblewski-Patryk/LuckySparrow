@@ -1635,7 +1635,9 @@ function ShellUtilityBar({
   return (
     <header className="aion-utility-bar hidden xl:grid">
       <div className="aion-utility-context">
-        <span className="aion-utility-context-emblem">âś¦</span>
+        <span className="aion-utility-context-emblem" aria-hidden="true">
+          <span className="aion-utility-context-emblem-core" />
+        </span>
         <div className="min-w-0">
           <p className="aion-utility-context-label">Aviary workspace</p>
           <p className="aion-utility-context-copy">{currentSurface}</p>
@@ -3158,7 +3160,7 @@ export default function App() {
       <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-7">
         <section className="aion-shell-window aion-panel overflow-hidden rounded-[2.35rem]">
           <div className="aion-shell-window-body">
-        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[12.55rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[11.95rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <SidebarBrandBlock />
 
@@ -3205,9 +3207,9 @@ export default function App() {
               </button>
 
               <section className="aion-panel-soft aion-rail-story aion-sidebar-support-card aion-sidebar-quote-card rounded-[1.8rem] p-4">
-                <p className="aion-sidebar-quote-mark">â€ś</p>
+                <p className="aion-sidebar-quote-mark" aria-hidden="true" />
                 <p className="aion-sidebar-quote-copy">Clarity is the lamp that makes the path.</p>
-                <p className="aion-sidebar-quote-signature">â€” AVIARY</p>
+                <p className="aion-sidebar-quote-signature" aria-hidden="true" />
               </section>
             </div>
           </aside>

@@ -1,6 +1,26 @@
 # PROJECT_STATE
 
-Last updated: 2026-04-30
+Last updated: 2026-05-01
+
+- 2026-05-01: `PRJ-826` opened the first authenticated-sidebar exactness
+  slice:
+  - `web/src/App.tsx` now:
+    - replaces the visible broken utility emblem and quote text with structural
+      rendering
+    - slightly narrows the desktop shell grid toward a slimmer rail
+  - `web/src/index.css` now:
+    - narrows the desktop rail and tightens the shell gap
+    - reduces sidebar brand-lockup scale and subtitle spacing
+    - tightens nav-row height, icon scale, label size, and active-pill
+      softness
+    - tightens support-stack density, identity-card size, and quote-card
+      closure rhythm
+  - new implementation task:
+    - `.codex/tasks/PRJ-826-authenticated-sidebar-lockup-and-nav-rhythm-pass.md`
+  - highest-value next steps:
+    - compare the deployed authenticated sidebar against the canonical rail
+    - if needed, take one more bounded sidebar slice on health-emblem weight
+      and bottom-stack closure
 
 - 2026-04-30: `PRJ-825` opened the second authenticated-shell frame slice:
   - `web/src/index.css` now:
