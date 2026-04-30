@@ -218,6 +218,9 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
     gives the center hero more authority, narrows the editorial rail, and
     flattens the lower closure so the whole route reads less like stacked cards
     and more like one flagship tableau
+  - continued once more with a crop-and-spacing pass that lifts the dashboard
+    persona higher in frame, narrows the right rail density, and lets the
+    closure scenic panel breathe more like the canonical panoramic ending
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`

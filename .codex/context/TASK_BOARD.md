@@ -109,6 +109,25 @@ Last updated: 2026-04-30
   - deploy-side screenshot proof for this exact proportions-only pass
   - then decide whether only hero crop and rail spacing drift remain
 
+## Fresh Dashboard Hero Crop And Rail Spacing Pass (2026-04-30)
+
+- `PRJ-800F` remains IN_PROGRESS as the only active flagship surface:
+  - `.codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md`
+- purpose:
+  - spend one more bounded dashboard slice only on crop and spacing drift now
+    that the larger compositional contract is already in place
+- implemented in this continuation:
+  - raised the dashboard persona crop and gave the center stage a touch more
+    vertical authority
+  - tightened the right editorial rail row density and recent-activity cadence
+  - shortened the intention block and scenic closure panel for a calmer ending
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+- remaining work before DONE:
+  - deploy-side screenshot proof for this exact crop-and-spacing pass
+  - then decide whether `dashboard` crosses the `95%` gate or still needs one last micro-pass
+
 ## Fresh Shared Persona Adaptation Rule Freeze (2026-04-30)
 
 - purpose:

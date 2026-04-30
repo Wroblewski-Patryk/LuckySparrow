@@ -130,6 +130,22 @@ Last updated: 2026-04-30
     - `Push-Location .\web; npm run build; Pop-Location`
     - `git diff --check -- web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
 
+- 2026-04-30: `PRJ-800F` continued with a hero-crop and rail-spacing pass on
+  the dashboard:
+  - `web/src/index.css` now:
+    - lifts the dashboard persona crop higher inside the scenic hero
+    - narrows the right editorial rail and recent-activity rhythm
+    - shortens the intention block and scenic closure panel for a calmer
+      panoramic ending
+  - result so far:
+    - the dashboard should now be closer to the canonical balance between hero
+      dominance, editorial support, and closure rhythm
+    - deploy-side screenshot proof is still required to decide whether the
+      route crosses the `95%` parity gate
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+
 - 2026-04-30: shared persona continuity rules were refined for future flagship
   artwork:
   - `docs/ux/design-memory.md`,
