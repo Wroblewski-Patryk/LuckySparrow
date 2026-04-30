@@ -2,6 +2,29 @@
 
 Last updated: 2026-04-30
 
+- 2026-04-30: `PRJ-800L` continued with a landing-specific hero-art pass:
+  - `web/src/App.tsx` now:
+    - points the public-home motif stage at
+      `web/public/aviary-landing-hero-canonical-reference-v1.png`
+    - keeps the public-home note-card structure but lets it sit on a
+      welcoming scenic landing composition instead of the generic shared-figure
+      cutout
+  - `web/src/index.css` now:
+    - tightens hero copy proportions, bridge width, trust-band width, and auth
+      continuation spacing for a calmer first-screen read
+    - adds scenic-image handling for the landing motif stage
+  - new canonical-support assets:
+    - `docs/ux/assets/aviary-landing-hero-canonical-reference-v1.png`
+    - `web/public/aviary-landing-hero-canonical-reference-v1.png`
+  - result so far:
+    - the public landing keeps the shared Aviary identity but now reads more
+      like a welcoming, trust-first scene and less like a reused route figure
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/App.tsx web/src/index.css docs/ux/design-memory.md docs/ux/canonical-web-screen-reference-set.md .codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+  - highest-value next steps:
+    - inspect the deployed `/` and `/login` against the canonical landing
+
 - 2026-04-30: `PRJ-800F` continued with a route-corrected dashboard hero-art
   swap:
   - `web/src/App.tsx` now:

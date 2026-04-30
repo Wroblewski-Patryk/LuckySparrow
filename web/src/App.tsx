@@ -26,6 +26,7 @@ type UtcOffsetOption = {
 const BUILD_REVISION = String(import.meta.env.VITE_APP_BUILD_REVISION ?? "dev");
 const CANONICAL_PERSONA_FIGURE_SRC = "/aviary-persona-figure-canonical-reference-v1.png";
 const DASHBOARD_HERO_ART_SRC = "/aviary-dashboard-hero-canonical-reference-v4.png";
+const LANDING_HERO_ART_SRC = "/aviary-landing-hero-canonical-reference-v1.png";
 const RESET_DATA_CONFIRMATION_TEXT = "RESET MY DATA";
 const ROUTES: RoutePath[] = ["/dashboard", "/chat", "/personality", "/tools", "/settings"];
 const UI_LANGUAGE_OPTIONS: Array<{
@@ -1049,8 +1050,12 @@ function FlowRail({
 
 function MotifFigurePanel({
   highlights,
+  artSrc = CANONICAL_PERSONA_FIGURE_SRC,
+  scenic = false,
 }: {
   highlights: Array<{ label: string; value: string }>;
+  artSrc?: string;
+  scenic?: boolean;
 }) {
   return (
     <div className="aion-panel aion-halo aion-motif-panel aion-landing-motif-panel rounded-[2.15rem] p-4 md:p-5">
@@ -1059,8 +1064,8 @@ function MotifFigurePanel({
         <img
           alt=""
           aria-hidden="true"
-          className="aion-landing-motif-art"
-          src={CANONICAL_PERSONA_FIGURE_SRC}
+          className={`aion-landing-motif-art ${scenic ? "aion-landing-motif-art-scene" : ""}`}
+          src={artSrc}
         />
         {highlights.map((item, index) => (
           <article
@@ -2199,9 +2204,9 @@ export default function App() {
     ],
   } satisfies Record<ResolvedUiLanguageCode, Array<{ title: string; body: string }>>;
   const publicTrustBandItems = {
-    en: ["Privacy first", "End-to-end encryption", "Local-first storage", "You own your data"],
-    pl: ["Prywatnosc przede wszystkim", "Szyfrowanie end-to-end", "Przechowywanie local-first", "To Ty kontrolujesz dane"],
-    de: ["Privacy first", "Ende-zu-Ende-Verschlusselung", "Local-first Speicher", "Deine Daten gehoren dir"],
+    en: ["Privacy first", "End-to-end encryption", "Local-first storage", "You own your data", "Transparent by default"],
+    pl: ["Prywatnosc przede wszystkim", "Szyfrowanie end-to-end", "Przechowywanie local-first", "To Ty kontrolujesz dane", "Przejrzystosc domyslnie"],
+    de: ["Privacy first", "Ende-zu-Ende-Verschlusselung", "Local-first Speicher", "Deine Daten gehoren dir", "Transparent von Beginn an"],
   } satisfies Record<ResolvedUiLanguageCode, string[]>;
   const publicProofLine = {
     en: "Trusted by thoughtful people worldwide",
@@ -2214,19 +2219,19 @@ export default function App() {
     de: "Lerne Aviary kennen",
   } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicHeroBody = {
-    en: "Your conscious companion for clarity, memory, and calm next steps.",
-    pl: "Twoj swiadomy towarzysz do jasnosci, pamieci i spokojnych kolejnych krokow.",
-    de: "Dein bewusster Begleiter fur Klarheit, Erinnerung und ruhige nachste Schritte.",
+    en: "Your conscious companion for clarity, growth, and purpose.",
+    pl: "Twoj swiadomy towarzysz dla jasnosci, rozwoju i celu.",
+    de: "Dein bewusster Begleiter fur Klarheit, Wachstum und Sinn.",
   } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicProofBridgeLead = {
-    en: "Calm structure. Personal presence.",
-    pl: "Spokojna struktura. Osobista obecnosc.",
-    de: "Ruhige Struktur. Personliche Prasenz.",
+    en: "Powerful by design. Personal by nature.",
+    pl: "Moca projektu. Osobiste z natury.",
+    de: "Kraftvoll im Design. Personlich im Wesen.",
   } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicSessionIntro = {
-    en: "Sign in or create an account to continue with memory, planning, and calm guidance.",
-    pl: "Zaloguj sie lub utworz konto, aby wrocic do pamieci, planowania i spokojnego prowadzenia.",
-    de: "Melde dich an oder erstelle ein Konto, um mit Erinnerung, Planung und ruhiger Begleitung weiterzumachen.",
+    en: "Sign in or create an account to continue with memory, clarity, and calm guidance.",
+    pl: "Zaloguj sie lub utworz konto, aby wrocic do pamieci, jasnosci i spokojnego prowadzenia.",
+    de: "Melde dich an oder erstelle ein Konto, um mit Erinnerung, Klarheit und ruhiger Begleitung weiterzumachen.",
   } satisfies Record<ResolvedUiLanguageCode, string>;
   const publicHomeSurface = {
     nav: publicNavLabels[resolvedUiLanguage],
@@ -2591,14 +2596,16 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="aion-public-hero-stage">
-                    <MotifFigurePanel
-                      highlights={publicHomeSurface.heroCards.map((card) => ({
-                        label: card.title,
-                        value: card.body,
-                      }))}
-                    />
-                  </div>
+                    <div className="aion-public-hero-stage">
+                      <MotifFigurePanel
+                        artSrc={LANDING_HERO_ART_SRC}
+                        highlights={publicHomeSurface.heroCards.map((card) => ({
+                          label: card.title,
+                          value: card.body,
+                        }))}
+                        scenic
+                      />
+                    </div>
                 </section>
 
                 <section className="aion-public-feature-bridge aion-panel-soft rounded-[2rem] p-4 md:p-5">

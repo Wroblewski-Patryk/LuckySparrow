@@ -202,9 +202,14 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
   - removed the lingering lower proof-story grid entirely so the landing no
     longer falls into a second pseudo-screen that does not exist in the
     canonical public entry
+  - replaced the generic shared-persona stage with a landing-specific scenic
+    hero artwork and tightened hero, bridge, trust-band, and auth proportions
+    toward the canonical first-screen read
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
+  - `docs/ux/assets/aviary-landing-hero-canonical-reference-v1.png`
+  - `web/public/aviary-landing-hero-canonical-reference-v1.png`
   - `.codex/tasks/PRJ-800K-public-home-hero-content-canonical-pass.md`
   - `.codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md`
   - `.codex/context/TASK_BOARD.md`
@@ -215,10 +220,14 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
   - production screenshot comparison against the canonical landing
 - What is incomplete:
   - deploy-side confirmation for this exact lower-story/auth-priority slice
+  - final judgement whether the home hero is now above the `95%` gate or
+    still needs one last micro-pass after live proof
   - later dashboard parity remains the next major flagship loop
 - Next steps:
   - inspect deployed `/` and `/login` after this push
   - if the landing first-screen read is finally calm enough, return to `dashboard`
+  - if live proof still shows drift, keep the next pass limited to home-only
+    crop, spacing, and trust-band rhythm
 - Decisions made:
   - promoted trust closure instead of inventing a new public-home section
   - used calmer hierarchy and proportion changes instead of adding new decorative systems

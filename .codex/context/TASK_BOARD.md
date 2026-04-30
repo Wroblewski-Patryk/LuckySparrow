@@ -2,6 +2,26 @@
 
 Last updated: 2026-04-30
 
+## Fresh Landing-Specific Hero Artwork And Viewport Tightening Pass (2026-04-30)
+
+- `PRJ-800L` remains IN_PROGRESS as the only active `home` surface:
+  - `.codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md`
+- purpose:
+  - replace the generic shared-persona stage on `home` with a route-correct
+    welcoming composition and tighten the first viewport around it
+- implemented in this continuation:
+  - generated and wired one new landing-specific scenic hero artwork based on
+    the shared Aviary identity
+  - kept the same persona continuity while removing dashboard/personality
+    staging from the public-entry scene
+  - tightened hero copy, bridge width, trust-band width, and auth-panel
+    spacing to preserve a calmer first-screen read
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css docs/ux/design-memory.md docs/ux/canonical-web-screen-reference-set.md .codex/tasks/PRJ-800L-public-home-lower-story-and-auth-priority-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+- remaining work before DONE:
+  - deploy-side screenshot proof for the new landing-specific hero scene
+
 ## Fresh Dashboard Route-Corrected Hero Artwork Pass (2026-04-30)
 
 - `PRJ-800F` remains IN_PROGRESS as the only active flagship surface:

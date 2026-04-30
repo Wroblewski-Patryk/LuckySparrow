@@ -120,6 +120,8 @@
   `docs/ux/canonical-web-screen-reference-set.md`.
 - The current approved dashboard hero implementation asset now includes
   `docs/ux/assets/aviary-dashboard-hero-canonical-reference-v4.png`.
+- The current approved landing hero implementation asset now includes
+  `docs/ux/assets/aviary-landing-hero-canonical-reference-v1.png`.
 - Future web UX tasks should capture post-deploy screenshots and compare them
   directly against the canonical screen-set instead of relying only on memory
   or prompt descriptions.

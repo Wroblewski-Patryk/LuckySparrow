@@ -54,6 +54,8 @@ They define the UX/UI target that future implementation should move toward.
 
 - Asset:
   - `docs/ux/assets/aion-landing-canonical-reference-v1.png`
+- Implementation support asset:
+  - `docs/ux/assets/aviary-landing-hero-canonical-reference-v1.png`
 - Role:
   - primary public-entry target for trust, value framing, and visual identity
 - Must preserve:
@@ -61,6 +63,8 @@ They define the UX/UI target that future implementation should move toward.
   - immediate first-viewport value proposition
   - strong CTA clarity
   - embodied AION presence as trust anchor
+  - route-appropriate welcoming and trust-oriented persona staging instead of
+    dashboard or personality props
   - premium shell framing without fake browser-window chrome or title-bar
     ornament
 
