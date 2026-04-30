@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-01
 
+- 2026-05-01: `PRJ-827` opened the second authenticated-sidebar exactness
+  slice:
+  - `web/src/App.tsx` now:
+    - introduces semantic sidebar-health title/body hooks for calmer shell-side
+      typography
+  - `web/src/index.css` now:
+    - reduces the sidebar support-stack gap and lower-card density
+    - reduces the `System Health` emblem size, ring weight, and shadow weight
+    - tightens diagnostics button, identity card, and quote closure rhythm
+    - overrides the sidebar quote mark and signature with stable canonical
+      punctuation rendering
+  - planning truth now:
+    - updates `docs/planning/canonical-100-slice-closure-map.md` so the
+      active-surface note reflects the current shell/sidebar lane
+  - new implementation task:
+    - `.codex/tasks/PRJ-827-authenticated-sidebar-support-closure-pass.md`
+  - highest-value next steps:
+    - compare the deployed authenticated sidebar against the canonical rail
+    - if needed, take one more bounded sidebar slice on final health-copy and
+      bottom-stack balance
+
 - 2026-05-01: `PRJ-826` opened the first authenticated-sidebar exactness
   slice:
   - `web/src/App.tsx` now:

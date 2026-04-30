@@ -170,14 +170,15 @@ Target slice budget: 15
 
 ## Current Recommended Starting Point
 
-The current active surface remains `home`.
+The current active surface group is now the authenticated shell and desktop
+sidebar.
 
 The next real implementation slice should continue from:
 
-- slice 15 if a deploy-side proof is available and only a final closure
-  decision is needed
-- otherwise the smallest remaining subset of slices `1..14` that still
-  visibly drift on live production
+- slices `26..40` if the deployed shell frame already feels calm enough
+- otherwise the smallest remaining shell-frame subset from slices `16..25`
+  that still visibly drifts on live production
 
-Do not open `authenticated shell`, `sidebar`, or `dashboard` again until
-`home` is judged past the `95%` gate in the latest deploy-side compare.
+Do not reopen broad `home`, `dashboard`, `chat`, or `personality` polishing
+until the authenticated shell/sidebar pair is judged past the `95%` gate in
+the latest deploy-side compare.

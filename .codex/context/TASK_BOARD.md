@@ -2,6 +2,28 @@
 
 Last updated: 2026-05-01
 
+## Fresh Authenticated Sidebar Support Closure Pass (2026-05-01)
+
+- `PRJ-827` is now IN_PROGRESS as the second exactness slice of the
+  authenticated sidebar group:
+  - `.codex/tasks/PRJ-827-authenticated-sidebar-support-closure-pass.md`
+- purpose:
+  - reduce the remaining heaviness in the sidebar lower support stack before
+    moving on from the rail
+- implemented in the current slice:
+  - reduced `System Health` emblem scale, rings, and shadow weight
+  - tightened the health-card text hierarchy and diagnostics button
+  - tightened identity/quote closure spacing and quote typography
+  - corrected the active 100-slice planning note so it no longer points back
+    to `home`
+- focused validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css docs/planning/canonical-100-slice-closure-map.md .codex/tasks/PRJ-827-authenticated-sidebar-support-closure-pass.md`
+- next smallest useful task:
+  - compare the deployed authenticated sidebar
+  - if still needed, do one final bounded sidebar slice on bottom-stack gap
+    balance and health-copy rhythm
+
 ## Fresh Authenticated Sidebar Lockup And Nav Rhythm Pass (2026-05-01)
 
 - `PRJ-826` is now IN_PROGRESS as the first exactness slice of the

@@ -3178,12 +3178,12 @@ export default function App() {
 
             <div className="aion-sidebar-support-stack mt-auto">
               <section className="aion-panel-soft aion-rail-health aion-sidebar-support-card aion-sidebar-health-card rounded-[1.8rem] p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-base-800">System Health</p>
+                <p className="aion-sidebar-health-title">System Health</p>
                 <div className="aion-rail-health-orb" aria-hidden="true">
                   <span>Optimal</span>
                 </div>
-                <p className="aion-sidebar-health-status text-base font-semibold text-base-900">Optimal</p>
-                <p className="mt-2 text-sm leading-6 text-base-800">All systems aligned and operating well.</p>
+                <p className="aion-sidebar-health-status">Optimal</p>
+                <p className="aion-sidebar-health-body">All systems aligned and operating well.</p>
                 <button className="aion-sidebar-quiet-button" type="button">
                   View diagnostics
                 </button>
