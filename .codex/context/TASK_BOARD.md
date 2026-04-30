@@ -55,6 +55,11 @@ Last updated: 2026-04-30
   - tightened the right-rail card rhythm and padding
   - enlarged the persona crop and reduced portrait-note weight so the central
     embodied stage reads more authoritatively
+- implemented in the latest transcript-first slice:
+  - reduced the quick-action tray from four chips to three
+  - removed the helper line below the composer
+  - tightened transcript and composer spacing so the route keeps more focus on
+    the conversation thread
 - focused validation:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`

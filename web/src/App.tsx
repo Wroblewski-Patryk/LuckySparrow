@@ -2342,7 +2342,7 @@ export default function App() {
       value: recentChannelsLabel === copy.common.noData ? "App" : recentChannelsLabel,
     },
   ];
-  const chatQuickActions = ["Plan my day", "Summarize yesterday", "What did I learn?", "Check my goals"];
+  const chatQuickActions = ["Plan my day", "Summarize yesterday", "What did I learn?"];
   const chatCurrentFocus =
     stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "Daily planning" : "Conversation continuity";
   const chatLinkedChannelsStatus = recentChannelsLabel === copy.common.noData ? "App only" : recentChannelsLabel;
@@ -3775,7 +3775,6 @@ export default function App() {
                           </button>
                         </div>
                       </form>
-                      <p className="px-2 text-sm text-base-800">Replies return to this same thread.</p>
                     </div>
                   </div>
 

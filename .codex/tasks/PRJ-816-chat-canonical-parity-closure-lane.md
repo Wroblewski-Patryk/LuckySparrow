@@ -249,6 +249,11 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
     - tightened right-rail panel padding and spacing
     - enlarged the embodied persona crop and reduced portrait-note weight so
       the central stage carries more of the route authority
+  - completed one more transcript-first rhythm pass that:
+    - reduced the quick-action tray from four chips to three
+    - removed the extra helper sentence below the composer
+    - tightened topbar, transcript, and composer spacing so the thread keeps
+      more of the visual attention
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
