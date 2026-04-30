@@ -218,6 +218,9 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
   - replaced the generic shared-persona stage with a landing-specific scenic
     hero artwork and tightened hero, bridge, trust-band, and auth proportions
     toward the canonical first-screen read
+  - continued the same home-only lane by tightening hero copy width, scenic
+    crop, note-card density, bridge rhythm, trust-band compactness, and auth
+    offset so the first viewport reads closer to one canonical scene
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
