@@ -214,6 +214,10 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
   - replaced that first integrated hero with a route-corrected dashboard
     variant that removes `personality` props and uses orchestration and
     cognition-field symbols instead
+  - continued the same single-surface lane with a proportions-only pass that
+    gives the center hero more authority, narrows the editorial rail, and
+    flattens the lower closure so the whole route reads less like stacked cards
+    and more like one flagship tableau
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
@@ -227,6 +231,7 @@ paths, placeholders, fake data, and temporary fixes are forbidden.
 - How tested:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md`
+  - `git diff --check -- web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
 - What is incomplete:
   - authenticated screenshot parity is still pending and must happen after deploy
   - the old `v3` dashboard hero asset can now be retired later if no historical

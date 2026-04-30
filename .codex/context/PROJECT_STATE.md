@@ -114,6 +114,22 @@ Last updated: 2026-04-30
     - rerun final validation for this exact asset swap
     - inspect the deployed dashboard against the canonical reference
 
+- 2026-04-30: `PRJ-800F` continued with a proportion-compression pass on the
+  dashboard:
+  - `web/src/index.css` now:
+    - gives the center hero stage more authority against the side signal columns
+    - narrows and softens the right editorial rail
+    - compresses the flow band and lower closure into a flatter, more
+      panoramic cadence
+  - result so far:
+    - the authenticated dashboard should now read less like stacked premium
+      cards and closer to one flagship tableau
+    - authenticated screenshot proof is still required to decide whether only
+      hero crop and rail spacing drift remain
+  - focused validation passed:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - `git diff --check -- web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+
 - 2026-04-30: shared persona continuity rules were refined for future flagship
   artwork:
   - `docs/ux/design-memory.md`,

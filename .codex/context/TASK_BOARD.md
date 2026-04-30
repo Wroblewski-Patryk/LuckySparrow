@@ -88,6 +88,27 @@ Last updated: 2026-04-30
   - final build and diff validation for the route-corrected dashboard hero
   - deploy-side screenshot proof for the new dashboard-specific artwork
 
+## Fresh Dashboard Proportion Compression Pass (2026-04-30)
+
+- `PRJ-800F` remains IN_PROGRESS as the only active flagship surface:
+  - `.codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md`
+- purpose:
+  - keep closing the dashboard through proportion-only refinement instead of
+    adding new elements, so the route reads more like one canonical tableau
+- implemented in this continuation:
+  - increased the relative authority of the central hero stage against the two
+    signal columns
+  - narrowed and softened the right editorial rail through tighter spacing and
+    calmer card density
+  - compressed the flow and lower closure so the bottom of the dashboard reads
+    more panoramic and less stacked
+- focused validation passed:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/index.css .codex/tasks/PRJ-800F-dashboard-editorial-parity-slice.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+- remaining work before DONE:
+  - deploy-side screenshot proof for this exact proportions-only pass
+  - then decide whether only hero crop and rail spacing drift remain
+
 ## Fresh Shared Persona Adaptation Rule Freeze (2026-04-30)
 
 - purpose:
