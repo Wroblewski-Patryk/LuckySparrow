@@ -2,6 +2,22 @@
 
 Last updated: 2026-05-01
 
+- 2026-05-01: `PRJ-828` opened the third authenticated-sidebar exactness
+  slice:
+  - `web/src/App.tsx` now:
+    - removes redundant utility rounding and padding classes from the sidebar
+      health, identity, and quote cards
+  - `web/src/index.css` now:
+    - gives sidebar support cards one shared border, shadow, and background
+      family
+    - keeps final card geometry under sidebar-specific CSS control instead of
+      per-instance utility classes
+  - new implementation task:
+    - `.codex/tasks/PRJ-828-authenticated-sidebar-decomponentize-support-stack.md`
+  - highest-value next steps:
+    - compare the deployed authenticated sidebar against the canonical rail
+    - if the parity gate clears, move to the next surface group
+
 - 2026-05-01: `PRJ-827` opened the second authenticated-sidebar exactness
   slice:
   - `web/src/App.tsx` now:

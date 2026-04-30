@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-01
 
+## Fresh Authenticated Sidebar Decomponentize Support Stack (2026-05-01)
+
+- `PRJ-828` is now IN_PROGRESS as the third exactness slice of the
+  authenticated sidebar group:
+  - `.codex/tasks/PRJ-828-authenticated-sidebar-decomponentize-support-stack.md`
+- purpose:
+  - remove redundant utility framing from the lower sidebar stack so the rail
+    reads less like assembled panels and more like one canonical layout family
+- implemented in the current slice:
+  - removed `rounded-*` and `p-*` utility framing from the health, identity,
+    and quote cards in JSX
+  - moved lower-card geometry ownership into sidebar-specific CSS
+  - unified support-card border/shadow/background treatment
+- focused validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-828-authenticated-sidebar-decomponentize-support-stack.md`
+- next smallest useful task:
+  - compare the deployed authenticated sidebar
+  - if still needed, do one final bounded sidebar slice only on last gap and
+    copy-rhythm drift before moving on
+
 ## Fresh Authenticated Sidebar Support Closure Pass (2026-05-01)
 
 - `PRJ-827` is now IN_PROGRESS as the second exactness slice of the

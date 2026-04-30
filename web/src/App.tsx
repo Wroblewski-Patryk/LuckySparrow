@@ -3177,7 +3177,7 @@ export default function App() {
             </nav>
 
             <div className="aion-sidebar-support-stack mt-auto">
-              <section className="aion-panel-soft aion-rail-health aion-sidebar-support-card aion-sidebar-health-card rounded-[1.8rem] p-4">
+              <section className="aion-panel-soft aion-rail-health aion-sidebar-support-card aion-sidebar-health-card">
                 <p className="aion-sidebar-health-title">System Health</p>
                 <div className="aion-rail-health-orb" aria-hidden="true">
                   <span>Optimal</span>
@@ -3190,7 +3190,7 @@ export default function App() {
               </section>
 
               <button
-                className="aion-panel-soft aion-sidebar-support-card aion-sidebar-identity-card rounded-[1.6rem]"
+                className="aion-panel-soft aion-sidebar-support-card aion-sidebar-identity-card"
                 onClick={() => setAccountPanelOpen((value) => !value)}
                 type="button"
               >
@@ -3206,7 +3206,7 @@ export default function App() {
                 </span>
               </button>
 
-              <section className="aion-panel-soft aion-rail-story aion-sidebar-support-card aion-sidebar-quote-card rounded-[1.8rem] p-4">
+              <section className="aion-panel-soft aion-rail-story aion-sidebar-support-card aion-sidebar-quote-card">
                 <p className="aion-sidebar-quote-mark" aria-hidden="true" />
                 <p className="aion-sidebar-quote-copy">Clarity is the lamp that makes the path.</p>
                 <p className="aion-sidebar-quote-signature" aria-hidden="true" />

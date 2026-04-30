@@ -1558,6 +1558,10 @@ body {
 
 .aion-sidebar-support-card {
   border-radius: 1.42rem;
+  border: 1px solid rgba(88, 67, 52, 0.055);
+  box-shadow:
+    0 10px 22px rgba(78, 58, 43, 0.032),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .aion-sidebar-health-card {
@@ -1747,6 +1751,13 @@ body {
 
 .aion-sidebar-quote-card::after {
   height: 2.72rem;
+}
+
+.aion-sidebar-health-card,
+.aion-sidebar-identity-card,
+.aion-sidebar-quote-card {
+  background:
+    linear-gradient(180deg, rgba(255, 251, 245, 0.92), rgba(246, 238, 227, 0.82));
 }
 
 .aion-shell-toolbar {
