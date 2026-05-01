@@ -2336,15 +2336,11 @@ export default function App() {
       value: Boolean(preferenceSummary?.learned_preference_count) ? copy.common.on : copy.common.off,
     },
     {
-      label: "Language",
-      value: stringValue(me?.settings.preferred_language, copy.common.system).toUpperCase(),
-    },
-    {
       label: "Linked channels",
       value: recentChannelsLabel === copy.common.noData ? "App" : recentChannelsLabel,
     },
   ];
-  const chatQuickActions = ["Plan my day", "Summarize yesterday", "What did I learn?"];
+  const chatQuickActions = ["Plan my day", "What did I learn?"];
   const chatCurrentFocus =
     stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "Daily planning" : "Conversation continuity";
   const chatLinkedChannelsStatus = recentChannelsLabel === copy.common.noData ? "App only" : recentChannelsLabel;
@@ -2400,14 +2396,14 @@ export default function App() {
       className: "aion-chat-portrait-note aion-chat-portrait-note-expression",
       eyebrow: "Expression",
       title: stringValue(me?.settings.preferred_language, "adaptive").toUpperCase(),
-      body: "Tone adapts without losing continuity or trust.",
+      body: "Tone stays adaptive and calm.",
     },
     {
       key: "channels",
       className: "aion-chat-portrait-note aion-chat-portrait-note-channels",
       eyebrow: "Linked channels",
       title: chatLinkedChannelsStatus,
-      body: "The same conversation posture stays coherent across touchpoints.",
+      body: "The same posture stays coherent across touchpoints.",
     },
   ];
   const chatActiveSummary = "Live";

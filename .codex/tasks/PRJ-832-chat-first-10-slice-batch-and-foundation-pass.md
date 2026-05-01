@@ -233,6 +233,8 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
     actions, composer tray density, and long-form transcript polish
   - implemented the next bounded transcript-first balance batch across topbar
     control weight, lead-card hierarchy, and rail width
+  - implemented the next bounded chrome-reduction batch across top controls,
+    quick actions, and scenic-note copy density
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
@@ -248,7 +250,7 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
   - deploy-side proof for the new chat batch
   - remaining batches beyond the foundation pass
 - Next steps:
-  - compare the deployed chat after the transcript-first balance batch
+  - compare the deployed chat after the chrome-reduction batch
   - if needed, open the next bounded chat continuation lane only for remaining
     proof-backed drift
 - Decisions made:

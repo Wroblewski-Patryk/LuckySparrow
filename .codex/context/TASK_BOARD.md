@@ -22,6 +22,8 @@ Last updated: 2026-05-01
     polish
   - reduced topbar control weight, softened the lead card, and narrowed the
     rail for a stronger transcript-first balance
+  - reduced remaining chrome by trimming top controls, quick actions, and
+    scenic-note copy
 - focused validation:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css docs/planning/canonical-100-slice-closure-map.md docs/planning/chat-canonical-100-slice-closure-map.md .codex/tasks/PRJ-832-chat-first-10-slice-batch-and-foundation-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`

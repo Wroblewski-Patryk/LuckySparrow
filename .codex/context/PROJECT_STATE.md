@@ -20,6 +20,7 @@ Last updated: 2026-05-01
     - reduces motivation, active-goal, memory, and action density in the right rail
     - tightens quick-action chips, composer density, and transcript list/detail polish
     - reduces topbar control weight and strengthens transcript-first balance
+    - trims remaining chrome in top controls, quick actions, and scenic-note copy
   - new implementation task:
     - `.codex/tasks/PRJ-832-chat-first-10-slice-batch-and-foundation-pass.md`
   - highest-value next steps:
