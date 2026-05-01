@@ -8,6 +8,8 @@ from app.core.contracts import (
     ActionDelivery,
     ActionDeliveryConnectorIntent,
     ActionDeliveryExecutionEnvelope,
+    ActionResult,
+    BehaviorFeedbackOutput,
     CancelPlannedWorkItemDomainIntent,
     CalendarSchedulingIntentDomainIntent,
     CompletePlannedWorkItemDomainIntent,
@@ -1758,6 +1760,80 @@ async def test_persist_episode_maintains_relation_from_typed_domain_intent() -> 
             "scope_key": "global",
             "evidence_count": 1,
             "decay_rate": 0.02,
+        }
+    ]
+
+
+async def test_persist_episode_maintains_relation_from_behavior_feedback_intent_without_reparsing_text() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+
+    plan = _plan(
+        domain_intents=[
+            MaintainRelationDomainIntent(
+                relation_type="interaction_ritual_preference",
+                relation_value="avoid_repeated_greeting",
+                confidence=0.84,
+                source="behavior_feedback_assessor",
+            )
+        ]
+    )
+    record = await executor.persist_episode(
+        event=_event("plain current turn"),
+        perception=_perception(["general"]),
+        context=_context(),
+        motivation=_motivation(),
+        role=_role("advisor"),
+        plan=plan,
+        action_result=await executor.execute(plan, _delivery()),
+        expression=_expression(),
+    )
+
+    assert record.payload["relation_update"] == (
+        "interaction_ritual_preference:avoid_repeated_greeting:global:global"
+    )
+    assert memory_repository.relation_updates[0]["source"] == "behavior_feedback_assessor"
+
+
+async def test_persist_episode_preserves_behavior_feedback_evidence() -> None:
+    memory_repository = FakeMemoryRepository()
+    executor = ActionExecutor(memory_repository=memory_repository, telegram_client=FakeTelegramClient())
+    perception = _perception(["general"]).model_copy(
+        update={
+            "behavior_feedback": [
+                BehaviorFeedbackOutput(
+                    feedback_target="interaction_ritual",
+                    feedback_polarity="observation",
+                    suggested_relation_type="interaction_ritual_preference",
+                    suggested_relation_value="avoid_repeated_greeting",
+                    confidence=0.58,
+                    evidence=["Aviary says hello every time."],
+                    source="behavior_feedback_assessor",
+                )
+            ]
+        }
+    )
+
+    record = await executor.persist_episode(
+        event=_event("Aviary says hello every time."),
+        perception=perception,
+        context=_context(),
+        motivation=_motivation(),
+        role=_role("advisor"),
+        plan=_plan(domain_intents=[]),
+        action_result=ActionResult(status="success", actions=[], notes="ok"),
+        expression=_expression(),
+    )
+
+    assert record.payload["behavior_feedback"] == [
+        {
+            "feedback_target": "interaction_ritual",
+            "feedback_polarity": "observation",
+            "suggested_relation_type": "interaction_ritual_preference",
+            "suggested_relation_value": "avoid_repeated_greeting",
+            "confidence": 0.58,
+            "evidence": ["Aviary says hello every time."],
+            "source": "behavior_feedback_assessor",
         }
     ]
 

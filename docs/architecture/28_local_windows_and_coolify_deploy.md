@@ -22,7 +22,7 @@ No GitHub Actions or paid GitHub features are required.
 Run in project root:
 
 ```powershell
-.\scripts\setup_windows.ps1
+.\backend\scripts\setup_windows.ps1
 ```
 
 Then edit `.env`:
@@ -44,7 +44,7 @@ TELEGRAM_WEBHOOK_SECRET=your_random_secret
 You can generate and set secret automatically:
 
 ```powershell
-.\scripts\generate_telegram_webhook_secret.ps1 -UpdateEnv
+.\backend\scripts\generate_telegram_webhook_secret.ps1 -UpdateEnv
 ```
 
 ### Run tests
@@ -68,7 +68,7 @@ Invoke-RestMethod http://localhost:8000/health
 Repeatable smoke:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 -BaseUrl "http://localhost:8000"
+.\backend\scripts\run_release_smoke.ps1 -BaseUrl "http://localhost:8000"
 ```
 
 ---
@@ -81,7 +81,7 @@ If key is missing, the app falls back to echo response.
 To test Telegram webhook locally, expose `http://localhost:8000` using a tunnel (for example `cloudflared` or `ngrok`) and call:
 
 ```powershell
-.\scripts\set_telegram_webhook.ps1 -WebhookUrl "https://YOUR_PUBLIC_URL/event" -SecretToken "your_random_secret"
+.\backend\scripts\set_telegram_webhook.ps1 -WebhookUrl "https://YOUR_PUBLIC_URL/event" -SecretToken "your_random_secret"
 ```
 
 Then send a message to your bot in Telegram.
@@ -127,13 +127,13 @@ service logs first because schema drift now blocks the runtime by design.
 Generate production secret on Debian:
 
 ```bash
-./scripts/generate_telegram_webhook_secret.sh 32 .env true
+./backend/scripts/generate_telegram_webhook_secret.sh 32 .env true
 ```
 
 After deploy:
 
 ```bash
-./scripts/set_telegram_webhook.sh "https://YOUR_DOMAIN/event" "https://YOUR_DOMAIN" "your_random_secret"
+./backend/scripts/set_telegram_webhook.sh "https://YOUR_DOMAIN/event" "https://YOUR_DOMAIN" "your_random_secret"
 ```
 
 Or call endpoint directly:
@@ -151,7 +151,7 @@ If GitHub webhook delivery is not working reliably yet, you can trigger the conf
 Windows PowerShell:
 
 ```powershell
-.\scripts\trigger_coolify_deploy_webhook.ps1 `
+.\backend\scripts\trigger_coolify_deploy_webhook.ps1 `
   -WebhookUrl "https://YOUR_COOLIFY_DOMAIN/webhooks/source/github/events/manual" `
   -WebhookSecret "YOUR_WEBHOOK_SECRET"
 ```
@@ -159,7 +159,7 @@ Windows PowerShell:
 Debian / bash:
 
 ```bash
-./scripts/trigger_coolify_deploy_webhook.sh \
+./backend/scripts/trigger_coolify_deploy_webhook.sh \
   "https://YOUR_COOLIFY_DOMAIN/webhooks/source/github/events/manual" \
   "YOUR_WEBHOOK_SECRET"
 ```
@@ -171,7 +171,7 @@ Both helpers infer repository and commit data from local git when possible and s
 After a deploy, run:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 -BaseUrl "https://YOUR_DOMAIN"
+.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://YOUR_DOMAIN"
 ```
 
 Release smoke now includes a small bounded `/health` retry budget for transient
@@ -179,7 +179,7 @@ deploy-time `503` responses. Keep the defaults unless you are diagnosing a
 slower-than-normal edge case:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 `
+.\backend\scripts\run_release_smoke.ps1 `
   -BaseUrl "https://YOUR_DOMAIN" `
   -HealthRetryMaxAttempts 3 `
   -HealthRetryDelaySeconds 5
@@ -189,7 +189,7 @@ If Coolify source automation has started but deploy parity has not yet reached
 the latest pushed commit, use the same smoke script in bounded wait mode:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 `
+.\backend\scripts\run_release_smoke.ps1 `
   -BaseUrl "https://YOUR_DOMAIN" `
   -WaitForDeployParity `
   -DeployParityMaxWaitSeconds 120 `
@@ -209,7 +209,7 @@ Operator verification order for the repo-driven Coolify baseline:
 Optional UTF-8 verification:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 `
+.\backend\scripts\run_release_smoke.ps1 `
   -BaseUrl "https://YOUR_DOMAIN" `
   -Text "zażółć gęślą jaźń"
 ```
@@ -217,7 +217,7 @@ Optional UTF-8 verification:
 Optional debug payload check:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 -BaseUrl "https://YOUR_DOMAIN" -IncludeDebug
+.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://YOUR_DOMAIN" -IncludeDebug
 ```
 
 ---

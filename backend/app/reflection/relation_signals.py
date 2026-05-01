@@ -20,6 +20,7 @@ def derive_relation_updates(
     support_turn_count = 0
     collaboration_updates: list[str] = []
     boundary_updates: list[dict] = []
+    behavior_feedback_candidates: list[dict] = []
 
     for memory_item in recent_memory:
         fields = extract_memory_fields(memory_item)
@@ -48,6 +49,9 @@ def derive_relation_updates(
                     "decay_rate": 0.02,
                 }
             )
+
+        behavior_feedback = str(fields.get("behavior_feedback", "")).strip()
+        behavior_feedback_candidates.extend(_parse_behavior_feedback_candidates(behavior_feedback))
 
         event_text = str(fields.get("event", "")).strip()
         for signal in extract_communication_boundary_signals(event_text):
@@ -134,9 +138,10 @@ def derive_relation_updates(
                 "evidence_count": support_turn_count,
                 "decay_rate": 0.05,
             }
-        )
+            )
 
     relation_updates.extend(boundary_updates)
+    relation_updates.extend(_consolidate_behavior_feedback_candidates(behavior_feedback_candidates))
 
     deduped: list[dict] = []
     seen: set[tuple[str, str]] = set()
@@ -156,3 +161,60 @@ def _parse_relation_update(value: str) -> tuple[str, str]:
     if len(parts) < 2:
         return "", ""
     return parts[0].strip().lower(), parts[1].strip().lower()
+
+
+def _parse_behavior_feedback_candidates(value: str) -> list[dict]:
+    candidates: list[dict] = []
+    if not value:
+        return candidates
+    for raw_candidate in value.split("|"):
+        parts = [part.strip() for part in raw_candidate.split(":")]
+        if len(parts) < 5:
+            continue
+        relation_type = parts[0].lower()
+        relation_value = parts[1].lower()
+        polarity = parts[2].lower()
+        try:
+            confidence = float(parts[3])
+        except ValueError:
+            confidence = 0.0
+        source = parts[4].lower()
+        if relation_type not in BOUNDARY_RELATION_TYPES or not relation_value:
+            continue
+        candidates.append(
+            {
+                "relation_type": relation_type,
+                "relation_value": relation_value,
+                "polarity": polarity,
+                "confidence": confidence,
+                "source": source,
+            }
+        )
+    return candidates
+
+
+def _consolidate_behavior_feedback_candidates(candidates: list[dict]) -> list[dict]:
+    grouped: dict[tuple[str, str], list[dict]] = {}
+    for candidate in candidates:
+        if candidate.get("polarity") not in {"correction", "observation", "approval"}:
+            continue
+        key = (str(candidate["relation_type"]), str(candidate["relation_value"]))
+        grouped.setdefault(key, []).append(candidate)
+
+    updates: list[dict] = []
+    for (relation_type, relation_value), items in grouped.items():
+        evidence_count = len(items)
+        average_confidence = sum(float(item.get("confidence", 0.0) or 0.0) for item in items) / evidence_count
+        if evidence_count < 2 or average_confidence < 0.55:
+            continue
+        updates.append(
+            {
+                "relation_type": relation_type,
+                "relation_value": relation_value,
+                "confidence": round(min(0.82, max(0.62, average_confidence + 0.08)), 2),
+                "source": "background_reflection_behavior_feedback",
+                "evidence_count": evidence_count,
+                "decay_rate": 0.03,
+            }
+        )
+    return updates

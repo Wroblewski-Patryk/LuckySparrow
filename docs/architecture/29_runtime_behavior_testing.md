@@ -44,6 +44,8 @@ Minimum debug-visible fields:
 
 - normalized event metadata
 - perception output
+- behavior-feedback interpretation when the current turn contains natural
+  feedback about AION's behavior
 - retrieved memory bundle
 - retrieval governance posture when rollout-sensitive
 - context summary
@@ -373,6 +375,13 @@ Current scenario anchors:
   `search the web`
 - `T20.4`: website-content lookup from URL or bare domain through bounded
   page-read without literal `read page`
+- `T21.1`: behavior-feedback interpretation is visible in `system_debug`
+  before durable adaptation and can explain the suggested relation target,
+  value, confidence, evidence, and source
+- `T21.2`: behavior feedback about repeated greetings persists relation truth
+  and later expression removes generated repeated greetings
+- `T21.3`: repeated weaker behavior-feedback candidates consolidate through
+  reflection while unclear feedback stays descriptive-only
 
 Boundary note:
 

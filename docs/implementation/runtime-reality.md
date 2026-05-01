@@ -307,6 +307,10 @@ The live runtime no longer depends on a strict latest-five memory fetch:
 - context applies ranking/compression across language match, memory layer mode,
   topical overlap, affective relevance, and importance
 - final context memory hint remains compressed to the top relevant items
+- context construction also adds a bounded conversation-recency hint when the
+  already-loaded recent-memory bundle carries timestamps and the latest turn is
+  within six hours of the current event; invalid, future, or stale timestamps
+  are ignored instead of widening memory ownership
 
 Repository memory-layer API vocabulary is now explicit in code:
 
@@ -689,6 +693,27 @@ Current behavior:
   `delivery_reliability` can shape interruption cost, proactive relevance,
   outreach confidence posture, and delivery guard pressure through shared
   adaptive policy owners
+- communication-boundary extraction now treats natural observational feedback
+  about repeated greetings or excessive contact frequency as the same existing
+  interaction-ritual and contact-cadence relation families, so the user does
+  not have to phrase feedback as an explicit command before planning can
+  persist it through the existing `maintain_relation` intent path
+- behavior-feedback interpretation is now an explicit current-turn contract:
+  `PerceptionOutput.behavior_feedback` carries target, polarity, suggested
+  relation family/value, confidence, evidence, and source, and
+  `system_debug.behavior_feedback` mirrors that payload for debug-visible
+  validation
+- planning consumes structured `behavior_feedback` and may emit typed
+  `maintain_relation` intents only for confidence-gated relation-backed
+  feedback; action remains the durable relation write owner and does not
+  reparse raw user text
+- completed episodes preserve behavior-feedback evidence so reflection can
+  consolidate repeated weak relation-backed candidates; one weak or unclear
+  observation stays descriptive-only
+- expression now performs bounded side-effect-free self-review against known
+  communication preferences, including repeated-greeting removal, concise or
+  direct style opening cleanup, and scheduler contact-promise cleanup when
+  cadence boundaries discourage unsolicited outreach
 - low-confidence relation cues remain descriptive-only and are filtered before
   trust-sensitive planning/expression/proactive behavior paths can consume them
 - proactive relevance and scheduler attention gating now consume governed
@@ -698,6 +723,9 @@ Current behavior:
 - behavior validation now also covers metadata-only role/skill boundary
   posture, connector execution posture, proactive cadence posture, and
   deferred reflection enqueue expectations through the shared artifact flow
+- behavior validation now includes behavior-learning scenarios `T21.1..T21.3`
+  for feedback-to-relation persistence, later expression change, repeated weak
+  feedback consolidation, and unclear-feedback non-mutation
 
 ---
 

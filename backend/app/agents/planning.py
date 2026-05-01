@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from app.core.adaptive_policy import dominant_theta_channel, relation_value
 from app.core.contracts import (
+    BehaviorFeedbackOutput,
     CancelPlannedWorkItemDomainIntent,
     CalendarSchedulingIntentDomainIntent,
     CompletePlannedWorkItemDomainIntent,
@@ -36,7 +37,7 @@ from app.core.contracts import (
     UpsertGoalDomainIntent,
     UpsertTaskDomainIntent,
 )
-from app.communication.boundary import extract_communication_boundary_signals
+from app.communication.behavior_feedback import BehaviorFeedbackAssessor
 from app.core.connector_policy import (
     build_connector_permission_gate,
     resolve_connector_capability_discovery_policy,
@@ -88,6 +89,7 @@ class PlanningAgent:
         goal_milestone_history: list[dict] | None = None,
         goal_progress_history: list[dict] | None = None,
         subconscious_proposals: list[dict] | None = None,
+        behavior_feedback: list[BehaviorFeedbackOutput] | None = None,
     ) -> PlanOutput:
         event_text = str(event.payload.get("text", ""))
         goal = "Provide a clear and useful response to the user event."
@@ -367,6 +369,7 @@ class PlanningAgent:
             active_tasks=active_tasks or [],
             active_planned_work=active_planned_work or [],
             relation_delivery=relation_delivery,
+            behavior_feedback=behavior_feedback,
         )
         domain_intents.extend(self._build_connector_expansion_intents(accepted_proposals))
         connector_permission_gates = self._build_connector_permission_gates(domain_intents)
@@ -530,6 +533,7 @@ class PlanningAgent:
         active_tasks: list[dict],
         active_planned_work: list[dict],
         relation_delivery: str | None,
+        behavior_feedback: list[BehaviorFeedbackOutput] | None,
     ) -> tuple[list[DomainActionIntent], list[str]]:
         intents: list[DomainActionIntent] = []
         inferred_promotion_diagnostics: list[str] = []
@@ -601,21 +605,18 @@ class PlanningAgent:
             )
 
         boundary_relation_keys: set[tuple[str, str]] = set()
-        for signal in extract_communication_boundary_signals(event_text):
-            key = (signal.relation_type, signal.relation_value)
+        for intent in self._behavior_feedback_relation_intents(
+            behavior_feedback=(
+                behavior_feedback
+                if behavior_feedback is not None
+                else BehaviorFeedbackAssessor().assess(event_text)
+            )
+        ):
+            key = (intent.relation_type, intent.relation_value)
             if key in boundary_relation_keys:
                 continue
             boundary_relation_keys.add(key)
-            intents.append(
-                MaintainRelationDomainIntent(
-                    relation_type=signal.relation_type,
-                    relation_value=signal.relation_value,
-                    confidence=signal.confidence,
-                    source=signal.source,
-                    evidence_count=1,
-                    decay_rate=0.02,
-                )
-            )
+            intents.append(intent)
 
         calendar_intent = self._calendar_scheduling_intent(lowered_text)
         if calendar_intent is not None:
@@ -2139,6 +2140,36 @@ class PlanningAgent:
         if not hints:
             return goal
         return f"{goal} {' '.join(hints)}"
+
+    def _behavior_feedback_relation_intents(
+        self,
+        *,
+        behavior_feedback: list[BehaviorFeedbackOutput],
+    ) -> list[MaintainRelationDomainIntent]:
+        intents: list[MaintainRelationDomainIntent] = []
+        for feedback in behavior_feedback:
+            relation_type = str(feedback.suggested_relation_type or "").strip()
+            relation_value = str(feedback.suggested_relation_value or "").strip()
+            if not relation_type or not relation_value:
+                continue
+            confidence = float(feedback.confidence or 0.0)
+            if feedback.feedback_polarity == "correction" and confidence < 0.74:
+                continue
+            if feedback.feedback_polarity == "observation" and confidence < 0.78:
+                continue
+            if feedback.feedback_polarity not in {"correction", "observation", "approval"}:
+                continue
+            intents.append(
+                MaintainRelationDomainIntent(
+                    relation_type=relation_type,
+                    relation_value=relation_value,
+                    confidence=confidence,
+                    source=str(feedback.source or "behavior_feedback_assessor"),
+                    evidence_count=max(1, len(feedback.evidence)),
+                    decay_rate=0.02,
+                )
+            )
+        return intents
 
     def _text_tokens(self, value: str) -> set[str]:
         return shared_text_tokens(value, normalize=False)

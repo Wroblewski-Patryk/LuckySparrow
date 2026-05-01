@@ -25,6 +25,48 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-05-01 - Operator script paths must match backend-owned script layout
+- Context:
+  - release and deployment documentation used root-level `scripts/` examples
+    while the repository's operator scripts live under `backend/scripts/`.
+- Symptom:
+  - copy-pasted smoke, behavior-validation, webhook, or incident-evidence
+    commands can fail before they validate the release.
+- Root cause:
+  - documentation drift from an older root-script layout was not caught because
+    script tests validate the backend script entrypoints directly.
+- Guardrail:
+  - active docs must use `.\backend\scripts\...` or `./backend/scripts/...`
+    for commands run from the repository root.
+  - commands shown after `Push-Location .\backend` should keep
+    `.\scripts\...`.
+  - backend-owned PowerShell wrappers launched from the repository root must
+    derive both the backend root and repository root from `PSScriptRoot`, not
+    from the caller's working directory.
+  - Python validation harnesses that run backend tests from the repository root
+    must either set `cwd=backend` or otherwise prove backend imports are
+    stable.
+- Preferred pattern:
+  - update operator docs when script ownership changes
+  - validate backend script entrypoints with
+    `tests/test_deployment_trigger_scripts.py`
+  - avoid adding root wrappers just to preserve stale examples
+  - add wrapper-level regressions for release gates that operators are
+    expected to launch from the repository root
+- Avoid:
+  - pointing new release docs at a missing root `scripts/` directory
+  - rewriting archival task evidence when only active operator guidance needs
+    alignment
+- Evidence:
+  - `.codex/tasks/PRJ-842-align-release-operator-script-paths.md`
+  - `.codex/tasks/PRJ-843-run-current-release-evidence-gate.md`
+  - `docs/architecture/28_local_windows_and_coolify_deploy.md`
+  - `docs/engineering/testing.md`
+  - `docs/operations/runtime-ops-runbook.md`
+  - `backend/scripts/run_behavior_validation.ps1`
+  - `backend/scripts/run_behavior_validation.py`
+  - `backend/tests/test_deployment_trigger_scripts.py`
+
 ### 2026-04-30 - Frontend copy can regress through encoding drift during shell-based rewrites
 - Context:
   - flagship UI work on `chat` required targeted source rewrites after earlier
@@ -141,17 +183,39 @@ fixes for this repository.
     repeated greetings must be promoted into existing durable relation or
     conclusion truth before scheduler/proactive/expression decisions rely on
     them.
+  - natural observational feedback about repeated greetings or excessive
+    contact frequency should be treated as communication-boundary evidence too;
+    requiring the user to phrase it as an imperative leaves the same product
+    symptom alive.
+  - when already-loaded recent memory has trustworthy timestamps, context
+    should expose a bounded recency hint so expression can distinguish an
+    ongoing conversation from a fresh interaction after a long break.
   - the repo should model these as communication-boundary state with explicit
     policy consumers, not as raw short-term context or phrase exceptions.
+  - behavior feedback should be carried as structured current-turn evidence
+    before durable mutation: perception/debug may describe it, planning may
+    confidence-gate it, action/reflection may write relation truth, and
+    expression may only self-review generated wording against already-known
+    preferences.
 - Preferred pattern:
   - expose all action-written adaptive episode signals to reflection
   - use bounded communication-relation families for contact cadence,
     interruption tolerance, and interaction rituals
   - persist explicit user communication instructions through action-owned
     relation writes
+  - promote observed repeated-greeting and excessive-contact friction into the
+    same communication-boundary relation paths
+  - expose short-gap recency from loaded memory through context summary rather
+    than adding a parallel short-term memory store
   - make proactive candidate selection and delivery guards honor newer
     high-confidence relation truth
   - make expression consume interaction-ritual relation truth
+  - preserve behavior-feedback evidence in episodic payloads so repeated weak
+    relation-backed observations can consolidate through reflection instead of
+    forcing one-turn overfitting
+  - prove behavior-learning changes with scenario-level evidence that covers
+    later expression change, reflection consolidation, and unclear-feedback
+    non-mutation
 - Avoid:
   - treating a larger raw recent-message window as the complete fix
   - adding a parallel short-term memory store for scheduler behavior
@@ -166,6 +230,14 @@ fixes for this repository.
   - `backend/app/proactive/engine.py`
   - `backend/app/expression/generator.py`
   - `backend/tests/test_communication_boundary.py`
+  - `.codex/tasks/PRJ-833-context-recency-and-observed-greeting-boundary-pass.md`
+  - `.codex/tasks/PRJ-835-add-behavior-feedback-interpretation-contract.md`
+  - `.codex/tasks/PRJ-836-implement-behavior-feedback-assessor.md`
+  - `.codex/tasks/PRJ-837-route-feedback-evidence-through-planning-and-action.md`
+  - `.codex/tasks/PRJ-838-behavior-feedback-evidence-accumulation-and-reflection.md`
+  - `.codex/tasks/PRJ-839-expression-self-review-for-known-communication-preferences.md`
+  - `.codex/tasks/PRJ-840-end-to-end-behavior-learning-scenarios.md`
+  - `.codex/tasks/PRJ-841-sync-runtime-docs-ops-notes-and-learning-journal.md`
 
 ### 2026-04-28 - Chat UI must render the user-authored turn before waiting for assistant completion
 - Context:

@@ -54,6 +54,7 @@ def test_openai_prompt_builder_fallback_without_langchain() -> None:
     assert "advisor" in messages[0]["content"]
     assert "English" in messages[0]["content"]
     assert "avoid greeting" in messages[0]["content"]
+    assert "do not promise unsolicited future pings" in messages[0]["content"]
     assert "2026-04-25T21:22:00+00:00" in messages[0]["content"]
     assert messages[1] == {
         "role": "user",

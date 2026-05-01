@@ -1,4 +1,4 @@
-﻿# Testing Strategy
+# Testing Strategy
 
 ## Current Automated Coverage
 
@@ -89,6 +89,14 @@ Incident-evidence bundle export helper:
   - run the full pytest suite
   - when the change touches foreground-awareness, also run:
     - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_identity_service.py tests/test_openai_prompting.py tests/test_context_agent.py tests/test_expression_agent.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py; Pop-Location`
+- Behavior-feedback or communication-boundary learning changes:
+  - preserve the action boundary: perception/debug may interpret,
+    planning may route, action/reflection may write, and expression may only
+    self-review generated wording
+  - run focused regression coverage:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_communication_boundary.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_expression_agent.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py; Pop-Location`
+  - when the change claims behavior across time, prove or update scenario
+    anchors `T21.1..T21.3` in `docs/architecture/29_runtime_behavior_testing.md`
 - API contract changes:
   - add endpoint-level coverage
   - confirm the returned serialized shape still matches expectations
@@ -147,8 +155,8 @@ For meaningful repo changes, leave behind:
   reflection, planning, language continuity, relation influence, or proactive
   behavior
 - for release-readiness-sensitive slices, behavior validation evidence from:
-  - `.\scripts\run_behavior_validation.ps1 -GateMode operator`
-  - `./scripts/run_behavior_validation.sh --gate-mode operator`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode operator`
+  - `./backend/scripts/run_behavior_validation.sh --gate-mode operator`
 - for deployment-trigger or release-smoke changes, script regression evidence
   from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py`
@@ -195,8 +203,8 @@ For meaningful repo changes, leave behind:
   evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py tests/test_deployment_trigger_scripts.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
-  - `.\.venv\Scripts\python .\scripts\export_incident_evidence_bundle.py --base-url http://localhost:8000`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\.venv\Scripts\python .\backend\scripts\export_incident_evidence_bundle.py --base-url http://localhost:8000`
   - coverage should pin:
     - `/health.observability` export-readiness posture
     - debug-response `incident_evidence` export contract
@@ -206,8 +214,8 @@ For meaningful repo changes, leave behind:
 - for durable-attention production-baseline slices, regression and evidence
   checks from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
-  - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
   - coverage should pin:
     - public `/health.attention` durable owner plus repository-backed
       contract-store posture
@@ -231,7 +239,7 @@ For meaningful repo changes, leave behind:
 - for learned-state and skill-introspection slices, regression and evidence
   checks from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
   - coverage should pin:
     - `/health.learned_state` owner, internal inspection path, and bounded
       section-contract metadata
@@ -249,7 +257,7 @@ For meaningful repo changes, leave behind:
   behavior evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 - coverage should pin:
     - shared typed-intent and permission-gate policy for `knowledge_search`
       and `web_browser`
@@ -282,7 +290,7 @@ For meaningful repo changes, leave behind:
 - for backend work-partner orchestration slices, regression and behavior
   evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
   - coverage should pin:
     - explicit `work_partner` role selection and bounded skill mix
     - machine-visible role-skill policy posture for `work_partner`
@@ -298,8 +306,8 @@ For meaningful repo changes, leave behind:
 - for organizer-tool production-readiness slices, regression and release-proof
   evidence from:
 - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py tests/test_api_routes.py`
-- `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
-- `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
+- `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+- `.\backend\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
 - coverage should pin the shared `/health.connectors.organizer_tool_stack`
   contract plus matching incident-evidence and bundle proof
 - organizer daily-use coverage should also pin:
@@ -318,7 +326,7 @@ For meaningful repo changes, leave behind:
   - for tool-grounded learning capture slices, regression and release-proof
     evidence from:
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 - coverage should pin:
   - `/health.conversation_channels.telegram` and matching incident evidence
     include channel-aware delivery posture for Telegram:
@@ -370,8 +378,8 @@ For meaningful repo changes, leave behind:
   - for no-UI `v1` life-assistant workflow slices, regression and behavior
     evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_goal_task_signals.py tests/test_planning_agent.py tests/test_action_executor.py tests/test_memory_repository.py tests/test_runtime_pipeline.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode operator`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode operator`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
   - coverage should pin:
     - explicit reminder phrasing creates a bounded internal task anchor
     - explicit reminder/check-in phrasing persists `proactive_opt_in` through
@@ -393,7 +401,7 @@ For meaningful repo changes, leave behind:
 - for time-aware planned-work proof slices, regression and release evidence
   from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 - coverage should pin:
   - `/health.v1_readiness.time_aware_planned_work_*`
   - exported `incident_evidence.policy_posture["v1_readiness"]` parity for
@@ -446,7 +454,7 @@ For meaningful repo changes, leave behind:
     - release-smoke summary fields for supervision readiness and recovery guidance
 - for proactive-runtime activation slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode operator`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode operator`
   - coverage should pin:
     - `/health.proactive` owner, enabled state, and production baseline posture
     - anti-spam guardrail outcomes through proactive runtime and scheduler paths
@@ -454,8 +462,8 @@ For meaningful repo changes, leave behind:
       evidence
 - for proactive production-evidence slices, regression and evidence checks from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_api_routes.py tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
-  - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
   - coverage should pin:
     - exported `incident_evidence.policy_posture["proactive"]`
     - release-smoke failure when proactive health or incident-evidence posture
@@ -480,7 +488,7 @@ For meaningful repo changes, leave behind:
 - for external-scheduler ownership slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_behavior_validation_script.py`
-  - `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
+  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
   - coverage should pin both:
     - `/health.scheduler.external_owner_policy` cutover-proof fields
       (`maintenance_run_evidence`, `proactive_run_evidence`,
@@ -520,7 +528,7 @@ For meaningful repo changes, leave behind:
   - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
 - for role/skill maturity slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_planning_agent.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 - for affective rollout-policy slices, regression evidence from:
   - `.\.venv\Scripts\python -m pytest -q tests/test_affective_assessor.py tests/test_runtime_pipeline.py tests/test_api_routes.py`
   - `.\.venv\Scripts\python -m pytest -q tests/test_config.py`
@@ -538,10 +546,10 @@ For meaningful repo changes, leave behind:
     - durable-inbox route parity with burst coalescing semantics
     - cleanup-candidate visibility and answered/stale row cleanup
 - for CI-sensitive slices, behavior gate evidence from:
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
-  - `./scripts/run_behavior_validation.sh --gate-mode ci --artifact-path artifacts/behavior_validation/report.json`
-  - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactInputPath artifacts/behavior_validation/report.json -ArtifactPath artifacts/behavior_validation/report.gate.json`
-  - `./scripts/run_behavior_validation.sh --gate-mode ci --artifact-input-path artifacts/behavior_validation/report.json --artifact-path artifacts/behavior_validation/report.gate.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+  - `./backend/scripts/run_behavior_validation.sh --gate-mode ci --artifact-path artifacts/behavior_validation/report.json`
+  - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactInputPath artifacts/behavior_validation/report.json -ArtifactPath artifacts/behavior_validation/report.gate.json`
+  - `./backend/scripts/run_behavior_validation.sh --gate-mode ci --artifact-input-path artifacts/behavior_validation/report.json --artifact-path artifacts/behavior_validation/report.gate.json`
 - artifact contract notes for CI parsers:
   - `artifact_schema_version` identifies schema evolution
   - `gate_reason_taxonomy_version` identifies reason-code taxonomy

@@ -10,7 +10,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$backendRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = Split-Path -Parent $backendRoot
 $pythonCommand = $PythonExe
 if (-not [System.IO.Path]::IsPathRooted($pythonCommand)) {
     $pythonCommand = Join-Path $repoRoot ($pythonCommand -replace '^[.][\\/]', '')

@@ -138,13 +138,15 @@ class GraphStageAdapters:
         return state.model_copy(update={"role": role})
 
     def run_planning(self, state: GraphRuntimeState) -> GraphRuntimeState:
-        self._require(state, "context", "motivation", "role")
+        self._require(state, "context", "motivation", "role", "perception")
         context = state.context
         motivation = state.motivation
         role = state.role
+        perception = state.perception
         assert context is not None
         assert motivation is not None
         assert role is not None
+        assert perception is not None
         operational = self._operational(state)
         user_preferences = state.user_preferences or operational.get("user_preferences") or {}
         theta = state.theta if state.theta is not None else operational.get("user_theta")
@@ -170,6 +172,7 @@ class GraphStageAdapters:
             goal_milestone_history=list(state.goal_milestone_history),
             goal_progress_history=list(state.goal_progress_history),
             subconscious_proposals=subconscious_proposals,
+            behavior_feedback=list(perception.behavior_feedback),
         )
         return state.model_copy(update={"plan": plan})
 

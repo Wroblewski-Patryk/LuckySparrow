@@ -215,6 +215,10 @@ class ActionExecutor:
             "affect_needs_support": perception.affective.needs_support,
             "affect_source": perception.affective.source,
             "affect_evidence": perception.affective.evidence[:3],
+            "behavior_feedback": [
+                item.model_dump(mode="json")
+                for item in perception.behavior_feedback
+            ],
             "preference_update": preference_update,
             "collaboration_update": collaboration_update,
             "goal_update": goal_update,

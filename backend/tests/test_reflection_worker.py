@@ -525,6 +525,60 @@ async def test_reflection_worker_derives_relation_updates_from_recent_memory() -
     } in repository.relation_updates
 
 
+async def test_reflection_worker_consolidates_repeated_behavior_feedback_evidence() -> None:
+    repository = FakeMemoryRepository(
+        recent_memory=[
+            {
+                "payload": {
+                    "behavior_feedback": [
+                        {
+                            "feedback_target": "interaction_ritual",
+                            "feedback_polarity": "observation",
+                            "suggested_relation_type": "interaction_ritual_preference",
+                            "suggested_relation_value": "avoid_repeated_greeting",
+                            "confidence": 0.56,
+                            "source": "behavior_feedback_assessor",
+                        }
+                    ],
+                    "action": "success",
+                }
+            },
+            {
+                "payload": {
+                    "behavior_feedback": [
+                        {
+                            "feedback_target": "interaction_ritual",
+                            "feedback_polarity": "observation",
+                            "suggested_relation_type": "interaction_ritual_preference",
+                            "suggested_relation_value": "avoid_repeated_greeting",
+                            "confidence": 0.58,
+                            "source": "behavior_feedback_assessor",
+                        }
+                    ],
+                    "action": "success",
+                }
+            },
+        ]
+    )
+    worker = ReflectionWorker(memory_repository=repository)
+
+    result = await worker.reflect_user(user_id="u-1", event_id="evt-behavior-feedback-relations")
+
+    assert result is True
+    assert {
+        "user_id": "u-1",
+        "relation_type": "interaction_ritual_preference",
+        "relation_value": "avoid_repeated_greeting",
+        "confidence": 0.65,
+        "source": "background_reflection_behavior_feedback",
+        "supporting_event_id": "evt-behavior-feedback-relations",
+        "scope_type": "global",
+        "scope_key": "global",
+        "evidence_count": 2,
+        "decay_rate": 0.03,
+    } in repository.relation_updates
+
+
 async def test_reflection_worker_derives_low_trust_relation_when_delivery_quality_drops() -> None:
     repository = FakeMemoryRepository(
         recent_memory=[

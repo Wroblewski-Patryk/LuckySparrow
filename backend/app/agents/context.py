@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from app.core.contracts import ContextOutput, Event, IdentityOutput, PerceptionOutput
 from app.core.web_knowledge_policy import web_knowledge_tooling_snapshot
 from app.utils.goal_task_selection import (
@@ -453,6 +455,52 @@ class ContextAgent:
 
         return summary
 
+    def _memory_timestamp(self, memory_item: dict) -> datetime | None:
+        raw_timestamp = memory_item.get("timestamp") or memory_item.get("created_at")
+        if raw_timestamp is None:
+            payload = memory_item.get("payload")
+            if isinstance(payload, dict):
+                raw_timestamp = payload.get("timestamp") or payload.get("created_at")
+        if isinstance(raw_timestamp, datetime):
+            if raw_timestamp.tzinfo is None:
+                return raw_timestamp.replace(tzinfo=timezone.utc)
+            return raw_timestamp
+        if isinstance(raw_timestamp, str):
+            try:
+                parsed = datetime.fromisoformat(raw_timestamp.replace("Z", "+00:00"))
+            except ValueError:
+                return None
+            if parsed.tzinfo is None:
+                return parsed.replace(tzinfo=timezone.utc)
+            return parsed
+        return None
+
+    def _latest_memory_recency_hint(self, *, event: Event, recent_memory: list[dict]) -> str:
+        timestamps = [
+            timestamp
+            for item in recent_memory
+            if (timestamp := self._memory_timestamp(item)) is not None
+        ]
+        if not timestamps:
+            return ""
+
+        current = event.timestamp
+        if current.tzinfo is None:
+            current = current.replace(tzinfo=timezone.utc)
+        delta_seconds = int((current - max(timestamps)).total_seconds())
+        if delta_seconds < 0 or delta_seconds > 6 * 60 * 60:
+            return ""
+
+        if delta_seconds < 90:
+            phrase = "less than 2 minutes"
+        elif delta_seconds < 60 * 60:
+            minutes = max(2, round(delta_seconds / 60))
+            phrase = f"about {minutes} minutes"
+        else:
+            hours = round(delta_seconds / 3600)
+            phrase = f"about {hours} hours"
+        return f" Conversation recency: latest remembered turn was {phrase} before this turn."
+
     def _memory_language(self, memory_item: dict) -> str | None:
         fields = extract_episode_fields(memory_item)
         return fields.get("response_language") or fields.get("language")
@@ -822,6 +870,7 @@ class ContextAgent:
         )
         conclusion_hint = self._summarize_conclusions(conclusions)
         relation_hint = self._summarize_relations(relations)
+        recency_hint = self._latest_memory_recency_hint(event=event, recent_memory=recent_memory or [])
         memory_hint = ""
         if recent_memory:
             selected_memory = self._select_memory_items(
@@ -849,6 +898,7 @@ class ContextAgent:
             + goal_history_hint
             + conclusion_hint
             + relation_hint
+            + recency_hint
             + memory_hint
             + " Foreground awareness: "
             + foreground_awareness_summary

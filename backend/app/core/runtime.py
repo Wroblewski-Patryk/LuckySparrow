@@ -151,6 +151,7 @@ class RuntimeOrchestrator:
                 payload=dict(event.payload),
             ),
             perception=perception,
+            behavior_feedback=list(perception.behavior_feedback),
             memory_bundle=RuntimeSystemDebugMemoryBundle(
                 episodic=[dict(item) for item in memory],
                 semantic=[dict(item) for item in semantic_conclusions],

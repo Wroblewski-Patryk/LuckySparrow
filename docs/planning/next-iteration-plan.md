@@ -7,6 +7,107 @@ This plan translates the repo analysis into an execution roadmap that brings the
 The goal is not to add more features first.
 The goal is to make the current AION runtime more correct, more inspectable, and easier to extend without architectural drift.
 
+## Planned On 2026-05-01 For Behavior Feedback Learning
+
+Fresh user direction now approves a broader behavior-learning lane:
+
+- Aviary should learn from natural user feedback about its own behavior
+- the user should not need to phrase every preference as a rigid command
+- feedback should be interpreted, confidence-gated, persisted only through the
+  existing action boundary, and consolidated by reflection when repeated
+- expression should consume learned communication truth without becoming a
+  durable state writer
+
+### Fresh Gap Snapshot
+
+Observed from the current repo:
+
+- `PRJ-833` already widened repeated-greeting and excessive-contact feedback
+  beyond strict imperative phrasing
+- context can now expose short-gap recency from loaded memory timestamps
+- planning/action can already persist relation updates through typed
+  `maintain_relation` intents
+- reflection can derive relation updates from episodic material
+- but the broader feedback-learning path still lacks:
+  - one explicit behavior-feedback interpretation contract
+  - a wider assessor for natural behavior feedback
+  - confidence-gated routing from interpreted feedback into planning/action
+  - evidence accumulation for repeated weaker observations
+  - expression self-review for known communication preferences
+  - end-to-end behavior scenarios proving later behavior changes
+
+### New Queue
+
+- `PRJ-834` Freeze behavior-feedback learning plan. (complete)
+  - Result:
+    - `docs/planning/behavior-feedback-learning-system-plan.md` records the
+      execution queue and architectural guardrails
+    - no runtime behavior changed in this planning slice
+
+- `PRJ-835` Add behavior-feedback interpretation contract.
+- `PRJ-836` Implement behavior feedback assessor.
+- `PRJ-837` Route feedback evidence through planning and action.
+- `PRJ-838` Add evidence accumulation and reflection consolidation.
+- `PRJ-839` Add expression self-review for known communication preferences.
+- `PRJ-840` Add end-to-end behavior learning scenarios.
+- `PRJ-841` Sync runtime docs, ops notes, and learning journal.
+
+Why this order:
+
+- freeze the contract first so the assessor output is inspectable before it
+  can mutate durable state
+- add interpretation before persistence so ambiguous feedback can stay
+  descriptive-only
+- route through planning/action before reflection so side-effect ownership
+  remains intact
+- add reflection accumulation after the direct route so weaker repeated
+  signals can consolidate without overfitting one ambiguous comment
+- add expression self-review only after known communication preferences are
+  explicit
+- finish with scenario-level proof and docs/context sync so the system is
+  validated as behavior across time, not just module output
+
+Queue update:
+
+- `PRJ-835` is now complete.
+- behavior-feedback interpretation is now a first-class contract on
+  `PerceptionOutput.behavior_feedback` and is mirrored through
+  `system_debug.behavior_feedback`
+- the initial interpretation reuses existing communication-boundary signals
+  and remains descriptive until planning emits typed intents consumed by action
+- `PRJ-836` is now complete.
+- the deterministic `BehaviorFeedbackAssessor` now widens descriptive
+  behavior feedback to context continuity, response style, collaboration, and
+  low-confidence ambiguous feedback while reusing communication-boundary
+  signals for interaction ritual and contact cadence
+- `PRJ-837` is now complete.
+- graph execution passes `perception.behavior_feedback` into planning, planning
+  emits typed `maintain_relation` only for confidence-gated relation-backed
+  feedback, and action persists only those typed intents
+- `PRJ-838` is now complete.
+- behavior-feedback evidence is preserved in episodic payloads, exposed through
+  episodic field extraction, and repeated weak relation-backed candidates can
+  consolidate through reflection while a single weak candidate remains
+  descriptive-only
+- `PRJ-839` is now complete.
+- expression now performs side-effect-free self-review for repeated greetings,
+  overly formal openings when direct/concise style is known, and scheduler
+  contact promises when contact-cadence relations discourage them
+- `PRJ-840` is now complete.
+- scenario anchors `T21.1..T21.3` now prove repeated-greeting feedback changes
+  later expression, repeated weak evidence consolidates through reflection, and
+  unclear feedback remains descriptive-only
+- `PRJ-841` is now complete.
+- runtime, ops, testing, context, and learning-journal docs now describe the
+  implemented behavior-feedback learning baseline and point to `T21.1..T21.3`
+  as the scenario evidence
+- `PRJ-842` is now complete.
+- active operator docs now point root-run deploy, smoke, behavior-validation,
+  and incident-evidence commands to `backend/scripts/`, matching the real repo
+  layout without adding root wrapper scripts
+- next task: `PRJ-843` Run or prepare current release evidence against the
+  chosen deployment target
+
 ## Planned On 2026-04-30 For Internal Chat And Telegram Message Quality
 
 Fresh user notes identify one product-facing quality lane around the shared
@@ -2544,7 +2645,7 @@ Verified production baseline:
 
 Release evidence baseline:
 
-- `.\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
+- `.\backend\scripts\run_release_smoke.ps1 -BaseUrl 'https://aviary.luckysparrow.ch'`
 - production `/health`
 - Coolify deploy evidence:
   - `nlcp1kpmxxhvq094fssz7qfk` (`PRJ-572`)
@@ -2761,7 +2862,7 @@ surfaces.
       and follow up across time instead of only emitting correct internal
       payload shapes
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 
 - `PRJ-547` Sync docs/context for the `v1` life-assistant workflow baseline.
   - Result:
@@ -2805,7 +2906,7 @@ expressing itself.
       triage, and future UI integration
   - Validation:
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_behavior_validation_script.py tests/test_deployment_trigger_scripts.py`
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 
 - `PRJ-551` Sync docs/context for learned-state and skill introspection.
   - Result:
@@ -2881,7 +2982,7 @@ This group adds the first bounded real-world tools that a no-UI `v1` and later
       tools for life-organization and work turns without bypassing permission
       gates or the action boundary
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 
 - `PRJ-559` Sync docs/context for bounded search, browser, and organization tooling.
   - Result:
@@ -2919,7 +3020,7 @@ separate persona or a UI-specific feature.
       bounded tools, and support decisions without drifting outside the
       approved architecture
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 
 - `PRJ-563` Sync docs/context for work-partner role orchestration.
   - Result:
@@ -3716,7 +3817,7 @@ Completed on 2026-04-22:
     - proactive runtime is proven by behavior scenarios, not only by contracts
       and helper tests
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode operator`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode operator`
     - `.\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_api_routes.py`
 
 - `PRJ-487` Sync docs/context for proactive runtime activation.
@@ -3763,7 +3864,7 @@ Completed on 2026-04-22:
       cadence behavior, deferred/background execution expectations, and the
       strongest remaining continuity risks
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
 
 - `PRJ-491` Sync docs/context for role/skill maturity and behavior-validation expansion.
   - Result:
@@ -3971,7 +4072,7 @@ Completed on 2026-04-22:
     - behavior validation or smoke evidence can prove retrieval lifecycle
       alignment rather than only provider selection
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
     - `.\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py tests/test_runtime_pipeline.py`
 
 - `PRJ-507` Sync docs/context for retrieval lifecycle and source-rollout closure.
@@ -4064,7 +4165,7 @@ Completed on 2026-04-22:
       directly, making observability part of done-state rather than optional
       local debugging
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
     - `.\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py tests/test_deployment_trigger_scripts.py`
 
 Completed on 2026-04-22:
@@ -5603,7 +5704,7 @@ unit paths look correct in isolation.
     - scenario execution becomes repeatable for Codex agents, operators, and
       release workflows
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1`
+    - `.\backend\scripts\run_behavior_validation.ps1`
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_pipeline.py tests/test_scheduler_contracts.py`
 
 - `PRJ-313` is complete.
@@ -5654,7 +5755,7 @@ can prove whether AION feels alive rather than only structurally compliant.
     - runbook, planning, and project state remain aligned on the living-system
       validation baseline
   - Validation:
-    - `.\scripts\run_behavior_validation.ps1`
+    - `.\backend\scripts\run_behavior_validation.ps1`
     - `.\.venv\Scripts\python -m pytest -q`
 
 ## Group 25 - Internal Debug Ingress Migration
@@ -5689,7 +5790,7 @@ Status update (2026-04-20): `PRJ-318..PRJ-321` are complete.
       shared-endpoint sunset behavior
     - architecture drift around debug exposure fails quickly
   - Validation:
-    - `.\scripts\run_release_smoke.ps1`
+    - `.\backend\scripts\run_release_smoke.ps1`
     - `.\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_runtime_policy.py tests/test_main_runtime_policy.py`
 
 - `PRJ-321` Sync docs/context/runbook for internal debug ingress migration.

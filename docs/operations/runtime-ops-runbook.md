@@ -126,6 +126,25 @@ communication-boundary policy used by planning, reflection, proactive
 candidate selection, proactive delivery guardrails, and expression ritual
 handling.
 
+Behavior-feedback learning triage:
+
+- use runtime `system_debug.behavior_feedback` to inspect what the current turn
+  interpreted before assuming durable learning occurred
+- durable communication-preference changes should be visible as relation writes
+  from typed planning/action or as background reflection relation updates, not
+  as expression-owned state mutation
+- if the assistant keeps greeting repeatedly after corrective feedback, inspect:
+  - `system_debug.behavior_feedback`
+  - plan intents for `maintain_relation`
+  - action relation updates for `interaction_ritual_preference`
+  - later `ExpressionOutput.self_review_notes` for
+    `removed_repeated_greeting`
+- if repeated softer feedback should accumulate, inspect episodic payload
+  `behavior_feedback` and reflection relation updates with source
+  `background_reflection_behavior_feedback`
+- unclear or low-confidence behavior feedback should remain descriptive-only;
+  relation mutation after unclear feedback is a release blocker
+
 Communication-boundary historical backfill:
 
 - purpose:
@@ -309,6 +328,15 @@ posture:
   follow-up behavior, attach behavior-validation evidence that covers the
   bounded `v1` workflow (`T13.1`) alongside incident evidence instead of
   relying on live `/health` alone
+- when a release or incident touches communication-boundary or behavior
+  feedback learning, attach evidence for:
+  - `T21.1` behavior feedback becoming relation truth and changing later
+    expression
+  - `T21.2` repeated weaker behavior-feedback candidates consolidating through
+    reflection
+  - `T21.3` unclear behavior feedback remaining descriptive-only
+  - runtime `system_debug.behavior_feedback`
+  - relation update source/evidence count when durable mutation occurs
 - when a release or incident touches time-aware planned work posture, attach
   evidence for:
   - `T19.1` due planned-work delivery through the normal foreground runtime
@@ -805,27 +833,27 @@ Explicit fallback path (when automation is delayed or missing):
 0. if the canonical app is not visible where expected, verify the active
    Coolify team scope before assuming deploy automation is broken
 1. trigger Coolify deploy webhook manually:
-   - Windows: `.\scripts\trigger_coolify_deploy_webhook.ps1`
-   - Debian/bash: `./scripts/trigger_coolify_deploy_webhook.sh`
+   - Windows: `.\backend\scripts\trigger_coolify_deploy_webhook.ps1`
+   - Debian/bash: `./backend/scripts/trigger_coolify_deploy_webhook.sh`
    - optional evidence capture:
      - Windows:
-       `.\scripts\trigger_coolify_deploy_webhook.ps1 -EvidencePath artifacts/deploy/coolify-webhook.json`
+       `.\backend\scripts\trigger_coolify_deploy_webhook.ps1 -EvidencePath artifacts/deploy/coolify-webhook.json`
      - Debian/bash:
-       `./scripts/trigger_coolify_deploy_webhook.sh "<webhook_url>" "<webhook_secret>" "" "main" "" "" "codex" artifacts/deploy/coolify-webhook.json`
+       `./backend/scripts/trigger_coolify_deploy_webhook.sh "<webhook_url>" "<webhook_secret>" "" "main" "" "" "codex" artifacts/deploy/coolify-webhook.json`
 2. if webhook trigger is unavailable, run Coolify UI redeploy for the same app
 3. verify target commit is running before release smoke
 
 Release smoke ownership:
 
 - release operator (Ops/Release owner of the deploy) runs:
-  - Windows: `.\scripts\run_release_smoke.ps1 -BaseUrl "<deployment_url>"`
-  - Debian/bash: `./scripts/run_release_smoke.sh "<deployment_url>"`
+  - Windows: `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "<deployment_url>"`
+  - Debian/bash: `./backend/scripts/run_release_smoke.sh "<deployment_url>"`
 - when deployment-trigger evidence was captured, release smoke can verify it
   before the HTTP smoke roundtrip:
   - Windows:
-    `.\scripts\run_release_smoke.ps1 -BaseUrl "<deployment_url>" -DeploymentEvidencePath artifacts/deploy/coolify-webhook.json`
+    `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "<deployment_url>" -DeploymentEvidencePath artifacts/deploy/coolify-webhook.json`
   - Debian/bash:
-    `./scripts/run_release_smoke.sh "<deployment_url>" "" "manual-smoke" "false" artifacts/deploy/coolify-webhook.json`
+    `./backend/scripts/run_release_smoke.sh "<deployment_url>" "" "manual-smoke" "false" artifacts/deploy/coolify-webhook.json`
 - deployment evidence verification remains optional so existing smoke posture
   stays backward-compatible when no evidence artifact is available.
 - when deployment evidence is supplied, treat `trigger_class=manual_fallback`
@@ -849,18 +877,18 @@ Release smoke ownership:
 - release-readiness now also requires behavior-validation evidence for the
   living-system baseline:
   - operator evidence mode (local/manual):
-    - Windows: `.\scripts\run_behavior_validation.ps1 -GateMode operator`
-    - Debian/bash: `./scripts/run_behavior_validation.sh --gate-mode operator`
+    - Windows: `.\backend\scripts\run_behavior_validation.ps1 -GateMode operator`
+    - Debian/bash: `./backend/scripts/run_behavior_validation.sh --gate-mode operator`
   - CI gate mode (fail-fast on gate violations):
     - Windows:
-      `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
+      `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/report.json`
     - Debian/bash:
-      `./scripts/run_behavior_validation.sh --gate-mode ci --artifact-path artifacts/behavior_validation/report.json`
+      `./backend/scripts/run_behavior_validation.sh --gate-mode ci --artifact-path artifacts/behavior_validation/report.json`
   - CI split-stage mode (evaluate pre-generated artifact only):
     - Windows:
-      `.\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactInputPath artifacts/behavior_validation/report.json -ArtifactPath artifacts/behavior_validation/report.gate.json`
+      `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactInputPath artifacts/behavior_validation/report.json -ArtifactPath artifacts/behavior_validation/report.gate.json`
     - Debian/bash:
-      `./scripts/run_behavior_validation.sh --gate-mode ci --artifact-input-path artifacts/behavior_validation/report.json --artifact-path artifacts/behavior_validation/report.gate.json`
+      `./backend/scripts/run_behavior_validation.sh --gate-mode ci --artifact-input-path artifacts/behavior_validation/report.json --artifact-path artifacts/behavior_validation/report.gate.json`
   - required focus: internal `system_debug` surface plus scenario checks for
     memory influence, multi-session continuity, failure-mode stability,
     connector execution posture, proactive cadence posture, metadata-only
@@ -1025,8 +1053,8 @@ Current external-driver operating baseline (PRJ-480..PRJ-483):
 - the canonical queue-drain entrypoint is
   `scripts/run_reflection_queue_once.py`
 - operator wrappers are:
-  - Windows: `.\scripts\run_reflection_queue_once.ps1`
-  - Debian/bash: `./scripts/run_reflection_queue_once.sh`
+  - Windows: `.\backend\scripts\run_reflection_queue_once.ps1`
+  - Debian/bash: `./backend/scripts/run_reflection_queue_once.sh`
 - app-local `in_process` worker remains compatibility posture for local or
   transitional environments, not the target external-worker baseline
 - current Coolify production baseline now defaults
@@ -1095,8 +1123,8 @@ Operator checks:
   `blocking_signals` as the operator signal that reflection durability needs
   intervention before deferred mode can be treated as healthy release posture
 - use the external driver entrypoint for one-shot drain checks:
-  - Windows: `.\scripts\run_reflection_queue_once.ps1 -Limit 10`
-  - Debian/bash: `./scripts/run_reflection_queue_once.sh 10`
+  - Windows: `.\backend\scripts\run_reflection_queue_once.ps1 -Limit 10`
+  - Debian/bash: `./backend/scripts/run_reflection_queue_once.sh 10`
 - verify `aion.scheduler` `scheduler_reflection_tick` logs include
   `runtime_mode`, `queue_drain_owner`, and `retry_owner` for worker-mode
   triage
@@ -1217,13 +1245,13 @@ docker compose up --build
 Windows PowerShell:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 -BaseUrl "http://localhost:8000"
+.\backend\scripts\run_release_smoke.ps1 -BaseUrl "http://localhost:8000"
 ```
 
 Windows PowerShell with UTF-8 payload check:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 `
+.\backend\scripts\run_release_smoke.ps1 `
   -BaseUrl "http://localhost:8000" `
   -Text "zażółć gęślą jaźń"
 ```
@@ -1231,13 +1259,13 @@ Windows PowerShell with UTF-8 payload check:
 Debian / bash:
 
 ```bash
-./scripts/run_release_smoke.sh "http://localhost:8000"
+./backend/scripts/run_release_smoke.sh "http://localhost:8000"
 ```
 
 Optional debug payload:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 -BaseUrl "http://localhost:8000" -IncludeDebug
+.\backend\scripts\run_release_smoke.ps1 -BaseUrl "http://localhost:8000" -IncludeDebug
 ```
 
 With `-IncludeDebug`, release smoke now also validates exported
@@ -1285,14 +1313,14 @@ Retention baseline:
 Canonical helper flow:
 
 ```powershell
-.\.venv\Scripts\python .\scripts\export_incident_evidence_bundle.py `
+.\.venv\Scripts\python .\backend\scripts\export_incident_evidence_bundle.py `
   --base-url "http://localhost:8000"
 ```
 
 Optional attachment flow when behavior validation already exists:
 
 ```powershell
-.\.venv\Scripts\python .\scripts\export_incident_evidence_bundle.py `
+.\.venv\Scripts\python .\backend\scripts\export_incident_evidence_bundle.py `
   --base-url "http://localhost:8000" `
   --behavior-validation-report-path "artifacts/behavior_validation/report.json"
 ```
@@ -1300,7 +1328,7 @@ Optional attachment flow when behavior validation already exists:
 Bundle verification through release smoke:
 
 ```powershell
-.\scripts\run_release_smoke.ps1 `
+.\backend\scripts\run_release_smoke.ps1 `
   -BaseUrl "http://localhost:8000" `
   -IncidentEvidenceBundlePath "artifacts/incident_evidence/<captured_at_utc>_<trace_id_or_event_id>"
 ```
@@ -1747,7 +1775,7 @@ Use the dedicated smoke helper to validate both Telegram delivery modes:
 Windows PowerShell:
 
 ```powershell
-.\scripts\run_telegram_mode_smoke.ps1 `
+.\backend\scripts\run_telegram_mode_smoke.ps1 `
   -ExpectedWebhookUrl "https://aviary.luckysparrow.ch/event" `
   -RestoreWebhookUrl "https://aviary.luckysparrow.ch/event" `
   -SecretToken "<telegram_webhook_secret>" `
@@ -1757,7 +1785,7 @@ Windows PowerShell:
 Debian / bash:
 
 ```bash
-./scripts/run_telegram_mode_smoke.sh \
+./backend/scripts/run_telegram_mode_smoke.sh \
   --expected-webhook-url "https://aviary.luckysparrow.ch/event" \
   --restore-webhook-url "https://aviary.luckysparrow.ch/event" \
   --secret-token "<telegram_webhook_secret>" \

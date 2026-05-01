@@ -2,6 +2,285 @@
 
 Last updated: 2026-05-01
 
+- 2026-05-01: `PRJ-844` ran the primary backend deploy-readiness gate:
+  - new task:
+    - `.codex/tasks/PRJ-844-deploy-readiness-primary-backend-gate.md`
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+      - `1009 passed in 107.61s`
+  - deployment posture:
+    - backend primary gate is green for the current working tree
+    - production deploy and post-deploy smoke remain pending before v1 can be
+      called deployed
+  - highest-value next step:
+    - prepare the deploy candidate commit/push and run release smoke against
+      `https://aviary.luckysparrow.ch`
+
+- 2026-05-01: `PRJ-843` produced a fresh release-evidence gate and fixed the
+  behavior-validation wrapper path assumptions that blocked it:
+  - new task:
+    - `.codex/tasks/PRJ-843-run-current-release-evidence-gate.md`
+  - `backend/scripts/run_behavior_validation.ps1` now resolves the repository
+    root from its backend-owned script location before selecting
+    `.venv\Scripts\python`
+  - `backend/scripts/run_behavior_validation.py` now runs pytest from
+    `backend/` and passes stable backend test targets, so the gate can be
+    launched from the repository root without import drift
+  - `backend/tests/test_deployment_trigger_scripts.py` now includes a
+    regression for launching the PowerShell wrapper from the repository root
+  - release evidence artifact:
+    - `artifacts/behavior_validation/prj843-report.json`
+  - validation:
+    - `.\backend\scripts\run_behavior_validation.ps1 -GateMode ci -ArtifactPath artifacts/behavior_validation/prj843-report.json`
+      - `19 passed, 207 deselected`, `gate_status=pass`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_behavior_validation_script.py tests/test_deployment_trigger_scripts.py -k "behavior_validation"; Pop-Location`
+      - `23 passed, 49 deselected`
+  - highest-value next step:
+    - start `PRJ-844` with a deploy-readiness validation pass, beginning with
+      the backend primary gate before any commit or production deployment
+
+- 2026-05-01: `PRJ-842` aligned release operator script paths with the real
+  repository layout:
+  - new task:
+    - `.codex/tasks/PRJ-842-align-release-operator-script-paths.md`
+  - active deployment, testing, ops, and planning docs now use
+    `backend/scripts/` for operator commands run from the repository root
+  - backend-working-directory examples still use `.\scripts\...` after
+    `Push-Location .\backend`
+  - no root wrapper scripts were added, preserving the minimal-root policy
+  - `.codex/context/LEARNING_JOURNAL.md` now records the operator script-path
+    drift guardrail
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "backend_operator_scripts_expose_help"; Pop-Location`
+      - `8 passed, 42 deselected`
+    - `git diff --check`
+      - pass
+  - highest-value next step:
+    - execute `PRJ-843` by running or preparing the current release evidence
+      bundle against the chosen deployment target
+
+- 2026-05-01: `PRJ-841` closed the behavior-feedback learning lane in docs,
+  ops, testing, context, and the learning journal:
+  - new task:
+    - `.codex/tasks/PRJ-841-sync-runtime-docs-ops-notes-and-learning-journal.md`
+  - `docs/implementation/runtime-reality.md` now records the implemented
+    behavior-feedback ownership chain:
+    - perception/debug exposes descriptive interpretation
+    - planning may route confidence-gated structured feedback
+    - action remains the durable relation write owner
+    - episodic memory preserves feedback evidence
+    - reflection may consolidate repeated weak relation-backed evidence
+    - expression performs side-effect-free self-review against known
+      communication preferences
+  - `docs/operations/runtime-ops-runbook.md` now includes behavior-feedback
+    triage notes and `T21.1..T21.3` release/incident evidence expectations
+  - `docs/engineering/testing.md` now includes focused regression guidance for
+    behavior-feedback and communication-boundary learning changes
+  - `.codex/context/LEARNING_JOURNAL.md` updated the existing
+    communication-boundary entry with the completed lane guardrail and evidence
+  - validation:
+    - `git diff --check`
+      - pass
+  - highest-value next step:
+    - execute `PRJ-842` by selecting the next v1 blocker from the task board
+      or coverage-ledger evidence
+
+- 2026-05-01: `PRJ-840` added end-to-end behavior-learning scenarios:
+  - new task:
+    - `.codex/tasks/PRJ-840-end-to-end-behavior-learning-scenarios.md`
+  - `backend/tests/test_runtime_pipeline.py` now includes behavior scenarios
+    `T21.1..T21.3`
+  - the scenarios prove:
+    - repeated-greeting feedback becomes relation truth
+    - later expression removes a generated repeated greeting using learned
+      relation truth
+    - repeated weaker behavior-feedback evidence consolidates through
+      reflection
+    - unclear feedback remains descriptive-only and does not mutate relation
+      state
+  - `docs/architecture/29_runtime_behavior_testing.md` records the new
+    scenario anchors
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "behavior_learning_feedback_scenarios"; Pop-Location`
+      - `1 passed, 108 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_communication_boundary.py tests/test_reflection_worker.py; Pop-Location`
+      - `174 passed`
+  - closure:
+    - `PRJ-841` closed docs, ops, testing notes, context, and learning journal
+      for the behavior-feedback learning lane
+
+- 2026-05-01: `PRJ-839` added side-effect-free expression self-review for known
+  communication preferences:
+  - new task:
+    - `.codex/tasks/PRJ-839-expression-self-review-for-known-communication-preferences.md`
+  - `backend/app/core/contracts.py` now lets `ExpressionOutput` carry
+    `self_review_notes`
+  - `backend/app/expression/generator.py` now performs a bounded post-
+    generation self-review that:
+    - removes repeated greetings when relation truth requests it
+    - removes overly formal openings when concise/direct style is known
+    - removes unsolicited future contact promises from scheduler replies when
+      contact cadence relations discourage them
+  - `backend/app/integrations/openai/prompting.py` now explicitly tells reply
+    prompts not to promise unsolicited future pings/reminders/check-ins when
+    cadence boundaries apply
+  - expression remains side-effect-free and does not write durable state
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_expression_agent.py tests/test_openai_prompting.py; Pop-Location`
+      - `23 passed`
+  - highest-value next step:
+    - execute `PRJ-840` to prove the behavior-learning loop end-to-end across
+      feedback, persistence, later expression, and reflection consolidation
+
+- 2026-05-01: `PRJ-838` added behavior-feedback evidence accumulation and
+  reflection consolidation:
+  - new task:
+    - `.codex/tasks/PRJ-838-behavior-feedback-evidence-accumulation-and-reflection.md`
+  - `backend/app/core/action.py` now preserves
+    `perception.behavior_feedback` in episodic payloads
+  - `backend/app/memory/episodic.py` now exposes relation-backed behavior-
+    feedback candidates for background analysis
+  - `backend/app/reflection/relation_signals.py` now consolidates repeated weak
+    relation-backed behavior-feedback candidates into relation updates
+  - one weak behavior-feedback candidate remains descriptive-only and does not
+    become learned truth
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_communication_boundary.py tests/test_action_executor.py -k "behavior_feedback or relation"; Pop-Location`
+      - `26 passed, 150 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_communication_boundary.py; Pop-Location`
+      - `129 passed`
+  - highest-value next step:
+    - execute `PRJ-839` so expression can self-review known communication
+      preferences without gaining durable write authority
+
+- 2026-05-01: `PRJ-837` routed behavior feedback through planning and action:
+  - new task:
+    - `.codex/tasks/PRJ-837-route-feedback-evidence-through-planning-and-action.md`
+  - `backend/app/agents/planning.py` now accepts structured
+    `behavior_feedback` and converts only sufficiently confident relation-
+    backed feedback into typed `maintain_relation` intents
+  - `backend/app/core/graph_adapters.py` passes
+    `perception.behavior_feedback` into planning
+  - low-confidence or unclear behavior feedback remains descriptive-only
+  - `backend/app/core/action.py` continues to persist relation state only from
+    typed domain intents; action does not parse raw behavior-feedback text
+  - architecture docs now include `behavior_feedback` in the planning input
+    contract
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_planning_agent.py tests/test_action_executor.py tests/test_runtime_pipeline.py; Pop-Location`
+      - `236 passed`
+  - highest-value next step:
+    - execute `PRJ-838` to persist feedback evidence for reflection
+      accumulation and consolidation
+
+- 2026-05-01: `PRJ-836` implemented the deterministic behavior feedback assessor:
+  - new task:
+    - `.codex/tasks/PRJ-836-implement-behavior-feedback-assessor.md`
+  - `backend/app/communication/behavior_feedback.py` now provides
+    `BehaviorFeedbackAssessor`
+  - the assessor reuses existing communication-boundary extraction for the
+    baseline repeated-greeting and contact-cadence families
+  - the assessor also recognizes descriptive behavior feedback for:
+    - context-continuity/reset complaints
+    - overly formal tone
+    - direct style approval
+    - hands-on collaboration approval
+    - low-confidence ambiguous behavior feedback
+  - `backend/app/agents/perception.py` now consumes the assessor for
+    `PerceptionOutput.behavior_feedback`
+  - unclear feedback remains descriptive and does not become a durable
+    `maintain_relation` intent
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_communication_boundary.py tests/test_planning_agent.py; Pop-Location`
+      - `92 passed`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "behavior_feedback"; Pop-Location`
+      - `1 passed, 107 deselected`
+  - highest-value next step:
+    - execute `PRJ-837` so planning/action can route high-confidence behavior
+      feedback without letting low-confidence observations mutate state
+
+- 2026-05-01: `PRJ-835` added the behavior-feedback interpretation contract:
+  - new task:
+    - `.codex/tasks/PRJ-835-add-behavior-feedback-interpretation-contract.md`
+  - `backend/app/core/contracts.py` now defines `BehaviorFeedbackOutput` with
+    target, polarity, suggested relation type/value, confidence, evidence, and
+    source
+  - `PerceptionOutput.behavior_feedback` now carries descriptive current-turn
+    behavior feedback interpretation
+  - `backend/app/communication/boundary.py` now maps existing communication-
+    boundary signals into the new behavior-feedback contract without becoming
+    a durable write owner
+  - `backend/app/agents/perception.py` exposes that descriptive interpretation
+    during perception
+  - `backend/app/core/runtime.py` mirrors the same payload through
+    `system_debug.behavior_feedback`
+  - architecture and behavior-testing docs now describe the boundary:
+    perception/debug may expose feedback interpretation, but durable relation
+    or conclusion mutation still requires `planning -> action`
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_graph_state_contract.py tests/test_runtime_pipeline.py -k "behavior_feedback or system_debug_surface or runtime_result_to_graph_state_maps_orchestrator_contract or graph_state_to_runtime_result_roundtrip"; Pop-Location`
+      - `4 passed, 111 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_graph_state_contract.py tests/test_runtime_pipeline.py; Pop-Location`
+      - `115 passed`
+  - highest-value next step:
+    - execute `PRJ-836` to widen behavior feedback assessment beyond the
+      existing communication-boundary signal families
+
+- 2026-05-01: `PRJ-834` froze the behavior-feedback learning execution lane:
+  - new planning source:
+    - `docs/planning/behavior-feedback-learning-system-plan.md`
+  - new task:
+    - `.codex/tasks/PRJ-834-freeze-behavior-feedback-learning-plan.md`
+  - the lane translates the user's direction that Aviary should learn from
+    natural behavioral feedback instead of rigid commands into bounded slices:
+    - behavior-feedback interpretation contract
+    - behavior feedback assessor
+    - planning/action persistence route
+    - evidence accumulation and reflection consolidation
+    - expression self-review
+    - end-to-end behavior learning scenarios
+    - docs/context closure
+  - architectural guardrail:
+    - durable mutation remains `planning -> action`
+    - reflection/subconscious stays non-communicative
+    - expression consumes learned truth but does not write it
+    - no parallel short-term memory subsystem is introduced
+  - validation:
+    - planning/docs-only; no automated tests run
+  - highest-value next step:
+    - execute `PRJ-835` to add the behavior-feedback interpretation contract
+      and debug-visible descriptive output
+
+- 2026-05-01: `PRJ-833` closed a bounded runtime-continuity fix for natural
+  communication feedback, repeated greeting observations, and short-gap
+  conversation context:
+  - `backend/app/communication/boundary.py` now recognizes observational
+    repeated-greeting feedback such as "osobowość za kążdą wiadomością się
+    wita" as the existing
+    `interaction_ritual_preference=avoid_repeated_greeting` relation signal
+  - it also recognizes looser natural feedback such as "zawsze zaczyna od hej"
+    and "pisze do mnie zbyt często" as existing interaction-ritual or contact-
+    cadence relation signals instead of requiring strict command phrasing
+  - `backend/app/agents/context.py` now adds a bounded conversation-recency
+    hint when already-loaded recent memory carries timestamps, so expression
+    can see that the latest remembered turn was only minutes before the
+    current turn
+  - `backend/tests/test_communication_boundary.py`,
+    `backend/tests/test_context_agent.py`, and
+    `backend/tests/test_planning_agent.py` now pin extraction, planning
+    persistence, and context-recency behavior
+  - no new memory subsystem, scheduler path, or expression-owned durable write
+    was introduced
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_communication_boundary.py tests/test_context_agent.py tests/test_planning_agent.py -k "greeting or recency or communication_boundary"; Pop-Location`
+      - `8 passed, 128 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_communication_boundary.py tests/test_context_agent.py tests/test_planning_agent.py; Pop-Location`
+      - `139 passed`
+  - highest-value next step:
+    - replay or inspect a real multi-turn chat trace where the user gives this
+      observational feedback and confirm later expression avoids repeated
+      greeting openings after relation persistence
+
 - 2026-05-01: `PRJ-832` opened the active `chat` surface group:
   - planning truth now:
     - `docs/planning/canonical-100-slice-closure-map.md` declares `chat` as
@@ -3868,6 +4147,12 @@ Last updated: 2026-05-01
   - docs, task board, learning journal, and code stay synchronized after each
     slice
 
+## Autonomous Iteration State
+- Current iteration:
+- Current operation mode: BUILDER | ARCHITECT | TESTER
+- Last completed iteration:
+- Last completed task:
+- Next required mode:
 ## Recent Progress
 
 - 2026-04-20: `PRJ-287` is complete: production retrieval rollout posture is
@@ -5479,7 +5764,7 @@ Last updated: 2026-05-01
 - Communicate with users in their language.
 - Delegate with explicit ownership and avoid overlapping subagent write scope.
 - Use the default loop:
-  `plan -> implement -> test -> architecture review -> sync context`.
+  `analyze -> select one task -> plan -> implement -> verify -> self-review -> sync knowledge`.
 - Treat deployment docs and smoke checks as part of done-state for runtime
   changes.
 

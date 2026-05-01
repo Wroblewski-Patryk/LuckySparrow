@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable, Mapping
 
+from app.core.contracts import BehaviorFeedbackOutput
 from app.utils.language import normalize_for_matching
 
 CONTACT_CADENCE_RELATION = "contact_cadence_preference"
@@ -50,7 +51,7 @@ def extract_communication_boundary_signals(text: str) -> list[CommunicationBound
         return []
 
     signals: list[CommunicationBoundarySignal] = []
-    if _contains_any(
+    low_frequency_exact = _contains_any(
         normalized,
         {
             "nie pisz do mnie co pol godziny",
@@ -66,13 +67,19 @@ def extract_communication_boundary_signals(text: str) -> list[CommunicationBound
             "not every half hour",
             "not every 30 minutes",
         },
-    ):
+    )
+    low_frequency_observation = _looks_like_excessive_contact_frequency_feedback(normalized)
+    if low_frequency_exact or low_frequency_observation:
         signals.append(
             CommunicationBoundarySignal(
                 relation_type=CONTACT_CADENCE_RELATION,
                 relation_value=CONTACT_LOW_FREQUENCY,
                 confidence=0.94,
-                source="communication_boundary_directive",
+                source=(
+                    "communication_boundary_directive"
+                    if low_frequency_exact
+                    else "communication_boundary_observation"
+                ),
                 evidence=_clip_evidence(text),
             )
         )
@@ -189,7 +196,7 @@ def extract_communication_boundary_signals(text: str) -> list[CommunicationBound
             )
         )
 
-    if _contains_any(
+    repeated_greeting_exact = _contains_any(
         normalized,
         {
             "nie musisz sie witac co wiadomosc",
@@ -198,18 +205,35 @@ def extract_communication_boundary_signals(text: str) -> list[CommunicationBound
             "bez czesc co wiadomosc",
             "bez hej za kazdym razem",
             "nie zaczynaj zawsze od czesc",
+            "za kazda wiadomoscia sie wita",
+            "za kazda wiadomosc sie wita",
+            "wita sie za kazdym razem",
+            "ciagle sie wita",
+            "caly czas sie wita",
+            "ciagle zaczyna od czesc",
+            "ciagle zaczyna od hej",
             "do not greet me every message",
             "dont greet me every message",
             "no need to say hi every time",
             "no hello every time",
+            "greet every message",
+            "greets me every message",
+            "greets every time",
+            "always starts with hello",
         },
-    ):
+    )
+    repeated_greeting_observation = _looks_like_repeated_greeting_feedback(normalized)
+    if repeated_greeting_exact or repeated_greeting_observation:
         signals.append(
             CommunicationBoundarySignal(
                 relation_type=INTERACTION_RITUAL_RELATION,
                 relation_value=RITUAL_AVOID_REPEATED_GREETING,
                 confidence=0.96,
-                source="communication_boundary_directive",
+                source=(
+                    "communication_boundary_directive"
+                    if repeated_greeting_exact
+                    else "communication_boundary_observation"
+                ),
                 evidence=_clip_evidence(text),
             )
         )
@@ -234,6 +258,23 @@ def extract_communication_boundary_signals(text: str) -> list[CommunicationBound
         )
 
     return _dedupe_signals(signals)
+
+
+def interpret_behavior_feedback_from_boundary_signals(text: str) -> list[BehaviorFeedbackOutput]:
+    outputs: list[BehaviorFeedbackOutput] = []
+    for signal in extract_communication_boundary_signals(text):
+        outputs.append(
+            BehaviorFeedbackOutput(
+                feedback_target=_feedback_target_for_relation(signal.relation_type),
+                feedback_polarity=_feedback_polarity_for_source(signal.source),
+                suggested_relation_type=signal.relation_type,
+                suggested_relation_value=signal.relation_value,
+                confidence=signal.confidence,
+                evidence=[signal.evidence] if signal.evidence else [],
+                source=signal.source,
+            )
+        )
+    return outputs
 
 
 def communication_boundary_values(
@@ -316,8 +357,116 @@ def should_avoid_repeated_greeting(relations: Iterable[Mapping[str, object]]) ->
     )
 
 
+def _looks_like_excessive_contact_frequency_feedback(text: str) -> bool:
+    contact_markers = {
+        "pisze",
+        "pisz",
+        "odzywa",
+        "odzywaj",
+        "pinguje",
+        "ping",
+        "pinguj",
+        "przypomina",
+        "check in",
+        "checking in",
+        "message",
+        "messages",
+        "texting",
+    }
+    frequency_markers = {
+        "zbyt czesto",
+        "za czesto",
+        "tak czesto",
+        "co chwile",
+        "co kilka minut",
+        "co pol godziny",
+        "co 30 minut",
+        "every half hour",
+        "every 30 minutes",
+        "too often",
+        "too frequently",
+    }
+    observation_markers = {
+        "zauwazam",
+        "mam wrazenie",
+        "chyba",
+        "wyglada jakby",
+        "moze wynika",
+        "nie czai",
+        "it seems",
+        "seems like",
+        "looks like",
+        "feels like",
+    }
+    return (
+        _contains_any(text, contact_markers)
+        and _contains_any(text, frequency_markers)
+        and _contains_any(text, observation_markers)
+    )
+
+
+def _looks_like_repeated_greeting_feedback(text: str) -> bool:
+    greeting_markers = {
+        "wita",
+        "witac",
+        "powitan",
+        "czesc",
+        "hej",
+        "hello",
+        "hi",
+        "greet",
+        "greeting",
+    }
+    repetition_markers = {
+        "za kazd",
+        "co wiadomosc",
+        "za kazdym razem",
+        "zawsze",
+        "ciagle",
+        "caly czas",
+        "every message",
+        "every time",
+        "always",
+    }
+    observation_markers = {
+        "zauwazam",
+        "mam wrazenie",
+        "chyba",
+        "wyglada jakby",
+        "moze wynika",
+        "nie czai",
+        "it seems",
+        "seems like",
+        "looks like",
+        "feels like",
+    }
+    return (
+        _contains_any(text, greeting_markers)
+        and _contains_any(text, repetition_markers)
+        and _contains_any(text, observation_markers)
+    )
+
+
 def _contains_any(text: str, needles: set[str]) -> bool:
     return any(needle in text for needle in needles)
+
+
+def _feedback_target_for_relation(relation_type: str) -> str:
+    if relation_type == INTERACTION_RITUAL_RELATION:
+        return "interaction_ritual"
+    if relation_type == CONTACT_CADENCE_RELATION:
+        return "contact_cadence"
+    if relation_type == INTERRUPTION_TOLERANCE_RELATION:
+        return "interruption_tolerance"
+    return "unknown"
+
+
+def _feedback_polarity_for_source(source: str) -> str:
+    if source == "communication_boundary_directive":
+        return "correction"
+    if source == "communication_boundary_observation":
+        return "observation"
+    return "unclear"
 
 
 def _clip_evidence(text: str, *, limit: int = 160) -> str:

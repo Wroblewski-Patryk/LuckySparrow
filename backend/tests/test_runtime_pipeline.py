@@ -25,6 +25,7 @@ from app.core.reflection_scope_policy import (
 from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.motivation.engine import MotivationEngine
+from app.reflection.worker import ReflectionWorker
 from app.workers.scheduler import SchedulerWorker
 from tests.empathy_fixtures import EMPATHY_SUPPORT_SCENARIOS
 
@@ -837,6 +838,12 @@ class FakeOpenAIClient:
         response_language: str,
     ) -> dict | None:
         return None
+
+
+class GreetingRuntimeOpenAIClient(FakeOpenAIClient):
+    async def generate_reply(self, *args, **kwargs) -> str | None:
+        await super().generate_reply(*args, **kwargs)
+        return "Hello Patryk! Ready with the next step."
 
 
 class FakeAffectiveClassifierClient:
@@ -5578,6 +5585,40 @@ async def test_runtime_pipeline_exposes_system_debug_surface_for_behavior_valida
     assert result.system_debug.adaptive_state["affective_assessment_policy"]["affective_assessment_owner"] == (
         "affective_assessment_rollout_policy"
     )
+
+
+async def test_runtime_pipeline_exposes_behavior_feedback_interpretation_in_system_debug() -> None:
+    memory = FakeHybridMemoryRepository()
+    runtime = _build_behavior_runtime(memory)
+
+    result = await runtime.run(
+        _behavior_event(
+            event_id="evt-behavior-feedback-contract-1",
+            trace_id="t-behavior-feedback-contract-1",
+            text="It seems like Aviary says hello every time.",
+        )
+    )
+
+    assert result.system_debug is not None
+    feedback = result.system_debug.behavior_feedback
+    assert feedback
+    assert feedback[0].feedback_target == "interaction_ritual"
+    assert feedback[0].feedback_polarity == "observation"
+    assert feedback[0].suggested_relation_type == "interaction_ritual_preference"
+    assert feedback[0].suggested_relation_value == "avoid_repeated_greeting"
+    assert feedback[0].source == "communication_boundary_observation"
+    assert feedback[0].confidence >= 0.9
+    assert result.system_debug.perception.behavior_feedback == feedback
+    assert any(
+        intent["intent_type"] == "maintain_relation"
+        and intent["relation_type"] == "interaction_ritual_preference"
+        for intent in result.system_debug.plan.domain_intents
+    )
+    assert result.memory_record is not None
+    assert result.memory_record.payload["relation_update"] == (
+        "interaction_ritual_preference:avoid_repeated_greeting:global:global"
+    )
+    assert memory.relation_updates[0]["source"] == "communication_boundary_observation"
     assert result.system_debug.adaptive_state["affective_resolution"]["input_source"] == (
         "deterministic_placeholder"
     )
@@ -5589,6 +5630,176 @@ async def test_runtime_pipeline_exposes_system_debug_surface_for_behavior_valida
         result.system_debug.adaptive_state["affective_resolution"]["resolution_owner_chain"]
         == "perception_affective_input_to_affective_assessment"
     )
+
+
+async def test_runtime_behavior_learning_feedback_scenarios() -> None:
+    async def repeated_greeting_feedback_changes_later_expression() -> BehaviorScenarioCheck:
+        memory = FakeHybridMemoryRepository(recent_memory=[])
+        feedback_runtime = _build_behavior_runtime(memory)
+        feedback_result = await feedback_runtime.run(
+            _behavior_event(
+                event_id="evt-behavior-learning-1",
+                trace_id="t-behavior-learning-1",
+                user_id="behavior-user",
+                text="It seems like Aviary says hello every time.",
+            )
+        )
+        memory.relations = list(memory.relation_updates)
+
+        later_runtime = RuntimeOrchestrator(
+            perception_agent=PerceptionAgent(),
+            context_agent=ContextAgent(),
+            motivation_engine=MotivationEngine(),
+            role_agent=RoleAgent(),
+            planning_agent=PlanningAgent(),
+            expression_agent=ExpressionAgent(openai_client=GreetingRuntimeOpenAIClient()),
+            action_executor=ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient()),
+            memory_repository=memory,
+            reflection_worker=FakeReflectionWorker(),
+        )
+        later_result = await later_runtime.run(
+            _behavior_event(
+                event_id="evt-behavior-learning-2",
+                trace_id="t-behavior-learning-2",
+                user_id="behavior-user",
+                text="Give me the next step.",
+            )
+        )
+
+        relation_update = (
+            feedback_result.memory_record.payload.get("relation_update")
+            if feedback_result.memory_record is not None
+            else ""
+        )
+        passed = (
+            relation_update == "interaction_ritual_preference:avoid_repeated_greeting:global:global"
+            and later_result.expression.message == "Ready with the next step."
+            and later_result.expression.self_review_notes == ["removed_repeated_greeting"]
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="behavior_feedback_changes_later_expression"
+            if passed
+            else "behavior_feedback_expression_regression",
+            trace_id=later_result.event.meta.trace_id,
+            notes=(
+                f"relation_update={relation_update};"
+                f"later_message={later_result.expression.message};"
+                f"notes={','.join(later_result.expression.self_review_notes)}"
+            ),
+        )
+
+    async def weak_feedback_consolidates_through_reflection() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(
+            recent_memory=[
+                {
+                    "event_id": "evt-weak-feedback-1",
+                    "user_id": "behavior-user",
+                    "payload": {
+                        "behavior_feedback": [
+                            {
+                                "feedback_target": "interaction_ritual",
+                                "feedback_polarity": "observation",
+                                "suggested_relation_type": "interaction_ritual_preference",
+                                "suggested_relation_value": "avoid_repeated_greeting",
+                                "confidence": 0.56,
+                                "source": "behavior_feedback_assessor",
+                            }
+                        ],
+                        "action": "success",
+                    },
+                    "summary": "weak behavior feedback 1",
+                    "importance": 0.5,
+                },
+                {
+                    "event_id": "evt-weak-feedback-2",
+                    "user_id": "behavior-user",
+                    "payload": {
+                        "behavior_feedback": [
+                            {
+                                "feedback_target": "interaction_ritual",
+                                "feedback_polarity": "observation",
+                                "suggested_relation_type": "interaction_ritual_preference",
+                                "suggested_relation_value": "avoid_repeated_greeting",
+                                "confidence": 0.58,
+                                "source": "behavior_feedback_assessor",
+                            }
+                        ],
+                        "action": "success",
+                    },
+                    "summary": "weak behavior feedback 2",
+                    "importance": 0.5,
+                },
+            ]
+        )
+        reflected = await ReflectionWorker(memory_repository=memory).reflect_user(
+            user_id="behavior-user",
+            event_id="evt-weak-feedback-reflection",
+        )
+        passed = reflected and any(
+            relation.get("relation_type") == "interaction_ritual_preference"
+            and relation.get("relation_value") == "avoid_repeated_greeting"
+            and relation.get("source") == "background_reflection_behavior_feedback"
+            and relation.get("evidence_count") == 2
+            for relation in memory.relation_updates
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="weak_behavior_feedback_reflection_consolidated"
+            if passed
+            else "weak_behavior_feedback_reflection_regression",
+            trace_id="t-weak-feedback-reflection",
+            notes=json.dumps(memory.relation_updates, ensure_ascii=False),
+        )
+
+    async def unclear_feedback_does_not_mutate_relation() -> BehaviorScenarioCheck:
+        memory = PersistingFakeMemoryRepository(recent_memory=[])
+        runtime = _build_behavior_runtime(memory)
+        result = await runtime.run(
+            _behavior_event(
+                event_id="evt-behavior-learning-negative",
+                trace_id="t-behavior-learning-negative",
+                user_id="behavior-user",
+                text="Aviary feels kind of weird today.",
+            )
+        )
+        relation_update = (
+            result.memory_record.payload.get("relation_update")
+            if result.memory_record is not None
+            else ""
+        )
+        feedback = result.system_debug.behavior_feedback if result.system_debug else []
+        passed = (
+            relation_update == ""
+            and memory.relation_updates == []
+            and bool(feedback)
+            and feedback[0].feedback_target == "unknown"
+            and feedback[0].confidence < 0.5
+        )
+        return BehaviorScenarioCheck(
+            passed=passed,
+            reason="unclear_behavior_feedback_descriptive_only"
+            if passed
+            else "unclear_behavior_feedback_mutation_regression",
+            trace_id=result.event.meta.trace_id,
+            notes=(
+                f"relation_update={relation_update};"
+                f"relation_count={len(memory.relation_updates)};"
+                f"feedback_count={len(feedback)}"
+            ),
+        )
+
+    results = await execute_behavior_scenarios(
+        [
+            BehaviorScenarioDefinition(test_id="T21.1", run=repeated_greeting_feedback_changes_later_expression),
+            BehaviorScenarioDefinition(test_id="T21.2", run=weak_feedback_consolidates_through_reflection),
+            BehaviorScenarioDefinition(test_id="T21.3", run=unclear_feedback_does_not_mutate_relation),
+        ]
+    )
+
+    jsonable = behavior_results_as_jsonable(results)
+    assert [item["test_id"] for item in jsonable] == ["T21.1", "T21.2", "T21.3"]
+    assert all(item["status"] == "pass" for item in jsonable), jsonable
 
 
 async def test_runtime_pipeline_exposes_relation_source_policy_when_optional_family_is_enabled() -> None:

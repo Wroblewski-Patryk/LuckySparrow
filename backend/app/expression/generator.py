@@ -1,6 +1,10 @@
 import re
 
 from app.communication.boundary import (
+    CONTACT_CADENCE_RELATION,
+    CONTACT_LOW_FREQUENCY,
+    CONTACT_ON_DEMAND,
+    CONTACT_SCHEDULED_ONLY,
     communication_boundary_summary,
     should_avoid_repeated_greeting,
 )
@@ -124,7 +128,12 @@ class ExpressionAgent:
                         relation_support_intensity=relation_support_intensity,
                     )
 
-        message = self._apply_interaction_rituals(message=message, relations=active_relations)
+        message, self_review_notes = self._self_review_message(
+            message=message,
+            event=event,
+            response_style=response_style,
+            relations=active_relations,
+        )
         if event.source == "telegram":
             channel = "telegram"
         elif event.source == "scheduler" and isinstance(event.payload.get("chat_id"), (int, str)):
@@ -136,6 +145,7 @@ class ExpressionAgent:
             tone=tone,
             channel=channel,
             language=perception.language,
+            self_review_notes=self_review_notes,
         )
 
     def _build_fallback_message(
@@ -297,6 +307,45 @@ class ExpressionAgent:
             return message
         return self._strip_repeated_greeting(message)
 
+    def _self_review_message(
+        self,
+        *,
+        message: str,
+        event: Event,
+        response_style: str | None,
+        relations: list[dict],
+    ) -> tuple[str, list[str]]:
+        reviewed = message
+        notes: list[str] = []
+        if should_avoid_repeated_greeting(relations):
+            updated = self._strip_repeated_greeting(reviewed)
+            if updated != reviewed:
+                notes.append("removed_repeated_greeting")
+                reviewed = updated
+
+        if response_style in {"concise", "direct"}:
+            updated = self._strip_overly_formal_opening(reviewed)
+            if updated != reviewed:
+                notes.append("removed_overly_formal_opening")
+                reviewed = updated
+
+        cadence = self._relation_value(
+            relations=relations,
+            relation_type=CONTACT_CADENCE_RELATION,
+            min_confidence=0.68,
+        )
+        if event.source == "scheduler" and cadence in {
+            CONTACT_ON_DEMAND,
+            CONTACT_LOW_FREQUENCY,
+            CONTACT_SCHEDULED_ONLY,
+        }:
+            updated = self._strip_unsolicited_contact_promises(reviewed)
+            if updated != reviewed:
+                notes.append("removed_contact_cadence_promise")
+                reviewed = updated
+
+        return reviewed, notes
+
     def _strip_repeated_greeting(self, message: str) -> str:
         stripped = str(message or "").lstrip()
         pattern = re.compile(
@@ -305,6 +354,47 @@ class ExpressionAgent:
         )
         cleaned = pattern.sub("", stripped, count=1).lstrip()
         return cleaned or stripped
+
+    def _strip_overly_formal_opening(self, message: str) -> str:
+        stripped = str(message or "").lstrip()
+        patterns = (
+            r"^(szanowny panie|szanowna pani|szanowni panstwo)\s*(?:patryku|patryk)?\s*[,!:. ;-]*\s*",
+            r"^(dear sir or madam|dear user|dear patryk)\s*[,!:. ;-]*\s*",
+            r"^(allow me to|pozwol, ze|pozwol ze)\s+",
+        )
+        cleaned = stripped
+        for pattern in patterns:
+            cleaned = re.sub(pattern, "", cleaned, count=1, flags=re.IGNORECASE).lstrip()
+        return cleaned or stripped
+
+    def _strip_unsolicited_contact_promises(self, message: str) -> str:
+        sentences = [
+            sentence.strip()
+            for sentence in re.split(r"(?<=[.!?])\s+", str(message or "").strip())
+            if sentence.strip()
+        ]
+        if not sentences:
+            return message
+        blocked_markers = (
+            "i'll keep checking in",
+            "i will keep checking in",
+            "i'll check in again",
+            "i will check in again",
+            "i'll ping you",
+            "i will ping you",
+            "i'll remind you again soon",
+            "i will remind you again soon",
+            "bede dalej sprawdzac",
+            "odezwe sie znowu",
+            "przypomne ci znowu",
+            "sprawdze ponownie",
+        )
+        kept = [
+            sentence
+            for sentence in sentences
+            if not any(marker in normalize_for_matching(sentence) for marker in blocked_markers)
+        ]
+        return " ".join(kept).strip() or str(message or "").strip()
 
     def _needs_support(self, affective: AffectiveAssessmentOutput) -> bool:
         label = str(affective.affect_label).strip().lower()

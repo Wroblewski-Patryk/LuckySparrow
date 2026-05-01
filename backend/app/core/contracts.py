@@ -21,6 +21,16 @@ SubconsciousProposalStatus = Literal["pending", "accepted", "merged", "deferred"
 SubconsciousResearchPolicy = Literal["read_only"]
 ConnectorKind = Literal["calendar", "task_system", "cloud_drive", "knowledge_search", "web_browser"]
 ConnectorOperationMode = Literal["read_only", "suggestion_only", "mutate_with_confirmation"]
+BehaviorFeedbackTarget = Literal[
+    "interaction_ritual",
+    "contact_cadence",
+    "interruption_tolerance",
+    "response_style",
+    "collaboration",
+    "context_continuity",
+    "unknown",
+]
+BehaviorFeedbackPolarity = Literal["correction", "approval", "observation", "unclear"]
 
 
 class EventMeta(BaseModel):
@@ -46,6 +56,16 @@ class AffectiveAssessmentOutput(BaseModel):
     evidence: list[str] = Field(default_factory=list)
 
 
+class BehaviorFeedbackOutput(BaseModel):
+    feedback_target: BehaviorFeedbackTarget = "unknown"
+    feedback_polarity: BehaviorFeedbackPolarity = "unclear"
+    suggested_relation_type: str | None = None
+    suggested_relation_value: str | None = None
+    confidence: float = 0.0
+    evidence: list[str] = Field(default_factory=list)
+    source: str = "contract_default"
+
+
 class PerceptionOutput(BaseModel):
     event_type: str
     topic: str
@@ -57,6 +77,7 @@ class PerceptionOutput(BaseModel):
     ambiguity: float
     initial_salience: float
     affective: AffectiveAssessmentOutput = Field(default_factory=AffectiveAssessmentOutput)
+    behavior_feedback: list[BehaviorFeedbackOutput] = Field(default_factory=list)
 
 
 class ContextOutput(BaseModel):
@@ -515,6 +536,7 @@ class ExpressionOutput(BaseModel):
     tone: str
     channel: str
     language: str
+    self_review_notes: list[str] = Field(default_factory=list)
 
 
 class ActionDeliveryConnectorIntent(BaseModel):
@@ -624,6 +646,7 @@ class RuntimeSystemDebugOutput(BaseModel):
     mode: Literal["system_debug"] = "system_debug"
     event: RuntimeSystemDebugEventView
     perception: PerceptionOutput
+    behavior_feedback: list[BehaviorFeedbackOutput] = Field(default_factory=list)
     memory_bundle: RuntimeSystemDebugMemoryBundle
     context: ContextOutput
     motivation: MotivationOutput

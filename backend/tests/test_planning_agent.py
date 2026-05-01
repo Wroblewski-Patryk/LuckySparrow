@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from app.agents.planning import PlanningAgent
 from app.core.contracts import (
+    BehaviorFeedbackOutput,
     CancelPlannedWorkItemDomainIntent,
     CalendarSchedulingIntentDomainIntent,
     CompletePlannedWorkItemDomainIntent,
@@ -2165,6 +2166,144 @@ def test_planning_agent_persists_communication_boundary_directives_as_relations(
         ("contact_cadence_preference", "low_frequency"),
         ("interaction_ritual_preference", "avoid_repeated_greeting"),
     }
+
+
+def test_planning_agent_persists_observed_repeated_greeting_feedback_as_relation() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Zauważam, że osobowość za kążdą wiadomością się wita."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.7,
+            urgency=0.2,
+            valence=0.0,
+            arousal=0.2,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.8),
+    )
+
+    relation_intents = [
+        intent for intent in result.domain_intents if isinstance(intent, MaintainRelationDomainIntent)
+    ]
+    assert {
+        (intent.relation_type, intent.relation_value)
+        for intent in relation_intents
+    } >= {("interaction_ritual_preference", "avoid_repeated_greeting")}
+
+
+def test_planning_agent_persists_loose_feedback_as_boundary_relations() -> None:
+    result = PlanningAgent().run(
+        event=_event(
+            text=(
+                "Aviary chyba nie czai, ze pisze do mnie zbyt czesto "
+                "i zawsze zaczyna od hej."
+            )
+        ),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.7,
+            urgency=0.2,
+            valence=0.0,
+            arousal=0.2,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.8),
+    )
+
+    relation_intents = [
+        intent for intent in result.domain_intents if isinstance(intent, MaintainRelationDomainIntent)
+    ]
+    assert {
+        (intent.relation_type, intent.relation_value)
+        for intent in relation_intents
+    } >= {
+        ("contact_cadence_preference", "low_frequency"),
+        ("interaction_ritual_preference", "avoid_repeated_greeting"),
+    }
+
+
+def test_planning_agent_routes_structured_behavior_feedback_as_relation_intent() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="plain current turn"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.7,
+            urgency=0.2,
+            valence=0.0,
+            arousal=0.2,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.8),
+        behavior_feedback=[
+            BehaviorFeedbackOutput(
+                feedback_target="interaction_ritual",
+                feedback_polarity="observation",
+                suggested_relation_type="interaction_ritual_preference",
+                suggested_relation_value="avoid_repeated_greeting",
+                confidence=0.84,
+                evidence=["It seems like Aviary says hello every time."],
+                source="behavior_feedback_assessor",
+            )
+        ],
+    )
+
+    relation_intents = [
+        intent for intent in result.domain_intents if isinstance(intent, MaintainRelationDomainIntent)
+    ]
+    assert len(relation_intents) == 1
+    assert relation_intents[0].relation_type == "interaction_ritual_preference"
+    assert relation_intents[0].relation_value == "avoid_repeated_greeting"
+    assert relation_intents[0].source == "behavior_feedback_assessor"
+    assert relation_intents[0].evidence_count == 1
+
+
+def test_planning_agent_keeps_low_confidence_behavior_feedback_descriptive() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="plain current turn"),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.5,
+            urgency=0.1,
+            valence=0.0,
+            arousal=0.2,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.8),
+        behavior_feedback=[
+            BehaviorFeedbackOutput(
+                feedback_target="unknown",
+                feedback_polarity="unclear",
+                confidence=0.32,
+                evidence=["Aviary feels kind of weird today."],
+                source="behavior_feedback_assessor_low_confidence",
+            )
+        ],
+    )
+
+    assert not any(
+        isinstance(intent, MaintainRelationDomainIntent)
+        for intent in result.domain_intents
+    )
+
+
+def test_planning_agent_does_not_persist_unclear_behavior_feedback_as_relation() -> None:
+    result = PlanningAgent().run(
+        event=_event(text="Aviary feels kind of weird today."),
+        context=_context(),
+        motivation=MotivationOutput(
+            importance=0.5,
+            urgency=0.1,
+            valence=0.0,
+            arousal=0.2,
+            mode="respond",
+        ),
+        role=RoleOutput(selected="advisor", confidence=0.8),
+    )
+
+    assert not any(
+        isinstance(intent, MaintainRelationDomainIntent)
+        for intent in result.domain_intents
+    )
 
 
 def test_planning_agent_defers_proactive_outreach_when_contact_cadence_is_on_demand() -> None:

@@ -123,6 +123,49 @@ user-facing.
 
 ---
 
+## Behavior Feedback Interpretation Contract
+
+Natural feedback about AION's own behavior is exposed as descriptive
+foreground interpretation before any durable adaptation can occur.
+
+Minimum behavior-feedback item shape:
+
+```json
+{
+  "feedback_target": "interaction_ritual|contact_cadence|interruption_tolerance|response_style|collaboration|context_continuity|unknown",
+  "feedback_polarity": "correction|approval|observation|unclear",
+  "suggested_relation_type": "optional relation family",
+  "suggested_relation_value": "optional relation value",
+  "confidence": 0.0,
+  "evidence": [],
+  "source": "communication_boundary_observation"
+}
+```
+
+Contract rules:
+
+1. perception may expose `behavior_feedback` as current-turn interpretation.
+2. `system_debug.behavior_feedback` mirrors that interpretation for behavior
+   validation and incident evidence.
+3. planning may consume structured behavior feedback and emit an explicit
+   typed domain intent only when target, suggested relation, polarity, and
+   confidence satisfy the approved gate.
+4. durable relation or conclusion mutation still flows only through
+   `planning -> action`.
+5. low-confidence or unknown-target feedback must remain descriptive-only
+   unless a later approved planning/action slice adds a guarded route.
+6. expression may consume already-learned high-confidence communication truth,
+   but must not write behavior-feedback state.
+7. memory may preserve behavior-feedback evidence inside the completed episode
+   so reflection can inspect repeated weaker signals later.
+8. reflection may consolidate repeated relation-backed feedback candidates into
+   relation updates, but a single weak candidate must not become learned truth.
+
+This contract starts with the existing communication-boundary signal owner and
+does not introduce a second memory subsystem or a second durable write path.
+
+---
+
 ## Foreground Ownership Contract (Target-State Convergence)
 
 Foreground execution keeps one explicit ownership split while orchestration
@@ -1783,7 +1826,8 @@ Decide what should happen next.
   "goals": [],
   "tasks": [],
   "planned_work": [],
-  "theta": {}
+  "theta": {},
+  "behavior_feedback": []
 }
 ```
 

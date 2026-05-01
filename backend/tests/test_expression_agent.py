@@ -83,6 +83,18 @@ class GreetingOpenAI(ReplyOpenAI):
         return "Czesc Patryk! Jasne, przechodze do konkretu."
 
 
+class FormalOpenAI(ReplyOpenAI):
+    async def generate_reply(self, *args, **kwargs) -> str | None:
+        await super().generate_reply(*args, **kwargs)
+        return "Szanowny Panie Patryku, przechodze do konkretu."
+
+
+class ProactivePromiseOpenAI(ReplyOpenAI):
+    async def generate_reply(self, *args, **kwargs) -> str | None:
+        await super().generate_reply(*args, **kwargs)
+        return "Deployment looks stable. I'll keep checking in every hour."
+
+
 def _event(text: str = "hello") -> Event:
     return Event(
         event_id="evt-1",
@@ -362,6 +374,53 @@ async def test_expression_removes_repeated_greeting_when_relation_requests_it() 
     )
 
     assert result.message == "Jasne, przechodze do konkretu."
+    assert result.self_review_notes == ["removed_repeated_greeting"]
+
+
+async def test_expression_removes_formal_opening_when_concise_style_is_known() -> None:
+    agent = ExpressionAgent(openai_client=FormalOpenAI())
+    result = await agent.run(
+        _event("status"),
+        _perception(language="pl"),
+        _context(),
+        _plan(),
+        _role(),
+        _motivation(),
+        user_preferences={"response_style": "concise"},
+    )
+
+    assert result.message == "przechodze do konkretu."
+    assert result.self_review_notes == ["removed_overly_formal_opening"]
+
+
+async def test_expression_removes_proactive_contact_promises_when_cadence_is_low_frequency() -> None:
+    agent = ExpressionAgent(openai_client=ProactivePromiseOpenAI())
+    event = _event("scheduler proactive tick").model_copy(
+        update={
+            "source": "scheduler",
+            "subsource": "proactive_tick",
+            "payload": {"text": "scheduler proactive tick", "chat_id": 123456},
+        }
+    )
+    result = await agent.run(
+        event,
+        _perception(language="en"),
+        _context(),
+        _plan(),
+        _role(),
+        _motivation(),
+        relations=[
+            {
+                "relation_type": "contact_cadence_preference",
+                "relation_value": "low_frequency",
+                "confidence": 0.94,
+            }
+        ],
+    )
+
+    assert result.message == "Deployment looks stable."
+    assert result.channel == "telegram"
+    assert result.self_review_notes == ["removed_contact_cadence_promise"]
 
 
 async def test_expression_passes_structured_preference_to_openai() -> None:

@@ -1,8 +1,12 @@
+from app.communication.behavior_feedback import BehaviorFeedbackAssessor
 from app.core.contracts import AffectiveAssessmentOutput, Event, PerceptionOutput
 from app.utils.language import detect_language, normalize_for_matching
 
 
 class PerceptionAgent:
+    def __init__(self, behavior_feedback_assessor: BehaviorFeedbackAssessor | None = None):
+        self.behavior_feedback_assessor = behavior_feedback_assessor or BehaviorFeedbackAssessor()
+
     def run(
         self,
         event: Event,
@@ -14,6 +18,7 @@ class PerceptionAgent:
         planning_keywords = {"plan", "zaplanuj", "rollout", "wdrozenie", "krok", "steps"}
         language = detect_language(text=text, recent_memory=recent_memory, user_profile=user_profile)
         affective = self._assess_affective_placeholder(lowered=lowered)
+        behavior_feedback = self.behavior_feedback_assessor.assess(text)
 
         event_type = "question" if text.endswith("?") else "statement"
         topic = "planning" if any(keyword in lowered for keyword in planning_keywords) else "general"
@@ -33,6 +38,7 @@ class PerceptionAgent:
             ambiguity=ambiguity,
             initial_salience=initial_salience,
             affective=affective,
+            behavior_feedback=behavior_feedback,
         )
 
     def _topic_tags(self, lowered: str, topic: str) -> list[str]:

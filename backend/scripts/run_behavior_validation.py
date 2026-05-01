@@ -12,9 +12,10 @@ from typing import Any
 from xml.etree import ElementTree
 
 
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
 BEHAVIOR_TEST_TARGETS = [
-    "tests/test_api_routes.py",
-    "tests/test_runtime_pipeline.py",
+    BACKEND_ROOT / "tests" / "test_api_routes.py",
+    BACKEND_ROOT / "tests" / "test_runtime_pipeline.py",
 ]
 BEHAVIOR_FILTER = (
     "system_debug_behavior_contract "
@@ -115,12 +116,12 @@ def _run_behavior_pytest(*, python_exe: str, junit_path: Path) -> tuple[int, lis
         "-m",
         "pytest",
         "-q",
-        *BEHAVIOR_TEST_TARGETS,
+        *(str(target) for target in BEHAVIOR_TEST_TARGETS),
         "-k",
         BEHAVIOR_FILTER,
         f"--junitxml={junit_path}",
     ]
-    completed = subprocess.run(cmd, check=False)
+    completed = subprocess.run(cmd, check=False, cwd=BACKEND_ROOT)
     return completed.returncode, cmd
 
 

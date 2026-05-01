@@ -4,6 +4,7 @@ import pytest
 
 from app.core.contracts import (
     ActionResult,
+    BehaviorFeedbackOutput,
     CalendarSchedulingIntentDomainIntent,
     ConnectorPermissionGateOutput,
     ContextOutput,
@@ -87,6 +88,17 @@ def _runtime_result() -> RuntimeResult:
             language_confidence=0.7,
             ambiguity=0.1,
             initial_salience=0.6,
+            behavior_feedback=[
+                BehaviorFeedbackOutput(
+                    feedback_target="interaction_ritual",
+                    feedback_polarity="observation",
+                    suggested_relation_type="interaction_ritual_preference",
+                    suggested_relation_value="avoid_repeated_greeting",
+                    confidence=0.82,
+                    evidence=["greets every message"],
+                    source="communication_boundary_observation",
+                )
+            ],
         ),
         context=ContextOutput(
             summary="User asked about runtime graph migration.",
@@ -176,6 +188,8 @@ def test_runtime_result_to_graph_state_maps_orchestrator_contract() -> None:
     assert graph_state.action_result is not None
     assert graph_state.action_result.status == "success"
     assert graph_state.background_adaptive_outputs == {}
+    assert graph_state.perception is not None
+    assert graph_state.perception.behavior_feedback[0].feedback_target == "interaction_ritual"
 
 
 def test_runtime_result_to_graph_state_builds_connector_safe_action_delivery_envelope() -> None:
@@ -229,6 +243,7 @@ def test_graph_state_to_runtime_result_roundtrip() -> None:
     assert restored.identity.summary == runtime_result.identity.summary
     assert restored.plan.goal == runtime_result.plan.goal
     assert restored.action_result.status == runtime_result.action_result.status
+    assert restored.perception.behavior_feedback[0].suggested_relation_value == "avoid_repeated_greeting"
     assert restored.active_goals[0].id == 11
     assert restored.duration_ms == runtime_result.duration_ms
 

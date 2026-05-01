@@ -1278,6 +1278,60 @@ def _run_release_smoke(*args: str, cwd: Path) -> subprocess.CompletedProcess[str
     )
 
 
+def test_behavior_validation_powershell_wrapper_resolves_python_from_repo_root(tmp_path: Path) -> None:
+    powershell_exe = _powershell_exe()
+    if powershell_exe is None:
+        pytest.skip("PowerShell executable is unavailable in this environment.")
+
+    input_artifact = tmp_path / "behavior-input.json"
+    output_artifact = tmp_path / "behavior-output.json"
+    input_artifact.write_text(
+        json.dumps(
+            {
+                "kind": "behavior_validation_artifact",
+                "summary": {
+                    "total": 1,
+                    "passed": 1,
+                    "failed": 0,
+                    "errors": 0,
+                    "skipped": 0,
+                    "exit_code": 0,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            powershell_exe,
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(BACKEND_ROOT / "scripts" / "run_behavior_validation.ps1"),
+            "-GateMode",
+            "ci",
+            "-ArtifactInputPath",
+            str(input_artifact),
+            "-ArtifactPath",
+            str(output_artifact),
+        ],
+        cwd=str(ROOT),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=30,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(output_artifact.read_text(encoding="utf-8"))
+    assert payload["gate"]["status"] == "pass"
+    assert payload["summary"]["total"] == 1
+
+
 def _write_evidence(
     path: Path,
     *,

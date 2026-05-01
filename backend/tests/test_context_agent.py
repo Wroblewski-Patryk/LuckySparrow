@@ -136,6 +136,27 @@ def test_context_summary_includes_foreground_awareness_name_memory_and_tools() -
     assert "Known user name: Patryk." in result.foreground_awareness_summary
 
 
+def test_context_summary_includes_recent_turn_gap_when_memory_has_timestamp() -> None:
+    event = _event("kontynuujmy")
+    event = event.model_copy(
+        update={"timestamp": datetime(2026, 5, 1, 12, 3, tzinfo=timezone.utc)}
+    )
+
+    result = ContextAgent().run(
+        event=event,
+        perception=_perception(),
+        recent_memory=[
+            {
+                "summary": "previous turn",
+                "timestamp": datetime(2026, 5, 1, 12, 0, tzinfo=timezone.utc),
+                "payload": {"event": "start"},
+            }
+        ],
+    )
+
+    assert "Conversation recency: latest remembered turn was about 3 minutes before this turn." in result.summary
+
+
 def test_context_summary_includes_relevant_active_goals_and_tasks() -> None:
     result = ContextAgent().run(
         event=_event("can you help me fix the deployment blocker for the mvp"),

@@ -18,6 +18,7 @@ def extract_episode_fields(memory_item: Mapping[str, Any] | None) -> dict[str, s
             "affect_needs_support": _as_text(payload.get("affect_needs_support")),
             "affect_source": _as_text(payload.get("affect_source")),
             "affect_evidence": ",".join(_as_text_list(payload.get("affect_evidence"))),
+            "behavior_feedback": _behavior_feedback_relation_candidates(payload.get("behavior_feedback")),
             "preference_update": _as_text(payload.get("preference_update")),
             "collaboration_update": _as_text(payload.get("collaboration_update")),
             "proactive_preference_update": _as_text(payload.get("proactive_preference_update")),
@@ -126,3 +127,31 @@ def _as_text_list(value: Any) -> list[str]:
         seen.add(text)
         normalized.append(text)
     return normalized
+
+
+def _behavior_feedback_relation_candidates(value: Any) -> str:
+    if not isinstance(value, Sequence) or isinstance(value, (bytes, bytearray, str)):
+        return ""
+    candidates: list[str] = []
+    for item in value:
+        if not isinstance(item, Mapping):
+            continue
+        relation_type = _as_text(item.get("suggested_relation_type"))
+        relation_value = _as_text(item.get("suggested_relation_value"))
+        if not relation_type or not relation_value:
+            continue
+        polarity = _as_text(item.get("feedback_polarity")) or "unclear"
+        confidence = _as_text(item.get("confidence")) or "0"
+        source = _as_text(item.get("source")) or "behavior_feedback"
+        candidates.append(
+            ":".join(
+                [
+                    relation_type,
+                    relation_value,
+                    polarity,
+                    confidence,
+                    source,
+                ]
+            )
+        )
+    return "|".join(candidates)
