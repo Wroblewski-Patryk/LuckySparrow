@@ -3293,6 +3293,39 @@ def test_health_endpoint_shows_strict_rollout_hint_when_production_is_ready() ->
     )
 
 
+def test_health_endpoint_organizer_activation_next_actions_match_missing_settings() -> None:
+    client, _, _ = _client(google_calendar_timezone="Europe/Warsaw")
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    organizer_stack = response.json()["connectors"]["organizer_tool_stack"]
+    calendar_workflow = organizer_stack["daily_use_workflows"][
+        "google_calendar_availability_inspection"
+    ]
+    assert calendar_workflow["daily_use_ready"] is False
+    assert calendar_workflow["next_action"] == (
+        "configure_google_calendar_access_token_and_calendar_id"
+    )
+    activation = organizer_stack["activation_snapshot"]
+    assert activation["provider_requirements"]["google_calendar"]["required_settings"] == [
+        "GOOGLE_CALENDAR_ACCESS_TOKEN",
+        "GOOGLE_CALENDAR_CALENDAR_ID",
+        "GOOGLE_CALENDAR_TIMEZONE",
+    ]
+    assert activation["provider_requirements"]["google_calendar"]["missing_settings"] == [
+        "GOOGLE_CALENDAR_ACCESS_TOKEN",
+        "GOOGLE_CALENDAR_CALENDAR_ID",
+    ]
+    assert activation["provider_requirements"]["google_calendar"]["next_action"] == (
+        "configure_google_calendar_access_token_and_calendar_id"
+    )
+    assert "configure_google_calendar_access_token_and_calendar_id" in activation["next_actions"]
+    assert "configure_google_calendar_access_token_calendar_id_and_timezone" not in activation[
+        "next_actions"
+    ]
+
+
 def test_health_endpoint_exposes_provider_backed_clickup_connector_readiness_when_configured() -> None:
     client, _, _ = _client()
     client.app.state.settings.clickup_api_token = "clickup-token"

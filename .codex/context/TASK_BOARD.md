@@ -2,6 +2,91 @@
 
 Last updated: 2026-05-01
 
+## Fresh Organizer Activation Next-Action Precision (2026-05-01)
+
+- `PRJ-848` is DONE as a production-readiness quality fix:
+  - `.codex/tasks/PRJ-848-precise-organizer-activation-next-actions.md`
+- purpose:
+  - make organizer provider activation `next_action` values match the actual
+    missing settings while preserving existing broad slugs for fully missing
+    states
+- implemented:
+  - added `_configure_next_action()` in
+    `backend/app/core/connector_execution.py`
+  - reused existing `missing_settings` lists for provider activation and
+    daily-use next actions
+  - preserved the established all-missing Google Calendar slug:
+    `configure_google_calendar_access_token_calendar_id_and_timezone`
+  - added regression coverage for the production-like partial Google Calendar
+    state where timezone exists but token and calendar id are missing
+- validation:
+  - focused organizer API test:
+    `3 passed, 115 deselected`
+  - full API route suite:
+    `118 passed`
+  - focused release-smoke organizer/parser tests:
+    `40 passed, 11 deselected`
+  - full backend gate:
+    `1010 passed in 103.38s`
+- next smallest useful task:
+  - prepare/publish this low-risk operator-readiness fix if desired, then run
+    the normal deploy validation cycle
+
+## Fresh Post-Deploy Stability Snapshot (2026-05-01)
+
+- `PRJ-847` is DONE as a non-invasive post-deploy stability check:
+  - `.codex/tasks/PRJ-847-post-deploy-stability-snapshot.md`
+- purpose:
+  - confirm production remains healthy after the v1 deploy smoke without
+    posting another synthetic runtime event
+- validation:
+  - `GET https://aviary.luckysparrow.ch/health`
+  - `GET https://aviary.luckysparrow.ch/`
+  - `git rev-parse HEAD`
+- production evidence:
+  - `status=ok`
+  - `release_ready=true`
+  - `release_violations=[]`
+  - `runtime_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+  - `web_shell_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+  - local `HEAD=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+- follow-up signal:
+  - core v1 deployment is stable
+  - organizer daily-use workflows remain blocked by provider activation:
+    ClickUp, Google Calendar, and Google Drive
+- next smallest useful task:
+  - start a separate provider activation readiness lane if organizer workflows
+    should become part of the next release increment
+
+## Fresh Production Release Smoke (2026-05-01)
+
+- `PRJ-846` is DONE as the production smoke and v1 deployment verification:
+  - `.codex/tasks/PRJ-846-production-release-smoke.md`
+- purpose:
+  - confirm production deployed the latest pushed revision and passes the
+    release-readiness smoke contract
+- validation:
+  - first attempt hit transient deploy-time `503 Service Unavailable`
+  - retry command:
+    `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -WaitForDeployParity -DeployParityMaxWaitSeconds 900 -DeployParityPollSeconds 30 -HealthRetryMaxAttempts 10 -HealthRetryDelaySeconds 10`
+  - result: pass
+- production evidence:
+  - `health_status=ok`
+  - `release_ready=true`
+  - `release_violations=[]`
+  - `runtime_action=success`
+  - `deployment_runtime_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+  - `web_shell_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+- deployment posture:
+  - v1 is deployed on `https://aviary.luckysparrow.ch`
+  - local generated `artifacts/behavior_validation/prj843-report.json` remains
+    uncommitted
+  - this smoke/context evidence is intentionally local and unpushed to avoid a
+    new docs-only production deploy cycle
+- next smallest useful task:
+  - monitor production behavior and handle provider credential activation
+    blockers as a separate non-core-v1 lane
+
 ## Fresh V1 Deploy Candidate Publish (2026-05-01)
 
 - `PRJ-845` is DONE as the current release publication slice:

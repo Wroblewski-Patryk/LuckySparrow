@@ -2,6 +2,78 @@
 
 Last updated: 2026-05-01
 
+- 2026-05-01: `PRJ-848` made organizer activation next actions precise:
+  - new task:
+    - `.codex/tasks/PRJ-848-precise-organizer-activation-next-actions.md`
+  - `backend/app/core/connector_execution.py` now derives provider activation
+    and daily-use next-action slugs from the actual `missing_settings` list
+  - the established all-missing Google Calendar slug remains unchanged to
+    preserve snapshot compatibility
+  - `backend/tests/test_api_routes.py` now pins the production-like partial
+    state where Google Calendar timezone exists but token and calendar id are
+    missing, so operator guidance no longer asks for timezone in that case
+  - validation:
+    - focused organizer API test:
+      - `3 passed, 115 deselected`
+    - full API route suite:
+      - `118 passed`
+    - focused release-smoke organizer/parser tests:
+      - `40 passed, 11 deselected`
+    - full backend gate:
+      - `1010 passed in 103.38s`
+  - highest-value next step:
+    - publish this operator-readiness fix through the normal backend/release
+      validation cycle if the next deploy increment should include it
+
+- 2026-05-01: `PRJ-847` captured a non-invasive post-deploy stability snapshot:
+  - new task:
+    - `.codex/tasks/PRJ-847-post-deploy-stability-snapshot.md`
+  - production host:
+    - `https://aviary.luckysparrow.ch`
+  - validation:
+    - `GET /health`
+    - `GET /`
+    - `git rev-parse HEAD`
+  - evidence:
+    - `status=ok`
+    - `release_ready=true`
+    - `release_violations=[]`
+    - `runtime_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+    - `web_shell_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+    - local `HEAD=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+  - deployment posture:
+    - core v1 remains stable after deploy settle
+    - no synthetic production event was posted in this follow-up check
+  - highest-value next step:
+    - split provider activation readiness into its own lane if ClickUp,
+      Google Calendar, and Google Drive organizer workflows are needed for the
+      next release increment
+
+- 2026-05-01: `PRJ-846` verified the production v1 deployment:
+  - new task:
+    - `.codex/tasks/PRJ-846-production-release-smoke.md`
+  - production host:
+    - `https://aviary.luckysparrow.ch`
+  - deployed revision:
+    - `1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+  - release smoke:
+    - first attempt observed transient deploy-time `503 Service Unavailable`
+    - retry with longer wait passed
+  - production evidence:
+    - `health_status=ok`
+    - `release_ready=true`
+    - `release_violations=[]`
+    - `runtime_action=success`
+    - `deployment_runtime_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+    - `web_shell_build_revision=1a04b242b54acd5c09f9e67e009b6d86562ba5e6`
+  - deployment posture:
+    - v1 is deployed and smoke-verified
+    - local smoke/context evidence is intentionally not pushed to avoid
+      triggering another docs-only deployment cycle
+  - highest-value next step:
+    - monitor production behavior and split provider credential activation
+      blockers into a separate lane if those organizer workflows are needed
+
 - 2026-05-01: `PRJ-845` published the validated v1 deploy candidate:
   - new task:
     - `.codex/tasks/PRJ-845-publish-v1-deploy-candidate.md`

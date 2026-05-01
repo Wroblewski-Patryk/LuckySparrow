@@ -17,6 +17,30 @@ def google_drive_list_ready(settings) -> bool:
     return bool(access_token and folder_id)
 
 
+_SETTING_ACTION_PARTS = {
+    "CLICKUP_API_TOKEN": "api_token",
+    "CLICKUP_LIST_ID": "clickup_list_id",
+    "GOOGLE_CALENDAR_ACCESS_TOKEN": "access_token",
+    "GOOGLE_CALENDAR_CALENDAR_ID": "calendar_id",
+    "GOOGLE_CALENDAR_TIMEZONE": "timezone",
+    "GOOGLE_DRIVE_ACCESS_TOKEN": "access_token",
+    "GOOGLE_DRIVE_FOLDER_ID": "folder_id",
+}
+
+
+def _configure_next_action(provider: str, missing_settings: list[str]) -> str:
+    if not missing_settings:
+        return f"configure_{provider}_credentials"
+    if missing_settings == [
+        "GOOGLE_CALENDAR_ACCESS_TOKEN",
+        "GOOGLE_CALENDAR_CALENDAR_ID",
+        "GOOGLE_CALENDAR_TIMEZONE",
+    ]:
+        return "configure_google_calendar_access_token_calendar_id_and_timezone"
+    action_parts = [_SETTING_ACTION_PARTS.get(setting, setting.lower()) for setting in missing_settings]
+    return f"configure_{provider}_{'_and_'.join(action_parts)}"
+
+
 def connector_execution_baseline_snapshot(settings) -> dict[str, object]:
     clickup_ready = clickup_task_create_ready(settings)
     clickup_state = "provider_backed_ready" if clickup_ready else "credentials_missing"
@@ -184,6 +208,51 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
     credential_gap_operations = [
         operation_id for operation_id in approved_operations if not bool(readiness_entries[operation_id].get("ready", False))
     ]
+    clickup_missing_settings = [
+        name
+        for name, value in (
+            ("CLICKUP_API_TOKEN", str(getattr(settings, "clickup_api_token", "") or "").strip()),
+            ("CLICKUP_LIST_ID", str(getattr(settings, "clickup_list_id", "") or "").strip()),
+        )
+        if not value
+    ]
+    google_calendar_missing_settings = [
+        name
+        for name, value in (
+            (
+                "GOOGLE_CALENDAR_ACCESS_TOKEN",
+                str(getattr(settings, "google_calendar_access_token", "") or "").strip(),
+            ),
+            (
+                "GOOGLE_CALENDAR_CALENDAR_ID",
+                str(getattr(settings, "google_calendar_calendar_id", "") or "").strip(),
+            ),
+            (
+                "GOOGLE_CALENDAR_TIMEZONE",
+                str(getattr(settings, "google_calendar_timezone", "") or "").strip(),
+            ),
+        )
+        if not value
+    ]
+    google_drive_missing_settings = [
+        name
+        for name, value in (
+            (
+                "GOOGLE_DRIVE_ACCESS_TOKEN",
+                str(getattr(settings, "google_drive_access_token", "") or "").strip(),
+            ),
+            (
+                "GOOGLE_DRIVE_FOLDER_ID",
+                str(getattr(settings, "google_drive_folder_id", "") or "").strip(),
+            ),
+        )
+        if not value
+    ]
+    clickup_activation_next_action = _configure_next_action("clickup", clickup_missing_settings)
+    google_calendar_activation_next_action = _configure_next_action(
+        "google_calendar", google_calendar_missing_settings
+    )
+    google_drive_activation_next_action = _configure_next_action("google_drive", google_drive_missing_settings)
     activation_requirements = {
         "clickup": {
             "provider": "clickup",
@@ -198,14 +267,7 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
                 "task_system.clickup_update_task",
             ],
             "ready": bool(clickup_create.get("ready", False)),
-            "missing_settings": [
-                name
-                for name, value in (
-                    ("CLICKUP_API_TOKEN", str(getattr(settings, "clickup_api_token", "") or "").strip()),
-                    ("CLICKUP_LIST_ID", str(getattr(settings, "clickup_list_id", "") or "").strip()),
-                )
-                if not value
-            ],
+            "missing_settings": clickup_missing_settings,
             "user_opt_in_required": True,
             "confirmation_required_operations": [
                 "task_system.clickup_create_task",
@@ -214,7 +276,7 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
             "next_action": (
                 "ready_for_clickup_operator_acceptance"
                 if bool(clickup_create.get("ready", False))
-                else "configure_clickup_api_token_and_clickup_list_id"
+                else clickup_activation_next_action
             ),
         },
         "google_calendar": {
@@ -229,30 +291,13 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
                 "calendar.google_calendar_read_availability",
             ],
             "ready": bool(calendar_read.get("ready", False)),
-            "missing_settings": [
-                name
-                for name, value in (
-                    (
-                        "GOOGLE_CALENDAR_ACCESS_TOKEN",
-                        str(getattr(settings, "google_calendar_access_token", "") or "").strip(),
-                    ),
-                    (
-                        "GOOGLE_CALENDAR_CALENDAR_ID",
-                        str(getattr(settings, "google_calendar_calendar_id", "") or "").strip(),
-                    ),
-                    (
-                        "GOOGLE_CALENDAR_TIMEZONE",
-                        str(getattr(settings, "google_calendar_timezone", "") or "").strip(),
-                    ),
-                )
-                if not value
-            ],
+            "missing_settings": google_calendar_missing_settings,
             "user_opt_in_required": True,
             "confirmation_required_operations": [],
             "next_action": (
                 "ready_for_google_calendar_operator_acceptance"
                 if bool(calendar_read.get("ready", False))
-                else "configure_google_calendar_access_token_calendar_id_and_timezone"
+                else google_calendar_activation_next_action
             ),
         },
         "google_drive": {
@@ -266,26 +311,13 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
                 "cloud_drive.google_drive_list_files",
             ],
             "ready": bool(drive_list.get("ready", False)),
-            "missing_settings": [
-                name
-                for name, value in (
-                    (
-                        "GOOGLE_DRIVE_ACCESS_TOKEN",
-                        str(getattr(settings, "google_drive_access_token", "") or "").strip(),
-                    ),
-                    (
-                        "GOOGLE_DRIVE_FOLDER_ID",
-                        str(getattr(settings, "google_drive_folder_id", "") or "").strip(),
-                    ),
-                )
-                if not value
-            ],
+            "missing_settings": google_drive_missing_settings,
             "user_opt_in_required": True,
             "confirmation_required_operations": [],
             "next_action": (
                 "ready_for_google_drive_operator_acceptance"
                 if bool(drive_list.get("ready", False))
-                else "configure_google_drive_access_token_and_folder_id"
+                else google_drive_activation_next_action
             ),
         },
     }
@@ -318,7 +350,7 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
             "next_action": (
                 "ready_for_clickup_daily_use"
                 if bool(clickup_create.get("ready", False))
-                else "configure_clickup_api_token_and_clickup_list_id"
+                else clickup_activation_next_action
             ),
         },
         "google_calendar_availability_inspection": {
@@ -339,7 +371,7 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
             "next_action": (
                 "ready_for_google_calendar_daily_use"
                 if bool(calendar_read.get("ready", False))
-                else "configure_google_calendar_access_token_calendar_id_and_timezone"
+                else google_calendar_activation_next_action
             ),
         },
         "google_drive_file_space_inspection": {
@@ -360,7 +392,7 @@ def organizer_tool_stack_snapshot(settings) -> dict[str, object]:
             "next_action": (
                 "ready_for_google_drive_daily_use"
                 if bool(drive_list.get("ready", False))
-                else "configure_google_drive_access_token_and_folder_id"
+                else google_drive_activation_next_action
             ),
         },
     }
