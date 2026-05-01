@@ -2332,15 +2332,11 @@ export default function App() {
   ];
   const chatTopControls = [
     {
-      label: "Memory continuity",
-      value: Boolean(preferenceSummary?.learned_preference_count) ? copy.common.on : copy.common.off,
-    },
-    {
       label: "Linked channels",
       value: recentChannelsLabel === copy.common.noData ? "App" : recentChannelsLabel,
     },
   ];
-  const chatQuickActions = ["Plan my day", "What did I learn?"];
+  const chatQuickActions = ["Plan my day"];
   const chatCurrentFocus =
     stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "Daily planning" : "Conversation continuity";
   const chatLinkedChannelsStatus = recentChannelsLabel === copy.common.noData ? "App only" : recentChannelsLabel;
@@ -3656,7 +3652,9 @@ export default function App() {
                       <div
                         key={item.label}
                         className={`aion-chat-control-pill ${
-                          index === 0
+                          chatTopControls.length === 1
+                            ? "aion-chat-control-pill-solo"
+                            : index === 0
                             ? "aion-chat-control-pill-emphasis"
                             : index === chatTopControls.length - 1
                               ? "aion-chat-control-pill-wide"
@@ -3732,7 +3730,9 @@ export default function App() {
                         {chatQuickActions.map((action) => (
                           <button
                             key={action}
-                            className="aion-chat-action-chip"
+                            className={`aion-chat-action-chip ${
+                              chatQuickActions.length === 1 ? "aion-chat-action-chip-solo" : ""
+                            }`}
                             type="button"
                             onClick={() => setChatText(action)}
                           >

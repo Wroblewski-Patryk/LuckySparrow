@@ -1949,6 +1949,13 @@ body {
   min-width: 5.5rem;
 }
 
+.aion-chat-control-pill-solo {
+  min-width: 5.1rem;
+  padding-inline: 0.5rem;
+  background:
+    linear-gradient(180deg, rgba(245, 252, 250, 0.78), rgba(255, 251, 245, 0.76));
+}
+
 .aion-chat-stage {
   display: grid;
   gap: 0.76rem;
@@ -2248,6 +2255,11 @@ body {
   font-size: 0.74rem;
   font-weight: 500;
   box-shadow: 0 7px 16px rgba(78, 58, 43, 0.026);
+}
+
+.aion-chat-action-chip-solo {
+  padding-inline: 0.76rem;
+  background: rgba(247, 251, 248, 0.78);
 }
 
 .aion-chat-composer {

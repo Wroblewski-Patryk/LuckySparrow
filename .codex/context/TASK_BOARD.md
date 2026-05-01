@@ -24,11 +24,13 @@ Last updated: 2026-05-01
     rail for a stronger transcript-first balance
   - reduced remaining chrome by trimming top controls, quick actions, and
     scenic-note copy
+  - reduced the remaining summary chrome to one top-control pill and one
+    primary quick action, with calmer solo-material styling for both
 - focused validation:
   - `Push-Location .\web; npm run build; Pop-Location`
   - `git diff --check -- web/src/App.tsx web/src/index.css docs/planning/canonical-100-slice-closure-map.md docs/planning/chat-canonical-100-slice-closure-map.md .codex/tasks/PRJ-832-chat-first-10-slice-batch-and-foundation-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
 - next smallest useful task:
-  - take the next deploy-side chat proof
+  - take the next deploy-side chat proof after the solo-control batch
   - if drift remains, open the next bounded `chat` continuation lane only on
     proof-backed residual drift
 

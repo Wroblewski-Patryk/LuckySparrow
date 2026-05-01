@@ -21,10 +21,12 @@ Last updated: 2026-05-01
     - tightens quick-action chips, composer density, and transcript list/detail polish
     - reduces topbar control weight and strengthens transcript-first balance
     - trims remaining chrome in top controls, quick actions, and scenic-note copy
+    - reduces the remaining summary chrome to one top-control pill and one
+      primary quick action, both with calmer solo-material treatment
   - new implementation task:
     - `.codex/tasks/PRJ-832-chat-first-10-slice-batch-and-foundation-pass.md`
   - highest-value next steps:
-    - compare the deployed chat after the composer-and-transcript batch
+    - compare the deployed chat after the solo-control and solo-action batch
     - if needed, open the next bounded `chat` continuation lane only on
       proof-backed residual drift
 

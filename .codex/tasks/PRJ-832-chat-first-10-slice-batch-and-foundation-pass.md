@@ -235,6 +235,9 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
     control weight, lead-card hierarchy, and rail width
   - implemented the next bounded chrome-reduction batch across top controls,
     quick actions, and scenic-note copy density
+  - implemented one more bounded chrome-trim batch by reducing the remaining
+    top controls to one summary pill, reducing quick actions to one primary
+    suggestion, and matching both with calmer solo-material styling
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
@@ -250,7 +253,7 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
   - deploy-side proof for the new chat batch
   - remaining batches beyond the foundation pass
 - Next steps:
-  - compare the deployed chat after the chrome-reduction batch
+  - compare the deployed chat after the solo-control and solo-action batch
   - if needed, open the next bounded chat continuation lane only for remaining
     proof-backed drift
 - Decisions made:
