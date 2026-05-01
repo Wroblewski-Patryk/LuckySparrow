@@ -267,6 +267,8 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
     describing the original foundation opener
   - implemented one more bounded composer-calmness batch by tightening
     quick-action chips, composer shell, input, and control-button proportions
+  - implemented one more bounded transcript-surface batch by reducing avatar
+    scale, message-card padding/shadow, and meta/body-copy density
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
@@ -282,7 +284,7 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
   - deploy-side proof for the new chat batch
   - remaining batches beyond the foundation pass
 - Next steps:
-  - compare the deployed chat after the composer-calmness batch
+  - compare the deployed chat after the transcript-surface batch
   - if needed, open the next bounded chat continuation lane only for remaining
     proof-backed drift
 - Decisions made:
