@@ -3160,7 +3160,7 @@ export default function App() {
       <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-7">
         <section className="aion-shell-window aion-panel overflow-hidden rounded-[2.35rem]">
           <div className="aion-shell-window-body">
-        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[11.95rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[11.72rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <SidebarBrandBlock />
 

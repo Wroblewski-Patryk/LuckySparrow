@@ -2,6 +2,20 @@
 
 Last updated: 2026-05-01
 
+- 2026-05-01: `PRJ-829` opened a final bounded authenticated-sidebar rhythm
+  slice before proof:
+  - `web/src/App.tsx` now:
+    - slightly narrows the desktop shell column ratio toward a slimmer rail
+  - `web/src/index.css` now:
+    - slightly tightens shell gap, rail padding, and rail shadow weight
+    - tightens health-card body copy, identity-card secondary copy, and quote
+      closure rhythm
+  - new implementation task:
+    - `.codex/tasks/PRJ-829-authenticated-sidebar-final-gap-and-copy-rhythm-pass.md`
+  - highest-value next steps:
+    - compare the deployed authenticated sidebar
+    - if it clears the parity gate, move on to the `dashboard` surface group
+
 - 2026-05-01: `PRJ-828` opened the third authenticated-sidebar exactness
   slice:
   - `web/src/App.tsx` now:

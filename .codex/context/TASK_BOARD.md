@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-01
 
+## Fresh Authenticated Sidebar Final Gap And Copy Rhythm Pass (2026-05-01)
+
+- `PRJ-829` is now IN_PROGRESS as the fourth exactness slice of the
+  authenticated sidebar group:
+  - `.codex/tasks/PRJ-829-authenticated-sidebar-final-gap-and-copy-rhythm-pass.md`
+- purpose:
+  - apply one last bounded rail/copy-rhythm refinement before deploy-side
+    sidebar proof
+- implemented in the current slice:
+  - tightened rail-to-canvas column proportion and shell gap
+  - slightly tightened rail padding and shadow weight
+  - tightened lower-stack spacing and micro-typography rhythm
+- focused validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css .codex/tasks/PRJ-829-authenticated-sidebar-final-gap-and-copy-rhythm-pass.md`
+- next smallest useful task:
+  - compare the deployed authenticated sidebar
+  - if the parity gate clears, move to `dashboard`
+
 ## Fresh Authenticated Sidebar Decomponentize Support Stack (2026-05-01)
 
 - `PRJ-828` is now IN_PROGRESS as the third exactness slice of the
