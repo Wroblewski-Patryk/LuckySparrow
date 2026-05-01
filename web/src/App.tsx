@@ -2342,7 +2342,7 @@ export default function App() {
   const chatLinkedChannelsStatus = recentChannelsLabel === copy.common.noData ? "App only" : recentChannelsLabel;
   const chatIntentCard = {
     title: "Plan my day",
-    body: "Shape the next calm step.",
+    body: "Choose the next calm step.",
     status: stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "Live" : "Ready",
     emphasis: stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "High" : "Steady",
   };
@@ -2355,18 +2355,18 @@ export default function App() {
     body:
       stringValue(planningSummary?.active_goal_count, "0") !== "0"
         ? "Protect the current plan."
-        : "Shape the next calm focus point.",
+        : "Shape the next focus point.",
     progress: stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "72%" : "36%",
   };
   const chatRelatedMemory = [
     {
       title: `${stringValue(preferenceSummary?.learned_preference_count, "0")} learned cues`,
-      body: "Preferences stay close.",
+      body: "Preferences stay near.",
       when: "Recent",
     },
     {
       title: `${stringValue(knowledgeSummary?.semantic_conclusion_count, "0")} reusable patterns`,
-      body: "Summaries stay close.",
+      body: "Summaries stay near.",
       when: "Today",
     },
   ];
