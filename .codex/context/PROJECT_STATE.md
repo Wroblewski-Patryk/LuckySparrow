@@ -18,10 +18,14 @@ Last updated: 2026-05-01
     - tightens the central hero crop and increases persona-stage authority
     - softens left/right signal-card padding, scale, typography, and connector
       weight
+    - repositions the figure notes and shortens connector lengths for a calmer
+      center-stage read
+    - tightens the guidance rail padding, token scale, row density, and action
+      weight
   - new implementation task:
     - `.codex/tasks/PRJ-831-dashboard-first-10-slice-batch-and-intro-pass.md`
   - highest-value next steps:
-    - continue dashboard slice 6 and slice 7
+    - continue dashboard slice 9 and slice 10
     - then compare the deployed dashboard
 
 - 2026-05-01: `PRJ-830` opened a sidebar implementation-cleanup slice:
