@@ -2,6 +2,40 @@
 
 Last updated: 2026-05-02
 
+## Fresh Planned-Action Observer Policy And Diagnostics (2026-05-02)
+
+- `PRJ-855` is DONE as the first implementation slice for the passive/active
+  trigger boundary:
+  - `.codex/tasks/PRJ-855-planned-action-observer-policy-and-diagnostics.md`
+- purpose:
+  - make the planned-action observer machine-visible before changing proactive
+    cadence behavior
+  - distinguish empty passive scans from due planned work, actionable
+    proposals, policy blockage, and missing observer evidence
+  - expose counts-only diagnostics without leaking raw planned-work payloads
+- implemented:
+  - added `backend/app/core/planned_action_observer.py`
+  - proactive runtime policy now advertises observer-admitted due/actionable
+    candidate selection
+  - `/health.proactive.planned_action_observer` exposes owner, state, reason,
+    counts, no-op behavior, foreground trigger policy, and raw-payload posture
+  - incident evidence proactive posture receives the same observer snapshot
+  - runtime cadence behavior is intentionally unchanged in this slice
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_planned_action_observer.py tests/test_api_routes.py -k "planned_action_observer or health_endpoint_returns_ok"; Pop-Location`
+  - result: `7 passed, 117 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py -k "snapshot_exposes_live_proactive_policy"; Pop-Location`
+  - result: `1 passed, 18 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_planned_action_observer.py tests/test_api_routes.py tests/test_scheduler_worker.py; Pop-Location`
+  - result: `143 passed`
+  - `git diff --check`
+  - result: passed
+- deployment impact:
+  - low; health/debug posture only, no env, DB, schema, or cadence behavior
+    change
+- next smallest useful task:
+  - `PRJ-856` route proactive cadence through observer-backed due
+    work/proposals
 ## Fresh Passive/Active Trigger Implementation Plan (2026-05-02)
 
 - `PRJ-854` is DONE as the detailed implementation-planning slice:

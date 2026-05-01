@@ -1060,7 +1060,7 @@ class FakeSchedulerWorker:
                 ),
                 "delivery_channel_baseline": "telegram_direct_message",
                 "delivery_target_baseline": "recent_telegram_chat_or_numeric_user_id_fallback",
-                "candidate_selection_baseline": "opted_in_users_with_active_work_or_time_checkin",
+                "candidate_selection_baseline": "observer_admitted_due_planned_work_or_actionable_proposal",
                 "anti_spam_contract": {
                     "delivery_guard_recent_outbound_limit_default": 2,
                     "delivery_guard_unanswered_limit_default": 1,
@@ -1306,6 +1306,14 @@ def test_health_endpoint_returns_ok() -> None:
     assert body["proactive"]["policy_owner"] == "proactive_runtime_policy"
     assert body["proactive"]["enabled"] is False
     assert body["proactive"]["production_baseline_state"] == "disabled_by_policy"
+    assert body["proactive"]["candidate_selection_baseline"] == (
+        "observer_admitted_due_planned_work_or_actionable_proposal"
+    )
+    assert body["proactive"]["planned_action_observer"]["policy_owner"] == "planned_action_observer_policy"
+    assert body["proactive"]["planned_action_observer"]["last_observer_state"] == "blocked_by_policy"
+    assert body["proactive"]["planned_action_observer"]["last_observer_reason"] == "proactive_disabled"
+    assert body["proactive"]["planned_action_observer"]["empty_result_behavior"] == "no_foreground_event"
+    assert body["proactive"]["planned_action_observer"]["raw_payload_exposure"] == "counts_only"
     assert body["proactive"]["communication_boundary_contract"] == {
         "policy_owner": "communication_boundary_relation_policy",
         "relation_source": "aion_relation",
@@ -2613,6 +2621,37 @@ def test_health_endpoint_prefers_repository_backed_scheduler_cadence_evidence() 
         policy["duplicate_protection_posture"]["proactive_entrypoint_idempotency_baseline"]
         == "single_tick_candidate_evaluation_per_invocation"
     )
+
+
+def test_health_endpoint_exposes_planned_action_observer_posture_from_scheduler_evidence() -> None:
+    client, _, _ = _client(
+        proactive_enabled=True,
+        scheduler_last_maintenance_summary={
+            "executed": True,
+            "reason": "external_scheduler_owner",
+            "due_planned_work": 2,
+            "proposal_handoffs_created": 1,
+            "foreground_events_emitted": 1,
+        },
+        scheduler_last_proactive_summary={
+            "executed": True,
+            "reason": "external_scheduler_owner",
+            "events_emitted": 0,
+        },
+    )
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    observer = response.json()["proactive"]["planned_action_observer"]
+    assert observer["policy_owner"] == "planned_action_observer_policy"
+    assert observer["target_execution_model"] == "passive_scan_before_conscious_foreground"
+    assert observer["last_observer_state"] == "due_planned_work"
+    assert observer["last_observer_reason"] == "due_planned_work_available"
+    assert observer["due_planned_work_count"] == 2
+    assert observer["actionable_proposal_count"] == 1
+    assert observer["foreground_events_emitted"] == 1
+    assert observer["raw_payload_exposure"] == "counts_only"
 
 
 def test_health_endpoint_exposes_attention_snapshot() -> None:

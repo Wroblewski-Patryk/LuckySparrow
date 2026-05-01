@@ -1078,6 +1078,11 @@ What is already live:
   create or update planned work/proposals, and a cheap planned-action observer
   should avoid full conscious runtime execution when no due/actionable item
   exists
+- planned-action observer posture now has a shared policy owner in
+  `app/core/planned_action_observer.py`, exposed through `/health.proactive`
+  and debug incident evidence as counts-only posture:
+  `empty_noop`, `due_planned_work`, `actionable_proposal`,
+  `blocked_by_policy`, or `observer_unavailable`
 - proactive planning now records the resulting delivery posture through typed
   `update_proactive_state` intents
 - proactive outreach outcomes and connector permission-gate outcomes now share

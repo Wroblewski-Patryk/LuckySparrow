@@ -2,6 +2,31 @@
 
 Last updated: 2026-05-02
 
+- 2026-05-02: `PRJ-855` added planned-action observer policy and diagnostics:
+  - new task:
+    - `.codex/tasks/PRJ-855-planned-action-observer-policy-and-diagnostics.md`
+  - new policy helper:
+    - `backend/app/core/planned_action_observer.py`
+  - `/health.proactive.planned_action_observer` now exposes counts-only
+    observer posture for `empty_noop`, `due_planned_work`,
+    `actionable_proposal`, `blocked_by_policy`, and `observer_unavailable`
+  - proactive incident evidence receives the same observer posture, and the
+    proactive candidate-selection baseline now points at observer-admitted due
+    planned work or actionable proposals
+  - runtime cadence behavior is intentionally unchanged; this slice makes the
+    boundary observable before `PRJ-856` routes behavior through it
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_planned_action_observer.py tests/test_api_routes.py -k "planned_action_observer or health_endpoint_returns_ok"; Pop-Location`
+    - result: `7 passed, 117 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py -k "snapshot_exposes_live_proactive_policy"; Pop-Location`
+    - result: `1 passed, 18 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_planned_action_observer.py tests/test_api_routes.py tests/test_scheduler_worker.py; Pop-Location`
+    - result: `143 passed`
+    - `git diff --check`
+    - result: passed
+  - highest-value next step:
+    - execute `PRJ-856` by routing proactive cadence through observer-backed
+      due work and actionable proposals
 - 2026-05-02: `PRJ-854` detailed the passive/active trigger implementation
   plan:
   - new task:

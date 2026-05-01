@@ -70,6 +70,19 @@ Implementation queue after this contract:
 - `PRJ-859` Sync ops, release smoke, and learning journal after implementation.
 - `PRJ-860` Run the final backend gate and close docs/context.
 
+Queue update:
+
+- `PRJ-855` is now complete.
+- `backend/app/core/planned_action_observer.py` owns the observer policy
+  posture and classifies counts-only observer states:
+  `empty_noop`, `due_planned_work`, `actionable_proposal`,
+  `blocked_by_policy`, and `observer_unavailable`.
+- `/health.proactive.planned_action_observer` and exported proactive incident
+  posture now expose the observer target without leaking raw planned-work
+  payloads.
+- runtime behavior is intentionally unchanged; `PRJ-856` remains the slice
+  that routes proactive cadence through observer admission.
+
 Why this order:
 
 - freeze target semantics before changing scheduler behavior

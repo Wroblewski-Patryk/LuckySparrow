@@ -20,6 +20,7 @@ from app.core.adaptive_policy import (
     PROACTIVE_ATTENTION_RECENT_OUTBOUND_LIMIT,
     PROACTIVE_ATTENTION_UNANSWERED_LIMIT,
 )
+from app.core.planned_action_observer import planned_action_observer_snapshot
 from app.proactive.engine import ProactiveDeliveryGuard
 
 
@@ -33,6 +34,7 @@ def proactive_runtime_policy_snapshot(
     scheduler_execution_mode: str,
     scheduler_ready: bool,
     scheduler_running: bool,
+    planned_action_observer: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     selected_execution_mode = (
         "externalized" if str(scheduler_execution_mode).strip().lower() == "externalized" else "in_process"
@@ -64,7 +66,12 @@ def proactive_runtime_policy_snapshot(
         "selected_cadence_owner": selected_cadence_owner,
         "delivery_channel_baseline": "telegram_direct_message",
         "delivery_target_baseline": "recent_telegram_chat_or_numeric_user_id_fallback",
-        "candidate_selection_baseline": "opted_in_users_with_active_work_or_time_checkin",
+        "candidate_selection_baseline": "observer_admitted_due_planned_work_or_actionable_proposal",
+        "planned_action_observer": planned_action_observer
+        or planned_action_observer_snapshot(
+            proactive_enabled=proactive_enabled,
+            scheduler_execution_mode=selected_execution_mode,
+        ),
         "communication_boundary_contract": {
             "policy_owner": "communication_boundary_relation_policy",
             "relation_source": "aion_relation",

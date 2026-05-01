@@ -72,6 +72,7 @@ from app.core.deployment_policy import deployment_policy_snapshot
 from app.core.external_scheduler_policy import external_scheduler_policy_snapshot
 from app.core.observability_policy import observability_export_policy_snapshot
 from app.core.observability_policy import build_runtime_incident_evidence
+from app.core.planned_action_observer import planned_action_observer_snapshot
 from app.core.planning_governance import planning_governance_snapshot
 from app.core.proactive_policy import proactive_runtime_policy_snapshot
 from app.core.role_skill_policy import role_skill_policy_snapshot
@@ -534,6 +535,14 @@ async def _incident_evidence_from_request(
                 scheduler_external_owner_policy.get("production_baseline_ready", False)
             ),
             scheduler_running=bool(scheduler_snapshot.get("running", False)),
+            planned_action_observer=planned_action_observer_snapshot(
+                proactive_enabled=bool(getattr(settings, "proactive_enabled", False)),
+                scheduler_execution_mode=str(
+                    scheduler_snapshot.get("execution_mode", scheduler_execution_mode)
+                ),
+                maintenance_summary=scheduler_snapshot.get("last_maintenance_summary", {}),
+                proactive_summary=scheduler_snapshot.get("last_proactive_summary", {}),
+            ),
         ),
         scheduler_external_owner_policy=scheduler_external_owner_policy,
         reflection_supervision=reflection_supervision,
@@ -1155,12 +1164,19 @@ async def health(request: Request) -> dict[str, Any]:
     attention_snapshot = await _attention_snapshot_from_request(request)
     memory_retrieval_snapshot = _memory_retrieval_snapshot_from_settings(settings)
     release_readiness = release_readiness_snapshot(runtime_policy)
+    planned_action_observer = planned_action_observer_snapshot(
+        proactive_enabled=proactive_enabled,
+        scheduler_execution_mode=str(scheduler_snapshot.get("execution_mode", scheduler_execution_mode)),
+        maintenance_summary=scheduler_snapshot.get("last_maintenance_summary", {}),
+        proactive_summary=scheduler_snapshot.get("last_proactive_summary", {}),
+    )
     proactive_policy = proactive_runtime_policy_snapshot(
         proactive_enabled=proactive_enabled,
         proactive_interval_seconds=int(getattr(settings, "proactive_interval", 1800)),
         scheduler_execution_mode=str(scheduler_snapshot.get("execution_mode", scheduler_execution_mode)),
         scheduler_ready=bool(scheduler_execution["ready"]),
         scheduler_running=scheduler_running,
+        planned_action_observer=planned_action_observer,
     )
     role_skill_policy = role_skill_policy_snapshot()
     reflection_external_driver_policy = reflection_external_driver_policy_snapshot(
@@ -1250,6 +1266,7 @@ async def health(request: Request) -> dict[str, Any]:
             proactive={
             **proactive_policy,
             "enabled": proactive_enabled,
+            "planned_action_observer": planned_action_observer,
             "scheduler_tick_summary": dict(scheduler_snapshot.get("last_proactive_summary", {})),
             "last_tick_at": scheduler_snapshot.get("last_proactive_tick_at"),
             },
