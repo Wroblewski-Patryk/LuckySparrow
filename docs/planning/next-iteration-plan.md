@@ -50,14 +50,25 @@ Observed from the current repo:
   - Validation:
     - architecture/runtime/planning docs cross-review
 
-Suggested implementation queue after this contract:
+- `PRJ-854` Detail passive/active trigger implementation plan. (complete)
+  - Result:
+    - `docs/planning/passive-active-trigger-implementation-plan.md` now turns
+      the passive/active contract into file-scoped implementation slices,
+      acceptance criteria, validation commands, rollout notes, rollback
+      posture, and non-goals
+    - runtime behavior remains unchanged in this planning slice
+  - Validation:
+    - `git diff --check`
 
-- `PRJ-854` Add planned-action observer policy and health/debug posture.
-- `PRJ-855` Route proactive cadence through observer-backed due work/proposals.
-- `PRJ-856` Persist skipped/failed proactive execution evidence for reflection.
-- `PRJ-857` Add behavior scenarios for silent no-op, due outreach, and failure
+Implementation queue after this contract:
+
+- `PRJ-855` Add planned-action observer policy and health/debug posture.
+- `PRJ-856` Route proactive cadence through observer-backed due work/proposals.
+- `PRJ-857` Persist skipped/failed proactive execution evidence for reflection.
+- `PRJ-858` Add behavior scenarios for silent no-op, due outreach, and failure
   learning without user-visible failure spam.
-- `PRJ-858` Sync ops, release smoke, and learning journal after implementation.
+- `PRJ-859` Sync ops, release smoke, and learning journal after implementation.
+- `PRJ-860` Run the final backend gate and close docs/context.
 
 Why this order:
 

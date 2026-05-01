@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-02
 
+- 2026-05-02: `PRJ-854` detailed the passive/active trigger implementation
+  plan:
+  - new task:
+    - `.codex/tasks/PRJ-854-passive-active-trigger-implementation-plan.md`
+  - new plan:
+    - `docs/planning/passive-active-trigger-implementation-plan.md`
+  - the plan translates `PRJ-853` into implementation slices `PRJ-855..PRJ-860`
+    covering observer policy/diagnostics, proactive cadence routing, skipped
+    and failed evidence persistence, behavior scenarios, ops/release-smoke
+    visibility, and final backend gate closure
+  - the plan keeps relationship-based care/check-ins as planned work or
+    proposals and keeps the internal foreground execution loop unchanged once
+    a stimulus is admitted
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - highest-value next step:
+    - execute `PRJ-855` by adding planned-action observer policy and
+      health/debug posture
+
 - 2026-05-02: `PRJ-853` froze the passive/active runtime trigger boundary:
   - new task:
     - `.codex/tasks/PRJ-853-passive-active-runtime-trigger-boundary.md`

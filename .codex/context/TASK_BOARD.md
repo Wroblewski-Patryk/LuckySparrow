@@ -2,6 +2,33 @@
 
 Last updated: 2026-05-02
 
+## Fresh Passive/Active Trigger Implementation Plan (2026-05-02)
+
+- `PRJ-854` is DONE as the detailed implementation-planning slice:
+  - `.codex/tasks/PRJ-854-passive-active-trigger-implementation-plan.md`
+- purpose:
+  - turn the `PRJ-853` passive/active architecture contract into a concrete,
+    file-scoped implementation queue
+  - keep planning external contact/care/outreach separate from the internal
+    foreground execution loop
+- implemented:
+  - added `docs/planning/passive-active-trigger-implementation-plan.md`
+  - detailed implementation tasks `PRJ-855..PRJ-860` now cover:
+    - planned-action observer policy and health/debug posture
+    - proactive cadence routing through observer admission
+    - skipped/failed evidence persistence for reflection
+    - behavior scenarios for no-op, due outreach, relational care, and failure
+      learning
+    - ops, release smoke, and final backend gate closure
+  - no runtime behavior changed
+- validation:
+  - `git diff --check`
+  - result: passed
+- deployment impact:
+  - docs/context only; no runtime, API, DB, env, or deployment behavior change
+- next smallest useful task:
+  - `PRJ-855` add planned-action observer policy and diagnostics
+
 ## Fresh Passive/Active Runtime Trigger Boundary (2026-05-02)
 
 - `PRJ-853` is DONE as the architecture contract slice for passive external
