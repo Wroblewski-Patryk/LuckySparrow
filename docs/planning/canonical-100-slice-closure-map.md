@@ -170,21 +170,24 @@ Target slice budget: 15
 
 ## Current Recommended Starting Point
 
-The current active surface group is now `dashboard`.
+The current active surface group is now `chat`.
 
-The active first dashboard batch is:
+The active first chat batch is:
 
-1. intro compression and title authority
-2. hero stage copy-width and breathing-room refinement
-3. hero emblem and badge glyph cleanup
-4. left signal-column card softness
-5. right signal-column card softness
-6. central persona crop authority
-7. figure-note connector calmness
-8. guidance-rail width and pacing
-9. recent-activity density and rhythm
-10. intention-card hierarchy and scenic balance
+1. topbar eyebrow calmness
+2. topbar title authority
+3. topbar live-state rhythm
+4. control-pill width reduction
+5. control-pill padding reduction
+6. control-pill material quietness
+7. transcript column breathing-room refinement
+8. transcript vertical cadence refinement
+9. assistant bubble width parity
+10. assistant bubble padding and radius parity
 
-Do not reopen broad `home`, `sidebar`, `chat`, or `personality` polishing
-until the current dashboard batch is judged past the `95%` gate in the next
+Use `docs/planning/chat-canonical-100-slice-closure-map.md` as the route-level
+execution map for the active `chat` closure lane.
+
+Do not reopen broad `home`, `sidebar`, `dashboard`, or `personality` polishing
+until the current chat batch is judged past the `95%` gate in the next
 deploy-side compare.

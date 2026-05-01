@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-01
 
+## Fresh Chat First 10 Slice Batch And Foundation Pass (2026-05-01)
+
+- `PRJ-832` is now IN_PROGRESS as the active `chat` lane opener:
+  - `.codex/tasks/PRJ-832-chat-first-10-slice-batch-and-foundation-pass.md`
+- purpose:
+  - freeze a dedicated 100-slice closure map for `chat` and execute the first
+    bounded foundation batch
+- implemented in the current slice:
+  - wrote a dedicated `chat` 100-slice closure map
+  - redirected canonical planning truth from `dashboard` to `chat`
+  - calmed the chat topbar, control pills, transcript cadence, and
+    assistant/user bubble materials
+- focused validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - `git diff --check -- web/src/App.tsx web/src/index.css docs/planning/canonical-100-slice-closure-map.md docs/planning/chat-canonical-100-slice-closure-map.md .codex/tasks/PRJ-832-chat-first-10-slice-batch-and-foundation-pass.md .codex/context/TASK_BOARD.md .codex/context/PROJECT_STATE.md`
+- next smallest useful task:
+  - continue the next bounded `chat` batch on portrait-stage authority
+  - then take the next deploy-side chat proof
+
 ## Fresh Dashboard First 10 Slice Batch And Intro Pass (2026-05-01)
 
 - `PRJ-831` is now IN_PROGRESS as the active dashboard lane opener:

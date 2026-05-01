@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-01
 
+- 2026-05-01: `PRJ-832` opened the active `chat` surface group:
+  - planning truth now:
+    - `docs/planning/canonical-100-slice-closure-map.md` declares `chat` as
+      the active surface group
+    - `docs/planning/chat-canonical-100-slice-closure-map.md` freezes the
+      dedicated 100-slice route map
+  - `web/src/App.tsx` now:
+    - uses a calmer chat eyebrow and tighter chat title/live-state rhythm
+  - `web/src/index.css` now:
+    - reduces topbar pill width, padding, and material heaviness
+    - tightens transcript cadence and avatar spacing
+    - narrows and calms assistant/user bubble width, padding, and meta rhythm
+  - new implementation task:
+    - `.codex/tasks/PRJ-832-chat-first-10-slice-batch-and-foundation-pass.md`
+  - highest-value next steps:
+    - continue the next bounded `chat` batch on portrait-stage authority
+    - then compare the deployed chat
+
 - 2026-05-01: `PRJ-831` opened the dashboard surface group:
   - planning truth now:
     - `docs/planning/canonical-100-slice-closure-map.md` declares `dashboard`

@@ -3645,10 +3645,10 @@ export default function App() {
                   <div className="aion-chat-headline">
                     <span className="aion-chat-headline-emblem" aria-hidden="true" />
                     <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-[#8d785f]">Active conversation</p>
-                    <div className="mt-2 flex flex-wrap items-center gap-3">
-                      <h2 className="font-display text-3xl text-base-900">{routeLabel("/chat", resolvedUiLanguage)}</h2>
-                      <span className="inline-flex items-center gap-2 text-sm text-[#5f8f93]">
+                    <p className="text-[0.64rem] uppercase tracking-[0.22em] text-[#8d785f]">Conversation</p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
+                      <h2 className="font-display text-[2.62rem] leading-[1.02] text-base-900">{routeLabel("/chat", resolvedUiLanguage)}</h2>
+                      <span className="inline-flex items-center gap-2 text-[0.82rem] text-[#5f8f93]">
                         <span className="h-2 w-2 rounded-full bg-[#79b7b9]" />
                         {chatActiveSummary}
                       </span>
