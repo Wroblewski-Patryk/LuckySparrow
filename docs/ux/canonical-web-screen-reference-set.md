@@ -107,21 +107,29 @@ They define the UX/UI target that future implementation should move toward.
 ### Chat
 
 - Asset:
+  - `docs/ux/assets/aion-chat-canonical-reference-v5.png`
+- Previous reference:
   - `docs/ux/assets/aion-chat-canonical-reference-v4.png`
 - Role:
   - premium conversation target for the main product experience
 - Must preserve:
   - conversation-first hierarchy inside the authenticated product shell
-  - left navigation, top utility controls, transcript, embodied stage, and
-    cognitive context as one composed workspace
-  - a strong central AION presence that supports the dialogue without
-    displacing the message thread
-  - right-column cognitive context with intent, motivation, goal, memory,
-    suggested actions, and proactive check-in hierarchy
+  - canonical authenticated sidebar spine from the navigation reference
+  - a calm top cognitive belt above the body content for intent, motivation,
+    active goal, memory, suggested action, and proactive check-in
+  - two equal-height main content columns below the belt:
+    - left `60%` conversation column for transcript and composer
+    - right `40%` persona stage column
+  - a newly adapted chat-context persona figure facing left toward the
+    conversation rather than a reused right-facing figure crop
+  - supporting context as belt modules and persona-stage overlays, not as a
+    separate third content column
   - bottom composer with mode tabs, attachments, voice, and send affordance
     integrated into one premium tray
+  - calmer density than dashboard while preserving a memorable flagship
+    quality
 
-![AION chat canonical reference](./assets/aion-chat-canonical-reference-v4.png)
+![AION chat canonical reference](./assets/aion-chat-canonical-reference-v5.png)
 
 ## Route Translation Rules
 
@@ -136,9 +144,10 @@ They define the UX/UI target that future implementation should move toward.
   motifs overlap with `personality`.
 - `personality` should remain the richest embodiment route and must not be
   flattened into a generic stats page.
-- `chat` should stay calmer than `dashboard`; it must not inherit dashboard
-  modules such as process rails unless a real chat-side product function
-  explicitly requires them.
+- `chat` should stay calmer than `dashboard`; it should use the active v5
+  top-belt plus `60/40` two-column composition and must not reintroduce a
+  separate third context column unless a real chat-side product function
+  explicitly requires it.
 - `tools` may borrow structure from the current visual language, but is not
   yet frozen by this canonical set.
 - `settings` remains acceptable under the current approved direction, but it

@@ -104,6 +104,16 @@
   Keep the main chat input, send control, and low-priority support actions
   inside one shared tray so the conversation footer reads like one premium
   surface instead of stacked unrelated controls.
+- Chat v5 canonical composition:
+  The active chat canonical reference is now
+  `docs/ux/assets/aion-chat-canonical-reference-v5.png`. Below the top
+  cognitive belt, the chat body should use two equal-height columns rather
+  than three competing content containers: about `60%` width for the
+  conversation transcript/composer and about `40%` width for a route-adapted
+  persona stage. Intent, motivation, active goal, memory, suggested action, and
+  proactive check-in belong in the top belt or as subtle persona-stage overlays.
+  The chat persona should be generated/adapted for conversation and face left
+  toward the thread instead of reusing a right-facing figure crop.
 - Brand logotype and font pairing:
   Use the canonical Aviary bird logomark with the `AVIARY` wordmark in
   `Cormorant Garamond` for major headers and `Inter` for operational UI,
@@ -138,6 +148,8 @@
   top bar reused across premium authenticated routes.
 - The current approved canonical web screen-set now lives in
   `docs/ux/canonical-web-screen-reference-set.md`.
+- The current approved chat canonical reference now lives in
+  `docs/ux/assets/aion-chat-canonical-reference-v5.png`.
 - The current approved dashboard hero implementation asset now includes
   `docs/ux/assets/aviary-dashboard-hero-canonical-reference-v4.png`.
 - The current approved landing hero implementation asset now includes

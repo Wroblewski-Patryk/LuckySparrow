@@ -1349,7 +1349,21 @@ function PersonalityLayerCard({
   );
 }
 
-function SidebarGlyph({ kind }: { kind: "dashboard" | "chat" | "personality" | "tools" | "settings" }) {
+type SidebarIconKind =
+  | "dashboard"
+  | "chat"
+  | "personality"
+  | "memory"
+  | "reflections"
+  | "plans"
+  | "goals"
+  | "insights"
+  | "tools"
+  | "automations"
+  | "integrations"
+  | "settings";
+
+function SidebarGlyph({ kind }: { kind: SidebarIconKind }) {
   const commonProps = {
     viewBox: "0 0 24 24",
     fill: "none",
@@ -1388,6 +1402,59 @@ function SidebarGlyph({ kind }: { kind: "dashboard" | "chat" | "personality" | "
     );
   }
 
+  if (kind === "memory") {
+    return (
+      <svg {...commonProps}>
+        <path d="M8 6.5h8a2 2 0 0 1 2 2v8.2a1 1 0 0 1-1.45.9L12 15.35 7.45 17.6A1 1 0 0 1 6 16.7V8.5a2 2 0 0 1 2-2Z" />
+        <path d="M9.5 10h5" />
+        <path d="M9.5 12.8h3.4" />
+      </svg>
+    );
+  }
+
+  if (kind === "reflections") {
+    return (
+      <svg {...commonProps}>
+        <path d="M7 5.8h10v12.4H7z" />
+        <path d="M9.2 9.1h5.6" />
+        <path d="M9.2 12h4.2" />
+        <path d="m9.3 15 1 1 2.2-2.4" />
+      </svg>
+    );
+  }
+
+  if (kind === "plans") {
+    return (
+      <svg {...commonProps}>
+        <path d="M7 6.2h10v12H7z" />
+        <path d="M9 4.8v2.8" />
+        <path d="M15 4.8v2.8" />
+        <path d="M9.5 11.4h5" />
+        <path d="M9.5 14.4h3.3" />
+      </svg>
+    );
+  }
+
+  if (kind === "goals") {
+    return (
+      <svg {...commonProps}>
+        <circle cx="12" cy="12" r="6.8" />
+        <circle cx="12" cy="12" r="3.2" />
+        <path d="m12 12 3.4-3.4" />
+      </svg>
+    );
+  }
+
+  if (kind === "insights") {
+    return (
+      <svg {...commonProps}>
+        <path d="M6.5 13.2 9.2 16l3.6-8 2.6 5.2 2.1-2.1" />
+        <path d="M8 6.8v1.4" />
+        <path d="M16 16v1.4" />
+      </svg>
+    );
+  }
+
   if (kind === "tools") {
     return (
       <svg {...commonProps}>
@@ -1395,6 +1462,28 @@ function SidebarGlyph({ kind }: { kind: "dashboard" | "chat" | "personality" | "
         <circle cx="16" cy="8" r="2.5" />
         <circle cx="8" cy="16" r="2.5" />
         <circle cx="16" cy="16" r="2.5" />
+      </svg>
+    );
+  }
+
+  if (kind === "automations") {
+    return (
+      <svg {...commonProps}>
+        <path d="M8.2 8.2a4.9 4.9 0 0 1 7.6 0" />
+        <path d="M15.8 15.8a4.9 4.9 0 0 1-7.6 0" />
+        <path d="M16.8 5.9v3.1h-3.1" />
+        <path d="M7.2 18.1V15h3.1" />
+        <circle cx="12" cy="12" r="2.1" />
+      </svg>
+    );
+  }
+
+  if (kind === "integrations") {
+    return (
+      <svg {...commonProps}>
+        <path d="M8.2 12h7.6" />
+        <path d="M10.2 8.2 7.4 5.4a2 2 0 0 0-2.8 2.8l2.8 2.8" />
+        <path d="m13.8 15.8 2.8 2.8a2 2 0 0 0 2.8-2.8l-2.8-2.8" />
       </svg>
     );
   }
@@ -1553,15 +1642,19 @@ function ShellNavButton({
   active,
   icon,
   onClick,
+  disabled = false,
 }: {
   label: string;
   active: boolean;
-  icon: "dashboard" | "chat" | "personality" | "tools" | "settings";
+  icon: SidebarIconKind;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
-      className={`aion-nav-button ${active ? "aion-nav-button-active" : ""}`}
+      aria-disabled={disabled}
+      className={`aion-nav-button ${active ? "aion-nav-button-active" : ""} ${disabled ? "aion-nav-button-muted" : ""}`}
+      disabled={disabled}
       onClick={onClick}
       type="button"
     >
@@ -1576,11 +1669,11 @@ function ShellNavButton({
 function AviaryWordmark({ className = "", compact = false }: { className?: string; compact?: boolean }) {
   return (
     <div
-      aria-label="Aviary"
+      aria-label="AION"
       className={`aion-brand-lockup ${compact ? "aion-brand-lockup-compact" : ""} ${className}`.trim()}
     >
       <img alt="" aria-hidden="true" className="aion-brand-mark" src="/aviary-logomark.svg" />
-      <span className="aion-brand-word">AVIARY</span>
+      <span className="aion-brand-word">AION</span>
     </div>
   );
 }
@@ -1588,7 +1681,10 @@ function AviaryWordmark({ className = "", compact = false }: { className?: strin
 function SidebarBrandBlock() {
   return (
     <div className="aion-sidebar-brand">
-      <AviaryWordmark compact className="aion-sidebar-brand-lockup" />
+      <div aria-label="AION" className="aion-brand-lockup aion-brand-lockup-compact aion-sidebar-brand-lockup">
+        <img alt="" aria-hidden="true" className="aion-brand-mark" src="/aviary-logomark.svg" />
+        <span className="aion-brand-word">AION</span>
+      </div>
       <p className="aion-sidebar-brand-subtitle">
         <span>Your conscious</span>
         <span>companion</span>
@@ -2303,7 +2399,12 @@ export default function App() {
     selectedUtcOffsetMetadata.value,
     Boolean(me?.settings.proactive_opt_in) ? copy.common.on : copy.common.off,
   ];
-  const shellNavItems = [
+  const shellNavItems: Array<{
+    route?: RoutePath;
+    label: string;
+    icon: SidebarIconKind;
+    disabled?: boolean;
+  }> = [
     {
       route: "/dashboard" as const,
       label: routeLabel("/dashboard", resolvedUiLanguage),
@@ -2320,20 +2421,49 @@ export default function App() {
       icon: "personality" as const,
     },
     {
+      label: "Memory",
+      icon: "memory",
+      disabled: true,
+    },
+    {
+      label: "Reflections",
+      icon: "reflections",
+      disabled: true,
+    },
+    {
+      label: "Plans",
+      icon: "plans",
+      disabled: true,
+    },
+    {
+      label: "Goals",
+      icon: "goals",
+      disabled: true,
+    },
+    {
+      label: "Insights",
+      icon: "insights",
+      disabled: true,
+    },
+    {
       route: "/tools" as const,
       label: routeLabel("/tools", resolvedUiLanguage),
       icon: "tools" as const,
     },
     {
+      label: "Automations",
+      icon: "automations",
+      disabled: true,
+    },
+    {
+      label: "Integrations",
+      icon: "integrations",
+      disabled: true,
+    },
+    {
       route: "/settings" as const,
       label: routeLabel("/settings", resolvedUiLanguage),
       icon: "settings" as const,
-    },
-  ];
-  const chatTopControls = [
-    {
-      label: "Linked channels",
-      value: recentChannelsLabel === copy.common.noData ? "App" : recentChannelsLabel,
     },
   ];
   const chatQuickActions = ["Plan my day"];
@@ -2349,6 +2479,8 @@ export default function App() {
   const chatMotivationMetrics = [
     { label: "Importance", value: stringValue(planningSummary?.active_goal_count, "0") !== "0" ? "0.80" : "0.62" },
     { label: "Urgency", value: stringValue(planningSummary?.active_task_count, "0") !== "0" ? "0.50" : "0.32" },
+    { label: "Valence", value: "+0.20" },
+    { label: "Arousal", value: "0.60" },
   ];
   const chatGoalCard = {
     title: "Project: Next meaningful step",
@@ -2371,35 +2503,64 @@ export default function App() {
     },
   ];
   const chatSuggestedActions = [
-    { title: "Convert this plan to tasks", body: "" },
-    { title: "Schedule focus blocks", body: "" },
+    { title: "Convert this plan to tasks", body: "Create actionable items in your task list." },
+    { title: "Schedule focus blocks", body: "Add deep work blocks to calendar." },
+    { title: "Set daily intention", body: "Define the main outcome for today." },
   ];
   const chatProactiveCheckIn = {
     title: "Tomorrow 09:00",
     body: "Morning alignment",
     action: "Edit",
   };
-  const chatPersonaNotes = [
+  const chatPrimarySuggestedAction = chatSuggestedActions[0];
+  const chatCognitiveBelt = [
+    {
+      key: "intent",
+      eyebrow: "Current intent",
+      title: chatIntentCard.title,
+      body: chatIntentCard.body,
+      meta: chatIntentCard.status,
+      tone: "lead",
+    },
+    {
+      key: "motivation",
+      eyebrow: "Motivation",
+      title: "Aligned",
+      body: chatMotivationMetrics.map((metric) => `${metric.label} ${metric.value}`).join(" / "),
+      meta: chatIntentCard.emphasis,
+      tone: "soft",
+    },
+    {
+      key: "goal",
+      eyebrow: "Active goal",
+      title: chatGoalCard.title,
+      body: chatGoalCard.body,
+      meta: chatGoalCard.progress,
+      tone: "progress",
+    },
     {
       key: "memory",
-      className: "aion-chat-portrait-note aion-chat-portrait-note-memory",
-      eyebrow: "Memory continuity",
-      title: `${stringValue(preferenceSummary?.learned_preference_count, "0")} learned cues`,
-      body: "Earlier preferences stay available.",
+      eyebrow: "Memory",
+      title: chatRelatedMemory[0]?.title ?? "Memory ready",
+      body: chatRelatedMemory[0]?.body ?? "Relevant cues stay nearby.",
+      meta: chatRelatedMemory[0]?.when ?? "Recent",
+      tone: "soft",
     },
     {
-      key: "expression",
-      className: "aion-chat-portrait-note aion-chat-portrait-note-expression",
-      eyebrow: "Expression",
-      title: stringValue(me?.settings.preferred_language, "adaptive").toUpperCase(),
-      body: "Tone stays adaptive.",
+      key: "action",
+      eyebrow: "Suggested action",
+      title: chatPrimarySuggestedAction?.title ?? "Refine the plan",
+      body: chatPrimarySuggestedAction?.body ?? "Clarify the next step.",
+      meta: "Next",
+      tone: "lead",
     },
     {
-      key: "channels",
-      className: "aion-chat-portrait-note aion-chat-portrait-note-channels",
-      eyebrow: "Linked channels",
-      title: chatLinkedChannelsStatus,
-      body: "Posture stays coherent across touchpoints.",
+      key: "checkin",
+      eyebrow: "Next check-in",
+      title: chatProactiveCheckIn.title,
+      body: chatProactiveCheckIn.body,
+      meta: chatProactiveCheckIn.action,
+      tone: "soft",
     },
   ];
   const chatActiveSummary = "Live";
@@ -3152,18 +3313,23 @@ export default function App() {
       <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-7">
         <section className="aion-shell-window aion-panel overflow-hidden rounded-[2.35rem]">
           <div className="aion-shell-window-body">
-        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[11.72rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[15.1rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <SidebarBrandBlock />
 
             <nav className="aion-sidebar-nav" aria-label="Authenticated navigation">
               {shellNavItems.map((item) => (
                 <ShellNavButton
-                  key={item.route}
+                  key={item.route ?? item.label}
                   label={item.label}
-                  active={route === item.route}
+                  active={Boolean(item.route && route === item.route)}
                   icon={item.icon}
-                  onClick={() => changeRoute(item.route)}
+                  disabled={item.disabled}
+                  onClick={() => {
+                    if (item.route) {
+                      changeRoute(item.route);
+                    }
+                  }}
                 />
               ))}
             </nav>
@@ -3207,7 +3373,7 @@ export default function App() {
           </aside>
 
           <div className="aion-shell-stage grid gap-3">
-            <div className="aion-shell-toolbar hidden xl:block">
+            <div className={`aion-shell-toolbar hidden xl:block ${route === "/chat" ? "aion-shell-toolbar-chat-canonical" : ""}`}>
               <ShellUtilityBar
                 currentSurface={routeLabel(route, resolvedUiLanguage)}
                 currentUserLabel={currentUserLabel}
@@ -3635,37 +3801,41 @@ export default function App() {
               <section className="aion-chat-workspace">
                 <div className="aion-chat-topbar">
                   <div className="aion-chat-headline">
-                    <span className="aion-chat-headline-emblem" aria-hidden="true" />
                     <div>
-                    <p className="text-[0.64rem] uppercase tracking-[0.22em] text-[#8d785f]">Conversation</p>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
-                      <h2 className="font-display text-[2.62rem] leading-[1.02] text-base-900">{routeLabel("/chat", resolvedUiLanguage)}</h2>
-                      <span className="inline-flex items-center gap-2 text-[0.82rem] text-[#5f8f93]">
-                        <span className="h-2 w-2 rounded-full bg-[#79b7b9]" />
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <h2 className="aion-chat-title">Conversation</h2>
+                      <span className="aion-chat-live-status">
+                        <span className="aion-chat-live-status-dot" />
                         {chatActiveSummary}
                       </span>
                     </div>
                     </div>
                   </div>
-                  <div className="aion-chat-topbar-controls">
-                    {chatTopControls.map((item, index) => (
-                      <div
-                        key={item.label}
-                        className={`aion-chat-control-pill ${
-                          chatTopControls.length === 1
-                            ? "aion-chat-control-pill-solo"
-                            : index === 0
-                            ? "aion-chat-control-pill-emphasis"
-                            : index === chatTopControls.length - 1
-                              ? "aion-chat-control-pill-wide"
-                              : ""
-                        }`}
-                      >
-                        <span className="aion-chat-control-label">{item.label}</span>
-                        <span className="aion-chat-control-badge">{item.value}</span>
-                      </div>
-                    ))}
+                  <div className="aion-chat-route-posture">
+                    <span>{chatLinkedChannelsStatus}</span>
+                    <span>{stringValue(me?.settings.preferred_language, "adaptive")}</span>
                   </div>
+                </div>
+
+                <div className="aion-chat-cognitive-belt" aria-label="Conversation context">
+                  {chatCognitiveBelt.map((item) => (
+                    <article
+                      key={item.key}
+                      className={`aion-chat-belt-card aion-chat-belt-card-${item.tone}`}
+                    >
+                      <div className="aion-chat-belt-card-head">
+                        <p className="aion-chat-belt-eyebrow">{item.eyebrow}</p>
+                        <span className="aion-chat-belt-meta">{item.meta}</span>
+                      </div>
+                      <h3 className="aion-chat-belt-title">{item.title}</h3>
+                      <p className="aion-chat-belt-body">{item.body}</p>
+                      {item.key === "goal" ? (
+                        <div className="aion-chat-belt-progress" aria-hidden="true">
+                          <span style={{ width: chatGoalCard.progress }} />
+                        </div>
+                      ) : null}
+                    </article>
+                  ))}
                 </div>
 
                 <div className="aion-chat-stage">
@@ -3705,7 +3875,7 @@ export default function App() {
                             {!isUser ? <span className="aion-chat-avatar">A</span> : null}
                             <article className={`aion-chat-message ${isUser ? "aion-chat-message-user" : "aion-chat-message-assistant"}`}>
                               <div className={`aion-chat-message-meta ${transcriptIsPreview ? "aion-chat-message-meta-preview" : ""}`}>
-                                <span className="aion-chat-message-speaker">{isUser ? copy.common.user : "Aviary"}</span>
+                                <span className="aion-chat-message-speaker">{isUser ? copy.common.user : "AION"}</span>
                                 <span className="aion-chat-meta-separator" aria-hidden="true" />
                                 <span>{formatTimestamp(message.timestamp, resolvedUiLanguage)}</span>
                                 {deliveryState && deliveryLabel ? (
@@ -3741,6 +3911,16 @@ export default function App() {
                         ))}
                       </div>
                       <form className="aion-chat-composer" onSubmit={(event) => void handleSendMessage(event)}>
+                        <div className="aion-chat-mode-tabs" aria-label="Conversation mode">
+                          {["Ask", "Plan", "Reflect", "Execute"].map((mode, index) => (
+                            <span
+                              key={mode}
+                              className={`aion-chat-mode-tab ${index === 0 ? "aion-chat-mode-tab-active" : ""}`}
+                            >
+                              {mode}
+                            </span>
+                          ))}
+                        </div>
                         <div className="aion-chat-composer-primary">
                           <button className="aion-chat-icon-button" type="button" aria-label="Add context">
                             <PlusIcon />
@@ -3766,23 +3946,13 @@ export default function App() {
                           </button>
                         </div>
                       </form>
+                      <p className="aion-chat-composer-note">
+                        AION may make mistakes. Consider checking important information.
+                      </p>
                     </div>
                   </div>
 
                   <aside className="aion-chat-portrait-panel aion-chat-portrait-panel-elevated">
-                    {chatPersonaNotes.map((note) => (
-                      <article key={note.key} className={note.className}>
-                        <p className="aion-chat-portrait-note-eyebrow">{note.eyebrow}</p>
-                        <p className="aion-chat-portrait-note-title">{note.title}</p>
-                        <p className="aion-chat-portrait-note-body">{note.body}</p>
-                      </article>
-                    ))}
-                    <img
-                      alt=""
-                      aria-hidden="true"
-                      className="aion-chat-portrait-figure"
-                      src={CANONICAL_PERSONA_FIGURE_SRC}
-                    />
                     <div className="aion-chat-portrait-overlay">
                       <p className="text-[11px] uppercase tracking-[0.22em] text-[#5f8f93]">Planning</p>
                       <p className="mt-2 font-display text-[1.62rem] leading-[1.08] text-base-900">{chatCurrentFocus}</p>
@@ -3805,96 +3975,6 @@ export default function App() {
                         Clarity forms before action takes shape.
                       </p>
                     </div>
-                  </aside>
-
-                  <aside className="aion-chat-context-rail">
-                    <section className="aion-chat-context-panel aion-chat-context-panel-curated aion-chat-context-panel-lead">
-                      <div className="mb-3.5 flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-base-900">Cognitive context</p>
-                        <span className="aion-chat-live-dot" />
-                      </div>
-                      <article className="aion-chat-support-card aion-chat-support-card-lead">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[0.16em] text-base-800">Current intent</p>
-                            <h3 className="mt-1.5 font-display text-[1.54rem] leading-[1.04] text-base-900">{chatIntentCard.title}</h3>
-                            <p className="mt-1.25 text-[0.8rem] leading-[1.46] text-base-800">{chatIntentCard.body}</p>
-                          </div>
-                          <div className="text-right">
-                            <span className="aion-chat-support-accent">{chatIntentCard.status}</span>
-                            <p className="mt-2 text-[0.74rem] font-semibold text-[#5f8f93]">{chatIntentCard.emphasis}</p>
-                          </div>
-                        </div>
-                      </article>
-                    </section>
-
-                    <section className="aion-chat-context-panel aion-chat-context-panel-compact">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-base-900">Motivation</p>
-                        <span className="aion-chat-support-accent">Aligned</span>
-                      </div>
-                      <div className="aion-chat-motivation-grid">
-                        {chatMotivationMetrics.map((metric) => (
-                          <article key={metric.label} className="aion-chat-motivation-card">
-                            <p className="aion-chat-motivation-label">{metric.label}</p>
-                            <p className="aion-chat-motivation-value">{metric.value}</p>
-                          </article>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section className="aion-chat-context-panel aion-chat-context-panel-compact">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-base-900">Active goal</p>
-                        <span className="aion-chat-support-accent">{chatGoalCard.progress}</span>
-                      </div>
-                      <h3 className="font-display text-[1.26rem] leading-[1.08] text-base-900">{chatGoalCard.title}</h3>
-                      <p className="mt-1.25 text-[0.8rem] leading-[1.5] text-base-800">{chatGoalCard.body}</p>
-                      <div className="aion-chat-goal-progress" aria-hidden="true">
-                        <span style={{ width: chatGoalCard.progress }} />
-                      </div>
-                      <div className="aion-chat-goal-footer">
-                        <div>
-                          <p className="aion-chat-checkin-title">{chatProactiveCheckIn.title}</p>
-                          <p className="aion-chat-checkin-body">{chatProactiveCheckIn.body}</p>
-                        </div>
-                        <span className="aion-chat-support-accent">{chatProactiveCheckIn.action}</span>
-                      </div>
-                    </section>
-
-                    <section className="aion-chat-context-panel aion-chat-context-panel-compact">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-base-900">Related memory</p>
-                        <span className="aion-chat-support-accent">Recent</span>
-                      </div>
-                      <div className="aion-chat-memory-list">
-                        {chatRelatedMemory.slice(0, 2).map((item) => (
-                          <article key={item.title} className="aion-chat-memory-item">
-                            <div>
-                              <p className="aion-chat-memory-item-title">{item.title}</p>
-                              <p className="aion-chat-memory-item-body">{item.body}</p>
-                            </div>
-                            <span className="aion-chat-memory-item-time">{item.when}</span>
-                          </article>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section className="aion-chat-context-panel aion-chat-context-panel-compact">
-                      <p className="mb-4 text-sm font-semibold text-base-900">Suggested actions</p>
-                      <div className="aion-chat-action-list">
-                        {chatSuggestedActions.slice(0, 2).map((item) => (
-                          <button key={item.title} className="aion-chat-context-action" type="button">
-                            <div className="aion-chat-context-action-copy">
-                              <p className="aion-chat-context-action-title">{item.title}</p>
-                              {item.body ? <p className="aion-chat-context-action-body">{item.body}</p> : null}
-                            </div>
-                            <span className="aion-chat-context-action-arrow" aria-hidden="true" />
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
                   </aside>
                 </div>
               </section>
