@@ -2,6 +2,61 @@
 
 Last updated: 2026-05-01
 
+## Fresh Release Smoke Provider Missing Settings Summary (2026-05-01)
+
+- `PRJ-850` is DONE as a release-smoke evidence improvement:
+  - `.codex/tasks/PRJ-850-release-smoke-provider-missing-settings-summary.md`
+- purpose:
+  - make release smoke directly report organizer provider missing settings per
+    provider, instead of requiring a separate full `/health` inspection after
+    smoke
+- implemented:
+  - `Assert-OrganizerToolStackContract` now returns
+    `activation_missing_settings_by_provider`
+  - top-level health smoke summary, debug incident-evidence summary, and
+    incident-bundle summary expose the same provider -> missing settings shape
+  - only setting names already present in `/health` are surfaced; secret values
+    are not exposed
+- validation:
+  - focused debug/bundle smoke tests:
+    `2 passed, 49 deselected`
+  - focused organizer/release smoke tests:
+    `40 passed, 11 deselected`
+  - full deployment-trigger script tests:
+    `51 passed`
+  - full backend gate:
+    `1010 passed in 105.03s`
+- next smallest useful task:
+  - run normal backend/release validation and publish this operator-smoke
+    improvement if it should go live
+
+## Fresh Organizer Guidance Fix Publish And Smoke (2026-05-01)
+
+- `PRJ-849` is DONE as the publish and production-smoke closure for `PRJ-848`:
+  - `.codex/tasks/PRJ-849-publish-and-smoke-organizer-guidance-fix.md`
+- publication:
+  - committed `bdd3dcf` with message
+    `fix: refine organizer activation guidance`
+  - pushed `bdd3dcf` to `origin/main`
+- validation:
+  - `PRJ-848` full backend gate passed with `1010 passed`
+  - production release smoke passed with deploy parity wait
+- production evidence:
+  - `health_status=ok`
+  - `release_ready=true`
+  - `release_violations=[]`
+  - `runtime_action=success`
+  - `deployment_runtime_build_revision=bdd3dcfa01aad3c737fa46ef610d2e787976f3a3`
+  - `web_shell_build_revision=bdd3dcfa01aad3c737fa46ef610d2e787976f3a3`
+  - `organizer_tool_activation_next_actions` now includes
+    `configure_google_calendar_access_token_and_calendar_id`
+- local evidence note:
+  - `PRJ-849` is intentionally local and unpushed to avoid a docs-only deploy
+    cycle after the successful smoke
+- next smallest useful task:
+  - provider credentials remain the next operational blocker if organizer
+    workflows should become daily-use ready
+
 ## Fresh Organizer Activation Next-Action Precision (2026-05-01)
 
 - `PRJ-848` is DONE as a production-readiness quality fix:

@@ -142,6 +142,18 @@ ORGANIZER_TOOL_ACTIVATION_NEXT_ACTIONS = [
     "configure_google_calendar_access_token_calendar_id_and_timezone",
     "configure_google_drive_access_token_and_folder_id",
 ]
+ORGANIZER_TOOL_ACTIVATION_MISSING_SETTINGS_BY_PROVIDER = {
+    "clickup": [],
+    "google_calendar": [
+        "GOOGLE_CALENDAR_ACCESS_TOKEN",
+        "GOOGLE_CALENDAR_CALENDAR_ID",
+        "GOOGLE_CALENDAR_TIMEZONE",
+    ],
+    "google_drive": [
+        "GOOGLE_DRIVE_ACCESS_TOKEN",
+        "GOOGLE_DRIVE_FOLDER_ID",
+    ],
+}
 ORGANIZER_DAILY_USE_READY_WORKFLOWS = [
     "clickup_task_review_and_mutation",
 ]
@@ -2240,6 +2252,10 @@ def test_release_smoke_validates_exported_incident_evidence_when_debug_mode_is_r
     assert summary["organizer_tool_stack_daily_use_blocked_workflows"] == ORGANIZER_DAILY_USE_BLOCKED_WORKFLOWS
     assert summary["organizer_tool_activation_state"] == "provider_activation_incomplete"
     assert summary["organizer_tool_activation_next_actions"] == ORGANIZER_TOOL_ACTIVATION_NEXT_ACTIONS
+    assert (
+        summary["organizer_tool_activation_missing_settings_by_provider"]
+        == ORGANIZER_TOOL_ACTIVATION_MISSING_SETTINGS_BY_PROVIDER
+    )
     assert summary["v1_organizer_daily_use_state"] == "daily_use_workflows_blocked_by_provider_activation"
     assert summary["v1_organizer_daily_use_ready_workflow_count"] == 1
     assert summary["v1_organizer_daily_use_ready_workflows"] == ORGANIZER_DAILY_USE_READY_WORKFLOWS
@@ -2253,6 +2269,10 @@ def test_release_smoke_validates_exported_incident_evidence_when_debug_mode_is_r
     assert summary["incident_evidence_organizer_tool_activation_state"] == "provider_activation_incomplete"
     assert summary["incident_evidence_organizer_tool_activation_next_actions"] == (
         ORGANIZER_TOOL_ACTIVATION_NEXT_ACTIONS
+    )
+    assert (
+        summary["incident_evidence_organizer_tool_activation_missing_settings_by_provider"]
+        == ORGANIZER_TOOL_ACTIVATION_MISSING_SETTINGS_BY_PROVIDER
     )
     assert summary["incident_evidence_v1_organizer_daily_use_state"] == (
         "daily_use_workflows_blocked_by_provider_activation"
@@ -2348,6 +2368,10 @@ def test_release_smoke_verifies_incident_evidence_bundle_when_bundle_path_is_pro
     assert summary["incident_bundle_organizer_tool_activation_state"] == "provider_activation_incomplete"
     assert summary["incident_bundle_organizer_tool_activation_next_actions"] == (
         ORGANIZER_TOOL_ACTIVATION_NEXT_ACTIONS
+    )
+    assert (
+        summary["incident_bundle_organizer_tool_activation_missing_settings_by_provider"]
+        == ORGANIZER_TOOL_ACTIVATION_MISSING_SETTINGS_BY_PROVIDER
     )
     assert summary["incident_bundle_learned_state_policy_owner"] == "learned_state_inspection_policy"
     assert summary["incident_bundle_learned_state_internal_inspection_path"] == "/internal/state/inspect"

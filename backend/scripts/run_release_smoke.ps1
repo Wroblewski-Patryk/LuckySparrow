@@ -364,6 +364,7 @@ function Validate-IncidentEvidenceBundle {
         organizer_tool_stack_credential_gap_operations = @()
         organizer_tool_activation_state = $null
         organizer_tool_activation_next_actions = @()
+        organizer_tool_activation_missing_settings_by_provider = @{}
         retrieval_policy_owner = $null
         retrieval_provider_requested = $null
         retrieval_provider_effective = $null
@@ -658,6 +659,7 @@ function Validate-IncidentEvidenceBundle {
         organizer_tool_stack_daily_use_ready_workflow_count = [int]$organizerToolStackContract.daily_use_ready_workflow_count
         organizer_tool_activation_state = [string]$organizerToolStackContract.activation_state
         organizer_tool_activation_next_actions = @($organizerToolStackContract.activation_next_actions)
+        organizer_tool_activation_missing_settings_by_provider = $organizerToolStackContract.activation_missing_settings_by_provider
         web_knowledge_policy_owner = [string]$webKnowledgeWorkflowContract.policy_owner
         website_reading_workflow_policy_owner = [string]$webKnowledgeWorkflowContract.workflow_policy_owner
         website_reading_workflow_state = [string]$webKnowledgeWorkflowContract.workflow_state
@@ -696,6 +698,7 @@ function Validate-IncidentEvidenceBundle {
         incident_organizer_tool_stack_daily_use_ready_workflow_count = [int]$incidentOrganizerToolStackContract.daily_use_ready_workflow_count
         incident_organizer_tool_activation_state = [string]$incidentOrganizerToolStackContract.activation_state
         incident_organizer_tool_activation_next_actions = @($incidentOrganizerToolStackContract.activation_next_actions)
+        incident_organizer_tool_activation_missing_settings_by_provider = $incidentOrganizerToolStackContract.activation_missing_settings_by_provider
     }
 }
 
@@ -1381,6 +1384,11 @@ function Assert-OrganizerToolStackContract {
             }
         }
     }
+    $activationMissingSettingsByProvider = @{}
+    foreach ($providerName in @("clickup", "google_calendar", "google_drive")) {
+        $providerEntry = $providerRequirements.$providerName
+        $activationMissingSettingsByProvider[$providerName] = @($providerEntry.missing_settings)
+    }
 
     return @{
         policy_owner = [string]$OrganizerToolStack.policy_owner
@@ -1396,6 +1404,7 @@ function Assert-OrganizerToolStackContract {
         daily_use_hint = [string]$OrganizerToolStack.daily_use_hint
         activation_state = $activationState
         activation_next_actions = @($activationSnapshot.next_actions)
+        activation_missing_settings_by_provider = $activationMissingSettingsByProvider
     }
 }
 
@@ -2822,6 +2831,7 @@ $summary = @{
     organizer_tool_stack_daily_use_blocked_workflows = @($organizerToolStackContract.daily_use_blocked_workflows)
     organizer_tool_activation_state = [string]$organizerToolStackContract.activation_state
     organizer_tool_activation_next_actions = @($organizerToolStackContract.activation_next_actions)
+    organizer_tool_activation_missing_settings_by_provider = $organizerToolStackContract.activation_missing_settings_by_provider
     v1_organizer_daily_use_state = [string]$v1Readiness.organizer_daily_use_state
     v1_organizer_daily_use_ready_workflow_count = [int]$v1Readiness.organizer_daily_use_ready_workflow_count
     v1_organizer_daily_use_ready_workflows = @($actualOrganizerReadyWorkflows)
@@ -2843,6 +2853,7 @@ $summary = @{
     incident_evidence_organizer_tool_stack_daily_use_ready_workflow_count = if ($null -ne $incidentOrganizerToolStackContract) { [int]$incidentOrganizerToolStackContract.daily_use_ready_workflow_count } else { $null }
     incident_evidence_organizer_tool_activation_state = if ($null -ne $incidentOrganizerToolStackContract) { [string]$incidentOrganizerToolStackContract.activation_state } else { $null }
     incident_evidence_organizer_tool_activation_next_actions = if ($null -ne $incidentOrganizerToolStackContract) { @($incidentOrganizerToolStackContract.activation_next_actions) } else { @() }
+    incident_evidence_organizer_tool_activation_missing_settings_by_provider = if ($null -ne $incidentOrganizerToolStackContract) { $incidentOrganizerToolStackContract.activation_missing_settings_by_provider } else { @{} }
     incident_evidence_v1_organizer_daily_use_state = if ($null -ne $incidentV1Readiness) { [string]$incidentV1Readiness.organizer_daily_use_state } else { $null }
     incident_evidence_web_knowledge_policy_owner = if ($null -ne $incidentWebKnowledgeWorkflowContract) { [string]$incidentWebKnowledgeWorkflowContract.policy_owner } else { $null }
     incident_evidence_website_reading_workflow_state = if ($null -ne $incidentWebKnowledgeWorkflowContract) { [string]$incidentWebKnowledgeWorkflowContract.workflow_state } else { $null }
@@ -2889,6 +2900,7 @@ $summary = @{
     incident_bundle_organizer_tool_stack_daily_use_ready_workflow_count = $incidentEvidenceBundleCheck.organizer_tool_stack_daily_use_ready_workflow_count
     incident_bundle_organizer_tool_activation_state = $incidentEvidenceBundleCheck.organizer_tool_activation_state
     incident_bundle_organizer_tool_activation_next_actions = $incidentEvidenceBundleCheck.organizer_tool_activation_next_actions
+    incident_bundle_organizer_tool_activation_missing_settings_by_provider = $incidentEvidenceBundleCheck.organizer_tool_activation_missing_settings_by_provider
     incident_bundle_web_knowledge_policy_owner = $incidentEvidenceBundleCheck.web_knowledge_policy_owner
     incident_bundle_website_reading_workflow_policy_owner = $incidentEvidenceBundleCheck.website_reading_workflow_policy_owner
     incident_bundle_website_reading_workflow_state = $incidentEvidenceBundleCheck.website_reading_workflow_state

@@ -2,6 +2,50 @@
 
 Last updated: 2026-05-01
 
+- 2026-05-01: `PRJ-850` improved release-smoke provider activation evidence:
+  - new task:
+    - `.codex/tasks/PRJ-850-release-smoke-provider-missing-settings-summary.md`
+  - `backend/scripts/run_release_smoke.ps1` now includes
+    `organizer_tool_activation_missing_settings_by_provider` in the normal
+    smoke summary, plus matching incident-evidence and incident-bundle fields
+  - the added fields contain setting names only and do not expose secret values
+  - validation:
+    - focused debug/bundle smoke tests:
+      - `2 passed, 49 deselected`
+    - focused organizer/release smoke tests:
+      - `40 passed, 11 deselected`
+    - full deployment-trigger script tests:
+      - `51 passed in 65.16s`
+    - full backend gate:
+      - `1010 passed in 105.03s`
+  - highest-value next step:
+    - run normal backend/release validation and publish if this operator-smoke
+      improvement should go live
+
+- 2026-05-01: `PRJ-849` published and smoke-verified the organizer guidance
+  fix:
+  - new task:
+    - `.codex/tasks/PRJ-849-publish-and-smoke-organizer-guidance-fix.md`
+  - published commit:
+    - `bdd3dcf` (`fix: refine organizer activation guidance`)
+  - production host:
+    - `https://aviary.luckysparrow.ch`
+  - production evidence:
+    - `health_status=ok`
+    - `release_ready=true`
+    - `release_violations=[]`
+    - `runtime_action=success`
+    - `deployment_runtime_build_revision=bdd3dcfa01aad3c737fa46ef610d2e787976f3a3`
+    - `web_shell_build_revision=bdd3dcfa01aad3c737fa46ef610d2e787976f3a3`
+    - `organizer_tool_activation_next_actions` includes
+      `configure_google_calendar_access_token_and_calendar_id`
+  - deployment posture:
+    - production is smoke-verified after the organizer guidance fix
+    - `PRJ-849` evidence remains local to avoid a docs-only redeploy cycle
+  - highest-value next step:
+    - configure provider credentials if organizer workflows should become
+      daily-use ready
+
 - 2026-05-01: `PRJ-848` made organizer activation next actions precise:
   - new task:
     - `.codex/tasks/PRJ-848-precise-organizer-activation-next-actions.md`
