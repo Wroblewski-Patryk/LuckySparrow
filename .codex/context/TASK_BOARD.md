@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+## Fresh Backend-Backed Dashboard Summary Surface (2026-05-03)
+
+- `PRJ-915` is DONE:
+  - `.codex/tasks/PRJ-915-backend-backed-dashboard-summary-surface.md`
+  - `docs/planning/v1-backend-backed-dashboard-summary-surface.md`
+- result:
+  - dashboard goal rows, memory bars, reflection rows, and current phase now
+    derive from existing runtime overview/tool data instead of fixed demo
+    values
+  - removed fixed `72%`, `58%`, `41%`, `33%`, and weekday fake memory history
+    claims from `/dashboard`
+  - focused `/dashboard` desktop/mobile smoke passed with no failures and no
+    unexpected console issues
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - bundled Node + Playwright focused dashboard summary smoke
+  - `git diff --check`
+- next smallest useful task:
+  - `PRJ-916` Web Empty And Error State Audit
+
 ## Fresh Replace Static Personality Metrics (2026-05-03)
 
 - `PRJ-914` is DONE:

@@ -375,8 +375,12 @@ Tasks:
     to backend truth or explicit empty runtime state.
 
 - `PRJ-915` Backend-Backed Dashboard Summary Surface
-  - Replace route-local dashboard summary cards that imply live operational
-    truth with values from `/health`, `/app/personality/overview`, and
+  - Status: DONE
+  - Output:
+    `docs/planning/v1-backend-backed-dashboard-summary-surface.md` records the
+    dashboard summary replacement and focused desktop/mobile smoke evidence.
+  - Replaced route-local dashboard summary cards that implied live operational
+    truth with values from `/app/personality/overview` and
     `/app/tools/overview`.
 
 - `PRJ-916` Web Empty And Error State Audit
@@ -480,7 +484,7 @@ Tasks:
    preconditions
 2. `PRJ-913` Web V1 Route Smoke After Release Candidate - DONE locally
 3. `PRJ-914` Replace Remaining Static Personality Metrics - DONE locally
-4. `PRJ-915` Backend-Backed Dashboard Summary Surface
+4. `PRJ-915` Backend-Backed Dashboard Summary Surface - DONE locally
 5. `PRJ-916` Web Empty And Error State Audit
 6. `PRJ-917` Organizer Provider Credential Activation Runbook
 7. `PRJ-918` Organizer Provider Activation Smoke

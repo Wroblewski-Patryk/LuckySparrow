@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-915` completed the backend-backed dashboard summary
+  surface:
+  - new task:
+    - `.codex/tasks/PRJ-915-backend-backed-dashboard-summary-surface.md`
+  - new planning source:
+    - `docs/planning/v1-backend-backed-dashboard-summary-surface.md`
+  - implementation:
+    - `web/src/App.tsx` now derives dashboard goal rows, memory bars,
+      reflection rows, and current phase from existing runtime overview/tool
+      data
+    - removed fixed `72%`, `58%`, `41%`, `33%`, and weekday fake memory
+      history claims from `/dashboard`
+  - validation:
+    - web build passed
+    - focused `/dashboard` desktop/mobile smoke passed with `2` checks, `0`
+      failures, and `0` unexpected console issues
+    - screenshots and JSON evidence were captured in
+      `.codex/artifacts/prj915-dashboard-summary/`
+  - next execution priority:
+    - `PRJ-916` Web Empty And Error State Audit
+
 - 2026-05-03: `PRJ-914` replaced remaining static Personality metrics:
   - new task:
     - `.codex/tasks/PRJ-914-replace-static-personality-metrics.md`

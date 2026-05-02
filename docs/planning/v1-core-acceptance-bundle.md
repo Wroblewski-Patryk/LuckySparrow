@@ -83,7 +83,9 @@ broader public or web-led release claim:
   evidence and `/tools` mobile overflow fix
 - `PRJ-914` static Personality metrics replacement: DONE locally with
   desktop/mobile focused evidence
-- `PRJ-915..PRJ-916` remaining web-v1 product-honesty checks
+- `PRJ-915` backend-backed dashboard summary surface: DONE locally with
+  desktop/mobile focused evidence
+- `PRJ-916` remaining web-v1 empty/error state check
 - `PRJ-917..PRJ-919` organizer/tooling extension readiness
 - `PRJ-920..PRJ-921` operational monitor and release-evidence archive
 - `PRJ-930` deployment trigger SLO evidence

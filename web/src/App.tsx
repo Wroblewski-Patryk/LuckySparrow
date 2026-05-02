@@ -2081,6 +2081,13 @@ function numberValue(value: unknown, fallback = 0) {
   return Number.isFinite(candidate) ? candidate : fallback;
 }
 
+function scaledMetricSize(value: number, maxValue: number, minimumWhenPresent = 10) {
+  if (value <= 0 || maxValue <= 0) {
+    return "0%";
+  }
+  return `${Math.min(100, Math.max(minimumWhenPresent, Math.round((value / maxValue) * 100)))}%`;
+}
+
 type ConversationChannelStatus = {
   tone: "active" | "warning" | "error" | "loading";
   label: string;
@@ -3371,6 +3378,24 @@ export default function App() {
   const claritySignalCount = semanticConclusionCount + learnedPreferenceCount + activeGoalCount;
   const intuitiveSignalCount =
     relationCount + affectiveConclusionCount + adaptiveOutputCount + (Boolean(knowledgeSummary?.theta_present) ? 1 : 0);
+  const primaryGoalNames = Array.isArray(planningSummary?.primary_goal_names)
+    ? planningSummary.primary_goal_names.map((item) => String(item)).filter(Boolean)
+    : [];
+  const primaryTaskNames = Array.isArray(planningSummary?.primary_task_names)
+    ? planningSummary.primary_task_names.map((item) => String(item)).filter(Boolean)
+    : [];
+  const dashboardRuntimeMax = Math.max(
+    activeGoalCount,
+    activeTaskCount,
+    blockedTaskCount,
+    pendingProposalCount,
+    semanticConclusionCount,
+    affectiveConclusionCount,
+    learnedPreferenceCount,
+    relationCount,
+    skillCatalogCount,
+    1,
+  );
   const selectedUiLanguage = normalizeUiLanguage(
     route === "/settings" ? settingsDraft.uiLanguage : me?.settings.ui_language ?? settingsDraft.uiLanguage,
   );
@@ -3484,34 +3509,59 @@ export default function App() {
     { token: "O", title: "Observe", detail: "Input" },
     { token: "U", title: "Understand", detail: "Intent" },
     { token: "C", title: "Connect", detail: "Pattern" },
-    { token: "R", title: "Reflect", detail: "Insight", active: true },
-    { token: "P", title: "Plan", detail: "Path" },
-    { token: "A", title: "Act", detail: "Delivery" },
+    { token: "R", title: "Reflect", detail: "Insight", active: affectiveConclusionCount > 0 },
+    { token: "P", title: "Plan", detail: "Path", active: activeGoalCount > 0 },
+    { token: "A", title: "Act", detail: "Delivery", active: activeTaskCount > 0 },
   ];
+  const activeDashboardStep =
+    [...dashboardCognitiveSteps].reverse().find((step) => Boolean(step.active)) ?? dashboardCognitiveSteps[2];
   const dashboardGoalRows = [
-    { title: "Build a stronger daily rhythm", value: "72%" },
-    { title: "Improve continuity across channels", value: "58%" },
-    { title: "Capture reusable insights", value: "41%" },
-    { title: "Shape a more embodied personality", value: "33%" },
+    {
+      title: primaryGoalNames[0] ?? "Active goals",
+      value: `${activeGoalCount}`,
+      width: scaledMetricSize(activeGoalCount, dashboardRuntimeMax),
+    },
+    {
+      title: primaryTaskNames[0] ?? "Active tasks",
+      value: `${activeTaskCount}`,
+      width: scaledMetricSize(activeTaskCount, dashboardRuntimeMax),
+    },
+    {
+      title: "Blocked tasks",
+      value: `${blockedTaskCount}`,
+      width: scaledMetricSize(blockedTaskCount, dashboardRuntimeMax),
+    },
+    {
+      title: "Pending proposals",
+      value: `${pendingProposalCount}`,
+      width: scaledMetricSize(pendingProposalCount, dashboardRuntimeMax),
+    },
   ];
   const dashboardMemoryBars = [
-    { label: "Mon", height: "18%" },
-    { label: "Tue", height: "30%" },
-    { label: "Wed", height: "52%" },
-    { label: "Thu", height: "44%" },
-    { label: "Fri", height: "68%" },
-    { label: "Sat", height: "90%" },
-    { label: "Sun", height: "76%" },
+    { label: "Mem", height: scaledMetricSize(semanticConclusionCount, dashboardRuntimeMax, 12) },
+    { label: "Aff", height: scaledMetricSize(affectiveConclusionCount, dashboardRuntimeMax, 12) },
+    { label: "Pref", height: scaledMetricSize(learnedPreferenceCount, dashboardRuntimeMax, 12) },
+    { label: "Rel", height: scaledMetricSize(relationCount, dashboardRuntimeMax, 12) },
+    { label: "Goal", height: scaledMetricSize(activeGoalCount, dashboardRuntimeMax, 12) },
+    { label: "Task", height: scaledMetricSize(activeTaskCount, dashboardRuntimeMax, 12) },
+    { label: "Tool", height: scaledMetricSize(numberValue(toolsOverview?.summary.provider_ready_count), dashboardRuntimeMax, 12) },
   ];
   const dashboardReflectionRows = [
-    { title: "Clarity on the next chapter", tag: "Clarity" },
-    { title: "Decision framework update", tag: "Growth" },
-    { title: "Values realignment", tag: "Alignment" },
-    { title: "Letting go of distractions", tag: "Awareness" },
+    { title: `${semanticConclusionCount} reusable semantic conclusions`, tag: "Memory" },
+    { title: `${affectiveConclusionCount} affective conclusions`, tag: "Reflection" },
+    { title: `${learnedPreferenceCount} learned preferences`, tag: "Identity" },
+    { title: `${relationCount} learned relations`, tag: "Context" },
   ];
   const dashboardCurrentPhase = {
-    title: "Reflect",
-    body: "Generating insight from recent experiences and the goals that matter now.",
+    title: activeDashboardStep.title,
+    body:
+      activeTaskCount > 0
+        ? `${activeTaskCount} active tasks are available for the current action layer.`
+        : activeGoalCount > 0
+          ? `${activeGoalCount} active goals are shaping the current planning layer.`
+          : affectiveConclusionCount > 0
+            ? `${affectiveConclusionCount} affective conclusions are available for reflection.`
+            : `${semanticConclusionCount} memory signals are available for the current context.`,
   };
   const dashboardFigureNotes = [
     {
@@ -3945,7 +3995,7 @@ export default function App() {
     },
     {
       label: copy.goals.focus,
-      value: dashboardGoalRows[0]?.value ?? "0%",
+      value: `${activeGoalCount}`,
       detail: copy.goals.dailyRhythmTitle ?? copy.goals.focusFallback,
     },
   ];
@@ -5364,7 +5414,7 @@ export default function App() {
                           <span>{goal.value}</span>
                         </div>
                         <div className="aion-dashboard-progress mt-2">
-                          <span style={{ width: goal.value }} />
+                          <span style={{ width: goal.width }} />
                         </div>
                       </div>
                     ))}
