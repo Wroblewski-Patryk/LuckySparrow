@@ -2,6 +2,22 @@
 
 Last updated: 2026-05-03
 
+## Fresh Minimal External Health Monitor (2026-05-03)
+
+- `PRJ-920` is DONE:
+  - `.codex/tasks/PRJ-920-minimal-external-health-monitor.md`
+  - `docs/planning/v1-minimal-external-health-monitor.md`
+  - `docs/operations/production-health-monitor.md`
+- result:
+  - created active hourly automation `aion-production-health-monitor`
+  - monitor checks production `/health` and reports readiness/degraded fields
+  - runbook documents checked fields, alert criteria, and operator response
+- validation:
+  - automation creation returned `aion-production-health-monitor`
+  - `git diff --check`
+- next smallest useful task:
+  - `PRJ-921` Release Evidence Archive Standard
+
 ## Fresh Organizer Provider Activation Smoke (2026-05-03)
 
 - `PRJ-918` is BLOCKED:

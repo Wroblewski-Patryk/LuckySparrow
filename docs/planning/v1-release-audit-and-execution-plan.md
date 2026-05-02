@@ -425,7 +425,11 @@ Goal: make v1 operable beyond one manual deploy.
 Tasks:
 
 - `PRJ-920` Minimal External Health Monitor
-  - Add or document uptime check, alert destination, check cadence, and owner.
+  - Status: DONE
+  - Output: `docs/planning/v1-minimal-external-health-monitor.md` records the
+    active hourly `aion-production-health-monitor` automation and runbook.
+  - Added and documented an hourly read-only production `/health` check,
+    alert criteria, check cadence, and operator response path.
 
 - `PRJ-921` Release Evidence Archive Standard
   - Define where latest release smoke, behavior report, incident bundle, and
@@ -500,7 +504,7 @@ Tasks:
 6. `PRJ-917` Organizer Provider Credential Activation Runbook - DONE locally
 7. `PRJ-918` Organizer Provider Activation Smoke - BLOCKED by provider
    credentials
-8. `PRJ-920` Minimal External Health Monitor
+8. `PRJ-920` Minimal External Health Monitor - DONE locally
 9. `PRJ-921` Release Evidence Archive Standard
 10. `PRJ-931` V1 AI Red-Team Scenario Pack
 11. `PRJ-932` Cross-User And Session Isolation Audit

@@ -91,7 +91,9 @@ broader public or web-led release claim:
 - `PRJ-918` organizer provider activation smoke: BLOCKED until provider
   credentials are configured
 - `PRJ-919` tool authorization UX tightening
-- `PRJ-920..PRJ-921` operational monitor and release-evidence archive
+- `PRJ-920` minimal external health monitor: DONE with active hourly
+  `aion-production-health-monitor`
+- `PRJ-921` release-evidence archive
 - `PRJ-930` deployment trigger SLO evidence
 - `PRJ-931..PRJ-933` AI/security/privacy hardening
 - `PRJ-934..PRJ-936` final go/no-go, handoff, and release marker

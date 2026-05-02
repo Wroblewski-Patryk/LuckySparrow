@@ -2,6 +2,21 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-920` completed the minimal external health monitor:
+  - new task:
+    - `.codex/tasks/PRJ-920-minimal-external-health-monitor.md`
+  - new planning source:
+    - `docs/planning/v1-minimal-external-health-monitor.md`
+  - new operations source:
+    - `docs/operations/production-health-monitor.md`
+  - result:
+    - active hourly automation `aion-production-health-monitor` checks
+      production `/health`
+    - runbook documents checked fields, alert criteria, limits, and operator
+      response
+  - next execution priority:
+    - `PRJ-921` Release Evidence Archive Standard
+
 - 2026-05-03: `PRJ-918` is blocked for organizer provider activation smoke:
   - new task:
     - `.codex/tasks/PRJ-918-organizer-provider-activation-smoke.md`
