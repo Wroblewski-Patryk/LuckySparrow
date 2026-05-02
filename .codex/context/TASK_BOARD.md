@@ -2,6 +2,37 @@
 
 Last updated: 2026-05-02
 
+## Fresh Passive/Active Skipped And Failed Evidence (2026-05-02)
+
+- `PRJ-857` is DONE as the passive/active evidence persistence slice:
+  - `.codex/tasks/PRJ-857-persist-skipped-and-failed-passive-active-evidence.md`
+- purpose:
+  - preserve skipped, delayed, blocked, and failed observer-admitted work for
+    later reflection/scenario learning
+  - keep failure evidence internal instead of forcing user-visible expression
+  - reuse existing scheduler cadence evidence rather than adding a new store
+- implemented:
+  - proactive cadence summaries now include bounded `passive_active_evidence`
+    and `passive_active_evidence_count`
+  - evidence records source, work id, user id, work kind, delivery channel,
+    outcome, reason, and `expression_visible`
+  - runtime unavailable, foreground-not-required, quiet-hours delay/skip,
+    action noop/partial, action failure, and runtime exception paths can leave
+    metadata-only evidence
+  - repository persistence coverage proves passive-active evidence survives in
+    scheduler cadence evidence
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_memory_repository.py -k "passive_active or scheduler_cadence_evidence or proactive"; Pop-Location`
+  - result: `9 passed, 76 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_scheduler_worker.py; Pop-Location`
+  - result: `182 passed`
+  - `git diff --check`
+  - result: passed
+- deployment impact:
+  - low; metadata-only evidence in existing cadence store, no env, DB schema,
+    API, or user-visible expression behavior change
+- next smallest useful task:
+  - `PRJ-858` add behavior scenarios for observer-gated proactivity
 ## Fresh Proactive Cadence Observer Admission (2026-05-02)
 
 - `PRJ-856` is DONE as the behavior-changing passive/active trigger slice:

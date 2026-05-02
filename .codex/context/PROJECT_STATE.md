@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-02
 
+- 2026-05-02: `PRJ-857` persisted skipped and failed passive-active evidence:
+  - new task:
+    - `.codex/tasks/PRJ-857-persist-skipped-and-failed-passive-active-evidence.md`
+  - `backend/app/workers/scheduler.py` now adds bounded
+    `passive_active_evidence` for skipped, delayed, blocked, and failed
+    observer-admitted planned work
+  - evidence stays metadata-only and records `expression_visible=false` for
+    silent internal outcomes
+  - the existing scheduler cadence evidence store persists this evidence; no
+    schema or new store was added
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_memory_repository.py -k "passive_active or scheduler_cadence_evidence or proactive"; Pop-Location`
+    - result: `9 passed, 76 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_reflection_worker.py tests/test_memory_repository.py tests/test_scheduler_worker.py; Pop-Location`
+    - result: `182 passed`
+    - `git diff --check`
+    - result: passed
+  - highest-value next step:
+    - execute `PRJ-858` by adding behavior scenarios for observer-gated
+      proactivity
 - 2026-05-02: `PRJ-856` routed proactive cadence through observer admission:
   - new task:
     - `.codex/tasks/PRJ-856-route-proactive-cadence-through-observer-admission.md`

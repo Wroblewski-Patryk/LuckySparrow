@@ -871,6 +871,56 @@ async def test_scheduler_worker_proactive_tick_admits_due_planned_work_to_foregr
     ]
 
 
+async def test_scheduler_worker_proactive_tick_persists_blocked_passive_active_evidence() -> None:
+    reflection_worker = FakeReflectionWorker(running=False)
+    repository = FakeMemoryRepository()
+    fixed_now = datetime(2026, 5, 2, 12, 0, tzinfo=timezone.utc)
+    repository.due_planned_work = [
+        {
+            "id": 32,
+            "user_id": "123456",
+            "kind": "check_in",
+            "summary": "relationship check-in",
+            "status": "pending",
+            "delivery_channel": "telegram",
+            "requires_foreground_execution": True,
+            "preferred_at": fixed_now - timedelta(minutes=3),
+            "source_event_id": "evt-check-in-32",
+        }
+    ]
+    runtime = FakeRuntime(status="noop", actions=[])
+    scheduler = SchedulerWorker(
+        memory_repository=repository,  # type: ignore[arg-type]
+        reflection_worker=reflection_worker,  # type: ignore[arg-type]
+        enabled=True,
+        reflection_runtime_mode="deferred",
+        reflection_interval_seconds=900,
+        maintenance_interval_seconds=3600,
+        proactive_enabled=True,
+        proactive_interval_seconds=1800,
+    )
+    scheduler._utcnow = lambda: fixed_now
+    scheduler.set_runtime(runtime)
+
+    summary = await scheduler.run_proactive_tick_once(reason="test_proactive_blocked_due_work")
+
+    assert summary["delivery_blocked"] == 1
+    assert summary["passive_active_evidence_count"] == 1
+    assert summary["passive_active_evidence"] == [
+        {
+            "source": "planned_work_observer",
+            "work_id": 32,
+            "user_id": "123456",
+            "work_kind": "check_in",
+            "delivery_channel": "telegram",
+            "outcome": "delivery_blocked",
+            "reason": "action_noop_or_partial",
+            "expression_visible": False,
+        }
+    ]
+    assert repository.cadence_evidence_writes[-1]["summary"]["passive_active_evidence_count"] == 1
+
+
 async def test_scheduler_worker_snapshot_exposes_live_proactive_policy() -> None:
     reflection_worker = FakeReflectionWorker(running=False)
     repository = FakeMemoryRepository()

@@ -87,7 +87,12 @@ Queue update:
     themselves
   - due planned work can still enter conscious planning through the existing
     `planned_work_due` handoff
-- `PRJ-857` remains the next slice for skipped/failed evidence persistence.
+- `PRJ-857` is now complete.
+- skipped, delayed, blocked, and failed observer-admitted planned work now
+  leaves bounded `passive_active_evidence` in scheduler cadence evidence so
+  reflection/scenario work can learn from silence without user-visible failure
+  chatter.
+- `PRJ-858` remains the next slice for behavior scenarios.
 
 Why this order:
 

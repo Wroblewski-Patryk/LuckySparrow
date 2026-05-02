@@ -1086,6 +1086,10 @@ What is already live:
 - `app/workers/scheduler.py` no longer emits generic proactive scheduler
   candidate events from opt-in/user-activity alone; proactive cadence records
   an observer no-op when no due planned work or actionable proposal is present
+- skipped, delayed, blocked, and failed observer-admitted planned work now
+  leaves counts-only `passive_active_evidence` in scheduler cadence evidence,
+  including outcome, reason, work kind, channel, and whether expression stayed
+  silent
 - proactive planning now records the resulting delivery posture through typed
   `update_proactive_state` intents
 - proactive outreach outcomes and connector permission-gate outcomes now share

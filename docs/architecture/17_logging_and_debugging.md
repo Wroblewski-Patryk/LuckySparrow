@@ -218,6 +218,12 @@ You should be able to answer:
 - what did system decide?  
 - what changed after?  
 
+Passive/active trigger evidence must preserve skipped, delayed, blocked, and
+failed observer-admitted work in scheduler cadence evidence without forcing a
+user-visible expression. The evidence shape should stay bounded to metadata
+such as source, work id, user id, work kind, channel, outcome, reason, and
+`expression_visible`.
+
 ---
 
 ## V1 Release Evidence

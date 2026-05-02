@@ -366,6 +366,45 @@ async def test_memory_repository_persists_scheduler_cadence_evidence_contract_st
     await engine.dispose()
 
 
+async def test_memory_repository_persists_passive_active_scheduler_evidence(tmp_path) -> None:
+    database_path = tmp_path / "memory-passive-active-evidence.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    await repository.upsert_scheduler_cadence_evidence(
+        cadence_kind="proactive",
+        execution_owner="external_scheduler",
+        execution_mode="externalized",
+        summary={
+            "observer_state": "due_planned_work",
+            "passive_active_evidence_count": 1,
+            "passive_active_evidence": [
+                {
+                    "source": "planned_work_observer",
+                    "work_id": 42,
+                    "user_id": "usr-evidence",
+                    "work_kind": "check_in",
+                    "delivery_channel": "telegram",
+                    "outcome": "delivery_blocked",
+                    "reason": "contact_cadence_on_demand",
+                    "expression_visible": False,
+                }
+            ],
+        },
+    )
+
+    loaded = await repository.get_scheduler_cadence_evidence(cadence_kind="proactive")
+
+    assert loaded is not None
+    assert loaded["summary"]["passive_active_evidence_count"] == 1
+    assert loaded["summary"]["passive_active_evidence"][0]["outcome"] == "delivery_blocked"
+    assert loaded["summary"]["passive_active_evidence"][0]["expression_visible"] is False
+
+    await engine.dispose()
+
+
 async def test_memory_repository_upserts_and_queries_semantic_embeddings(tmp_path) -> None:
     database_path = tmp_path / "memory-semantic-embeddings.db"
     engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")

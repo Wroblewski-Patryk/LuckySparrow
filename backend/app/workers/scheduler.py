@@ -356,6 +356,7 @@ class SchedulerWorker:
                 "delivery_delayed": 0,
                 "delivery_skipped": 0,
                 "recurrence_advanced": 0,
+                "passive_active_evidence": [],
                 "items": [],
             }
 
@@ -365,22 +366,63 @@ class SchedulerWorker:
         delivery_skipped = 0
         recurrence_advanced = 0
         handoff_items: list[dict] = []
+        passive_active_evidence: list[dict[str, Any]] = []
         for item in due_items:
             if self._planned_work_expired(item=item, now=now):
                 if await self._advance_or_cancel_due_item(item=item, now=now):
                     recurrence_advanced += 1
+                    passive_active_evidence.append(
+                        self._planned_work_evidence(
+                            item=item,
+                            outcome="recurrence_advanced",
+                            reason="planned_work_expired",
+                            expression_visible=False,
+                        )
+                    )
                 else:
                     delivery_skipped += 1
+                    passive_active_evidence.append(
+                        self._planned_work_evidence(
+                            item=item,
+                            outcome="delivery_skipped",
+                            reason="planned_work_expired",
+                            expression_visible=False,
+                        )
+                    )
                 continue
             quiet_hours_decision = await self._apply_quiet_hours_policy(item=item, now=now)
             if quiet_hours_decision == "delayed":
                 delivery_delayed += 1
+                passive_active_evidence.append(
+                    self._planned_work_evidence(
+                        item=item,
+                        outcome="delivery_delayed",
+                        reason="quiet_hours",
+                        expression_visible=False,
+                    )
+                )
                 continue
             if quiet_hours_decision == "skipped":
                 if str(item.get("recurrence_mode", "none")).strip().lower() != "none":
                     recurrence_advanced += 1
+                    passive_active_evidence.append(
+                        self._planned_work_evidence(
+                            item=item,
+                            outcome="recurrence_advanced",
+                            reason="quiet_hours_skip_recurring",
+                            expression_visible=False,
+                        )
+                    )
                 else:
                     delivery_skipped += 1
+                    passive_active_evidence.append(
+                        self._planned_work_evidence(
+                            item=item,
+                            outcome="delivery_skipped",
+                            reason="quiet_hours",
+                            expression_visible=False,
+                        )
+                    )
                 continue
             if hasattr(self.memory_repository, "upsert_subconscious_proposal"):
                 await self.memory_repository.upsert_subconscious_proposal(
@@ -413,17 +455,29 @@ class SchedulerWorker:
             "delivery_delayed": delivery_delayed,
             "delivery_skipped": delivery_skipped,
             "recurrence_advanced": recurrence_advanced,
+            "passive_active_evidence": passive_active_evidence[:8],
             "items": handoff_items,
         }
 
-    async def _dispatch_due_planned_work_foreground(self, *, items: list[dict], reason: str, now: datetime) -> dict[str, int]:
+    async def _dispatch_due_planned_work_foreground(self, *, items: list[dict], reason: str, now: datetime) -> dict[str, Any]:
         if self.runtime is None or not hasattr(self.runtime, "run"):
+            passive_active_evidence = [
+                self._planned_work_evidence(
+                    item=item,
+                    outcome="foreground_skipped",
+                    reason="runtime_unavailable",
+                    expression_visible=False,
+                )
+                for item in items
+                if bool(item.get("requires_foreground_execution", True))
+            ]
             return {
                 "events_emitted": 0,
                 "delivery_successes": 0,
                 "delivery_blocked": 0,
-                "failures": 0,
+                "failures": len(passive_active_evidence),
                 "recurrence_advanced": 0,
+                "passive_active_evidence": passive_active_evidence[:8],
             }
 
         events_emitted = 0
@@ -431,9 +485,18 @@ class SchedulerWorker:
         delivery_blocked = 0
         failures = 0
         recurrence_advanced = 0
+        passive_active_evidence: list[dict[str, Any]] = []
 
         for item in items:
             if not bool(item.get("requires_foreground_execution", True)):
+                passive_active_evidence.append(
+                    self._planned_work_evidence(
+                        item=item,
+                        outcome="foreground_skipped",
+                        reason="foreground_not_required",
+                        expression_visible=False,
+                    )
+                )
                 continue
             delivery_channel = str(item.get("delivery_channel", "none")).strip().lower()
             chat_id = self._foreground_delivery_chat_id(item) if delivery_channel == "telegram" else None
@@ -456,6 +519,14 @@ class SchedulerWorker:
                 result = await self.runtime.run(event)
             except Exception:
                 failures += 1
+                passive_active_evidence.append(
+                    self._planned_work_evidence(
+                        item=item,
+                        outcome="foreground_failed",
+                        reason="runtime_exception",
+                        expression_visible=False,
+                    )
+                )
                 continue
             events_emitted += 1
             if result.action_result.status == "success":
@@ -464,8 +535,24 @@ class SchedulerWorker:
                     recurrence_advanced += 1
             elif result.action_result.status in {"noop", "partial"}:
                 delivery_blocked += 1
+                passive_active_evidence.append(
+                    self._planned_work_evidence(
+                        item=item,
+                        outcome="delivery_blocked",
+                        reason=str(getattr(result.action_result, "notes", "") or "action_noop_or_partial")[:120],
+                        expression_visible=False,
+                    )
+                )
             else:
                 failures += 1
+                passive_active_evidence.append(
+                    self._planned_work_evidence(
+                        item=item,
+                        outcome="foreground_failed",
+                        reason=str(getattr(result.action_result, "notes", "") or "action_failed")[:120],
+                        expression_visible=False,
+                    )
+                )
 
         return {
             "events_emitted": events_emitted,
@@ -473,6 +560,26 @@ class SchedulerWorker:
             "delivery_blocked": delivery_blocked,
             "failures": failures,
             "recurrence_advanced": recurrence_advanced,
+            "passive_active_evidence": passive_active_evidence[:8],
+        }
+
+    def _planned_work_evidence(
+        self,
+        *,
+        item: dict,
+        outcome: str,
+        reason: str,
+        expression_visible: bool,
+    ) -> dict[str, Any]:
+        return {
+            "source": "planned_work_observer",
+            "work_id": int(item.get("id", 0) or 0),
+            "user_id": str(item.get("user_id", "")),
+            "work_kind": str(item.get("kind", "follow_up")),
+            "delivery_channel": str(item.get("delivery_channel", "none")),
+            "outcome": str(outcome),
+            "reason": " ".join(str(reason or "unspecified").split())[:160],
+            "expression_visible": bool(expression_visible),
         }
 
     async def _apply_quiet_hours_policy(self, *, item: dict, now: datetime) -> str:
@@ -669,6 +776,9 @@ class SchedulerWorker:
             proactive_summary={"events_emitted": 0},
         )
         failures = int(foreground_summary["failures"])
+        passive_active_evidence = list(due_summary.get("passive_active_evidence", [])) + list(
+            foreground_summary.get("passive_active_evidence", [])
+        )
         summary: dict[str, Any] = {
             "executed": True,
             "reason": dispatch_reason,
@@ -686,6 +796,8 @@ class SchedulerWorker:
             "delivery_skipped": int(due_summary["delivery_skipped"]),
             "recurrence_advanced": int(due_summary["recurrence_advanced"])
             + int(foreground_summary["recurrence_advanced"]),
+            "passive_active_evidence": passive_active_evidence[:8],
+            "passive_active_evidence_count": len(passive_active_evidence),
             "planned_action_observer": observer,
         }
         if external_entrypoint:
