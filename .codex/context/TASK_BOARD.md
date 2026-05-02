@@ -2,6 +2,33 @@
 
 Last updated: 2026-05-03
 
+## Fresh Mobile Foundation Scaffold (2026-05-03)
+
+- `PRJ-668` is DONE:
+  - `.codex/tasks/PRJ-668-build-initial-mobile-foundation-using-shared-client-contracts.md`
+- created:
+  - `mobile/package.json`
+  - `mobile/app.json`
+  - `mobile/tsconfig.json`
+  - `mobile/expo-env.d.ts`
+  - `mobile/app/_layout.tsx`
+  - `mobile/app/index.tsx`
+  - `mobile/src/api/shared-client-contract.ts`
+  - `mobile/src/theme.ts`
+- updated:
+  - `mobile/README.md`
+  - `docs/planning/mobile-client-baseline.md`
+  - `docs/architecture/codebase-map.md`
+  - `docs/README.md`
+- validation:
+  - package JSON parse passed
+  - app JSON parse passed
+  - shared endpoint coverage smoke passed
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - review current READY visual-system tasks before selecting the next slice
+
 ## Fresh Provider Specific Integration Docs (2026-05-03)
 
 - `PRJ-950` is DONE:

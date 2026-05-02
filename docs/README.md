@@ -103,7 +103,8 @@ near-term coordination direction without rewriting the canonical architecture.
 
 - `../backend/` - current production runtime
 - `../web/` - browser client workspace
-- `../mobile/` - future mobile client placeholder
+- `../mobile/` - Expo-managed native client scaffold over backend-owned app
+  contracts
 
 ## UX Sources Of Truth
 

@@ -81,14 +81,14 @@ Current repo fact:
 
 - backend auth is already owned by first-party `/app/auth/*` contracts
 - the current `web` client uses backend-owned session cookies
+- `mobile/` now has an Expo-managed scaffold that records the shared resource
+  contract without claiming final native auth transport is solved
 
 Bounded posture for the mobile foundation:
 
-- `PRJ-668` may scaffold the client around the shared backend-owned resource
-  model
-- `PRJ-668` must not pretend the final native auth transport is already fully
-  solved if the scaffold still relies on a later dedicated API-client adapter
-  decision
+- `PRJ-668` scaffolds the client around the shared backend-owned resource model
+- later API-client adapter work must decide final native auth transport before
+  the scaffold becomes a production auth client
 
 ## Non-Goals For This Freeze
 

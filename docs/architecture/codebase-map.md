@@ -14,7 +14,7 @@ navigation aid, not a replacement for the canonical architecture.
 | Backend migrations | `backend/migrations/` | Alembic migration environment and versioned schema changes |
 | Backend scripts | `backend/scripts/` | Operator and validation entrypoints |
 | Web shell | `web/src/` | React/Vite browser client, route rendering, API client, styling |
-| Mobile | `mobile/` | Reserved product surface |
+| Mobile | `mobile/` | Expo-managed React Native scaffold using the shared backend-owned app contract boundary |
 | Deployment | `docker-compose.yml`, `docker-compose.coolify.yml`, `docker/` | Local and Coolify/container deployment shape |
 | Docs and context | `docs/`, `.codex/`, `.agents/` | Source of truth, task contracts, workflows, handoffs |
 

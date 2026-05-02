@@ -2,6 +2,36 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-668` completed the initial mobile foundation scaffold:
+  - task:
+    - `.codex/tasks/PRJ-668-build-initial-mobile-foundation-using-shared-client-contracts.md`
+  - created:
+    - `mobile/package.json`
+    - `mobile/app.json`
+    - `mobile/tsconfig.json`
+    - `mobile/expo-env.d.ts`
+    - `mobile/app/_layout.tsx`
+    - `mobile/app/index.tsx`
+    - `mobile/src/api/shared-client-contract.ts`
+    - `mobile/src/theme.ts`
+  - updated:
+    - `mobile/README.md`
+    - `docs/planning/mobile-client-baseline.md`
+    - `docs/architecture/codebase-map.md`
+    - `docs/README.md`
+  - result:
+    - `mobile/` is now an Expo-managed TypeScript/Expo Router workspace
+      scaffold that records the shared backend-owned app contract boundary
+      without implementing cognition, internal debug surfaces, provider-secret
+      UI, or final native auth transport
+  - validation:
+    - package JSON parse passed
+    - app JSON parse passed
+    - shared endpoint coverage smoke passed
+    - `git diff --check` passed
+  - next execution priority:
+    - review current READY visual-system tasks before selecting the next slice
+
 - 2026-05-03: `PRJ-950` completed provider-specific integration docs:
   - task:
     - `.codex/tasks/PRJ-950-provider-specific-integration-docs.md`

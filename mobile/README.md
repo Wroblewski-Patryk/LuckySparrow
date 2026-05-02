@@ -1,19 +1,37 @@
 # AION Mobile
 
-`mobile/` is the approved workspace for the future native client.
+`mobile/` is the approved Expo-managed React Native workspace for the native
+client baseline.
 
-The initial stack is now frozen as:
+## Stack
 
-- Expo-managed React Native
+- Expo SDK 55
+- React Native 0.83
 - TypeScript
 - Expo Router
 
-This workspace must remain a thin client over backend-owned `/app/*`
-contracts.
+## Commands
 
-For chat, that means `GET /app/chat/history` is treated as one shared
-conversation transcript surface with exchanged message items, not as a
-separate memory list or continuity inspector.
+```powershell
+Push-Location .\mobile
+npm install
+npm run start
+Pop-Location
+```
+
+Use Expo Go first. Create custom native builds only when a later task adds a
+feature that requires them.
+
+## Shared Contract Boundary
+
+This workspace must remain a thin client over backend-owned `/app/*`
+contracts. The first scaffold records those shared resources in
+`src/api/shared-client-contract.ts`; it does not implement final native auth
+transport.
+
+For chat, `GET /app/chat/history` is one shared conversation transcript surface
+with exchanged message items. It is not a separate memory list or continuity
+inspector.
 
 It must not:
 
@@ -21,5 +39,5 @@ It must not:
 - consume internal debug endpoints
 - manage provider secrets in UI
 
-See [docs/planning/mobile-client-baseline.md](/C:/Personal/Projekty/Aplikacje/Personality/docs/planning/mobile-client-baseline.md)
-for the shared client-contract baseline that `mobile/` must follow.
+See `docs/planning/mobile-client-baseline.md` for the shared client-contract
+baseline that `mobile/` must follow.
