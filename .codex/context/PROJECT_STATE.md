@@ -21,7 +21,7 @@ Last updated: 2026-05-02
       `incident_evidence_source=health_snapshot_strict_mode`
     - release smoke with `-IncidentEvidenceBundlePath` passed
   - production evidence bundle:
-    - `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T212906Z_prj922-strict-production-evidence`
+    - `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T213839Z_prj922-strict-production-evidence-08dda30`
   - result:
     - the PRJ-908 evidence-path blocker is resolved without enabling full
       debug payload access

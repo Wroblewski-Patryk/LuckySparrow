@@ -77,10 +77,10 @@ Validation:
 - production bundle export succeeded with
   `incident_evidence_source=health_snapshot_strict_mode`
 - generated bundle:
-  `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T212906Z_prj922-strict-production-evidence`
+  `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T213839Z_prj922-strict-production-evidence-08dda30`
 - release smoke with `-IncidentEvidenceBundlePath` passed
 - production runtime and web shell build revision:
-  `464519efe32e3b238a7ad4823d5fcc022c7706cd`
+  `08dda306b554d55183d7cd675bc0f9aaf95480a5`
 
 ## Next Task
 

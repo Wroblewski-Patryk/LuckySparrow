@@ -108,8 +108,10 @@ production bundle validation.
 - Manual checks:
   - production bundle export used `incident_evidence_source=health_snapshot_strict_mode`
   - production bundle path:
-    `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T212906Z_prj922-strict-production-evidence`
-  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -IncidentEvidenceBundlePath ".codex\artifacts\prj922-production-safe-incident-evidence\20260502T212906Z_prj922-strict-production-evidence" -WaitForDeployParity -DeployParityMaxWaitSeconds 300 -DeployParityPollSeconds 30 -HealthRetryMaxAttempts 10 -HealthRetryDelaySeconds 10`
+    `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T213839Z_prj922-strict-production-evidence-08dda30`
+  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -IncidentEvidenceBundlePath ".codex\artifacts\prj922-production-safe-incident-evidence\20260502T213839Z_prj922-strict-production-evidence-08dda30" -WaitForDeployParity -DeployParityMaxWaitSeconds 300 -DeployParityPollSeconds 30 -HealthRetryMaxAttempts 10 -HealthRetryDelaySeconds 10`
+  - post-push production smoke without bundle also passed for
+    `08dda306b554d55183d7cd675bc0f9aaf95480a5`
   - result: passed
 - Screenshots/logs: not applicable
 - High-risk checks:

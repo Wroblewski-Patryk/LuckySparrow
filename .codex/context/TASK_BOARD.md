@@ -17,10 +17,10 @@ Last updated: 2026-05-02
   - bundle export succeeded with
     `incident_evidence_source=health_snapshot_strict_mode`
   - bundle path:
-    `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T212906Z_prj922-strict-production-evidence`
+    `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T213839Z_prj922-strict-production-evidence-08dda30`
   - release smoke with `-IncidentEvidenceBundlePath` passed
   - deployed revision:
-    `464519efe32e3b238a7ad4823d5fcc022c7706cd`
+    `08dda306b554d55183d7cd675bc0f9aaf95480a5`
 - validation:
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_incident_evidence_bundle_script.py tests/test_deployment_trigger_scripts.py; Pop-Location`
   - result: `60 passed`
