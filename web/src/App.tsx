@@ -1682,7 +1682,7 @@ function SidebarBrandBlock() {
   return (
     <div className="aion-sidebar-brand">
       <div aria-label="AION" className="aion-brand-lockup aion-brand-lockup-compact aion-sidebar-brand-lockup">
-        <img alt="" aria-hidden="true" className="aion-brand-mark" src="/aviary-logomark.svg" />
+        <span className="aion-sidebar-sunmark" aria-hidden="true" />
         <span className="aion-brand-word">AION</span>
       </div>
       <p className="aion-sidebar-brand-subtitle">
@@ -3310,10 +3310,10 @@ export default function App() {
 
   return (
     <div className="aion-shell min-h-screen text-base-content">
-      <div className="mx-auto max-w-[112rem] px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-5 xl:px-7">
-        <section className="aion-shell-window aion-panel overflow-hidden rounded-[2.35rem]">
+      <div className="mx-auto max-w-[112rem] px-3 pb-12 pt-3 sm:px-4 md:px-5 md:pb-6 md:pt-4 xl:px-5">
+        <section className="aion-shell-window">
           <div className="aion-shell-window-body">
-        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[15.1rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[14.7rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <SidebarBrandBlock />
 
