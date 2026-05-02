@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-02
 
+- 2026-05-02: `PRJ-923` completed final v1 acceptance refresh:
+  - new task:
+    - `.codex/tasks/PRJ-923-final-v1-acceptance-refresh.md`
+  - result:
+    - core no-UI v1 is GO for production revision
+      `0984440a8a2a283942e4aa2c190e3964d0dadc9c`
+    - production deploy parity is GO
+    - strict-mode incident evidence is GO
+    - public/web-led launch marker remains on HOLD until launch-channel,
+      rollback, privacy/debug, and AI/security hardening gates are complete or
+      explicitly waived
+  - evidence:
+    - strict-mode bundle:
+      `.codex/artifacts/prj923-final-v1-acceptance/20260502T220616Z_prj923-final-v1-acceptance-0984440`
+    - release smoke with `-IncidentEvidenceBundlePath` passed
+  - next execution priority:
+    - `PRJ-909` production Telegram smoke if Telegram is the primary launch
+      channel, otherwise `PRJ-911` rollback/recovery
+
 - 2026-05-02: `PRJ-929` completed v1 queue renumbering cleanup:
   - new task:
     - `.codex/tasks/PRJ-929-v1-queue-renumbering-cleanup.md`

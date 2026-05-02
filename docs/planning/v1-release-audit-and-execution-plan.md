@@ -303,18 +303,25 @@ Goal: ensure every core gate has fresh release evidence.
 Tasks:
 
 - `PRJ-910` Core V1 Acceptance Bundle
-  - Status: DONE
+  - Status: REFRESHED by `PRJ-923`
   - Output: `docs/planning/v1-core-acceptance-bundle.md` records core v1
-    behavior as GO, deploy parity as GO, and final v1 declaration as NO-GO
-    until PRJ-908 is resolved or explicitly waived. `PRJ-922` subsequently
-    resolved that evidence-path blocker, so the final declaration needs one
-    fresh acceptance refresh.
+    behavior as GO, deploy parity as GO, incident evidence as GO, and core
+    no-UI v1 declaration as GO for
+    `0984440a8a2a283942e4aa2c190e3964d0dadc9c`.
   - Produce one concise acceptance bundle mapping every final gate to:
     - health field
     - behavior scenario
     - release smoke proof
     - incident evidence field
     - residual risk
+
+- `PRJ-923` Final V1 Acceptance Refresh
+  - Status: DONE
+  - Output: refreshed `docs/planning/v1-core-acceptance-bundle.md` against the
+    latest production SHA and strict-mode incident evidence bundle.
+  - Bundle:
+    `.codex/artifacts/prj923-final-v1-acceptance/20260502T220616Z_prj923-final-v1-acceptance-0984440`
+  - Release smoke with `-IncidentEvidenceBundlePath` passed.
 
 - `PRJ-911` V1 Rollback And Recovery Drill
   - Record rollback target, previous known good revision, database migration
@@ -439,8 +446,9 @@ Tasks:
 5. `PRJ-907` Production Release Smoke With Deploy Parity
 6. `PRJ-908` Production Incident Evidence Bundle
 7. `PRJ-910` Core V1 Acceptance Bundle
-8. `PRJ-911` V1 Rollback And Recovery Drill
-9. `PRJ-912` V1 Data Privacy And Debug Posture Check
+8. `PRJ-923` Final V1 Acceptance Refresh
+9. `PRJ-911` V1 Rollback And Recovery Drill
+10. `PRJ-912` V1 Data Privacy And Debug Posture Check
 
 ### P1 Product And Operations
 

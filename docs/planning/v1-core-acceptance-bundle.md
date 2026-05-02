@@ -4,29 +4,23 @@ Last updated: 2026-05-02
 
 ## Status
 
-Core no-UI `v1` behavior is production-green for the current deployed
-candidate, but final release declaration remains blocked by the PRJ-908
-incident-evidence export gap.
+Core no-UI `v1` is GO for the current production revision:
 
-Update after PRJ-922: the PRJ-908 export-path blocker now has a passing
-strict-mode production bundle. This document remains the PRJ-910 acceptance
-snapshot; the final v1 declaration should be refreshed in a follow-up release
-task against the PRJ-922 bundle.
+- `0984440a8a2a283942e4aa2c190e3964d0dadc9c`
 
-Current evaluated production revision:
-
-- `0e0929670fb669a94dd52498129147ef11281d66`
+This is a core runtime acceptance result, not a claim that every product,
+provider, security, AI, or web-polish follow-up is complete.
 
 ## Acceptance Summary
 
 | Gate | Health Surface | Production State | Evidence | Residual Risk |
 | --- | --- | --- | --- | --- |
-| Conversation reliability | `/health.conversation_channels.telegram` | `provider_backed_ready` | Release smoke passed; bot token and webhook secret configured | Telegram live user round-trip smoke remains P1/PRJ-909 |
-| Learned-state inspection | `/health.learned_state` | `inspection_surface_ready` | Health snapshot exposes internal inspection posture and required sections | Production incident bundle unavailable until PRJ-908 fix |
-| Website reading | `/health.connectors.web_knowledge_tools.website_reading_workflow` | `ready_for_direct_and_search_first_review` | Health and release smoke expose direct and search-first page review readiness | No new risk for core gate |
-| Tool-grounded learning | `/health.learned_state.tool_grounded_learning` | `tool_grounded_learning_surface_ready` | Health exposes action-owned external read summaries only, semantic memory layer, and no raw payload storage | Production incident bundle unavailable until PRJ-908 fix |
-| Time-aware planned work | `/health.v1_readiness` | `foreground_due_delivery_and_recurring_reevaluation_ready` | Behavior validation and health expose planned-work policy owner, delivery path, and recurrence owner | No new risk for core gate |
-| Deploy parity | `/health.deployment` and release smoke | runtime/web/local SHA match | Release smoke passed with deploy parity for `0e0929670fb669a94dd52498129147ef11281d66` | Every later commit requires fresh deploy parity smoke |
+| Conversation reliability | `/health.conversation_channels.telegram` | `provider_backed_ready` | Release smoke passed; bot token and webhook secret configured; Telegram delivery posture exposes segmentation and formatting support | Live user/chat round-trip smoke remains `PRJ-909` before a Telegram-led launch claim |
+| Learned-state inspection | `/health.learned_state` | `inspection_surface_ready` | Strict-mode incident bundle includes learned-state policy owner, inspection path, inspection sections, growth sections, and tool-grounded learning contract | No core blocker |
+| Website reading | `/health.connectors.web_knowledge_tools.website_reading_workflow` | `ready_for_direct_and_search_first_review` | Health and incident bundle expose direct URL and search-first page review readiness with no blockers | No core blocker |
+| Tool-grounded learning | `/health.learned_state.tool_grounded_learning` | `tool_grounded_learning_surface_ready` | Health and incident bundle expose action-owned external read summaries only, semantic memory layer, and no raw payload storage | Privacy/security hardening remains a separate `PRJ-912/PRJ-933` check |
+| Time-aware planned work | `/health.v1_readiness` | `foreground_due_delivery_and_recurring_reevaluation_ready` | Behavior validation and health expose planned-work policy owner, delivery path, and recurrence owner; scheduler external evidence is recent and aligned | No core blocker |
+| Deploy parity | `/health.deployment` and release smoke | runtime/web/local SHA match | Release smoke passed with deploy parity for `0984440a8a2a283942e4aa2c190e3964d0dadc9c` | Every later commit requires fresh deploy parity smoke |
 
 ## Evidence Set
 
@@ -35,20 +29,21 @@ Local candidate validation:
 - PRJ-905 backend tests: `1019 passed`
 - PRJ-905 web production build: passed
 - PRJ-905 behavior validation: `19 passed, 209 deselected`
+- PRJ-922 backend validation: `1021 passed`
 
 Production validation:
 
-- PRJ-907 release smoke with deploy parity passed for the published candidate
-- PRJ-908 restoration release smoke passed after the failed temporary debug
-  window
-- Post-PRJ-908 documentation release smoke passed for
-  `0e0929670fb669a94dd52498129147ef11281d66`
+- release smoke after PRJ-929 queue cleanup passed with deploy parity for:
+  `0984440a8a2a283942e4aa2c190e3964d0dadc9c`
+- strict-mode incident evidence bundle export passed with:
+  `incident_evidence_source=health_snapshot_strict_mode`
+- release smoke with the strict-mode incident bundle passed
 
-Current production health snapshot:
+Current production incident bundle:
 
-- `.codex/artifacts/prj910-health-snapshot.json`
+- `.codex/artifacts/prj923-final-v1-acceptance/20260502T220616Z_prj923-final-v1-acceptance-0984440`
 
-The health snapshot is local evidence output and is not committed by default.
+The bundle is local evidence output and is not committed by default.
 
 ## Behavior Scenario Coverage
 
@@ -70,46 +65,35 @@ The current `v1_readiness.required_behavior_scenarios` list is:
 - `T19.1`
 - `T19.2`
 
-PRJ-905 behavior validation passed with `19 passed, 209 deselected`.
+PRJ-905 behavior validation passed with `19 passed, 209 deselected` and is
+attached to the strict-mode incident bundle.
 
-## Extension Gates
+## Extension And Hardening Gates
 
-The following are not core no-UI `v1` blockers:
+The following are not core no-UI `v1` blockers, but remain required before a
+broader public or web-led release claim:
 
-- organizer daily-use workflows:
-  `daily_use_workflows_blocked_by_provider_activation`
-- provider credentials for ClickUp, Google Calendar, and Google Drive
-- multimodal Telegram
-- mobile/Expo restart
-- richer web-v1 product honesty work
-
-These remain explicit extension or P1/P2 tasks.
-
-## Blocking Evidence Gap
-
-PRJ-908 remains blocked:
-
-- the canonical incident-evidence bundle helper requires
-  `/internal/event/debug`
-- production correctly returns `403` when debug payload access is disabled
-- enabling `EVENT_DEBUG_ENABLED=true` under strict production policy made the
-  runtime unhealthy during redeploy
-- production was restored to `EVENT_DEBUG_ENABLED=false`
-- release smoke passed after restoration
-
-This means the core runtime gates are green, but the final release acceptance
-bundle is not complete until a production-safe incident-evidence export path is
-implemented or the bundle contract is explicitly revised.
+- `PRJ-909` production Telegram live-mode smoke
+- `PRJ-911` rollback and recovery drill
+- `PRJ-912` data privacy and debug posture check
+- `PRJ-913..PRJ-916` web-v1 route and product-honesty checks
+- `PRJ-917..PRJ-919` organizer/tooling extension readiness
+- `PRJ-920..PRJ-921` operational monitor and release-evidence archive
+- `PRJ-930` deployment trigger SLO evidence
+- `PRJ-931..PRJ-933` AI/security/privacy hardening
+- `PRJ-934..PRJ-936` final go/no-go, handoff, and release marker
 
 ## Go / No-Go
 
 - Core no-UI v1 behavior: GO
 - Production deploy parity: GO
-- Final v1 release declaration: NO-GO until PRJ-908 is resolved or explicitly
-  waived by a documented release decision
+- Production incident-evidence bundle: GO
+- Core no-UI v1 declaration: GO
+- Public/web-led v1 launch marker: HOLD until the remaining launch-channel,
+  rollback, privacy/debug, and AI/security hardening gates are complete or
+  explicitly waived by a documented release decision.
 
 ## Recommended Next Step
 
-Start a narrow implementation task for a production-safe incident-evidence
-export route that does not require full debug payload exposure. This is safer
-than repeating a temporary debug window under strict production policy.
+Run `PRJ-909` if Telegram is the primary launch channel, otherwise run
+`PRJ-911` rollback/recovery followed by `PRJ-912` privacy/debug posture.
