@@ -2,6 +2,23 @@
 
 Last updated: 2026-05-02
 
+- 2026-05-02: `PRJ-911` completed the v1 rollback and recovery drill:
+  - new task:
+    - `.codex/tasks/PRJ-911-v1-rollback-and-recovery-drill.md`
+  - new planning source:
+    - `docs/planning/v1-rollback-and-recovery-drill.md`
+  - result:
+    - rollback target and previous known-good SHA are recorded
+    - migration posture records Alembic head `20260426_0012`
+    - Coolify rollback and recovery smoke steps are documented
+    - strict-mode incident-evidence export remains the triage path instead of
+      enabling full production debug payloads
+  - validation:
+    - Alembic head check returned `20260426_0012 (head)`
+    - `git diff --check` passed
+  - next execution priority:
+    - `PRJ-912` data privacy and debug posture check
+
 - 2026-05-02: `PRJ-923` completed final v1 acceptance refresh:
   - new task:
     - `.codex/tasks/PRJ-923-final-v1-acceptance-refresh.md`

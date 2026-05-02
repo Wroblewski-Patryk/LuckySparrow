@@ -324,6 +324,11 @@ Tasks:
   - Release smoke with `-IncidentEvidenceBundlePath` passed.
 
 - `PRJ-911` V1 Rollback And Recovery Drill
+  - Status: DONE
+  - Output: `docs/planning/v1-rollback-and-recovery-drill.md` records the
+    current production SHA, previous known-good SHA, Alembic head, Coolify
+    rollback procedure, strict incident-evidence triage path, and recovery
+    smoke steps.
   - Record rollback target, previous known good revision, database migration
     posture, and recovery steps.
   - Confirm rollback does not require undocumented operator memory.

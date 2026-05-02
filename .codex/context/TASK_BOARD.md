@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-02
 
+## Fresh V1 Rollback And Recovery Drill (2026-05-02)
+
+- `PRJ-911` is DONE:
+  - `.codex/tasks/PRJ-911-v1-rollback-and-recovery-drill.md`
+  - `docs/planning/v1-rollback-and-recovery-drill.md`
+- result:
+  - rollback target and previous known-good SHA are recorded
+  - migration posture is explicit:
+    - Alembic head `20260426_0012`
+  - Coolify rollback and recovery smoke steps are documented
+  - strict-mode incident-evidence export is the rollback triage path; full
+    debug payload exposure is not required
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m alembic -c alembic.ini heads; Pop-Location`
+  - result: `20260426_0012 (head)`
+  - `git diff --check` passed
+- next smallest useful task:
+  - run `PRJ-912` data privacy and debug posture check
+
 ## Fresh Final V1 Acceptance Refresh (2026-05-02)
 
 - `PRJ-923` is DONE:
