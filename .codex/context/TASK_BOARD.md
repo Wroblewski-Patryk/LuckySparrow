@@ -2,6 +2,31 @@
 
 Last updated: 2026-05-03
 
+## Fresh Dashboard Visual Contract Queue Sync (2026-05-03)
+
+- `PRJ-724` is DONE:
+  - `.codex/tasks/PRJ-724-freeze-dashboard-first-visual-system-and-component-contract.md`
+- result:
+  - the stale `READY` task was closed against the existing source-of-truth
+    contract instead of creating a duplicate visual-system plan
+  - the dashboard-first contract already lives in:
+    - `docs/planning/dashboard-foundation-and-personality-visual-system-plan.md`
+  - durable follow-on visual decisions are already recorded in:
+    - `docs/ux/design-memory.md`
+  - historical board evidence already stated `PRJ-724..PRJ-727` were complete
+    locally
+  - recurring stale-task selection guidance was recorded in:
+    - `.codex/context/LEARNING_JOURNAL.md`
+- validation:
+  - verified first-motif priority, shared component families, and dashboard IA
+    in the planning contract
+  - verified later dashboard/shell patterns in design memory
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - review `PRJ-725` for the same stale READY/task-board drift before
+    selecting new implementation work
+
 ## Fresh Mobile Foundation Scaffold (2026-05-03)
 
 - `PRJ-668` is DONE:

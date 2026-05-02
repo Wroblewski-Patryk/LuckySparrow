@@ -2,6 +2,28 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-724` completed stale dashboard visual contract queue sync:
+  - task:
+    - `.codex/tasks/PRJ-724-freeze-dashboard-first-visual-system-and-component-contract.md`
+  - result:
+    - the dashboard-first visual system and component contract task is no
+      longer a false `READY` item
+    - the source-of-truth contract remains
+      `docs/planning/dashboard-foundation-and-personality-visual-system-plan.md`
+      with later pattern memory in `docs/ux/design-memory.md`
+    - no new visual system, architecture, runtime behavior, or workaround path
+      was introduced
+    - `.codex/context/LEARNING_JOURNAL.md` now records the stale `READY` task
+      guardrail
+  - validation:
+    - first-motif priority, shared component families, and dashboard IA were
+      verified in the planning contract
+    - later approved dashboard/shell patterns were verified in design memory
+    - `git diff --check` passed
+  - next execution priority:
+    - review `PRJ-725` for stale READY/task-board drift before selecting new
+      implementation work
+
 - 2026-05-03: `PRJ-668` completed the initial mobile foundation scaffold:
   - task:
     - `.codex/tasks/PRJ-668-build-initial-mobile-foundation-using-shared-client-contracts.md`

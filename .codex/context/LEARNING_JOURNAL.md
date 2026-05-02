@@ -25,6 +25,33 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-05-03 - Stale READY tasks need board and source-of-truth verification
+- Context:
+  - older task files can remain marked `READY` even after later context-board
+    entries, planning docs, or design-memory entries show the work is already
+    complete.
+- Symptom:
+  - the autonomous loop may select a stale `READY` task and risk duplicating
+    an existing contract or implementation.
+- Root cause:
+  - task-file status drifted from `.codex/context/TASK_BOARD.md` and canonical
+    source-of-truth docs during earlier multi-task visual-system work.
+- Guardrail:
+  - before implementing an older `READY` task, search the task board and
+    canonical docs for the task id and its downstream lane.
+  - if the work is already satisfied, close the task as a queue-sync slice with
+    evidence instead of rebuilding it.
+- Preferred pattern:
+  - verify task file, task board, project state, and relevant canonical docs
+  - update the stale task to `DONE` with validation evidence
+  - update task board and project state in the same commit
+- Avoid:
+  - treating a lone `READY` task file as authoritative when later board entries
+    say the lane is complete
+  - creating a parallel plan or visual contract for already documented work
+- Evidence:
+  - `.codex/tasks/PRJ-724-freeze-dashboard-first-visual-system-and-component-contract.md`
+
 ### 2026-05-02 - Chrome CDP profile cleanup must wait for child processes
 - Context:
   - localized route smokes launch headless Chrome with per-task profiles under
