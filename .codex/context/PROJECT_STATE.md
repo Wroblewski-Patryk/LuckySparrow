@@ -2,6 +2,32 @@
 
 Last updated: 2026-05-02
 
+- 2026-05-02: `PRJ-922` completed the production-safe incident-evidence export
+  fix:
+  - new task:
+    - `.codex/tasks/PRJ-922-production-safe-incident-evidence-export.md`
+  - implementation:
+    - `backend/app/core/observability_policy.py` now builds
+      `runtime_incident_evidence` from `/health` policy surfaces for strict
+      production exports
+    - `backend/scripts/export_incident_evidence_bundle.py` now falls back to
+      that health-derived evidence only when `/internal/event/debug` returns
+      the expected disabled-debug `403`
+    - invalid-token and unrelated HTTP failures still fail closed
+  - validation:
+    - focused and deployment/smoke script tests passed with `60 passed`
+    - full backend baseline passed with `1021 passed`
+    - production bundle export succeeded with
+      `incident_evidence_source=health_snapshot_strict_mode`
+    - release smoke with `-IncidentEvidenceBundlePath` passed
+  - production evidence bundle:
+    - `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T212906Z_prj922-strict-production-evidence`
+  - result:
+    - the PRJ-908 evidence-path blocker is resolved without enabling full
+      debug payload access
+    - final v1 declaration should be refreshed next against the now-available
+      production bundle
+
 - 2026-05-02: `PRJ-910` completed the core v1 acceptance bundle:
   - new task:
     - `.codex/tasks/PRJ-910-core-v1-acceptance-bundle.md`

@@ -272,13 +272,22 @@ Tasks:
     - runtime action smoke succeeds
 
 - `PRJ-908` Production Incident Evidence Bundle
-  - Status: BLOCKED
+  - Status: UNBLOCKED by `PRJ-922`
   - Output: `docs/planning/v1-production-incident-evidence-bundle.md` records
-    that the current canonical bundle export path requires debug payload
-    access, while production strict policy rejects `EVENT_DEBUG_ENABLED=true`.
+    the original strict-policy blocker and the passing strict-mode
+    health-derived bundle path added by `PRJ-922`.
   - Export current production incident-evidence bundle.
   - Attach the latest behavior-validation report.
   - Verify release smoke accepts the bundle path.
+
+- `PRJ-922` Production-Safe Incident Evidence Export
+  - Status: DONE
+  - Output: `backend/scripts/export_incident_evidence_bundle.py` now falls
+    back to `/health` policy surfaces when production debug payload access is
+    intentionally disabled.
+  - Production bundle export succeeded with
+    `incident_evidence_source=health_snapshot_strict_mode`.
+  - Release smoke accepted the bundle path.
 
 - `PRJ-909` Production Telegram Mode Smoke
   - Run webhook/listen smoke with real bot token, webhook secret, and known
@@ -297,7 +306,9 @@ Tasks:
   - Status: DONE
   - Output: `docs/planning/v1-core-acceptance-bundle.md` records core v1
     behavior as GO, deploy parity as GO, and final v1 declaration as NO-GO
-    until PRJ-908 is resolved or explicitly waived.
+    until PRJ-908 is resolved or explicitly waived. `PRJ-922` subsequently
+    resolved that evidence-path blocker, so the final declaration needs one
+    fresh acceptance refresh.
   - Produce one concise acceptance bundle mapping every final gate to:
     - health field
     - behavior scenario

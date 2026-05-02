@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from app.core.observability_policy import (
     build_incident_evidence_bundle_manifest,
     build_runtime_incident_evidence,
+    build_runtime_incident_evidence_from_health_snapshot,
     format_incident_bundle_directory_name,
     observability_export_policy_snapshot,
 )
@@ -116,6 +117,60 @@ def test_build_runtime_incident_evidence_tracks_stage_timings_and_policy_surface
         ],
         "missing": [],
         "complete": True,
+    }
+
+
+def test_build_runtime_incident_evidence_from_health_snapshot_preserves_policy_surfaces() -> None:
+    evidence = build_runtime_incident_evidence_from_health_snapshot(
+        health_snapshot={
+            "runtime_policy": {"event_debug_admin_policy_owner": "dedicated_admin_debug_ingress_policy"},
+            "memory_retrieval": {"retrieval_lifecycle_policy_owner": "retrieval_lifecycle_policy"},
+            "learned_state": {"policy_owner": "learned_state_inspection_policy"},
+            "v1_readiness": {"policy_owner": "v1_release_readiness_policy"},
+            "deployment": {"deployment_automation_policy_owner": "coolify_repo_deploy_automation"},
+            "attention": {"attention_policy_owner": "durable_attention_inbox_policy"},
+            "runtime_topology": {
+                "attention_switch": {
+                    "policy_owner": "runtime_topology_finalization",
+                    "selected_mode": "durable_inbox",
+                },
+            },
+            "proactive": {"policy_owner": "proactive_runtime_policy"},
+            "scheduler": {
+                "external_owner_policy": {"policy_owner": "external_scheduler_cadence_policy"},
+            },
+            "reflection": {
+                "supervision": {"policy_owner": "deferred_reflection_supervision_policy"},
+            },
+            "connectors": {
+                "execution_baseline": {"execution_owner": "connector_execution_registry"},
+                "organizer_tool_stack": {"policy_owner": "production_organizer_tool_stack"},
+                "web_knowledge_tools": {"policy_owner": "web_knowledge_tooling_policy"},
+            },
+            "conversation_channels": {
+                "telegram": {"policy_owner": "telegram_conversation_reliability_telemetry"},
+            },
+        },
+        trace_id="trace-health",
+        event_id="evt-health",
+    )
+
+    assert evidence["capture_source"] == "health_snapshot_strict_mode"
+    assert evidence["debug_payload_included"] is False
+    assert evidence["source"] == "health_snapshot"
+    assert evidence["duration_ms"] == 0
+    assert evidence["stage_timings_ms"] == {
+        "health_snapshot": 0,
+        "incident_evidence_export": 0,
+        "total": 0,
+    }
+    assert evidence["policy_surface_coverage"]["complete"] is True
+    assert evidence["policy_posture"]["runtime_topology.attention_switch"] == {
+        "policy_owner": "runtime_topology_finalization",
+        "selected_mode": "durable_inbox",
+    }
+    assert evidence["policy_posture"]["connectors.web_knowledge_tools"] == {
+        "policy_owner": "web_knowledge_tooling_policy",
     }
 
 

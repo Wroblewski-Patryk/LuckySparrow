@@ -17,8 +17,54 @@ MODULE = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
+STRICT_HEALTH_SNAPSHOT = {
+    "status": "ok",
+    "runtime_policy": {
+        "event_debug_admin_policy_owner": "dedicated_admin_debug_ingress_policy",
+        "event_debug_admin_ingress_target_path": "/internal/event/debug",
+        "event_debug_shared_ingress_mode": "break_glass_only",
+        "event_debug_shared_ingress_posture": "shared_route_break_glass_only",
+        "event_debug_query_compat_enabled": False,
+        "event_debug_shared_ingress_retirement_ready": True,
+        "event_debug_shared_ingress_sunset_ready": True,
+        "event_debug_shared_ingress_sunset_reason": "shared_debug_route_disabled_with_debug_payload_off",
+    },
+    "memory_retrieval": {"retrieval_lifecycle_policy_owner": "retrieval_lifecycle_policy"},
+    "learned_state": {"policy_owner": "learned_state_inspection_policy"},
+    "v1_readiness": {"policy_owner": "v1_release_readiness_policy"},
+    "deployment": {"deployment_automation_policy_owner": "coolify_repo_deploy_automation"},
+    "attention": {"attention_policy_owner": "durable_attention_inbox_policy"},
+    "runtime_topology": {
+        "attention_switch": {
+            "policy_owner": "runtime_topology_finalization",
+            "selected_mode": "durable_inbox",
+        },
+    },
+    "proactive": {"policy_owner": "proactive_runtime_policy"},
+    "scheduler": {
+        "external_owner_policy": {"policy_owner": "external_scheduler_cadence_policy"},
+    },
+    "reflection": {
+        "supervision": {"policy_owner": "deferred_reflection_supervision_policy"},
+    },
+    "connectors": {
+        "execution_baseline": {"execution_owner": "connector_execution_registry"},
+        "organizer_tool_stack": {"policy_owner": "production_organizer_tool_stack"},
+        "web_knowledge_tools": {"policy_owner": "web_knowledge_tooling_policy"},
+    },
+    "conversation_channels": {
+        "telegram": {"policy_owner": "telegram_conversation_reliability_telemetry"},
+    },
+    "observability": {
+        "policy_owner": "incident_evidence_export_policy",
+        "bundle_helper_available": True,
+    },
+}
+
 
 class _BundleHandler(BaseHTTPRequestHandler):
+    debug_payload_disabled = False
+
     def _write_json(self, payload: dict[str, object], *, status: int = 200) -> None:
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
@@ -32,21 +78,16 @@ class _BundleHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         if self.path == "/health":
-            self._write_json(
-                {
-                    "status": "ok",
-                    "observability": {
-                        "policy_owner": "incident_evidence_export_policy",
-                        "bundle_helper_available": True,
-                    },
-                }
-            )
+            self._write_json(STRICT_HEALTH_SNAPSHOT)
             return
         self._write_json({"detail": "not found"}, status=404)
 
     def do_POST(self) -> None:  # noqa: N802
         if self.path != "/internal/event/debug":
             self._write_json({"detail": "not found"}, status=404)
+            return
+        if self.debug_payload_disabled:
+            self._write_json({"detail": "Debug payload is disabled for this environment."}, status=403)
             return
         body_length = int(self.headers.get("Content-Length", "0"))
         payload = {}
@@ -95,7 +136,8 @@ class _BundleHandler(BaseHTTPRequestHandler):
 
 
 class _BundleServer:
-    def __init__(self) -> None:
+    def __init__(self, *, debug_payload_disabled: bool = False) -> None:
+        _BundleHandler.debug_payload_disabled = debug_payload_disabled
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), _BundleHandler)
         self.thread = Thread(target=self.server.serve_forever, daemon=True)
 
@@ -112,6 +154,7 @@ class _BundleServer:
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=5)
+        _BundleHandler.debug_payload_disabled = False
 
 
 def test_main_exports_canonical_bundle_and_attaches_behavior_report(monkeypatch, tmp_path: Path) -> None:
@@ -133,6 +176,7 @@ def test_main_exports_canonical_bundle_and_attaches_behavior_report(monkeypatch,
                 debug_token="",
                 behavior_validation_report_path=str(report_path),
                 trace_id="trace-bundle",
+                disable_health_only_fallback=False,
             ),
         )
 
@@ -154,5 +198,55 @@ def test_main_exports_canonical_bundle_and_attaches_behavior_report(monkeypatch,
         assert incident_evidence["trace_id"] == "trace-bundle"
         assert health_snapshot["status"] == "ok"
         assert attached_report["kind"] == "behavior_validation_artifact"
+    finally:
+        server.stop()
+
+
+def test_main_exports_health_only_bundle_when_debug_payload_is_disabled(monkeypatch, tmp_path: Path) -> None:
+    server = _BundleServer(debug_payload_disabled=True).start()
+    try:
+        output_root = tmp_path / "bundles"
+
+        monkeypatch.setattr(
+            MODULE,
+            "_parse_args",
+            lambda: Namespace(
+                base_url=server.base_url,
+                text="capture strict bundle",
+                user_id="incident-user",
+                output_root=str(output_root),
+                capture_mode="release_smoke",
+                debug_token="",
+                behavior_validation_report_path="",
+                trace_id="trace-strict",
+                disable_health_only_fallback=False,
+            ),
+        )
+
+        exit_code = MODULE.main()
+
+        assert exit_code == 0
+        bundle_dirs = list(output_root.iterdir())
+        assert len(bundle_dirs) == 1
+        bundle_dir = bundle_dirs[0]
+        manifest = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
+        incident_evidence = json.loads((bundle_dir / "incident_evidence.json").read_text(encoding="utf-8"))
+        health_snapshot = json.loads((bundle_dir / "health_snapshot.json").read_text(encoding="utf-8"))
+
+        assert manifest["trace_id"] == "trace-strict"
+        assert manifest["event_id"] == "trace-strict-health"
+        assert incident_evidence["capture_source"] == "health_snapshot_strict_mode"
+        assert incident_evidence["debug_payload_included"] is False
+        assert incident_evidence["trace_id"] == "trace-strict"
+        assert incident_evidence["event_id"] == "trace-strict-health"
+        assert incident_evidence["source"] == "health_snapshot"
+        assert incident_evidence["policy_surface_coverage"]["complete"] is True
+        assert incident_evidence["policy_posture"]["runtime_policy"][
+            "event_debug_admin_policy_owner"
+        ] == "dedicated_admin_debug_ingress_policy"
+        assert incident_evidence["policy_posture"]["connectors.web_knowledge_tools"][
+            "policy_owner"
+        ] == "web_knowledge_tooling_policy"
+        assert health_snapshot["status"] == "ok"
     finally:
         server.stop()

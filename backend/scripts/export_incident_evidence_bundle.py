@@ -15,6 +15,7 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from app.core.observability_policy import (
     build_incident_evidence_bundle_manifest,
+    build_runtime_incident_evidence_from_health_snapshot,
     format_incident_bundle_directory_name,
 )
 
@@ -51,6 +52,14 @@ def _parse_args() -> argparse.Namespace:
         "--trace-id",
         default="",
         help="Optional explicit trace id; defaults to a UTC timestamp-based value.",
+    )
+    parser.add_argument(
+        "--disable-health-only-fallback",
+        action="store_true",
+        help=(
+            "Fail instead of building incident_evidence from /health when the "
+            "debug payload endpoint is disabled."
+        ),
     )
     return parser.parse_args()
 
@@ -89,6 +98,14 @@ def _json_request(
     return parsed
 
 
+def _is_debug_payload_disabled_error(exc: RuntimeError) -> bool:
+    message = str(exc)
+    return (
+        "HTTP 403 while calling" in message
+        and "Debug payload is disabled for this environment." in message
+    )
+
+
 def main() -> int:
     args = _parse_args()
     base_url = str(args.base_url).rstrip("/")
@@ -111,18 +128,33 @@ def main() -> int:
             "trace_id": trace_id,
         },
     }
-    debug_response = _json_request(
-        method="POST",
-        url=f"{base_url}/internal/event/debug",
-        payload=debug_payload,
-        headers=debug_headers,
-    )
-    incident_evidence = debug_response.get("incident_evidence")
-    if not isinstance(incident_evidence, dict):
-        raise RuntimeError("Debug response did not include incident_evidence.")
-    event_id = str(debug_response.get("event_id") or "")
-    response_trace_id = str(debug_response.get("trace_id") or trace_id)
-    source = str(incident_evidence.get("source") or debug_response.get("source") or "api")
+    incident_evidence_source = "internal_debug"
+    try:
+        debug_response = _json_request(
+            method="POST",
+            url=f"{base_url}/internal/event/debug",
+            payload=debug_payload,
+            headers=debug_headers,
+        )
+        incident_evidence = debug_response.get("incident_evidence")
+        if not isinstance(incident_evidence, dict):
+            raise RuntimeError("Debug response did not include incident_evidence.")
+        event_id = str(debug_response.get("event_id") or "")
+        response_trace_id = str(debug_response.get("trace_id") or trace_id)
+        source = str(incident_evidence.get("source") or debug_response.get("source") or "api")
+    except RuntimeError as exc:
+        if args.disable_health_only_fallback or not _is_debug_payload_disabled_error(exc):
+            raise
+        incident_evidence_source = "health_snapshot_strict_mode"
+        response_trace_id = trace_id
+        event_id = f"{trace_id}-health"
+        source = "health_snapshot"
+        incident_evidence = build_runtime_incident_evidence_from_health_snapshot(
+            health_snapshot=health_snapshot,
+            trace_id=response_trace_id,
+            event_id=event_id,
+            source=source,
+        )
 
     output_root = Path(str(args.output_root))
     bundle_dir = output_root / format_incident_bundle_directory_name(
@@ -166,6 +198,7 @@ def main() -> int:
     summary = {
         "bundle_dir": str(bundle_dir),
         "capture_mode": str(args.capture_mode),
+        "incident_evidence_source": incident_evidence_source,
         "trace_id": response_trace_id,
         "event_id": event_id,
         "attached_behavior_report": attached_behavior_report,

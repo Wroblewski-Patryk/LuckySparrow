@@ -152,6 +152,66 @@ def build_runtime_incident_evidence(
     }
 
 
+def build_runtime_incident_evidence_from_health_snapshot(
+    *,
+    health_snapshot: dict[str, object],
+    trace_id: str,
+    event_id: str,
+    source: str = "health_snapshot",
+) -> dict[str, object]:
+    connectors = health_snapshot.get("connectors", {})
+    if not isinstance(connectors, dict):
+        connectors = {}
+    runtime_topology = health_snapshot.get("runtime_topology", {})
+    if not isinstance(runtime_topology, dict):
+        runtime_topology = {}
+    scheduler = health_snapshot.get("scheduler", {})
+    if not isinstance(scheduler, dict):
+        scheduler = {}
+    reflection = health_snapshot.get("reflection", {})
+    if not isinstance(reflection, dict):
+        reflection = {}
+    conversation_channels = health_snapshot.get("conversation_channels", {})
+    if not isinstance(conversation_channels, dict):
+        conversation_channels = {}
+
+    evidence = build_runtime_incident_evidence(
+        trace_id=trace_id,
+        event_id=event_id,
+        source=source,
+        duration_ms=0,
+        stage_timings_ms={
+            "health_snapshot": 0,
+            "incident_evidence_export": 0,
+            "total": 0,
+        },
+        runtime_policy=_dict_section(health_snapshot, "runtime_policy"),
+        memory_retrieval=_dict_section(health_snapshot, "memory_retrieval"),
+        learned_state=_dict_section(health_snapshot, "learned_state"),
+        v1_readiness=_dict_section(health_snapshot, "v1_readiness"),
+        deployment=_dict_section(health_snapshot, "deployment"),
+        attention=_dict_section(health_snapshot, "attention"),
+        runtime_topology_attention_switch=_dict_section(runtime_topology, "attention_switch"),
+        proactive=_dict_section(health_snapshot, "proactive"),
+        scheduler_external_owner_policy=_dict_section(scheduler, "external_owner_policy"),
+        reflection_supervision=_dict_section(reflection, "supervision"),
+        connectors_execution_baseline=_dict_section(connectors, "execution_baseline"),
+        connectors_organizer_tool_stack=_dict_section(connectors, "organizer_tool_stack"),
+        connectors_web_knowledge_tools=_dict_section(connectors, "web_knowledge_tools"),
+        telegram_conversation_channel=_dict_section(conversation_channels, "telegram"),
+    )
+    evidence["capture_source"] = "health_snapshot_strict_mode"
+    evidence["debug_payload_included"] = False
+    return evidence
+
+
+def _dict_section(payload: dict[str, object], key: str) -> dict[str, object]:
+    value = payload.get(key)
+    if isinstance(value, dict):
+        return dict(value)
+    return {}
+
+
 def format_incident_bundle_directory_name(
     *,
     captured_at: datetime,

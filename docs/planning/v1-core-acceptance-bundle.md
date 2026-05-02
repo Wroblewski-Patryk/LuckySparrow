@@ -8,6 +8,11 @@ Core no-UI `v1` behavior is production-green for the current deployed
 candidate, but final release declaration remains blocked by the PRJ-908
 incident-evidence export gap.
 
+Update after PRJ-922: the PRJ-908 export-path blocker now has a passing
+strict-mode production bundle. This document remains the PRJ-910 acceptance
+snapshot; the final v1 declaration should be refreshed in a follow-up release
+task against the PRJ-922 bundle.
+
 Current evaluated production revision:
 
 - `0e0929670fb669a94dd52498129147ef11281d66`

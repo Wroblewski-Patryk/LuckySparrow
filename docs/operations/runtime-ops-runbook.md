@@ -95,6 +95,24 @@ Compat activity posture fields now distinguish disabled/no-traffic/stale-history
 vs recent traffic so migration windows can separate historical noise from active
 compat dependency.
 
+Incident-evidence bundle export:
+
+- default helper:
+  - `python backend/scripts/export_incident_evidence_bundle.py --base-url <url>`
+- when `/internal/event/debug` returns the expected disabled-debug `403`, the
+  helper now falls back to a strict-mode health-derived export
+- strict-mode export uses `/health` policy surfaces only and writes the same
+  bundle files:
+  - `manifest.json`
+  - `incident_evidence.json`
+  - `health_snapshot.json`
+  - optional `behavior_validation_report.json`
+- strict-mode export does not include full `debug` or `system_debug` payloads
+- use `--disable-health-only-fallback` when an operator intentionally wants the
+  previous fail-fast behavior
+- verify a generated bundle with:
+  - `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "<url>" -IncidentEvidenceBundlePath "<bundle-dir>"`
+
 `GET /health` also includes a `scheduler` object with cadence posture
 (`execution_mode`, cadence owners, dispatch/readiness posture, interval
 settings), latest reflection/maintenance tick summaries, and

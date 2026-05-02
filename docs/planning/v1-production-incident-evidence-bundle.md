@@ -4,12 +4,13 @@ Last updated: 2026-05-02
 
 ## Status
 
-`PRJ-908` is blocked for the current production configuration.
+`PRJ-908` was originally blocked for the current production configuration.
+`PRJ-922` resolves the export-path blocker by adding a strict-mode helper
+fallback that builds `runtime_incident_evidence` from `/health` policy surfaces
+when `/internal/event/debug` is intentionally disabled.
 
-Production is healthy again and release smoke is green, but the canonical
-incident-evidence bundle cannot be exported through the current helper without
-opening full debug payload access. Opening that window is blocked by the
-production strict-policy baseline.
+Production remains healthy, full debug payload access remains disabled, and
+release smoke accepts the generated production bundle.
 
 ## Attempted Flow
 
@@ -59,20 +60,29 @@ current production strict-policy posture.
 
 ## Required Fix Before PRJ-908 Can Close
 
-Choose and implement one approved evidence path:
+Implemented by `PRJ-922`:
 
-1. Add a dedicated token-gated production-safe incident-evidence export route
-   that does not expose the full debug payload.
-2. Add a Coolify/operator runbook for a temporary policy window that changes
-   both debug access and production policy posture, with explicit rollback.
-3. Redefine the release bundle contract to accept a health-only evidence bundle
-   for production strict mode, with architecture approval.
+- `backend/scripts/export_incident_evidence_bundle.py` first attempts the
+  existing debug-backed export
+- if the endpoint returns the expected disabled-debug `403`, the helper builds
+  `incident_evidence.json` from `/health` policy surfaces
+- unrelated HTTP failures and invalid-token cases still fail closed
+- operators can pass `--disable-health-only-fallback` to force the previous
+  fail-fast behavior
 
-Option 1 is the recommended path because it preserves the production strict
-baseline while still allowing release evidence to be exported.
+Validation:
+
+- focused and deployment/smoke script tests passed: `60 passed`
+- full backend baseline passed: `1021 passed`
+- production bundle export succeeded with
+  `incident_evidence_source=health_snapshot_strict_mode`
+- generated bundle:
+  `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T212906Z_prj922-strict-production-evidence`
+- release smoke with `-IncidentEvidenceBundlePath` passed
+- production runtime and web shell build revision:
+  `464519efe32e3b238a7ad4823d5fcc022c7706cd`
 
 ## Next Task
 
-`PRJ-910` may produce the core v1 acceptance bundle with PRJ-908 marked as a
-known blocked evidence gap, or a new narrow implementation task can be created
-first to add the production-safe incident-evidence export route.
+Refresh the final v1 acceptance/declaration now that the production strict-mode
+incident-evidence bundle is available.

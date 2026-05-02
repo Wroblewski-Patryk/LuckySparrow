@@ -2,6 +2,34 @@
 
 Last updated: 2026-05-02
 
+## Fresh Production-Safe Incident Evidence Export (2026-05-02)
+
+- `PRJ-922` is DONE:
+  - `.codex/tasks/PRJ-922-production-safe-incident-evidence-export.md`
+- result:
+  - incident bundle export no longer requires enabling full debug payload
+    access in strict production
+  - `backend/scripts/export_incident_evidence_bundle.py` falls back to
+    `/health` policy surfaces only when `/internal/event/debug` returns the
+    expected disabled-debug `403`
+  - invalid-token and unrelated HTTP failures still fail closed
+- production evidence:
+  - bundle export succeeded with
+    `incident_evidence_source=health_snapshot_strict_mode`
+  - bundle path:
+    `.codex/artifacts/prj922-production-safe-incident-evidence/20260502T212906Z_prj922-strict-production-evidence`
+  - release smoke with `-IncidentEvidenceBundlePath` passed
+  - deployed revision:
+    `464519efe32e3b238a7ad4823d5fcc022c7706cd`
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_observability_policy.py tests/test_incident_evidence_bundle_script.py tests/test_deployment_trigger_scripts.py; Pop-Location`
+  - result: `60 passed`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location`
+  - result: `1021 passed`
+- next smallest useful task:
+  - refresh the final v1 acceptance/declaration now that the PRJ-908 evidence
+    blocker has a passing strict-mode production bundle
+
 ## Fresh Core V1 Acceptance Bundle (2026-05-02)
 
 - `PRJ-910` is DONE:

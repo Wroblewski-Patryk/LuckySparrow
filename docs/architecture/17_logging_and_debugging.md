@@ -252,6 +252,13 @@ Canonical evidence surfaces for that bundle may include:
 - debug/exported `incident_evidence.policy_posture["v1_readiness"]`
 - behavior-validation scenario anchors for the current `v1` baseline
 
+When production strict policy intentionally disables full debug payload access,
+the canonical bundle helper may build `runtime_incident_evidence` from the
+same `/health` policy surfaces. This strict-mode export must not include
+`debug` or `system_debug` payloads, must preserve the existing
+`incident_evidence.json` bundle contract, and must fail closed for invalid
+tokens or unrelated HTTP errors.
+
 `/health.v1_readiness` is also the final no-UI `v1` acceptance-bundle surface.
 It should expose:
 
