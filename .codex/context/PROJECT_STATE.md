@@ -1,6 +1,24 @@
 # PROJECT_STATE
 
-Last updated: 2026-05-02
+Last updated: 2026-05-03
+
+- 2026-05-03: `PRJ-909` attempted the production Telegram mode smoke and is
+  blocked by missing local operator preconditions:
+  - new task:
+    - `.codex/tasks/PRJ-909-production-telegram-mode-smoke.md`
+  - new planning source:
+    - `docs/planning/v1-production-telegram-mode-smoke.md`
+  - result:
+    - production health reports Telegram as `provider_backed_ready`
+    - production health reports `bot_token_configured=true`
+    - production health reports `webhook_secret_configured=true`
+    - production health reports `delivery_failures=0`
+    - the destructive listen probe was not run because this local session does
+      not have `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, or a known
+      `REQUIRED_CHAT_ID`
+  - next execution priority:
+    - continue with `PRJ-931` AI red-team pack or the web-v1 route smoke lane
+      unless the Telegram operator preconditions are supplied
 
 - 2026-05-02: `PRJ-912` completed the v1 data privacy and debug posture check:
   - new task:

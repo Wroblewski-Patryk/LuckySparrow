@@ -73,7 +73,10 @@ attached to the strict-mode incident bundle.
 The following are not core no-UI `v1` blockers, but remain required before a
 broader public or web-led release claim:
 
-- `PRJ-909` production Telegram live-mode smoke
+- `PRJ-909` production Telegram live-mode smoke: BLOCKED until an operator
+  provides `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, and a known
+  `REQUIRED_CHAT_ID`; production health currently reports
+  `provider_backed_ready`
 - `PRJ-911` rollback and recovery drill
 - `PRJ-912` data privacy and debug posture check
 - `PRJ-913..PRJ-916` web-v1 route and product-honesty checks
@@ -95,5 +98,6 @@ broader public or web-led release claim:
 
 ## Recommended Next Step
 
-Run `PRJ-909` if Telegram is the primary launch channel, otherwise run
-`PRJ-911` rollback/recovery followed by `PRJ-912` privacy/debug posture.
+Rerun `PRJ-909` when Telegram operator preconditions are available. Until then,
+continue with locally actionable public-launch hardening, starting with
+`PRJ-931` AI red-team evidence or the web/product-honesty lane.

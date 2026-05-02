@@ -1,6 +1,29 @@
 # TASK_BOARD
 
-Last updated: 2026-05-02
+Last updated: 2026-05-03
+
+## Fresh Production Telegram Mode Smoke (2026-05-03)
+
+- `PRJ-909` is BLOCKED:
+  - `.codex/tasks/PRJ-909-production-telegram-mode-smoke.md`
+  - `docs/planning/v1-production-telegram-mode-smoke.md`
+- result:
+  - production Telegram health is green:
+    - `round_trip_state=provider_backed_ready`
+    - `bot_token_configured=true`
+    - `webhook_secret_configured=true`
+    - `delivery_failures=0`
+  - live Telegram listen probe was not run because the local operator session
+    does not have `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, or a known
+    `REQUIRED_CHAT_ID`
+  - no Telegram API mutation was performed and the production webhook was not
+    changed from this session
+- validation:
+  - production `/health` reviewed on 2026-05-03
+  - `git diff --check` passed
+- next smallest useful task:
+  - continue with `PRJ-931` AI red-team pack or web-v1 route smoke unless the
+    Telegram operator preconditions are supplied
 
 ## Fresh V1 Data Privacy And Debug Posture Check (2026-05-02)
 

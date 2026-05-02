@@ -290,6 +290,12 @@ Tasks:
   - Release smoke accepted the bundle path.
 
 - `PRJ-909` Production Telegram Mode Smoke
+  - Status: BLOCKED
+  - Output: `docs/planning/v1-production-telegram-mode-smoke.md` records that
+    production health reports Telegram as `provider_backed_ready`, but the live
+    provider listen probe was not run because this local operator session lacks
+    `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, and a known
+    `REQUIRED_CHAT_ID`.
   - Run webhook/listen smoke with real bot token, webhook secret, and known
     chat id.
   - Restore webhook after listen probe.
@@ -461,7 +467,8 @@ Tasks:
 
 ### P1 Product And Operations
 
-1. `PRJ-909` Production Telegram Mode Smoke
+1. `PRJ-909` Production Telegram Mode Smoke - BLOCKED by operator
+   preconditions
 2. `PRJ-913` Web V1 Route Smoke After Release Candidate
 3. `PRJ-914` Replace Remaining Static Personality Metrics
 4. `PRJ-915` Backend-Backed Dashboard Summary Surface
