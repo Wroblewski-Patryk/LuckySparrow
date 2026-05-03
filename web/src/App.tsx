@@ -33,6 +33,7 @@ import {
   RouteStatCard,
   StatePanel,
 } from "./components/shared";
+import { SettingsCard, SettingsFact } from "./components/settings";
 import {
   AviaryWordmark,
   ShellNavButton,
@@ -5658,10 +5659,12 @@ export default function App() {
                   </div>
 
                   <div className="aion-settings-card-grid">
-                    <section className="aion-settings-card aion-settings-card-lead">
-                      <p className="aion-settings-card-label">{copy.settings.profileTitle}</p>
-                      <h4 className="aion-settings-card-title">{copy.auth.displayName}</h4>
-                      <p className="aion-settings-card-body">{copy.settings.profileBody}</p>
+                    <SettingsCard
+                      label={copy.settings.profileTitle}
+                      title={copy.auth.displayName}
+                      body={copy.settings.profileBody}
+                      lead
+                    >
                       <label className="form-control mt-4">
                         <input
                           className="input input-bordered aion-settings-control"
@@ -5672,17 +5675,16 @@ export default function App() {
                           placeholder={copy.auth.displayName}
                         />
                       </label>
-                    </section>
+                    </SettingsCard>
 
-                    <section className="aion-settings-card">
-                      <div className="aion-settings-card-header">
-                        <div>
-                          <p className="aion-settings-card-label">{copy.settings.uiLanguageTitle}</p>
-                          <h4 className="aion-settings-card-title">{copy.common.uiLanguage}</h4>
-                        </div>
+                    <SettingsCard
+                      label={copy.settings.uiLanguageTitle}
+                      title={copy.common.uiLanguage}
+                      body={copy.settings.uiLanguageBody}
+                      accessory={
                         <span className="aion-settings-mini-pill">{copy.common.interfaceOnly}</span>
-                      </div>
-                      <p className="aion-settings-card-body">{copy.settings.uiLanguageBody}</p>
+                      }
+                    >
                       <label className="form-control mt-4">
                         <select
                           className="select select-bordered aion-settings-control"
@@ -5702,12 +5704,13 @@ export default function App() {
                         </select>
                       </label>
                       <p className="aion-settings-help">{copy.settings.uiLanguageHelp}</p>
-                    </section>
+                    </SettingsCard>
 
-                    <section className="aion-settings-card">
-                      <p className="aion-settings-card-label">{copy.settings.utcOffsetTitle}</p>
-                      <h4 className="aion-settings-card-title">{copy.common.utcOffset}</h4>
-                      <p className="aion-settings-card-body">{copy.settings.utcOffsetBody}</p>
+                    <SettingsCard
+                      label={copy.settings.utcOffsetTitle}
+                      title={copy.common.utcOffset}
+                      body={copy.settings.utcOffsetBody}
+                    >
                       <label className="form-control mt-4">
                         <select
                           className="select select-bordered aion-settings-control"
@@ -5727,23 +5730,21 @@ export default function App() {
                         </select>
                       </label>
                       <p className="aion-settings-help">{copy.settings.utcOffsetHelp}</p>
-                    </section>
+                    </SettingsCard>
 
-                    <section className="aion-settings-card">
-                      <p className="aion-settings-card-label">{copy.settings.conversationTitle}</p>
-                      <h4 className="aion-settings-card-title">{copy.common.conversationLanguage}</h4>
-                      <p className="aion-settings-card-body">{copy.settings.conversationBody}</p>
+                    <SettingsCard
+                      label={copy.settings.conversationTitle}
+                      title={copy.common.conversationLanguage}
+                      body={copy.settings.conversationBody}
+                    >
                       <div className="aion-settings-fact-grid">
-                        <div className="aion-settings-fact">
-                          <p>{copy.common.sourceOfTruth}</p>
-                          <strong>{stringValue(me.settings.preferred_language, copy.common.notSet)}</strong>
-                        </div>
-                        <div className="aion-settings-fact">
-                          <p>{copy.common.details}</p>
-                          <strong>{selectedUtcOffsetMetadata.value}</strong>
-                        </div>
+                        <SettingsFact
+                          label={copy.common.sourceOfTruth}
+                          value={stringValue(me.settings.preferred_language, copy.common.notSet)}
+                        />
+                        <SettingsFact label={copy.common.details} value={selectedUtcOffsetMetadata.value} />
                       </div>
-                    </section>
+                    </SettingsCard>
                   </div>
                 </section>
 
