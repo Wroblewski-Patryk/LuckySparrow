@@ -4,8 +4,8 @@
 - ID: PRJ-827
 - Title: Authenticated sidebar support closure pass
 - Task Type: design
-- Current Stage: implementation
-- Status: IN_PROGRESS
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-826
 - Priority: P1
@@ -61,14 +61,14 @@ closure rhythm.
 - stay within the declared current stage unless explicit approval changes it
 
 ## Definition of Done
-- [ ] Sidebar support stack is refined in code.
-- [ ] Closure-map planning truth is updated.
-- [ ] Focused validation evidence is attached.
+- [x] Sidebar support stack is refined in code.
+- [x] Closure-map planning truth is updated.
+- [x] Focused validation evidence is attached.
 
 ## Stage Exit Criteria
-- [ ] The output matches the declared `Current Stage`.
-- [ ] Work from later stages was not mixed in without explicit approval.
-- [ ] Risks and assumptions for this stage are stated clearly.
+- [x] The output matches the declared `Current Stage`.
+- [x] Work from later stages was not mixed in without explicit approval.
+- [x] Risks and assumptions for this stage are stated clearly.
 
 ## Forbidden
 - new systems without approval
@@ -131,20 +131,42 @@ closure rhythm.
 - Staged rollout or feature flag: no
 
 ## Review Checklist (mandatory)
-- [ ] Current stage is declared and respected.
-- [ ] Deliverable for the current stage is complete.
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Current stage is declared and respected.
+- [x] Deliverable for the current stage is complete.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal update was not required; no new recurring pitfall was
+  confirmed in this closure sync.
 
 ## Notes
 This slice stays on the authenticated desktop sidebar only and does not reopen
 route-level dashboard, chat, or personality work.
+
+## Closure Sync - 2026-05-03
+
+- Current release status:
+  - DONE as a historical authenticated-sidebar support-stack closure slice.
+- Current source truth:
+  - `web/src/App.tsx` keeps the sidebar health, identity, and quote support
+    stack hooks.
+  - `web/src/index.css` keeps the lower support-stack density, health-emblem,
+    identity-card, and quote-card closure rules from this slice.
+  - `docs/planning/canonical-100-slice-closure-map.md` was corrected during
+    the original implementation so active planning truth moved from `home` to
+    the shell/sidebar lane.
+- Superseding proof owners:
+  - `PRJ-868` canonical layout foundation.
+  - `PRJ-875` canonical UI final route sweep.
+  - `docs/ux/flagship-baseline-transfer.md`.
+- Closure evidence:
+  - reviewed this task history, current sidebar source, closure-map note,
+    design memory, flagship baseline transfer, and later project/board proof.
+  - no runtime files were changed by this closure sync.
 
 ## Production-Grade Required Contract
 

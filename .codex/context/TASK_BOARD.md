@@ -2,6 +2,33 @@
 
 Last updated: 2026-05-03
 
+## Fresh PRJ-827 Authenticated Sidebar Support Closure (2026-05-03)
+
+- `PRJ-827` is DONE:
+  - `.codex/tasks/PRJ-827-authenticated-sidebar-support-closure-pass.md`
+- result:
+  - the authenticated sidebar support closure pass is no longer a stale
+    `IN_PROGRESS` item
+  - historical implementation is preserved:
+    - reduced `System Health` emblem scale, rings, and shadow weight
+    - tighter health-card hierarchy and diagnostics button rhythm
+    - calmer identity/quote closure spacing and stable quote punctuation
+    - corrected active planning truth in the canonical 100-slice map
+  - current source keeps the sidebar health, identity, and quote support-stack
+    hooks and CSS refinements
+  - later proof owners remain:
+    - `PRJ-868` canonical layout foundation
+    - `PRJ-875` canonical UI final route sweep
+    - `docs/ux/flagship-baseline-transfer.md`
+- validation:
+  - reviewed PRJ-827 task history, current sidebar source, closure-map note,
+    design memory, flagship baseline transfer, and later board/project proof
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - review `PRJ-828` authenticated sidebar decomponentize support stack task
+    for stale status
+
 ## Fresh PRJ-826 Authenticated Sidebar Lockup Closure (2026-05-03)
 
 - `PRJ-826` is DONE:
