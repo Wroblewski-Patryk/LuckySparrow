@@ -10,8 +10,9 @@ component refactor. It is grounded in `web/src/App.tsx`,
 `web/src/components/app-icons.tsx`, `web/src/components/chat.tsx`, and
 `web/src/components/dashboard.tsx`, `web/src/components/personality.tsx`,
 `web/src/components/settings.tsx`, `web/src/components/tools.tsx`,
-`web/src/lib/learned-state-formatting.ts`, `web/src/lib/settings-formatting.ts`,
-`docs/frontend/app-route-cluster-audit.md`, and `web/src/index.css`.
+`web/src/lib/learned-state-formatting.ts`, `web/src/lib/metric-formatting.ts`,
+`web/src/lib/settings-formatting.ts`, `docs/frontend/app-route-cluster-audit.md`,
+and `web/src/index.css`.
 
 ## Headless Route Smoke
 
@@ -52,6 +53,7 @@ parity suite.
 | API client | `web/src/lib/api.ts` | Typed fetch wrapper and app-facing endpoint methods |
 | Tools formatting helpers | `web/src/lib/tool-formatting.ts` | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` |
 | Learned-state formatting helpers | `web/src/lib/learned-state-formatting.ts` | `formatTimestamp`, `stringValue`, `recentActivityRows`, `summaryLines` |
+| Metric formatting helpers | `web/src/lib/metric-formatting.ts` | `numberValue`, `scaledMetricSize` |
 | Settings formatting helpers | `web/src/lib/settings-formatting.ts` | `UI_LANGUAGE_OPTIONS`, `UTC_OFFSET_OPTIONS`, `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` |
 | Styling | `web/src/index.css` | Route layouts, product shell visuals, responsive behavior, state styling |
 

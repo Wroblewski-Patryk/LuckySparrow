@@ -24,6 +24,7 @@ import {
   stringValue,
   summaryLines,
 } from "./lib/learned-state-formatting";
+import { numberValue, scaledMetricSize } from "./lib/metric-formatting";
 import {
   UI_LANGUAGE_OPTIONS,
   UTC_OFFSET_OPTIONS,
@@ -1835,18 +1836,6 @@ function routeDescription(route: RoutePath, locale: ResolvedUiLanguageCode) {
 function routeLabel(route: RoutePath, locale: ResolvedUiLanguageCode) {
   const localized = UI_COPY[locale].routes as Record<string, string>;
   return localized[route] ?? UI_COPY.en.routes[route];
-}
-
-function numberValue(value: unknown, fallback = 0) {
-  const candidate = Number(value);
-  return Number.isFinite(candidate) ? candidate : fallback;
-}
-
-function scaledMetricSize(value: number, maxValue: number, minimumWhenPresent = 10) {
-  if (value <= 0 || maxValue <= 0) {
-    return "0%";
-  }
-  return `${Math.min(100, Math.max(minimumWhenPresent, Math.round((value / maxValue) * 100)))}%`;
 }
 
 type ConversationChannelStatus = {

@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-999` completed metric formatting helper extraction:
+  - task:
+    - `.codex/tasks/PRJ-999-metric-formatting-helper-extraction.md`
+  - result:
+    - added `web/src/lib/metric-formatting.ts`
+    - moved `numberValue` and `scaledMetricSize` out of `web/src/App.tsx`
+    - kept `conversationChannelStatus` in `App()` until provider/integration
+      route ownership is clearer
+    - updated the frontend route/component map, route cluster audit, and v1
+      roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+  - next execution priority:
+    - `PRJ-1000` audit next v1 frontend architecture slice after helper cleanup
+
 - 2026-05-03: `PRJ-998` completed health/channel helper audit:
   - task:
     - `.codex/tasks/PRJ-998-health-channel-helper-extraction-audit.md`

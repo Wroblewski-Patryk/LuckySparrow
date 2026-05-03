@@ -31,7 +31,7 @@ timeline row, and tools component extractions.
 | Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `App.tsx` | `/chat` | Candidate for `web/src/lib/chat-formatting.ts` after transcript component extraction |
 | Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Deferred in PRJ-998 until provider/integration route ownership is clearer |
-| Metric formatting | `numberValue`, `scaledMetricSize` in `App.tsx` | dashboard, automations, integrations, tools summary projections | Selected for PRJ-999 because these helpers are pure and lower-risk than provider telemetry |
+| Metric formatting | `numberValue`, `scaledMetricSize` in `web/src/lib/metric-formatting.ts` | dashboard, automations, integrations, tools summary projections | Extracted in PRJ-999 |
 | Settings formatting | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` in `web/src/lib/settings-formatting.ts` | `/settings`, bootstrap | Extracted in PRJ-993 |
 
 ## Next Slice
@@ -58,9 +58,5 @@ cleanup. `PRJ-997` extracted learned-state summary helpers:
   route ownership is clearer
 
 `PRJ-998` deferred `conversationChannelStatus` because it encodes Telegram
-provider and health semantics. The next implementation slice is `PRJ-999`,
-which should extract pure metric formatting helpers:
-
-- move `numberValue` and `scaledMetricSize` to a small metric formatting module
-- keep `conversationChannelStatus` in `App()`
-- run `npm run build` and the 14-route smoke
+provider and health semantics. `PRJ-999` extracted pure metric formatting
+helpers while keeping `conversationChannelStatus` in `App()`.

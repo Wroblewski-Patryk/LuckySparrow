@@ -109,7 +109,8 @@ current blocker is release reality:
 | PRJ-996 | Audit module route helper extraction after side-panel cleanup | DONE | learned-state summary helpers were selected before health/channel helpers because they are pure projections with lower provider/telemetry coupling |
 | PRJ-997 | Extract learned-state summary helpers from `web/src/App.tsx` | DONE | `recentActivityRows`, `summaryLines`, and direct value/timestamp formatting dependencies live in `web/src/lib/learned-state-formatting.ts`; full route smoke passes with `route_count=14` |
 | PRJ-998 | Audit remaining health/channel helper extraction | DONE | `conversationChannelStatus` stays in `App()` until provider/integration route ownership is clearer; pure metric helpers were selected next |
-| PRJ-999 | Extract metric formatting helpers from `web/src/App.tsx` | READY_AFTER_PRJ-998 | `numberValue` and `scaledMetricSize` move to a small metric formatting module without route behavior change |
+| PRJ-999 | Extract metric formatting helpers from `web/src/App.tsx` | DONE | `numberValue` and `scaledMetricSize` live in `web/src/lib/metric-formatting.ts`; full route smoke passes with `route_count=14` |
+| PRJ-1000 | Audit next v1 frontend architecture slice after helper cleanup | READY_AFTER_PRJ-999 | re-check remaining `App.tsx` clusters and choose the next behavior-preserving route/component extraction |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |
