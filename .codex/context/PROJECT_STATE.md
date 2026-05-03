@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1000` completed next frontend slice audit:
+  - task:
+    - `.codex/tasks/PRJ-1000-next-frontend-slice-audit.md`
+  - result:
+    - re-checked remaining `web/src/App.tsx` route/helper clusters after helper
+      cleanup
+    - selected chat transcript metadata helper extraction as the next narrow
+      frontend slice
+    - deferred markdown renderer, composer behavior, health/provider posture,
+      and flagship visual branches
+    - updated the frontend route cluster audit and v1 roadmap
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1001` extract chat transcript metadata helpers from
+      `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-999` completed metric formatting helper extraction:
   - task:
     - `.codex/tasks/PRJ-999-metric-formatting-helper-extraction.md`
