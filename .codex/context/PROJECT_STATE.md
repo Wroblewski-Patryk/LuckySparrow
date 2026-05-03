@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-730` completed personality implementation status sync:
+  - task:
+    - `.codex/tasks/PRJ-730-personality-module-implementation-on-shared-visual-foundations.md`
+  - result:
+    - the personality implementation task is no longer a false `READY` item
+    - existing `/personality` implementation in `web/src/App.tsx` and
+      `web/src/index.css` remains the shared-foundation route implementation
+    - later PRJ-865/PRJ-871 build and screenshot evidence remain the proof path
+    - `docs/ux/personality-module-map.md` now records the route reuse contract
+      and known proof gaps
+    - no duplicate route implementation, backend contract change, or visual
+      system was introduced
+  - validation:
+    - personality module map, route code, CSS implementation, and later
+      canonical proof evidence were reviewed
+    - `git diff --check` passed
+  - next execution priority:
+    - review `PRJ-731` for cross-module proof/design-memory/future-app baseline
+      sync status
+
 - 2026-05-03: `PRJ-729` completed personality module map repair:
   - task:
     - `.codex/tasks/PRJ-729-freeze-personality-module-information-architecture-and-motif-mapping.md`

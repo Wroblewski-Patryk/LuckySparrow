@@ -2,6 +2,29 @@
 
 Last updated: 2026-05-03
 
+## Fresh Personality Implementation Status Sync (2026-05-03)
+
+- `PRJ-730` is DONE:
+  - `.codex/tasks/PRJ-730-personality-module-implementation-on-shared-visual-foundations.md`
+- result:
+  - the stale `READY` implementation-planning task was closed against current
+    route implementation reality
+  - `web/src/App.tsx` already contains the `/personality` canvas,
+    `PersonalityLayerCard`, `PersonalityTimelineRow`, callout pins, conscious
+    and subconscious signal panels, timeline rows, and recent activity section
+  - `web/src/index.css` already contains the `aion-personality-*` implementation
+    and responsive styling
+  - `docs/ux/personality-module-map.md` now records the reuse contract and
+    known proof gaps
+- validation:
+  - reviewed personality module map, route code, CSS implementation, and later
+    PRJ-865/PRJ-871 build/screenshot evidence
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - review `PRJ-731` for cross-module proof/design-memory/future-app baseline
+    sync status
+
 ## Fresh Personality Module Map Repair (2026-05-03)
 
 - `PRJ-729` is DONE:
