@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Presentation Extraction Audit (2026-05-03)
+
+- `PRJ-1008` is DONE:
+  - `.codex/tasks/PRJ-1008-next-chat-presentation-extraction-audit.md`
+- result:
+  - selected cognitive belt extraction as the next safe chat route slice
+  - kept `chatCognitiveBelt` data construction, goal-progress derivation, and
+    planning/health summaries in `App()`
+  - deferred portrait/support panel extraction because it is more tightly
+    coupled to canonical chat composition
+  - deferred transcript shell/container extraction because it touches loading
+    state and refs
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1009` extract chat cognitive belt presentation from `web/src/App.tsx`
+
 ## Fresh Chat Transcript Message Row Extraction (2026-05-03)
 
 - `PRJ-1007` is DONE:

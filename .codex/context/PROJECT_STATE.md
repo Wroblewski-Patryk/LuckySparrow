@@ -2,6 +2,22 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1008` completed next chat presentation extraction audit:
+  - task:
+    - `.codex/tasks/PRJ-1008-next-chat-presentation-extraction-audit.md`
+  - result:
+    - selected cognitive belt extraction as the next safe chat route slice
+    - kept cognitive-belt data construction and goal-progress derivation in
+      `App()`
+    - deferred portrait/support panel and transcript shell extraction because
+      they are more visual/ref-sensitive
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1009` extract chat cognitive belt presentation from
+      `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-1007` completed chat transcript message row extraction:
   - task:
     - `.codex/tasks/PRJ-1007-chat-transcript-message-row-extraction.md`

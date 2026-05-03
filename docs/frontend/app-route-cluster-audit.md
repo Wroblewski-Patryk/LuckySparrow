@@ -115,3 +115,13 @@ delivery-state calculation, delivery-label selection, timestamp formatting,
 and markdown rendering. The next safe chat route step is to audit whether the
 cognitive belt or portrait/support-panel chrome can move behind explicit data
 props without changing the canonical chat layout.
+
+`PRJ-1008` selected the cognitive belt as the next implementation slice:
+
+- move the `aion-chat-cognitive-belt` card-list presentation behind a
+  `ChatCognitiveBelt` component
+- keep `chatCognitiveBelt` data construction, goal-progress derivation, and
+  planning/health summaries in `App()`
+- defer the portrait/support panel because it is more tightly coupled to the
+  canonical chat composition and should be audited separately
+- defer the transcript shell/container because it owns loading state and refs
