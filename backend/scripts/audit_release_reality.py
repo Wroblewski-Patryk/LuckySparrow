@@ -67,6 +67,12 @@ def _resolve_origin_main() -> str:
     return _git_value("ls-remote", "origin", "refs/heads/main").split("\t")[0]
 
 
+def _resolve_tag_commit(tag: str) -> str:
+    if not tag:
+        return ""
+    return _git_value("rev-parse", f"{tag}^{{commit}}")
+
+
 def _verdict(
     *,
     selected_sha: str,
@@ -77,6 +83,7 @@ def _verdict(
     release_ready: bool | None,
     release_violations: list[Any],
     v1_final_acceptance_state: str,
+    enforce_git_parity: bool,
 ) -> str:
     if not selected_sha:
         return "HOLD_NO_SELECTED_SHA"
@@ -84,9 +91,9 @@ def _verdict(
         return "HOLD_HEALTH_OR_WEB_REVISION_MISSING"
     if backend_revision != selected_sha or web_revision != selected_sha:
         return "HOLD_REVISION_DRIFT"
-    if local_head and local_head != selected_sha:
+    if enforce_git_parity and local_head and local_head != selected_sha:
         return "HOLD_LOCAL_HEAD_DIFFERS_FROM_SELECTED_SHA"
-    if origin_main and origin_main != selected_sha:
+    if enforce_git_parity and origin_main and origin_main != selected_sha:
         return "HOLD_ORIGIN_MAIN_DIFFERS_FROM_SELECTED_SHA"
     if release_ready is not True or release_violations:
         return "HOLD_HEALTH_OR_READINESS"
@@ -99,13 +106,15 @@ def build_report(
     *,
     base_url: str,
     selected_sha: str,
+    selected_tag: str,
     timeout_seconds: int,
+    enforce_git_parity: bool,
 ) -> dict[str, Any]:
     base_url = base_url.rstrip("/")
     local_head = _git_value("rev-parse", "HEAD")
     origin_main = _resolve_origin_main()
     if not selected_sha:
-        selected_sha = local_head
+        selected_sha = _resolve_tag_commit(selected_tag) if selected_tag else local_head
 
     health_result = _json_get(f"{base_url}/health", timeout_seconds=timeout_seconds)
     settings_result = _text_get(f"{base_url}/settings", timeout_seconds=timeout_seconds)
@@ -133,12 +142,15 @@ def build_report(
         release_ready=release_ready,
         release_violations=release_violations,
         v1_final_acceptance_state=v1_final_acceptance_state,
+        enforce_git_parity=enforce_git_parity,
     )
 
     return {
         "kind": "release_reality_audit",
         "base_url": base_url,
         "selected_sha": selected_sha,
+        "selected_tag": selected_tag,
+        "git_parity_enforced": enforce_git_parity,
         "local_head": local_head,
         "origin_main": origin_main,
         "production": {
@@ -164,6 +176,12 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--base-url", default="https://aviary.luckysparrow.ch")
     parser.add_argument("--selected-sha", default="", help="Release SHA to verify. Defaults to local HEAD.")
+    parser.add_argument("--selected-tag", default="", help="Resolve the selected SHA from a local git tag.")
+    parser.add_argument(
+        "--monitor-mode",
+        action="store_true",
+        help="Do not fail only because local HEAD or origin/main are newer than the selected release SHA.",
+    )
     parser.add_argument("--timeout-seconds", type=int, default=20)
     parser.add_argument("--output", default="", help="Optional JSON output path.")
     return parser.parse_args()
@@ -174,7 +192,9 @@ def main() -> int:
     report = build_report(
         base_url=str(args.base_url),
         selected_sha=str(args.selected_sha),
+        selected_tag=str(args.selected_tag),
         timeout_seconds=int(args.timeout_seconds),
+        enforce_git_parity=not bool(args.monitor_mode),
     )
     encoded = json.dumps(report, ensure_ascii=False, indent=2)
     print(encoded)

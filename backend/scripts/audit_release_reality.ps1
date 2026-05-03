@@ -1,6 +1,8 @@
 param(
     [string]$BaseUrl = "https://aviary.luckysparrow.ch",
     [string]$SelectedSha = "",
+    [string]$SelectedTag = "",
+    [switch]$MonitorMode,
     [int]$TimeoutSeconds = 20,
     [string]$Output = ""
 )
@@ -27,6 +29,14 @@ $args = @(
 
 if ($SelectedSha) {
     $args += @("--selected-sha", $SelectedSha)
+}
+
+if ($SelectedTag) {
+    $args += @("--selected-tag", $SelectedTag)
+}
+
+if ($MonitorMode) {
+    $args += @("--monitor-mode")
 }
 
 if ($Output) {

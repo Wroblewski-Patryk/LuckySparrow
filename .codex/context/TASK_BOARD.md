@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+## Fresh Revision-Aware Production Health Monitor (2026-05-03)
+
+- `PRJ-957` is DONE:
+  - `.codex/tasks/PRJ-957-revision-aware-production-health-monitor.md`
+- result:
+  - extended `backend/scripts/audit_release_reality.py` and `.ps1` with:
+    - `--selected-tag`
+    - `--monitor-mode`
+  - monitor mode compares production backend/web revisions against `v1.0.0`
+    without failing only because local `HEAD` has moved past the release tag
+  - production monitor command currently returns `GO_FOR_SELECTED_SHA`
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "release_reality_audit or backend_operator_scripts_expose_help"; Pop-Location`
+  - result: `12 passed, 44 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_release_reality.py --base-url "https://aviary.luckysparrow.ch" --selected-tag v1.0.0 --monitor-mode; Pop-Location`
+  - result: `GO_FOR_SELECTED_SHA`
+- next smallest useful task:
+  - `PRJ-958` AI red-team scenario execution
+
 ## Fresh V1.0.0 Release Marker (2026-05-03)
 
 - `PRJ-955` is DONE:
@@ -92,6 +111,7 @@ Last updated: 2026-05-03
     - task: `.codex/tasks/PRJ-956-release-reality-audit-script.md`
     - completed in this iteration with verdict-aware script and tests
   - `PRJ-957` Make production health monitor revision-aware: READY
+    - completed in this iteration with selected-tag monitor mode and docs
 - P1:
   - `PRJ-958` Execute AI red-team scenario pack: READY
   - `PRJ-959` Add cross-user/session regression tests: READY

@@ -20,15 +20,31 @@ reports degraded state without mutating production or provider configuration.
 
 ## Checked Fields
 
-The monitor checks and reports:
+The monitor checks and reports through the revision-aware release reality audit:
 
 - endpoint availability
 - `status`
 - `release_readiness.ready`
-- deployment revision and web build revision parity when present
+- deployment revision and web build revision parity against the selected
+  release marker
 - `conversation_channels.telegram.round_trip_state`
 - `connectors.organizer_tool_stack.readiness_state`
 - obvious failed or degraded readiness fields
+
+Canonical v1.0.0 monitor command:
+
+```powershell
+Push-Location .\backend
+..\.venv\Scripts\python .\scripts\audit_release_reality.py `
+  --base-url "https://aviary.luckysparrow.ch" `
+  --selected-tag v1.0.0 `
+  --monitor-mode
+Pop-Location
+```
+
+`--monitor-mode` intentionally allows local `HEAD` or `origin/main` to advance
+after the release marker. It still fails when production backend or web shell
+revisions drift from the selected release tag.
 
 ## Alert Criteria
 
@@ -38,7 +54,9 @@ Treat the run as needing operator attention when:
 - response parsing fails
 - `status` is not healthy
 - `release_readiness.ready=false`
-- deployment revision and web build revision diverge
+- deployment revision or web build revision differs from the selected release
+  marker
+- release reality audit returns any `HOLD_*` verdict
 - Telegram round-trip state regresses from provider-backed ready
 - organizer state changes unexpectedly outside planned provider activation
 

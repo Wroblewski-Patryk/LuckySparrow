@@ -2,6 +2,23 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-957` completed revision-aware production health monitoring:
+  - task:
+    - `.codex/tasks/PRJ-957-revision-aware-production-health-monitor.md`
+  - result:
+    - extended `backend/scripts/audit_release_reality.py` and `.ps1` with
+      selected-tag and monitor mode support
+    - monitor mode compares production backend/web revisions against `v1.0.0`
+      without failing only because local `HEAD` has moved past the release tag
+    - production monitor command currently returns `GO_FOR_SELECTED_SHA`
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "release_reality_audit or backend_operator_scripts_expose_help"; Pop-Location`
+    - result: `12 passed, 44 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_release_reality.py --base-url "https://aviary.luckysparrow.ch" --selected-tag v1.0.0 --monitor-mode; Pop-Location`
+    - result: `GO_FOR_SELECTED_SHA`
+  - next execution priority:
+    - `PRJ-958` AI red-team scenario execution
+
 - 2026-05-03: `PRJ-955` created the v1.0.0 release marker:
   - task:
     - `.codex/tasks/PRJ-955-create-v1-release-marker.md`

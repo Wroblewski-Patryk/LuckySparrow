@@ -3138,11 +3138,16 @@ def test_release_smoke_fails_when_external_cadence_cutover_fields_are_missing(
 
 def test_release_reality_audit_reports_go_when_selected_sha_matches_stub_production(
     stub_aion_server: _StubAionServer,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(RELEASE_AUDIT_MODULE, "_resolve_origin_main", lambda: LOCAL_REPO_HEAD_SHA)
+
     report = RELEASE_AUDIT_MODULE.build_report(
         base_url=stub_aion_server.base_url,
         selected_sha=LOCAL_REPO_HEAD_SHA,
+        selected_tag="",
         timeout_seconds=5,
+        enforce_git_parity=True,
     )
 
     assert report["verdict"] == "GO_FOR_SELECTED_SHA"
@@ -3153,7 +3158,10 @@ def test_release_reality_audit_reports_go_when_selected_sha_matches_stub_product
 
 def test_release_reality_audit_reports_revision_drift_when_production_sha_is_stale(
     stub_aion_server: _StubAionServer,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(RELEASE_AUDIT_MODULE, "_resolve_origin_main", lambda: LOCAL_REPO_HEAD_SHA)
+
     original_deployment = dict(_StubAionHandler.health_payload["deployment"])
     original_web_revision = _StubAionHandler.web_build_revision
     stale_sha = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
@@ -3166,7 +3174,9 @@ def test_release_reality_audit_reports_revision_drift_when_production_sha_is_sta
         report = RELEASE_AUDIT_MODULE.build_report(
             base_url=stub_aion_server.base_url,
             selected_sha=LOCAL_REPO_HEAD_SHA,
+            selected_tag="",
             timeout_seconds=5,
+            enforce_git_parity=True,
         )
     finally:
         _StubAionHandler.health_payload["deployment"] = original_deployment
@@ -3175,3 +3185,18 @@ def test_release_reality_audit_reports_revision_drift_when_production_sha_is_sta
     assert report["verdict"] == "HOLD_REVISION_DRIFT"
     assert report["release_marker_allowed"] is False
     assert report["production"]["backend_runtime_build_revision"] == stale_sha
+
+
+def test_release_reality_audit_monitor_mode_allows_newer_local_head_when_release_sha_matches_production(
+    stub_aion_server: _StubAionServer,
+) -> None:
+    report = RELEASE_AUDIT_MODULE.build_report(
+        base_url=stub_aion_server.base_url,
+        selected_sha=LOCAL_REPO_HEAD_SHA,
+        selected_tag="",
+        timeout_seconds=5,
+        enforce_git_parity=False,
+    )
+
+    assert report["verdict"] == "GO_FOR_SELECTED_SHA"
+    assert report["git_parity_enforced"] is False
