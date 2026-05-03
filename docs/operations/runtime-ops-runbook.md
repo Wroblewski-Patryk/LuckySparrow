@@ -1497,6 +1497,48 @@ treating a failed release as an app bug:
 If `migrate` fails, treat the deploy as a schema-ownership failure first, not
 as a foreground-runtime regression.
 
+### Coolify Webhook Fallback Readiness
+
+Primary production deployment should still come from Coolify source
+automation. Use the webhook fallback only as an approved manual recovery path
+when source automation does not converge for the selected SHA.
+
+Readiness check:
+
+```powershell
+Push-Location .\backend
+..\.venv\Scripts\python .\scripts\check_coolify_fallback_readiness.py --print-json
+Pop-Location
+```
+
+The check is read-only. It does not trigger a deploy and it redacts the
+webhook secret. It verifies:
+
+- `COOLIFY_DEPLOY_WEBHOOK_URL` or `--webhook-url`
+- `COOLIFY_DEPLOY_WEBHOOK_SECRET` or `--webhook-secret`
+- HTTPS webhook URL shape
+- repository and branch
+- before/after SHA shape
+- canonical Coolify app metadata from deployment policy
+
+When the report is `ready=true`, run the actual fallback trigger with an
+evidence file:
+
+```powershell
+.\backend\scripts\trigger_coolify_deploy_webhook.ps1 `
+  -WebhookUrl "<coolify_webhook_url>" `
+  -WebhookSecret "<coolify_webhook_secret>" `
+  -Repository "Wroblewski-Patryk/Aviary" `
+  -Branch "main" `
+  -BeforeSha "<before_sha>" `
+  -AfterSha "<after_sha>" `
+  -EvidencePath "artifacts/deploy/coolify-webhook.json"
+```
+
+Then rerun production release smoke with deploy parity. The generated
+`artifacts/deploy/coolify-webhook.json` file remains local unless an operator
+explicitly selects a sanitized artifact for archival.
+
 Important health surfaces for current release checks:
 
 - `runtime_policy.startup_schema_removal_window`

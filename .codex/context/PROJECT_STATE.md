@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-969` completed Coolify fallback readiness checking:
+  - task:
+    - `.codex/tasks/PRJ-969-coolify-fallback-readiness-check.md`
+  - result:
+    - added `backend/scripts/check_coolify_fallback_readiness.py`
+    - added `backend/scripts/check_coolify_fallback_readiness.ps1`
+    - checker validates webhook URL, secret presence/length, repository,
+      branch, before/after SHA shape, and canonical Coolify app metadata
+    - checker redacts the webhook secret and never triggers a deploy
+    - runtime ops runbook now documents readiness before fallback trigger
+    - release evidence index points at the readiness command
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "coolify_fallback_readiness or backend_operator_scripts_expose_help"; Pop-Location`
+    - result: `13 passed, 47 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\check_coolify_fallback_readiness.py --print-json; Pop-Location`
+    - result: `readiness_state=blocked` because local
+      `COOLIFY_DEPLOY_WEBHOOK_URL` and `COOLIFY_DEPLOY_WEBHOOK_SECRET` are not
+      set
+  - next execution priority:
+    - `PRJ-970` release go/no-go command wrapper
+
 - 2026-05-03: `PRJ-968` completed the release evidence index:
   - task:
     - `.codex/tasks/PRJ-968-release-evidence-index.md`

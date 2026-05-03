@@ -2,6 +2,29 @@
 
 Last updated: 2026-05-03
 
+## Fresh Coolify Fallback Readiness Check (2026-05-03)
+
+- `PRJ-969` is DONE:
+  - `.codex/tasks/PRJ-969-coolify-fallback-readiness-check.md`
+- result:
+  - added read-only readiness checker:
+    - `backend/scripts/check_coolify_fallback_readiness.py`
+    - `backend/scripts/check_coolify_fallback_readiness.ps1`
+  - checker validates webhook URL, secret presence/length, repository, branch,
+    before/after SHA shape, and canonical Coolify app metadata
+  - checker redacts the webhook secret and never triggers a deploy
+  - runtime ops runbook now documents readiness check before fallback trigger
+  - release evidence index points at the readiness command
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "coolify_fallback_readiness or backend_operator_scripts_expose_help"; Pop-Location`
+  - result: `13 passed, 47 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\check_coolify_fallback_readiness.py --print-json; Pop-Location`
+  - result: `readiness_state=blocked` because local
+    `COOLIFY_DEPLOY_WEBHOOK_URL` and `COOLIFY_DEPLOY_WEBHOOK_SECRET` are not
+    set
+- next smallest useful task:
+  - `PRJ-970` release go/no-go command wrapper
+
 ## Fresh Release Evidence Index (2026-05-03)
 
 - `PRJ-968` is DONE:
@@ -357,7 +380,8 @@ Last updated: 2026-05-03
       `web/src/routes.ts`
   - `PRJ-968` Add release evidence index: DONE
     - completed in this iteration with `docs/operations/release-evidence-index.md`
-  - `PRJ-969` Add Coolify fallback secret/runbook readiness check: READY
+  - `PRJ-969` Add Coolify fallback secret/runbook readiness check: DONE
+    - completed in this iteration with a read-only readiness checker
   - `PRJ-970` Add release go/no-go command wrapper: READY_AFTER_PRJ-956
   - `PRJ-971` Extract first route-rendering component from `web/src/App.tsx`:
     READY_AFTER_PRJ-967

@@ -67,6 +67,7 @@ they are pushed, deployed, and proven by fresh release smoke.
 | --- | --- |
 | Release smoke and deploy parity | `backend/scripts/run_release_smoke.ps1` |
 | Release reality audit | `backend/scripts/audit_release_reality.py` |
+| Coolify fallback readiness | `backend/scripts/check_coolify_fallback_readiness.py` |
 | Release archive standard | `docs/planning/v1-release-evidence-archive-standard.md` |
 | V1 reality roadmap | `docs/planning/v1-reality-audit-and-roadmap.md` |
 | Runtime ops runbook | `docs/operations/runtime-ops-runbook.md` |
@@ -84,6 +85,7 @@ $health.deployment.runtime_build_revision
 $health.release_readiness.ready
 $health.v1_readiness.final_acceptance_state
 curl.exe -s -L --max-time 30 https://aviary.luckysparrow.ch/settings
+Push-Location .\backend; ..\.venv\Scripts\python .\scripts\check_coolify_fallback_readiness.py --print-json; Pop-Location
 ```
 
 ## Latest Refresh Evidence

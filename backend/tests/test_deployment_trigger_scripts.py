@@ -18,11 +18,13 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 BACKEND_ROOT = ROOT / "backend"
 TRIGGER_SCRIPT_PATH = BACKEND_ROOT / "scripts" / "trigger_coolify_deploy_webhook.py"
+COOLIFY_READINESS_SCRIPT_PATH = BACKEND_ROOT / "scripts" / "check_coolify_fallback_readiness.py"
 RELEASE_AUDIT_SCRIPT_PATH = BACKEND_ROOT / "scripts" / "audit_release_reality.py"
 RELEASE_SMOKE_PS1_PATH = BACKEND_ROOT / "scripts" / "run_release_smoke.ps1"
 PYTHON_EXE = ROOT / ".venv" / "Scripts" / "python.exe"
 BACKEND_SCRIPT_ENTRYPOINTS = [
     "audit_release_reality.py",
+    "check_coolify_fallback_readiness.py",
     "export_incident_evidence_bundle.py",
     "run_behavior_validation.py",
     "run_communication_boundary_backfill_once.py",
@@ -45,6 +47,15 @@ assert TRIGGER_SPEC is not None and TRIGGER_SPEC.loader is not None
 TRIGGER_MODULE = importlib.util.module_from_spec(TRIGGER_SPEC)
 sys.modules[TRIGGER_SPEC.name] = TRIGGER_MODULE
 TRIGGER_SPEC.loader.exec_module(TRIGGER_MODULE)
+
+COOLIFY_READINESS_SPEC = importlib.util.spec_from_file_location(
+    "check_coolify_fallback_readiness_script",
+    COOLIFY_READINESS_SCRIPT_PATH,
+)
+assert COOLIFY_READINESS_SPEC is not None and COOLIFY_READINESS_SPEC.loader is not None
+COOLIFY_READINESS_MODULE = importlib.util.module_from_spec(COOLIFY_READINESS_SPEC)
+sys.modules[COOLIFY_READINESS_SPEC.name] = COOLIFY_READINESS_MODULE
+COOLIFY_READINESS_SPEC.loader.exec_module(COOLIFY_READINESS_MODULE)
 
 RELEASE_AUDIT_SPEC = importlib.util.spec_from_file_location("audit_release_reality_script", RELEASE_AUDIT_SCRIPT_PATH)
 assert RELEASE_AUDIT_SPEC is not None and RELEASE_AUDIT_SPEC.loader is not None
@@ -1939,6 +1950,75 @@ def test_trigger_main_writes_failure_evidence_file_and_returns_non_zero(monkeypa
         "body": "failed",
         "error": "http_error:500",
     }
+
+
+def test_coolify_fallback_readiness_report_is_ready_with_required_inputs() -> None:
+    report = COOLIFY_READINESS_MODULE.build_readiness_report(
+        webhook_url="https://coolify.example/webhooks/github",
+        webhook_secret="s" * 32,
+        repository="owner/repo",
+        branch="main",
+        before_sha="a" * 40,
+        after_sha="b" * 40,
+    )
+
+    assert report["kind"] == "coolify_fallback_readiness_report"
+    assert report["policy_owner"] == "coolify_repo_deploy_automation"
+    assert report["ready"] is True
+    assert report["readiness_state"] == "ready"
+    assert report["failed_checks"] == []
+    assert report["secret_redacted"] is True
+    assert "s" * 32 not in report["trigger_command_hint"]
+    assert report["canonical_coolify_app"]["application_id"] == "jr1oehwlzl8tcn3h8gh2vvih"
+    assert report["next_action"] == "fallback_ready_run_trigger_then_release_smoke"
+
+
+def test_coolify_fallback_readiness_report_blocks_missing_or_unsafe_inputs() -> None:
+    report = COOLIFY_READINESS_MODULE.build_readiness_report(
+        webhook_url="http://coolify.example/webhooks/github",
+        webhook_secret="",
+        repository="owner/repo",
+        branch="main",
+        before_sha="not-a-sha",
+        after_sha="b" * 40,
+    )
+
+    failed_by_name = {check["name"]: check["detail"] for check in report["failed_checks"]}
+    assert report["ready"] is False
+    assert report["readiness_state"] == "blocked"
+    assert failed_by_name["webhook_url"] == "must_use_https"
+    assert failed_by_name["webhook_secret_present"] == "missing"
+    assert failed_by_name["webhook_secret_length"] == "too_short_or_missing"
+    assert failed_by_name["before_sha"] == "not-a-sha"
+    assert report["next_action"] == "provide_missing_fallback_inputs_before_trigger"
+
+
+def test_coolify_fallback_readiness_main_writes_blocked_report(monkeypatch, tmp_path: Path) -> None:
+    output_path = tmp_path / "coolify-readiness.json"
+    monkeypatch.setattr(
+        COOLIFY_READINESS_MODULE,
+        "_parse_args",
+        lambda: SimpleNamespace(
+            webhook_url="",
+            webhook_secret="",
+            repository="owner/repo",
+            branch="main",
+            before_sha="a" * 40,
+            after_sha="b" * 40,
+            output=str(output_path),
+            print_json=False,
+        ),
+    )
+
+    exit_code = COOLIFY_READINESS_MODULE.main()
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert exit_code == 1
+    assert report["ready"] is False
+    assert report["readiness_state"] == "blocked"
+    assert report["repository"] == "owner/repo"
+    assert report["before_sha"] == "a" * 40
+    assert report["after_sha"] == "b" * 40
 
 
 def test_release_smoke_allows_optional_deployment_evidence_to_be_omitted(

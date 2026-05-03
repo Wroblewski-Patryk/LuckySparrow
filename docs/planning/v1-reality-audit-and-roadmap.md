@@ -83,7 +83,7 @@ current blocker is release reality:
 | PRJ-967 | Split route ownership out of `web/src/App.tsx` | DONE | route type/list/normalization/history helpers live in `web/src/routes.ts`; build and route smoke pass |
 | PRJ-971 | Extract first route-rendering component from `web/src/App.tsx` | READY_AFTER_PRJ-967 | one low-risk route view or shared shell cluster moves behind route smoke without visual behavior change |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
-| PRJ-969 | Add Coolify fallback secret/runbook readiness check | READY | operator docs and local check clearly show whether approved webhook fallback can be run |
+| PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | READY_AFTER_PRJ-956 | one command runs local release audit plus production smoke and prints GO/HOLD |
 
 ## First Execution Order
