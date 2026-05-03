@@ -144,4 +144,5 @@ Additional cross-project standards synced from the shared agent template:
 - `docs/operations/service-reliability-and-observability.md`
 - `docs/security/secure-development-lifecycle.md`
 - `docs/security/v1-ai-red-team-scenario-pack.md`
+- `docs/security/v1-cross-user-session-isolation-audit.md`
 - `docs/ux/evidence-driven-ux-review.md`

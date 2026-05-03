@@ -461,8 +461,13 @@ Tasks:
     red-team evidence still requires a separate run or waiver.
 
 - `PRJ-932` Cross-User And Session Isolation Audit
-  - Verify app auth, Telegram linked identity, reset behavior, chat history,
-    overview data, and internal inspection authorization boundaries.
+  - Status: DONE
+  - Output: `docs/security/v1-cross-user-session-isolation-audit.md` verifies
+    app auth, Telegram linked identity, reset behavior, chat history, overview
+    data, tools overview, and internal inspection boundaries.
+  - Focused validation passed: `24 passed, 95 deselected`.
+  - Follow-up evidence gaps remain for explicit two-user transcript, reset,
+    session-cookie-switching, and Telegram relink/conflict regressions.
 
 - `PRJ-933` Provider Payload Leakage Audit
   - Confirm raw web page, task, calendar, drive, Telegram, and memory payloads
@@ -516,7 +521,8 @@ Tasks:
 8. `PRJ-920` Minimal External Health Monitor - DONE locally
 9. `PRJ-921` Release Evidence Archive Standard - DONE locally
 10. `PRJ-931` V1 AI Red-Team Scenario Pack - DONE locally
-11. `PRJ-932` Cross-User And Session Isolation Audit
+11. `PRJ-932` Cross-User And Session Isolation Audit - DONE locally with
+    follow-up test gaps
 12. `PRJ-933` Provider Payload Leakage Audit
 
 ### P2 Extensions

@@ -99,7 +99,10 @@ broader public or web-led release claim:
 - `PRJ-931` AI red-team scenario pack: DONE with
   `docs/security/v1-ai-red-team-scenario-pack.md`; execution results remain a
   separate release-hardening evidence item
-- `PRJ-932..PRJ-933` AI/security/privacy hardening
+- `PRJ-932` cross-user/session isolation audit: DONE with
+  `docs/security/v1-cross-user-session-isolation-audit.md`; follow-up two-user
+  regression gaps remain
+- `PRJ-933` provider payload leakage audit
 - `PRJ-934..PRJ-936` final go/no-go, handoff, and release marker
 
 ## Go / No-Go
@@ -116,5 +119,5 @@ broader public or web-led release claim:
 
 Rerun `PRJ-909` when Telegram operator preconditions are available. Until then,
 continue with locally actionable public-launch hardening, starting with
-`PRJ-930` deployment trigger SLO evidence or `PRJ-932` cross-user/session
-isolation audit.
+`PRJ-930` deployment trigger SLO evidence or `PRJ-933` provider payload
+leakage audit.

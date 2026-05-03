@@ -591,6 +591,11 @@ scenarios in `docs/security/v1-ai-red-team-scenarios.json`. Treat that pack as
 reproducible scenario input, not as passing evidence until an execution report
 records pass/fail results.
 
+The current cross-user/session isolation audit lives in
+`docs/security/v1-cross-user-session-isolation-audit.md`. It records focused
+API route evidence plus follow-up gaps for explicit two-user transcript,
+reset, session-cookie-switching, and Telegram relink/conflict regressions.
+
 Runtime features require integration validation using `INTEGRATION_CHECKLIST.md`. A feature is not complete until real UI/client paths, API contracts, database schema or migrations, validation, loading states, error states, refresh or restart behavior, and regression risk are verified.
 
 Completion evidence must satisfy `DEFINITION_OF_DONE.md` and include exact commands, manual checks, scenario results, and residual risks.

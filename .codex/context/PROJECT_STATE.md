@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-932` completed the cross-user/session isolation audit:
+  - new task:
+    - `.codex/tasks/PRJ-932-cross-user-and-session-isolation-audit.md`
+  - new security source:
+    - `docs/security/v1-cross-user-session-isolation-audit.md`
+  - result:
+    - audited app auth/session, Telegram linked identity, reset behavior, chat
+      history, personality overview, tools overview, and internal inspection
+      authorization boundaries
+    - no runtime defect was confirmed
+    - follow-up evidence gaps remain for explicit two-user transcript, reset,
+      session-cookie-switching, and Telegram relink/conflict regressions
+  - validation:
+    - route/repository/test inspection
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "auth or session or reset or chat_history or personality_overview or tools_overview or telegram_link or linked_auth_user or internal_state"; Pop-Location`
+    - result: `24 passed, 95 deselected`
+    - `git diff --check` passed
+  - next execution priority:
+    - `PRJ-933` provider payload leakage audit
+
 - 2026-05-03: `PRJ-931` completed the v1 AI red-team scenario pack:
   - new task:
     - `.codex/tasks/PRJ-931-v1-ai-red-team-scenario-pack.md`
