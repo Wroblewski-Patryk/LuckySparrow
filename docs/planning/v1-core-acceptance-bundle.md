@@ -115,7 +115,8 @@ broader public or web-led release claim:
 - `PRJ-935` release notes and operator handoff: DONE with
   `docs/planning/v1-release-notes-and-operator-handoff.md`
 - `PRJ-936` release marker remains blocked until the chosen release SHA has
-  green production evidence
+  green production evidence; blocker record:
+  `docs/planning/v1-release-marker-blocker.md`
 
 ## Go / No-Go
 

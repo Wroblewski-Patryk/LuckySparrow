@@ -2,6 +2,28 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-936` recorded the v1 release marker blocker:
+  - task:
+    - `.codex/tasks/PRJ-936-v1-tag-and-release-marker.md`
+  - blocker source:
+    - `docs/planning/v1-release-marker-blocker.md`
+  - decision:
+    - no release tag or marker was created
+  - result:
+    - preserved the `NO-GO / HOLD` posture from `PRJ-934`
+    - recorded the exact production/local SHA mismatch blocking the marker
+    - recorded the unblock checklist for selecting/deploying a release SHA,
+      rerunning production release smoke, and only then creating a tag
+  - validation:
+    - reviewed PRJ-934 and PRJ-935 decision docs
+    - verified no tag command was run
+    - `git tag --points-at HEAD`
+    - result: no tag at `HEAD`
+    - `git diff --check` passed with CRLF normalization warnings only
+  - next execution priority:
+    - wait for operator choice/deploy action for the release SHA, then rerun
+      production release smoke before creating any release marker
+
 - 2026-05-03: `PRJ-935` completed v1 release notes and operator handoff:
   - new task:
     - `.codex/tasks/PRJ-935-v1-release-notes-and-operator-handoff.md`
@@ -18,8 +40,8 @@ Last updated: 2026-05-03
     - release docs and runtime ops runbook cross-check
     - `git diff --check` passed with CRLF normalization warnings only
   - next execution priority:
-    - keep `PRJ-936` blocked, or deploy the selected release candidate and
-      rerun production release smoke before creating any release marker
+    - wait for operator choice/deploy action for the release SHA, then rerun
+      production release smoke before creating any release marker
 
 - 2026-05-03: `PRJ-934` completed the v1 final go/no-go review:
   - new task:

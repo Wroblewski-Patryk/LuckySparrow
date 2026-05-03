@@ -511,8 +511,11 @@ Tasks:
     support triage under the current `NO-GO / HOLD` marker posture.
 
 - `PRJ-936` V1 Tag And Release Marker
-  - Create a release tag only after production smoke and acceptance bundle are
-    green.
+  - Status: BLOCKED
+  - Output: `docs/planning/v1-release-marker-blocker.md` records that no
+    release marker was created because PRJ-934 is `NO-GO / HOLD`.
+  - Create a release tag only after the selected release SHA has green
+    production smoke and acceptance evidence.
 
 ## Priority Queue
 
@@ -550,6 +553,8 @@ Tasks:
 13. `PRJ-934` V1 Final Go/No-Go Review - DONE with `NO-GO / HOLD`
     release-marker decision
 14. `PRJ-935` V1 Release Notes And Operator Handoff - DONE with HOLD posture
+15. `PRJ-936` V1 Tag And Release Marker - BLOCKED by `NO-GO / HOLD`
+    release-marker posture
 
 ### P2 Extensions
 

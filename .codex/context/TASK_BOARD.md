@@ -2,6 +2,29 @@
 
 Last updated: 2026-05-03
 
+## Fresh V1 Release Marker Blocker (2026-05-03)
+
+- `PRJ-936` is BLOCKED:
+  - `.codex/tasks/PRJ-936-v1-tag-and-release-marker.md`
+  - `docs/planning/v1-release-marker-blocker.md`
+- decision:
+  - no release tag or marker was created
+- result:
+  - preserved the `NO-GO / HOLD` posture from `PRJ-934`
+  - recorded the exact production/local SHA mismatch blocking the marker
+  - recorded the unblock checklist for selecting/deploying a release SHA,
+    rerunning production release smoke, and only then creating a tag
+- validation:
+  - reviewed PRJ-934 and PRJ-935 decision docs
+  - verified no tag command was run
+  - `git tag --points-at HEAD`
+  - result: no tag at `HEAD`
+  - `git diff --check`
+  - result: passed with CRLF normalization warnings only
+- next smallest useful task:
+  - wait for operator choice/deploy action for the release SHA, then rerun
+    production release smoke before creating any release marker
+
 ## Fresh V1 Release Notes And Operator Handoff (2026-05-03)
 
 - `PRJ-935` is DONE:
@@ -19,7 +42,7 @@ Last updated: 2026-05-03
   - `git diff --check`
   - result: passed with CRLF normalization warnings only
 - next smallest useful task:
-  - keep `PRJ-936` blocked, or deploy the selected release candidate and rerun
+  - wait for operator choice/deploy action for the release SHA, then rerun
     production release smoke before creating any release marker
 
 ## Fresh V1 Final Go/No-Go Review (2026-05-03)
