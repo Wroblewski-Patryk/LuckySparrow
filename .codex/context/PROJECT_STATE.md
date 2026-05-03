@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1039` completed goal horizon row extraction:
+  - task:
+    - `.codex/tasks/PRJ-1039-goal-horizon-progress-value-row-list.md`
+  - result:
+    - added `ModuleProgressValueRowList` to `web/src/components/shared.tsx`
+    - replaced `/goals` horizon row markup
+    - preserved `aion-goals-list`, `aion-goals-row-*`, and
+      `aion-goals-progress` selectors
+    - kept `goalHorizonRows` in `App()`
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1040` audit next frontend cleanup after goal horizon extraction
+
 - 2026-05-03: `PRJ-1038` completed goal horizon row audit:
   - task:
     - `.codex/tasks/PRJ-1038-next-cleanup-after-memory-signal-audit.md`

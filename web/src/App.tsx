@@ -66,6 +66,7 @@ import {
   ModuleDotRowList,
   ModuleMetaCardList,
   ModuleOverviewBar,
+  ModuleProgressValueRowList,
   ModuleRouteSidePanel,
   ModuleRouteSideRow,
   ModuleStatRow,
@@ -4592,23 +4593,12 @@ export default function App() {
                     <span className="aion-goals-ring-core" />
                   </div>
 
-                  <div className="aion-goals-list">
-                    {goalHorizonRows.map((goal) => (
-                      <article key={goal.title} className="aion-goals-row">
-                        <div className="aion-goals-row-copy">
-                          <span className="aion-goals-row-token">{goal.token}</span>
-                          <div>
-                            <p className="aion-goals-row-title">{goal.title}</p>
-                            <p className="aion-goals-row-detail">{goal.detail}</p>
-                          </div>
-                        </div>
-                        <div className="aion-goals-progress" aria-label={`${goal.title} ${goal.value}`}>
-                          <span style={{ width: goal.value }} />
-                        </div>
-                        <strong>{goal.value}</strong>
-                      </article>
-                    ))}
-                  </div>
+                  <ModuleProgressValueRowList
+                    routeKey="goals"
+                    rowKey="row"
+                    progressKey="progress"
+                    items={goalHorizonRows}
+                  />
                 </section>
 
                 <aside className="aion-goals-side-stack">

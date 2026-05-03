@@ -279,6 +279,43 @@ export function ModuleValueRowList({
   );
 }
 
+export function ModuleProgressValueRowList({
+  routeKey,
+  rowKey,
+  progressKey,
+  items,
+}: {
+  routeKey: string;
+  rowKey: string;
+  progressKey: string;
+  items: Array<{
+    token: ReactNode;
+    title: string;
+    detail: ReactNode;
+    value: string;
+  }>;
+}) {
+  return (
+    <div className={`aion-${routeKey}-list`}>
+      {items.map((item) => (
+        <article key={item.title} className={`aion-${routeKey}-${rowKey}-row`}>
+          <div className={`aion-${routeKey}-${rowKey}-copy`}>
+            <span className={`aion-${routeKey}-${rowKey}-token`}>{item.token}</span>
+            <div>
+              <p className={`aion-${routeKey}-${rowKey}-title`}>{item.title}</p>
+              <p className={`aion-${routeKey}-${rowKey}-detail`}>{item.detail}</p>
+            </div>
+          </div>
+          <div className={`aion-${routeKey}-${progressKey}`} aria-label={`${item.title} ${item.value}`}>
+            <span style={{ width: item.value }} />
+          </div>
+          <strong>{item.value}</strong>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export function RouteHeroPanel({
   eyebrow,
   title,

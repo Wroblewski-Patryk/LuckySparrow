@@ -359,3 +359,9 @@ slice. The rows have stable `aion-goals-row-*` and `aion-goals-progress`
 selectors and a bounded `token/title/detail/progress/value` shape. Dashboard
 progress rows remain deferred because they sit in the flagship dashboard lower
 card composition and should be handled by a dedicated dashboard audit.
+
+`PRJ-1039` implemented that slice with `ModuleProgressValueRowList` in
+`web/src/components/shared.tsx`. `/goals` horizon rows now share route-keyed
+progress/value row presentation while `goalHorizonRows` remains in `App()`.
+The component preserves `aion-goals-list`, `aion-goals-row-*`, and
+`aion-goals-progress` selectors.
