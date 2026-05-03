@@ -372,3 +372,8 @@ component should live in `web/src/components/dashboard.tsx`, not the generic
 shared component module. `dashboardGoalRows` and progress-width calculations
 should remain in `App()`, while the row/list presentation moves behind a
 `DashboardProgressList` component.
+
+`PRJ-1041` implemented that slice with `DashboardProgressList` in
+`web/src/components/dashboard.tsx`. Dashboard progress row presentation now
+lives beside `DashboardSignalCard`, while `dashboardGoalRows` and
+`scaledMetricSize(...)` remain in `App()`.

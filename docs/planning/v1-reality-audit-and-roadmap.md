@@ -151,7 +151,8 @@ current blocker is release reality:
 | PRJ-1038 | Audit next frontend cleanup after memory signal extraction | DONE | selected `/goals` horizon progress row extraction while dashboard progress rows stay deferred |
 | PRJ-1039 | Extract shared module progress value row list for goal horizon | DONE | `/goals` horizon row presentation uses `ModuleProgressValueRowList` while `goalHorizonRows` stays in `App()` |
 | PRJ-1040 | Audit next frontend cleanup after goal horizon extraction | DONE | selected dashboard-specific progress list extraction while broad dashboard layout work stays deferred |
-| PRJ-1041 | Extract dashboard progress list component | READY_AFTER_PRJ-1040 | move dashboard progress row presentation into `web/src/components/dashboard.tsx` while `dashboardGoalRows` stays in `App()` |
+| PRJ-1041 | Extract dashboard progress list component | DONE | dashboard progress row presentation lives in `web/src/components/dashboard.tsx` while `dashboardGoalRows` stays in `App()` |
+| PRJ-1042 | Audit next frontend cleanup after dashboard progress extraction | READY_AFTER_PRJ-1041 | choose between route data-helper extraction, remaining route-local visual panels, or dashboard-specific component slices |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |

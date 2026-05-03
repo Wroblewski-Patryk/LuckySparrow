@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+## Fresh Dashboard Progress List Extraction (2026-05-03)
+
+- `PRJ-1041` is DONE:
+  - `.codex/tasks/PRJ-1041-dashboard-progress-list-extraction.md`
+- result:
+  - added `DashboardProgressList` to `web/src/components/dashboard.tsx`
+  - replaced dashboard progress row markup in `App()`
+  - preserved `aion-dashboard-progress` selector and width style
+  - kept `dashboardGoalRows` and progress-width calculations in `App()`
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1042` audit next frontend cleanup after dashboard progress extraction
+
 ## Fresh Dashboard Progress List Audit (2026-05-03)
 
 - `PRJ-1040` is DONE:

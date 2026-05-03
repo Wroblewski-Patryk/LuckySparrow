@@ -46,7 +46,7 @@ parity suite.
 | Shell chrome helpers | `web/src/components/shell.tsx` | `SidebarIconKind`, `ShellNavButton`, `AviaryWordmark`, `SidebarBrandBlock`, `ShellUtilityBar` |
 | App icon primitives | `web/src/components/app-icons.tsx` | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` |
 | Chat components | `web/src/components/chat.tsx` | `ChatFlowStage`, `ChatTopbar`, `ChatCognitiveBelt`, `ChatTranscriptShell`, `ChatTranscriptMessageRow`, `ChatComposerShell`, `ChatPortraitPanel` |
-| Dashboard components | `web/src/components/dashboard.tsx` | `DashboardSignalCard` |
+| Dashboard components | `web/src/components/dashboard.tsx` | `DashboardSignalCard`, `DashboardProgressList` |
 | Personality components | `web/src/components/personality.tsx` | `PersonalityTimelineRow` |
 | Settings components | `web/src/components/settings.tsx` | `SettingsCard`, `SettingsFact`, `SettingsProactivePanel`, `SettingsSavePanel`, `SettingsDangerPanel` |
 | Tools components | `web/src/components/tools.tsx` | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` |
@@ -122,7 +122,7 @@ extraction queue after the tools route component cleanup.
 | Cluster | Functions/Components | Main Routes |
 | --- | --- | --- |
 | Routing and labels | `normalizeRoute`, `navigate`, `routeLabel`, `routeDescription` | all routes |
-| Dashboard components | `DashboardSignalCard` in `web/src/components/dashboard.tsx` | dashboard |
+| Dashboard components | `DashboardSignalCard`, `DashboardProgressList` in `web/src/components/dashboard.tsx` | dashboard |
 | Public shell | public home render branch in `web/src/App.tsx`, `AviaryWordmark` in `web/src/components/shell.tsx`, `MotifFigurePanel` and `PublicGlyph` in `web/src/components/public-shell.tsx` | `/`, `/login` |
 | Shell chrome | `SidebarGlyph`, `ShellNavButton`, `SidebarBrandBlock`, `AviaryWordmark`, `ShellUtilityBar` in `web/src/components/shell.tsx` | authenticated routes |
 | App control icons | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` in `web/src/components/app-icons.tsx` | public auth modal, sidebar, chat composer |

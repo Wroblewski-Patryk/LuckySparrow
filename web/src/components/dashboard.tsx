@@ -19,3 +19,29 @@ export function DashboardSignalCard({
     </article>
   );
 }
+
+export function DashboardProgressList({
+  items,
+}: {
+  items: Array<{
+    title: string;
+    value: string;
+    width: string;
+  }>;
+}) {
+  return (
+    <div className="mt-5 grid gap-4">
+      {items.map((item) => (
+        <div key={item.title}>
+          <div className="flex items-center justify-between gap-3 text-sm text-base-900">
+            <span>{item.title}</span>
+            <span>{item.value}</span>
+          </div>
+          <div className="aion-dashboard-progress mt-2">
+            <span style={{ width: item.width }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

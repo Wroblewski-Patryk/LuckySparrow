@@ -54,7 +54,7 @@ import {
   ChatTranscriptShell,
   type ChatCognitiveBeltItem,
 } from "./components/chat";
-import { DashboardSignalCard } from "./components/dashboard";
+import { DashboardProgressList, DashboardSignalCard } from "./components/dashboard";
 import { PersonalityTimelineRow } from "./components/personality";
 import { MotifFigurePanel, PublicGlyph } from "./components/public-shell";
 import {
@@ -4070,19 +4070,7 @@ export default function App() {
                       View all
                     </button>
                   </div>
-                  <div className="mt-5 grid gap-4">
-                    {dashboardGoalRows.map((goal) => (
-                      <div key={goal.title}>
-                        <div className="flex items-center justify-between gap-3 text-sm text-base-900">
-                          <span>{goal.title}</span>
-                          <span>{goal.value}</span>
-                        </div>
-                        <div className="aion-dashboard-progress mt-2">
-                          <span style={{ width: goal.width }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <DashboardProgressList items={dashboardGoalRows} />
                 </article>
 
                 <article className="aion-panel-soft aion-dashboard-card aion-dashboard-card-focus">
