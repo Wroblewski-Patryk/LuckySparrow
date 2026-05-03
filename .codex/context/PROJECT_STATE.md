@@ -2,6 +2,29 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-831` completed dashboard first 10 slice closure:
+  - task:
+    - `.codex/tasks/PRJ-831-dashboard-first-10-slice-batch-and-intro-pass.md`
+  - result:
+    - the dashboard first 10 slice batch and intro pass is no longer a stale
+      `IN_PROGRESS` item
+    - historical implementation is preserved: first 10 dashboard micro-slices,
+      intro/header compression, hero crop and persona-stage authority,
+      signal-card softness, figure-note placement, guidance rail, recent
+      activity, and intention hierarchy refinements
+    - current source keeps `DASHBOARD_HERO_ART_SRC` and the route-owned
+      `aion-dashboard-*` implementation
+    - active dashboard proof now lives in `PRJ-870`, `PRJ-875`, and
+      `docs/ux/dashboard-proof-matrix.md`
+  - validation:
+    - PRJ-831 history, current dashboard source, dashboard proof matrix,
+      design memory, flagship baseline transfer, and later board/project proof
+      were reviewed
+    - `git diff --check` passed
+  - next execution priority:
+    - review `PRJ-832` chat first 10 slice batch and foundation pass for stale
+      status
+
 - 2026-05-03: `PRJ-830` completed authenticated sidebar quote CSS closure:
   - task:
     - `.codex/tasks/PRJ-830-authenticated-sidebar-quote-css-consolidation-pass.md`

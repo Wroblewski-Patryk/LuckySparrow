@@ -4,8 +4,8 @@
 - ID: PRJ-831
 - Title: Dashboard first 10 slice batch and intro pass
 - Task Type: design
-- Current Stage: implementation
-- Status: IN_PROGRESS
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-830
 - Priority: P1
@@ -64,14 +64,14 @@ passes across intro rhythm, hero crop authority, and signal-card softness.
 - stay within the declared current stage unless explicit approval changes it
 
 ## Definition of Done
-- [ ] Dashboard batch plan is written.
-- [ ] First dashboard slices are implemented.
-- [ ] Focused validation evidence is attached.
+- [x] Dashboard batch plan is written.
+- [x] First dashboard slices are implemented.
+- [x] Focused validation evidence is attached.
 
 ## Stage Exit Criteria
-- [ ] The output matches the declared `Current Stage`.
-- [ ] Work from later stages was not mixed in without explicit approval.
-- [ ] Risks and assumptions for this stage are stated clearly.
+- [x] The output matches the declared `Current Stage`.
+- [x] Work from later stages was not mixed in without explicit approval.
+- [x] Risks and assumptions for this stage are stated clearly.
 
 ## Forbidden
 - new systems without approval
@@ -134,19 +134,43 @@ passes across intro rhythm, hero crop authority, and signal-card softness.
 - Staged rollout or feature flag: no
 
 ## Review Checklist (mandatory)
-- [ ] Current stage is declared and respected.
-- [ ] Deliverable for the current stage is complete.
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Current stage is declared and respected.
+- [x] Deliverable for the current stage is complete.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal update was not required; no new recurring pitfall was
+  confirmed in this closure sync.
 
 ## Notes
 This task intentionally opens only the dashboard lane after the sidebar batch.
+
+## Closure Sync - 2026-05-03
+
+- Current release status:
+  - DONE as a historical dashboard lane opener and first 10-slice batch.
+- Current source truth:
+  - `web/src/App.tsx` keeps `DASHBOARD_HERO_ART_SRC`, dashboard signal cards,
+    figure notes, cognitive flow, guidance rail, recent activity, and
+    intention-card hierarchy from the dashboard lane.
+  - `web/src/index.css` keeps the dashboard hero, crop, signal-card,
+    figure-note, guidance, activity, and closure refinements from this lane.
+  - `docs/ux/dashboard-proof-matrix.md` now carries the active dashboard proof
+    map.
+- Superseding proof owners:
+  - `PRJ-870` dashboard `99%` canonical evidence pass.
+  - `PRJ-875` canonical UI final route sweep.
+  - `docs/ux/dashboard-proof-matrix.md`.
+  - `docs/ux/flagship-baseline-transfer.md`.
+- Closure evidence:
+  - reviewed this task history, current dashboard source, dashboard proof
+    matrix, design memory, flagship baseline transfer, and later
+    project/board proof.
+  - no runtime files were changed by this closure sync.
 
 ## Production-Grade Required Contract
 
