@@ -2,6 +2,22 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Post-Portrait Extraction Audit (2026-05-03)
+
+- `PRJ-1014` is DONE:
+  - `.codex/tasks/PRJ-1014-next-chat-extraction-after-portrait-audit.md`
+- result:
+  - selected thin transcript shell extraction as the next safe chat route slice
+  - kept message mapping, message refs, delivery-state calculation,
+    delivery-label selection, timestamp formatting, markdown rendering, and
+    route data helpers in `App()`
+  - queued `PRJ-1015` for `ChatTranscriptShell`
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1015` extract chat transcript shell from `web/src/App.tsx`
+
 ## Fresh Chat Portrait Panel Extraction (2026-05-03)
 
 - `PRJ-1013` is DONE:

@@ -170,3 +170,16 @@ notes, planning overlay chrome, learned-cue display chrome, and portrait copy.
 `App()` still owns `chatCurrentFocus`, `chatIntentCard.emphasis`,
 learned-cue count fallback formatting, and all route data derivation.
 Transcript shell/container and chat data-helper extraction remain deferred.
+
+`PRJ-1014` selected a thin transcript shell extraction as the next
+implementation slice:
+
+- move the thread column and `aion-chat-transcript` container into a
+  `ChatTranscriptShell` component
+- pass the transcript container ref, loading fallback, message rows, and
+  composer as explicit props/children
+- keep `visibleTranscriptItems.map(...)`, `transcriptMessageRefs`,
+  `chatDeliveryState`, delivery-label selection, timestamp formatting, and
+  `renderChatMarkdown(...)` in `App()`
+- defer chat route data-helper extraction because it is broader than a shell
+  presentation slice
