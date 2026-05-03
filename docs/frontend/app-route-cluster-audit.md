@@ -150,3 +150,15 @@ and route-posture presentation. `App()` still owns `chatActiveSummary`,
 `chatLinkedChannelsStatus`, preferred-language fallback formatting, and all
 route data derivation. Portrait/support panel and transcript shell remain
 deferred until separate audits.
+
+`PRJ-1012` selected the chat portrait/support panel as the next implementation
+slice:
+
+- move `aion-chat-portrait-panel`, support notes, planning overlay, focus
+  summary, learned-cue count display, and portrait copy behind a
+  `ChatPortraitPanel` component
+- keep `chatCurrentFocus`, `chatIntentCard.emphasis`, learned-cue count
+  formatting, and all route data derivation in `App()`
+- defer transcript shell/container because it owns loading state and refs
+- defer chat route data-helper extraction because it is broader than a single
+  presentational slice

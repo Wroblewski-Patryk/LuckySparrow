@@ -2,6 +2,21 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1012` completed post-topbar chat extraction audit:
+  - task:
+    - `.codex/tasks/PRJ-1012-next-chat-extraction-after-topbar-audit.md`
+  - result:
+    - selected chat portrait/support panel extraction as the next safe chat
+      route slice
+    - kept current focus, emphasis, learned-cue count formatting, and route
+      data derivation in `App()`
+    - deferred transcript shell and route data-helper extraction
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1013` extract chat portrait support panel from `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-1011` completed chat topbar extraction:
   - task:
     - `.codex/tasks/PRJ-1011-chat-topbar-extraction.md`

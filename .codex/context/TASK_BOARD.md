@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Post-Topbar Extraction Audit (2026-05-03)
+
+- `PRJ-1012` is DONE:
+  - `.codex/tasks/PRJ-1012-next-chat-extraction-after-topbar-audit.md`
+- result:
+  - selected chat portrait/support panel extraction as the next safe chat route
+    slice
+  - kept `chatCurrentFocus`, `chatIntentCard.emphasis`, learned-cue count
+    formatting, and route data derivation in `App()`
+  - deferred transcript shell/container because it owns loading state and refs
+  - deferred chat route data-helper extraction because it is broader than one
+    presentational slice
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1013` extract chat portrait support panel from `web/src/App.tsx`
+
 ## Fresh Chat Topbar Extraction (2026-05-03)
 
 - `PRJ-1011` is DONE:

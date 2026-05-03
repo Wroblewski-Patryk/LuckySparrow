@@ -122,7 +122,8 @@ current blocker is release reality:
 | PRJ-1009 | Extract chat cognitive belt presentation from `web/src/App.tsx` | DONE | `ChatCognitiveBelt` lives in `web/src/components/chat.tsx`; card data construction and goal-progress derivation remain in `App()`; full route smoke passes with `route_count=14` |
 | PRJ-1010 | Audit next chat extraction target after cognitive belt cleanup | DONE | selected topbar extraction; portrait/support panel is visual-sensitive and transcript shell is ref/loading-sensitive |
 | PRJ-1011 | Extract chat topbar presentation from `web/src/App.tsx` | DONE | `ChatTopbar` lives in `web/src/components/chat.tsx`; active summary, linked-channel label, preferred-language formatting, and route data derivation remain in `App()`; full route smoke passes with `route_count=14` |
-| PRJ-1012 | Audit next chat extraction target after topbar cleanup | READY_AFTER_PRJ-1011 | choose whether portrait/support panel, transcript shell, or chat route data helpers should move next |
+| PRJ-1012 | Audit next chat extraction target after topbar cleanup | DONE | selected portrait/support panel extraction because it is self-contained and ref-free; transcript shell and route data helpers remain deferred |
+| PRJ-1013 | Extract chat portrait support panel from `web/src/App.tsx` | READY_AFTER_PRJ-1012 | add `ChatPortraitPanel` with current focus, emphasis, and learned-cue count passed as explicit props |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |
