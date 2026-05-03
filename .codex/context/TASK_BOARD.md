@@ -2,6 +2,30 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Transcript Message Row Extraction (2026-05-03)
+
+- `PRJ-1007` is DONE:
+  - `.codex/tasks/PRJ-1007-chat-transcript-message-row-extraction.md`
+- result:
+  - added `ChatTranscriptMessageRow` to `web/src/components/chat.tsx`
+  - moved transcript row alignment, avatar, message article classing,
+    metadata chrome, delivery indicator element, and copy wrapper out of
+    `web/src/App.tsx`
+  - kept transcript mapping, `transcriptMessageRefs`, delivery-state
+    calculation, delivery-label selection, timestamp formatting, and markdown
+    rendering in `App()`
+  - updated frontend route/component map, route cluster audit, and v1 roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1008` audit next chat route presentation extraction after transcript
+    row cleanup
+
 ## Fresh Chat Transcript Presentation Audit (2026-05-03)
 
 - `PRJ-1006` is DONE:

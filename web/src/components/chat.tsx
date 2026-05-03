@@ -1,4 +1,5 @@
-import type { FormEvent, ReactNode } from "react";
+import { forwardRef, type FormEvent, type ReactNode } from "react";
+import type { ChatDeliveryState } from "../lib/chat-transcript";
 
 export function ChatFlowStage({
   label,
@@ -21,6 +22,56 @@ export function ChatFlowStage({
     </article>
   );
 }
+
+export const ChatTranscriptMessageRow = forwardRef<
+  HTMLDivElement,
+  {
+    isUser: boolean;
+    preview: boolean;
+    speakerLabel: string;
+    timestampLabel: string;
+    deliveryState: ChatDeliveryState | null;
+    deliveryLabel: string | null;
+    children: ReactNode;
+  }
+>(function ChatTranscriptMessageRow(
+  {
+    isUser,
+    preview,
+    speakerLabel,
+    timestampLabel,
+    deliveryState,
+    deliveryLabel,
+    children,
+  },
+  ref,
+) {
+  return (
+    <div
+      ref={ref}
+      className={`aion-chat-message-row ${isUser ? "justify-end" : "justify-start"}`}
+    >
+      {!isUser ? <span className="aion-chat-avatar">A</span> : null}
+      <article className={`aion-chat-message ${isUser ? "aion-chat-message-user" : "aion-chat-message-assistant"}`}>
+        <div className={`aion-chat-message-meta ${preview ? "aion-chat-message-meta-preview" : ""}`}>
+          <span className="aion-chat-message-speaker">{speakerLabel}</span>
+          <span className="aion-chat-meta-separator" aria-hidden="true" />
+          <span>{timestampLabel}</span>
+          {deliveryState && deliveryLabel ? (
+            <span
+              aria-label={deliveryLabel}
+              className={`aion-chat-delivery-status aion-chat-delivery-status-${deliveryState}`}
+              title={deliveryLabel}
+            />
+          ) : null}
+        </div>
+        <div className={`aion-chat-message-copy ${preview ? "aion-chat-message-copy-preview" : ""}`}>
+          {children}
+        </div>
+      </article>
+    </div>
+  );
+});
 
 export function ChatComposerShell({
   quickActions,

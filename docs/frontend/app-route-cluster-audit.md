@@ -29,6 +29,7 @@ timeline row, and tools component extractions.
 | --- | --- | --- | --- |
 | Markdown rendering | `renderChatMarkdown` in `web/src/lib/chat-markdown.tsx`; characterization in `web/scripts/chat-markdown-characterization.mjs` | `/chat` | Extracted and characterized in PRJ-1003 |
 | Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts` | `/chat` | Extracted in PRJ-1001 |
+| Chat transcript row | `ChatTranscriptMessageRow` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1007; mapping, refs, delivery, timestamp, and markdown remain in `App()` |
 | Chat composer shell | `ChatComposerShell` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1005; send behavior remains in `App()` |
 | Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Deferred in PRJ-998 until provider/integration route ownership is clearer |
@@ -105,3 +106,12 @@ safe implementation slice:
   `renderChatMarkdown(...)` in `App()` for this slice
 - pass `isUser`, preview state, speaker label, timestamp label, delivery
   state/label, and rendered markdown content through explicit props
+
+`PRJ-1007` implemented that slice with `ChatTranscriptMessageRow` in
+`web/src/components/chat.tsx`. The component owns row alignment, avatar,
+message article classing, metadata chrome, delivery indicator element, and the
+copy wrapper. `App()` still owns transcript mapping, `transcriptMessageRefs`,
+delivery-state calculation, delivery-label selection, timestamp formatting,
+and markdown rendering. The next safe chat route step is to audit whether the
+cognitive belt or portrait/support-panel chrome can move behind explicit data
+props without changing the canonical chat layout.

@@ -44,7 +44,7 @@ import {
   type UiLanguageCode,
 } from "./lib/settings-formatting";
 import { ChevronDownIcon, CloseIcon, MicrophoneIcon, PlusIcon, SendArrowIcon } from "./components/app-icons";
-import { ChatComposerShell, ChatFlowStage } from "./components/chat";
+import { ChatComposerShell, ChatFlowStage, ChatTranscriptMessageRow } from "./components/chat";
 import { DashboardSignalCard } from "./components/dashboard";
 import { PersonalityTimelineRow } from "./components/personality";
 import { MotifFigurePanel, PublicGlyph } from "./components/public-shell";
@@ -4430,32 +4430,20 @@ export default function App() {
                                 : null;
 
                         return (
-                          <div
+                          <ChatTranscriptMessageRow
                             key={message.message_id}
                             ref={(node) => {
                               transcriptMessageRefs.current[message.message_id] = node;
                             }}
-                            className={`aion-chat-message-row ${isUser ? "justify-end" : "justify-start"}`}
+                            isUser={isUser}
+                            preview={transcriptIsPreview}
+                            speakerLabel={isUser ? copy.common.user : "AION"}
+                            timestampLabel={formatTimestamp(message.timestamp, resolvedUiLanguage)}
+                            deliveryState={deliveryState}
+                            deliveryLabel={deliveryLabel}
                           >
-                            {!isUser ? <span className="aion-chat-avatar">A</span> : null}
-                            <article className={`aion-chat-message ${isUser ? "aion-chat-message-user" : "aion-chat-message-assistant"}`}>
-                              <div className={`aion-chat-message-meta ${transcriptIsPreview ? "aion-chat-message-meta-preview" : ""}`}>
-                                <span className="aion-chat-message-speaker">{isUser ? copy.common.user : "AION"}</span>
-                                <span className="aion-chat-meta-separator" aria-hidden="true" />
-                                <span>{formatTimestamp(message.timestamp, resolvedUiLanguage)}</span>
-                                {deliveryState && deliveryLabel ? (
-                                  <span
-                                    aria-label={deliveryLabel}
-                                    className={`aion-chat-delivery-status aion-chat-delivery-status-${deliveryState}`}
-                                    title={deliveryLabel}
-                                  />
-                                ) : null}
-                              </div>
-                              <div className={`aion-chat-message-copy ${transcriptIsPreview ? "aion-chat-message-copy-preview" : ""}`}>
-                                {renderChatMarkdown(message.text)}
-                              </div>
-                            </article>
-                          </div>
+                            {renderChatMarkdown(message.text)}
+                          </ChatTranscriptMessageRow>
                         );
                       })}
                     </div>
