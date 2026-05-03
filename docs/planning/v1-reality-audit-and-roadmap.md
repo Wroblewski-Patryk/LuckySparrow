@@ -131,7 +131,8 @@ current blocker is release reality:
 | PRJ-1018 | Audit remaining frontend architecture gaps after chat cleanup | DONE | refreshed current route anchors and selected shared module overview bar extraction for memory/reflections/plans/goals |
 | PRJ-1019 | Extract shared module overview bar component | DONE | `ModuleOverviewBar` lives in `web/src/components/shared.tsx`; memory/reflections/plans/goals overview bars use it with route-keyed selectors; full route smoke passes with `route_count=14` |
 | PRJ-1020 | Audit next module route cleanup target after overview bar extraction | DONE | selected shared module stat-row wrapper extraction for memory/reflections/plans/goals |
-| PRJ-1021 | Extract shared module stat row wrapper | READY_AFTER_PRJ-1020 | add route-keyed `ModuleStatRow` around existing `RouteStatCard` maps while preserving stat data ownership in `App()` |
+| PRJ-1021 | Extract shared module stat row wrapper | DONE | `ModuleStatRow` lives in `web/src/components/shared.tsx`; memory/reflections/plans/goals stat-row wrappers use it; full route smoke passes with `route_count=14` |
+| PRJ-1022 | Audit next module route cleanup target after stat row extraction | READY_AFTER_PRJ-1021 | choose the next repeated inner-panel/list pattern while preserving route-specific visual composition |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |

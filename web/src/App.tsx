@@ -66,6 +66,7 @@ import {
   ModuleOverviewBar,
   ModuleRouteSidePanel,
   ModuleRouteSideRow,
+  ModuleStatRow,
   RouteNoteCard,
   RouteHeroPanel,
   RouteStatCard,
@@ -4451,7 +4452,7 @@ export default function App() {
                 statusAriaLabel="Memory status"
               />
 
-              <section className="aion-memory-stat-row" aria-label="Memory summary">
+              <ModuleStatRow routeKey="memory" ariaLabel="Memory summary">
                 {memoryStatCards.map((item) => (
                   <RouteStatCard
                     key={item.label}
@@ -4461,7 +4462,7 @@ export default function App() {
                     detail={item.detail}
                   />
                 ))}
-              </section>
+              </ModuleStatRow>
 
               <div className="aion-memory-layout">
                 <section className="aion-memory-library-panel">
@@ -4543,7 +4544,7 @@ export default function App() {
                 statusAriaLabel="Reflection status"
               />
 
-              <section className="aion-reflections-stat-row" aria-label="Reflection summary">
+              <ModuleStatRow routeKey="reflections" ariaLabel="Reflection summary">
                 {reflectionStatCards.map((item) => (
                   <RouteStatCard
                     key={item.label}
@@ -4553,7 +4554,7 @@ export default function App() {
                     detail={item.detail}
                   />
                 ))}
-              </section>
+              </ModuleStatRow>
 
               <div className="aion-reflections-layout">
                 <section className="aion-reflections-process-panel">
@@ -4630,7 +4631,7 @@ export default function App() {
                 statusAriaLabel="Planning status"
               />
 
-              <section className="aion-plans-stat-row" aria-label="Planning summary">
+              <ModuleStatRow routeKey="plans" ariaLabel="Planning summary">
                 {plansStatCards.map((item) => (
                   <RouteStatCard
                     key={item.label}
@@ -4640,7 +4641,7 @@ export default function App() {
                     detail={item.detail}
                   />
                 ))}
-              </section>
+              </ModuleStatRow>
 
               <div className="aion-plans-layout">
                 <section className="aion-plans-board-panel">
@@ -4717,7 +4718,7 @@ export default function App() {
                 statusAriaLabel="Goal status"
               />
 
-              <section className="aion-goals-stat-row" aria-label="Goal summary">
+              <ModuleStatRow routeKey="goals" ariaLabel="Goal summary">
                 {goalsStatCards.map((item) => (
                   <RouteStatCard
                     key={item.label}
@@ -4727,7 +4728,7 @@ export default function App() {
                     detail={item.detail}
                   />
                 ))}
-              </section>
+              </ModuleStatRow>
 
               <div className="aion-goals-layout">
                 <section className="aion-goals-horizon-panel">

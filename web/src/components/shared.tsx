@@ -126,6 +126,22 @@ export function ModuleOverviewBar({
   );
 }
 
+export function ModuleStatRow({
+  routeKey,
+  ariaLabel,
+  children,
+}: {
+  routeKey: string;
+  ariaLabel: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className={`aion-${routeKey}-stat-row`} aria-label={ariaLabel}>
+      {children}
+    </section>
+  );
+}
+
 export function RouteHeroPanel({
   eyebrow,
   title,

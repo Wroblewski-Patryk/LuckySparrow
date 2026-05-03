@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1021` completed module stat row extraction:
+  - task:
+    - `.codex/tasks/PRJ-1021-module-stat-row-extraction.md`
+  - result:
+    - added `ModuleStatRow` to `web/src/components/shared.tsx`
+    - replaced repeated stat-row wrappers for `/memory`, `/reflections`,
+      `/plans`, and `/goals`
+    - kept stat card arrays and `RouteStatCard` mapping in `App()`
+    - updated frontend route/component map, route cluster audit, and v1 roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1022` audit next module route cleanup target after stat row
+      extraction
+
 - 2026-05-03: `PRJ-1020` completed module route stat-row audit:
   - task:
     - `.codex/tasks/PRJ-1020-next-module-route-cleanup-audit.md`

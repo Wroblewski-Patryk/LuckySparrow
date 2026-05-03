@@ -50,7 +50,7 @@ parity suite.
 | Personality components | `web/src/components/personality.tsx` | `PersonalityTimelineRow` |
 | Settings components | `web/src/components/settings.tsx` | `SettingsCard`, `SettingsFact`, `SettingsProactivePanel`, `SettingsSavePanel`, `SettingsDangerPanel` |
 | Tools components | `web/src/components/tools.tsx` | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` |
-| Shared presentational panels | `web/src/components/shared.tsx` | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `ModuleOverviewBar`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard`, `ModuleRouteSidePanel`, `ModuleRouteSideRow` |
+| Shared presentational panels | `web/src/components/shared.tsx` | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `ModuleOverviewBar`, `ModuleStatRow`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard`, `ModuleRouteSidePanel`, `ModuleRouteSideRow` |
 | API client | `web/src/lib/api.ts` | Typed fetch wrapper and app-facing endpoint methods |
 | Chat markdown renderer | `web/src/lib/chat-markdown.tsx` | `renderChatMarkdown` |
 | Chat route display model | `web/src/lib/chat-route-model.ts` | `buildChatRouteModel` |
@@ -126,7 +126,7 @@ extraction queue after the tools route component cleanup.
 | Public shell | public home render branch in `web/src/App.tsx`, `AviaryWordmark` in `web/src/components/shell.tsx`, `MotifFigurePanel` and `PublicGlyph` in `web/src/components/public-shell.tsx` | `/`, `/login` |
 | Shell chrome | `SidebarGlyph`, `ShellNavButton`, `SidebarBrandBlock`, `AviaryWordmark`, `ShellUtilityBar` in `web/src/components/shell.tsx` | authenticated routes |
 | App control icons | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` in `web/src/components/app-icons.tsx` | public auth modal, sidebar, chat composer |
-| Shared panels | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `ModuleOverviewBar`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard`, `ModuleRouteSidePanel`, `ModuleRouteSideRow` in `web/src/components/shared.tsx` | dashboard and module routes |
+| Shared panels | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `ModuleOverviewBar`, `ModuleStatRow`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard`, `ModuleRouteSidePanel`, `ModuleRouteSideRow` in `web/src/components/shared.tsx` | dashboard and module routes |
 | Chat helpers | `renderChatMarkdown` in `web/src/lib/chat-markdown.tsx`; `buildChatRouteModel` in `web/src/lib/chat-route-model.ts`; `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts`; `ChatFlowStage`, `ChatTopbar`, `ChatCognitiveBelt`, `ChatTranscriptShell`, `ChatTranscriptMessageRow`, `ChatComposerShell`, and `ChatPortraitPanel` in `web/src/components/chat.tsx` | `/chat` |
 | Personality route components | `PersonalityTimelineRow` in `web/src/components/personality.tsx` | memory, reflections, plans, personality |
 | Tool helpers | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` in `web/src/lib/tool-formatting.ts` | `/tools`, `/integrations` |

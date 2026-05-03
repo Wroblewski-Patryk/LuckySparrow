@@ -235,3 +235,8 @@ slice:
   `/plans`, and `/goals`
 - keep stat card arrays and `RouteStatCard` usage in `App()`
 - preserve route-specific aria labels and CSS selectors through explicit props
+
+`PRJ-1021` implemented that slice with `ModuleStatRow` in
+`web/src/components/shared.tsx`. `/memory`, `/reflections`, `/plans`, and
+`/goals` now use a route-keyed stat-row wrapper while keeping stat card arrays
+and `RouteStatCard` mapping in `App()`.
