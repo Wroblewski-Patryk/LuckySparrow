@@ -2,6 +2,28 @@
 
 Last updated: 2026-05-03
 
+## Fresh Shell Chrome Component Extraction (2026-05-03)
+
+- `PRJ-973` is DONE:
+  - `.codex/tasks/PRJ-973-shell-chrome-component-extraction.md`
+- result:
+  - added `web/src/components/shell.tsx`
+  - moved `SidebarIconKind`, `SidebarGlyph`, `ShellNavButton`,
+    `AviaryWordmark`, and `SidebarBrandBlock` out of `web/src/App.tsx`
+  - preserved shell markup, route behavior, navigation state, and visual
+    classes
+  - kept `ShellUtilityBar` in `App.tsx` for a smaller follow-up because it
+    carries account-state props and the persona asset dependency
+  - updated the frontend route/component map and v1 roadmap with shell module
+    ownership
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=6`
+- next smallest useful task:
+  - `PRJ-974` extract `ShellUtilityBar` behind explicit props and route smoke
+
 ## Fresh Shared Shell Panel Cluster Extraction (2026-05-03)
 
 - `PRJ-972` is DONE:
@@ -457,7 +479,11 @@ Last updated: 2026-05-03
     - completed in this iteration by moving `ModuleEntryCard`, `FlowRail`,
       `RouteHeroPanel`, and `InsightPanel` to `web/src/components/shared.tsx`
   - `PRJ-973` Extract shell chrome component cluster from `web/src/App.tsx`:
-    READY_AFTER_PRJ-972
+    DONE
+    - completed in this iteration by moving nav/brand helpers to
+      `web/src/components/shell.tsx`
+  - `PRJ-974` Extract shell utility bar from `web/src/App.tsx`:
+    READY_AFTER_PRJ-973
 
 ## Fresh V1 Deploy Parity Blocker (2026-05-03)
 
