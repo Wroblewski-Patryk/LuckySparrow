@@ -2,6 +2,33 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-951` completed the v1 reality audit and roadmap:
+  - task:
+    - `.codex/tasks/PRJ-951-v1-reality-audit-and-roadmap.md`
+  - planning source:
+    - `docs/planning/v1-reality-audit-and-roadmap.md`
+  - result:
+    - compared current release claims against code, generated API/data docs,
+      production health, frontend ownership, tests, and deploy evidence
+    - confirmed documentation-system foundation gaps are closed:
+      generated OpenAPI, ERD/columns, test ownership ledger, frontend route
+      map, and provider integration docs exist
+    - confirmed the current blocker is release reality: production still
+      serves `ed1c4d981314787d76252985b53c14ea1d7886ed` while `origin/main`
+      is newer
+    - created an executable P0/P1/P2 roadmap for PRJ-952 through PRJ-970
+  - validation:
+    - production `/health` and `/settings` revision checks
+    - generated OpenAPI compare against `docs/api/openapi.json`
+    - generated data model and ERD compare against `docs/data/columns.md` and
+      `docs/data/erd.mmd`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "deploy_parity or runtime_build_revision"; Pop-Location`
+    - result: `6 passed, 46 deselected`
+  - next execution priority:
+    - `PRJ-956` release reality audit script, then `PRJ-957`
+      revision-aware production health monitoring while Coolify/operator
+      deployment recovery remains externally blocked
+
 - 2026-05-03: `PRJ-938` recorded the v1 deploy parity blocker:
   - task:
     - `.codex/tasks/PRJ-938-v1-deploy-parity-blocked-by-source-automation.md`

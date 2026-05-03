@@ -2,6 +2,62 @@
 
 Last updated: 2026-05-03
 
+## Fresh V1 Reality Audit And Roadmap (2026-05-03)
+
+- `PRJ-951` is DONE:
+  - `.codex/tasks/PRJ-951-v1-reality-audit-and-roadmap.md`
+  - `docs/planning/v1-reality-audit-and-roadmap.md`
+- result:
+  - compared current release claims against code, generated API/data docs,
+    production health, frontend ownership, tests, and deploy evidence
+  - confirmed that documentation-system foundation gaps are closed:
+    generated OpenAPI, ERD/columns, test ownership ledger, frontend route map,
+    and provider integration docs exist
+  - confirmed the current v1 release blocker is release reality, not missing
+    docs: production still serves
+    `ed1c4d981314787d76252985b53c14ea1d7886ed` while `origin/main` is newer
+  - created a P0/P1/P2 roadmap for PRJ-952 through PRJ-970
+- validation:
+  - production `/health` and `/settings` revision checks
+  - generated OpenAPI compare against `docs/api/openapi.json`
+  - generated data model and ERD compare against `docs/data/columns.md` and
+    `docs/data/erd.mmd`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "deploy_parity or runtime_build_revision"; Pop-Location`
+  - result: `6 passed, 46 deselected`
+- next smallest useful task:
+  - `PRJ-956` release reality audit script
+
+## Fresh V1 Roadmap Queue (2026-05-03)
+
+- P0:
+  - `PRJ-952` Recover Coolify source automation or run approved fallback:
+    BLOCKED_EXTERNAL
+  - `PRJ-953` Rerun production release smoke for selected SHA:
+    READY_AFTER_PRJ-952
+  - `PRJ-954` Refresh v1 acceptance bundle for current selected SHA:
+    READY_AFTER_PRJ-953
+  - `PRJ-955` Create release marker only after green production evidence:
+    READY_AFTER_PRJ-954
+  - `PRJ-956` Add a release reality audit script: READY
+    - task: `.codex/tasks/PRJ-956-release-reality-audit-script.md`
+  - `PRJ-957` Make production health monitor revision-aware: READY
+- P1:
+  - `PRJ-958` Execute AI red-team scenario pack: READY
+  - `PRJ-959` Add cross-user/session regression tests: READY
+  - `PRJ-960` Add provider payload sentinel regressions: READY
+  - `PRJ-961` Add strict-mode incident sentinel regression: READY
+  - `PRJ-962` Execute production Telegram live-mode smoke: BLOCKED_EXTERNAL
+  - `PRJ-963` Execute organizer provider activation smoke: BLOCKED_EXTERNAL
+- P2:
+  - `PRJ-964` Add provider request/response examples: READY
+  - `PRJ-965` Add OpenAPI-to-web type sync plan or generator: READY
+  - `PRJ-966` Add stable frontend route e2e smoke: READY
+  - `PRJ-967` Split `web/src/App.tsx` after e2e coverage:
+    READY_AFTER_PRJ-966
+  - `PRJ-968` Add release evidence index: READY
+  - `PRJ-969` Add Coolify fallback secret/runbook readiness check: READY
+  - `PRJ-970` Add release go/no-go command wrapper: READY_AFTER_PRJ-956
+
 ## Fresh V1 Deploy Parity Blocker (2026-05-03)
 
 - `PRJ-938` is BLOCKED:
