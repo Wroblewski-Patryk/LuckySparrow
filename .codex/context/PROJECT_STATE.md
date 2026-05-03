@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1029` completed integrations shared-shell alignment:
+  - task:
+    - `.codex/tasks/PRJ-1029-integrations-shared-shell-alignment.md`
+  - result:
+    - reused `ModuleOverviewBar`, `ModuleStatRow`, and `ModuleDotRowList` in
+      `/integrations`
+    - preserved `aion-integrations-*` selectors through shared route keys
+    - kept provider/tool data derivation and provider readiness semantics in
+      `App()`
+    - left the route-specific provider-map visual untouched
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1030` audit next frontend route/helper cleanup after integrations
+      shell alignment
+
 - 2026-05-03: `PRJ-1028` completed integrations shared-shell audit:
   - task:
     - `.codex/tasks/PRJ-1028-next-frontend-v1-slice-after-dot-row-audit.md`

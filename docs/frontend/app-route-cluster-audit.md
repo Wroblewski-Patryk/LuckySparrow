@@ -298,3 +298,9 @@ component shapes. The next task should reuse `ModuleOverviewBar`,
 `ModuleStatRow`, and `ModuleDotRowList` for those simple presentation shells
 while deferring `conversationChannelStatus`, provider/health helper movement,
 and the decorative provider-map panel.
+
+`PRJ-1029` implemented that slice. `/integrations` now uses
+`ModuleOverviewBar`, `ModuleStatRow`, and `ModuleDotRowList` for the simple
+route shell while preserving `aion-integrations-*` selectors and keeping
+`integrationItems`, `integrationStatCards`, `integrationReadinessRows`,
+provider rows, and provider readiness semantics in `App()`.

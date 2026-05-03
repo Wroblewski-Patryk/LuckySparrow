@@ -3051,6 +3051,11 @@ export default function App() {
       body: copy.integrations.noSilentProviderAccessBody,
     },
   ];
+  const integrationReadinessRows = [
+    { title: copy.integrations.configured, body: `${toolsOverview?.summary.total_items ?? 0} ${copy.integrations.toolsKnown}` },
+    { title: copy.integrations.linkRequired, body: `${integrationLinkRequiredCount} ${copy.integrations.waitingForLinkFlow}` },
+    { title: copy.integrations.blocked, body: `${integrationBlockedCount} ${copy.integrations.providerChecksBlocked}` },
+  ];
   const chatSuggestedActions = [
     { title: "Convert this plan to tasks", body: "Create actionable items in your task list." },
     { title: "Schedule focus blocks", body: "Add deep work blocks to calendar." },
@@ -4946,20 +4951,17 @@ export default function App() {
 
           {route === "/integrations" ? (
             <div className="aion-integrations-canvas grid gap-4">
-              <section className="aion-integrations-overview-bar">
-                <span className="aion-chat-headline-emblem" aria-hidden="true" />
-                <div className="aion-integrations-overview-copy">
-                  <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.integrations.eyebrow}</p>
-                  <h2 className="mt-1.5 font-display text-4xl text-base-900">{copy.integrations.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-base-800">{copy.integrations.subtitle}</p>
-                </div>
-                <div className="aion-integrations-overview-status" aria-label="Integration status">
-                  <span>{copy.integrations.ready}</span>
-                  <strong>{integrationReadyCount} {copy.integrations.readyShort}</strong>
-                </div>
-              </section>
+              <ModuleOverviewBar
+                routeKey="integrations"
+                eyebrow={copy.integrations.eyebrow}
+                title={copy.integrations.title}
+                subtitle={copy.integrations.subtitle}
+                statusLabel={copy.integrations.ready}
+                statusValue={`${integrationReadyCount} ${copy.integrations.readyShort}`}
+                statusAriaLabel="Integration status"
+              />
 
-              <section className="aion-integrations-stat-row" aria-label="Integration summary">
+              <ModuleStatRow routeKey="integrations" ariaLabel="Integration summary">
                 {integrationStatCards.map((item) => (
                   <RouteStatCard
                     key={item.label}
@@ -4969,7 +4971,7 @@ export default function App() {
                     detail={item.detail}
                   />
                 ))}
-              </section>
+              </ModuleStatRow>
 
               <div className="aion-integrations-layout">
                 <section className="aion-integrations-map-panel">
@@ -5026,21 +5028,11 @@ export default function App() {
 
                   <section className="aion-integrations-side-panel">
                     <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.integrations.readinessDetails}</p>
-                    <div className="mt-4 grid gap-3">
-                      {[
-                        { title: copy.integrations.configured, body: `${toolsOverview?.summary.total_items ?? 0} ${copy.integrations.toolsKnown}` },
-                        { title: copy.integrations.linkRequired, body: `${integrationLinkRequiredCount} ${copy.integrations.waitingForLinkFlow}` },
-                        { title: copy.integrations.blocked, body: `${integrationBlockedCount} ${copy.integrations.providerChecksBlocked}` },
-                      ].map((item) => (
-                        <article key={item.title} className="aion-integrations-health-row">
-                          <span className="aion-integrations-health-dot" aria-hidden="true" />
-                          <div>
-                            <p className="text-sm font-semibold text-base-900">{item.title}</p>
-                            <p className="mt-1 text-sm leading-6 text-base-800">{item.body}</p>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
+                    <ModuleDotRowList
+                      routeKey="integrations"
+                      rowKey="health"
+                      items={integrationReadinessRows}
+                    />
                   </section>
                 </aside>
               </div>
