@@ -29,7 +29,7 @@ timeline row, and tools component extractions.
 | --- | --- | --- | --- |
 | Markdown rendering | `renderInlineMarkdown`, `renderMarkdownLines`, `renderChatMarkdown` in `App.tsx` | `/chat` | Behavior-sensitive; needs focused tests before moving |
 | Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `App.tsx` | `/chat` | Candidate for `web/src/lib/chat-formatting.ts` after transcript component extraction |
-| Learned-state summaries | `recentActivityRows`, `summaryLines` in `App.tsx` | dashboard and module routes | Selected for PRJ-997 because the helpers are pure projections and less coupled than health/provider telemetry |
+| Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Defer until provider/integration route ownership is clearer |
 | Settings formatting | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` in `web/src/lib/settings-formatting.ts` | `/settings`, bootstrap | Extracted in PRJ-993 |
 
@@ -48,10 +48,9 @@ these module-style side-panel shells.
 ## Helper Extraction Decision
 
 `PRJ-996` compared the remaining helper clusters after module side-panel
-cleanup. The next implementation slice is `PRJ-997`, which should extract
-learned-state summary helpers:
+cleanup. `PRJ-997` extracted learned-state summary helpers:
 
-- move `recentActivityRows` and `summaryLines` behind a small learned-state
+- moved `recentActivityRows` and `summaryLines` behind a small learned-state
   formatting module
 - keep route-specific derived arrays and UI copy in `App()`
 - keep health/channel telemetry helpers in `App()` until integrations/provider

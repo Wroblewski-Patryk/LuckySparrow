@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+## Fresh Learned State Helper Extraction (2026-05-03)
+
+- `PRJ-997` is DONE:
+  - `.codex/tasks/PRJ-997-learned-state-helper-extraction.md`
+- result:
+  - added `web/src/lib/learned-state-formatting.ts`
+  - moved `recentActivityRows`, `summaryLines`, and direct value/timestamp
+    formatting dependencies out of `web/src/App.tsx`
+  - kept route-specific derived data assembly and health/channel telemetry
+    helpers in `App()`
+  - updated the frontend route/component map, route cluster audit, and v1
+    roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+- next smallest useful task:
+  - `PRJ-998` audit remaining health/channel helper extraction
+
 ## Fresh Module Helper Extraction Audit (2026-05-03)
 
 - `PRJ-996` is DONE:
