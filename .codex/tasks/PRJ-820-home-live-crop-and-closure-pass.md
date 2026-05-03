@@ -4,8 +4,8 @@
 - ID: PRJ-820
 - Title: Home Live Crop And Closure Pass
 - Task Type: design
-- Current Stage: implementation
-- Status: IN_PROGRESS
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-819
 - Priority: P1
@@ -65,14 +65,14 @@ A CSS-only refinement pass plus source-of-truth updates describing the new
 - focused validation passes
 
 ## Definition of Done
-- [ ] `home` crop and closure CSS refinements are implemented
-- [ ] task board and project state describe the bounded slice
-- [ ] focused validation evidence is recorded
+- [x] `home` crop and closure CSS refinements are implemented
+- [x] task board and project state describe the bounded slice
+- [x] focused validation evidence is recorded
 
 ## Stage Exit Criteria
-- [ ] The output matches the declared `Current Stage`.
-- [ ] Work from later stages was not mixed in without explicit approval.
-- [ ] Risks and assumptions for this stage are stated clearly.
+- [x] The output matches the declared `Current Stage`.
+- [x] Work from later stages was not mixed in without explicit approval.
+- [x] Risks and assumptions for this stage are stated clearly.
 
 ## Forbidden
 - new systems without approval
@@ -135,20 +135,47 @@ A CSS-only refinement pass plus source-of-truth updates describing the new
 - Staged rollout or feature flag: no
 
 ## Review Checklist (mandatory)
-- [ ] Current stage is declared and respected.
-- [ ] Deliverable for the current stage is complete.
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Current stage is declared and respected.
+- [x] Deliverable for the current stage is complete.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal update was not required; no new recurring pitfall was
+  confirmed in this closure sync.
 
 ## Notes
 This slice stays strictly on `home` and should be followed by a live compare
 before opening another flagship surface.
+
+## Closure Sync - 2026-05-03
+
+- Current release status:
+  - DONE as a historical public-home CSS refinement slice.
+- Current source truth:
+  - `web/src/App.tsx` keeps `LANDING_HERO_ART_SRC`,
+    `aion-public-hero`, `aion-public-feature-bridge`, and
+    `aion-public-trust-band` as the public-home structure.
+  - `web/src/index.css` keeps the route-local crop, copy-width, note-card,
+    feature-bridge, and trust-band refinements from this slice.
+- Superseding proof owners:
+  - `PRJ-869` public home landing `99%` canonical pass.
+  - `PRJ-875` canonical UI final route sweep.
+  - `PRJ-782` shell-frame decision resolution.
+- Browser/mockup note:
+  - any older canonical screenshot browser frame is presentation context only.
+  - product UI must stay free of simulated browser controls, title bars, or
+    fake window chrome.
+- Closure evidence:
+  - reviewed this task history, current public landing source, design memory,
+    user clarification, and later project/board proof.
+  - `Select-String -Path web\src\App.tsx,web\src\index.css -Pattern
+    "aion-public-browser|WindowChrome|aion-window-chrome"` returned no
+    matches in the current source.
+  - no runtime files were changed by this closure sync.
 
 ## Production-Grade Required Contract
 

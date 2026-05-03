@@ -2,6 +2,32 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-820` completed public-home live crop closure:
+  - task:
+    - `.codex/tasks/PRJ-820-home-live-crop-and-closure-pass.md`
+  - result:
+    - the public-home live crop and closure pass is no longer a stale
+      `IN_PROGRESS` item
+    - historical CSS-only refinements are preserved: desktop public-nav and
+      hero-copy width tightening, landing-scene crop and note-card
+      positioning, and feature-bridge/trust-band closure rhythm
+    - current public landing source keeps `LANDING_HERO_ART_SRC`,
+      `aion-public-hero`, `aion-public-feature-bridge`, and
+      `aion-public-trust-band`
+    - current public landing truth remains chrome-free per `PRJ-782`: browser
+      mockup frames in canonical generated previews are presentation context
+      only and product UI must not implement simulated browser controls
+  - validation:
+    - PRJ-820 history, current public landing source, design memory, user
+      clarification, and later board/project proof were reviewed
+    - `Select-String -Path web\src\App.tsx,web\src\index.css -Pattern
+      "aion-public-browser|WindowChrome|aion-window-chrome"` returned no
+      matches
+    - `git diff --check` passed
+  - next execution priority:
+    - review `PRJ-822` public-home header/proof iconography pass for stale
+      status
+
 - 2026-05-03: `PRJ-816` completed chat canonical parity closure:
   - task:
     - `.codex/tasks/PRJ-816-chat-canonical-parity-closure-lane.md`
