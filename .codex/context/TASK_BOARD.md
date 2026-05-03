@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+## Fresh Settings Formatting Helper Extraction (2026-05-03)
+
+- `PRJ-993` is DONE:
+  - `.codex/tasks/PRJ-993-settings-formatting-helper-extraction.md`
+- result:
+  - added `web/src/lib/settings-formatting.ts`
+  - moved settings language/UTC option types, option lists, normalization, and
+    display helpers out of `web/src/App.tsx`
+  - kept settings bootstrap, draft state, form controls, and handlers in
+    `App()`
+  - updated the frontend route/component map, route cluster audit, and v1
+    roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+- next smallest useful task:
+  - `PRJ-994` re-audit next route-local extraction target after settings
+    cleanup
+
 ## Fresh Settings Side Panel Extraction (2026-05-03)
 
 - `PRJ-992` is DONE:

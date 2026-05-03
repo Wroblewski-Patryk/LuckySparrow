@@ -10,7 +10,8 @@ component refactor. It is grounded in `web/src/App.tsx`,
 `web/src/components/app-icons.tsx`, `web/src/components/chat.tsx`, and
 `web/src/components/dashboard.tsx`, `web/src/components/personality.tsx`,
 `web/src/components/settings.tsx`, `web/src/components/tools.tsx`,
-`docs/frontend/app-route-cluster-audit.md`, and `web/src/index.css`.
+`web/src/lib/settings-formatting.ts`, `docs/frontend/app-route-cluster-audit.md`,
+and `web/src/index.css`.
 
 ## Headless Route Smoke
 
@@ -50,6 +51,7 @@ parity suite.
 | Shared presentational panels | `web/src/components/shared.tsx` | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard` |
 | API client | `web/src/lib/api.ts` | Typed fetch wrapper and app-facing endpoint methods |
 | Tools formatting helpers | `web/src/lib/tool-formatting.ts` | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` |
+| Settings formatting helpers | `web/src/lib/settings-formatting.ts` | `UI_LANGUAGE_OPTIONS`, `UTC_OFFSET_OPTIONS`, `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` |
 | Styling | `web/src/index.css` | Route layouts, product shell visuals, responsive behavior, state styling |
 
 `GAP`: route rendering and many route-local UI fragments are still mostly
@@ -123,7 +125,7 @@ extraction queue after the tools route component cleanup.
 | Tool helpers | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` in `web/src/lib/tool-formatting.ts` | `/tools`, `/integrations` |
 | Tools components | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` in `web/src/components/tools.tsx` | `/tools` |
 | Settings components | `SettingsCard`, `SettingsFact`, `SettingsProactivePanel`, `SettingsSavePanel`, `SettingsDangerPanel` in `web/src/components/settings.tsx` | `/settings` |
-| Profile/settings helpers | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption` | `/settings`, bootstrap |
+| Profile/settings helpers | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` in `web/src/lib/settings-formatting.ts` | `/settings`, bootstrap |
 | Learned-state helpers | `recentActivityRows`, `summaryLines`, `conversationChannelStatus`, dashboard/personality derived summaries | dashboard, personality, memory, reflections, plans, goals, insights, automations |
 
 ## Gaps

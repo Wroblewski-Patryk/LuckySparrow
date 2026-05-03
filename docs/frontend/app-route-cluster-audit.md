@@ -19,7 +19,7 @@ timeline row, and tools component extractions.
 | `/insights` | 5339 | Module-style overview route using shared note/stat patterns | Good later candidate for route module extraction |
 | `/automations` | 5436 | Module-style route mixed with health-derived scheduler posture | Extract after health panel ownership is mapped |
 | `/integrations` | 5532 | Tools/health provider readiness branch; already benefits from tool helper extraction | Candidate after settings because it has less form state than settings but more health coupling |
-| `/settings` | 5635 | Form-heavy branch; preference card/fact and side panel shells now live in `web/src/components/settings.tsx` | Next settings slice can extract formatting helpers while keeping form state in `App()` |
+| `/settings` | 5635 | Form-heavy branch; preference card/fact and side panel shells live in `web/src/components/settings.tsx`; settings formatting helpers live in `web/src/lib/settings-formatting.ts` | No immediate settings extraction needed; choose the next route cluster by audit |
 | `/tools` | 5815 | Tools presentation cluster extracted to `web/src/components/tools.tsx`; route state remains in `App()` | No immediate extraction needed in this cluster |
 | `/personality` | 6031 | Visual/personality branch; partially uses `PersonalityTimelineRow` | Defer until callout/card ownership can be split without changing canonical visuals |
 
@@ -31,17 +31,14 @@ timeline row, and tools component extractions.
 | Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `App.tsx` | `/chat` | Candidate for `web/src/lib/chat-formatting.ts` after transcript component extraction |
 | Learned-state summaries | `recentActivityRows`, `summaryLines` in `App.tsx` | dashboard and module routes | Candidate for helper extraction once route modules are split |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Candidate for a health formatting helper after provider route ownership is clearer |
-| Settings formatting | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption` in `App.tsx` | `/settings`, bootstrap | Candidate after settings presentation is extracted |
+| Settings formatting | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` in `web/src/lib/settings-formatting.ts` | `/settings`, bootstrap | Extracted in PRJ-993 |
 
 ## Next Slice
 
 `PRJ-991` extracted the settings preference card/fact presentation cluster.
-`PRJ-992` extracted the settings side panel shell cluster. The next settings
-follow-up should target formatting helpers:
+`PRJ-992` extracted the settings side panel shell cluster. `PRJ-993` extracted
+the settings formatting helpers.
 
-- keep `settingsDraft`, save/reset handlers, reset confirmation, and input
-  event handlers in `App()`
-- run `npm run build` and the 14-route smoke
-
-These settings slices remain smaller and lower-risk than moving chat transcript
-behavior or dashboard flagship visuals.
+The next route-local extraction target should be chosen by a fresh audit pass.
+Chat transcript behavior and dashboard flagship visuals remain higher risk than
+module-style route shells.
