@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+## Fresh Tools Technical Detail Panel Extraction (2026-05-03)
+
+- `PRJ-988` is DONE:
+  - `.codex/tasks/PRJ-988-tools-technical-detail-panel-extraction.md`
+- result:
+  - added `ToolsTechnicalDetailPanel` to `web/src/components/tools.tsx`
+  - moved tools capability and source-of-truth technical panels out of
+    `web/src/App.tsx`
+  - kept the `<details>` disclosure and Telegram link-code behavior in the
+    existing tools route context
+  - updated the frontend route/component map and v1 roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+- next smallest useful task:
+  - `PRJ-989` audit remaining tools route-local Telegram panel ownership
+
 ## Fresh Tools Detail Card Extraction (2026-05-03)
 
 - `PRJ-987` is DONE:

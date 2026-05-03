@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-988` completed tools technical-detail panel extraction:
+  - task:
+    - `.codex/tasks/PRJ-988-tools-technical-detail-panel-extraction.md`
+  - result:
+    - added `ToolsTechnicalDetailPanel` to `web/src/components/tools.tsx`
+    - moved tools capability and source-of-truth technical panels out of
+      `web/src/App.tsx`
+    - kept the `<details>` disclosure and Telegram link-code behavior in the
+      existing tools route context
+    - updated the frontend route/component map and v1 roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+  - next execution priority:
+    - `PRJ-989` audit remaining tools route-local Telegram panel ownership
+
 - 2026-05-03: `PRJ-987` completed tools detail-card extraction:
   - task:
     - `.codex/tasks/PRJ-987-tools-detail-card-extraction.md`

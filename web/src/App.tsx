@@ -40,7 +40,12 @@ import {
   SidebarBrandBlock,
   type SidebarIconKind,
 } from "./components/shell";
-import { ToolsDetailCard, ToolsFactCard, ToolsSummaryCard } from "./components/tools";
+import {
+  ToolsDetailCard,
+  ToolsFactCard,
+  ToolsSummaryCard,
+  ToolsTechnicalDetailPanel,
+} from "./components/tools";
 import { ROUTES, navigate, navigatePublicEntry, normalizeRoute, type RoutePath } from "./routes";
 
 type AuthMode = "login" | "register";
@@ -6029,40 +6034,17 @@ export default function App() {
                                   {copy.tools.technicalDetails}
                                 </summary>
                                 <div className="grid gap-3 px-4 pb-4 sm:grid-cols-2">
-                                  <div className="rounded-2xl bg-base-200 p-3">
-                                    <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.tools.capabilities}</p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                      {item.capabilities.length > 0 ? (
-                                        item.capabilities.map((capability) => (
-                                          <span
-                                            key={capability}
-                                            className="rounded-full border border-base-300 bg-base-100 px-3 py-1 text-xs font-medium text-base-900"
-                                          >
-                                            {capability}
-                                          </span>
-                                        ))
-                                      ) : (
-                                        <span className="text-sm text-base-800">{copy.common.noData}</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="rounded-2xl bg-base-200 p-3">
-                                    <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.common.sourceOfTruth}</p>
-                                    <div className="mt-3 flex flex-wrap gap-2">
-                                      {item.source_of_truth.length > 0 ? (
-                                        item.source_of_truth.map((source) => (
-                                          <span
-                                            key={source}
-                                            className="rounded-full bg-base-100 px-3 py-1 text-xs font-medium text-base-800"
-                                          >
-                                            {source}
-                                          </span>
-                                        ))
-                                      ) : (
-                                        <span className="text-sm text-base-800">{copy.common.noData}</span>
-                                      )}
-                                    </div>
-                                  </div>
+                                  <ToolsTechnicalDetailPanel
+                                    label={copy.tools.capabilities}
+                                    values={item.capabilities}
+                                    emptyLabel={copy.common.noData}
+                                  />
+                                  <ToolsTechnicalDetailPanel
+                                    label={copy.common.sourceOfTruth}
+                                    values={item.source_of_truth}
+                                    emptyLabel={copy.common.noData}
+                                    chipTone="muted"
+                                  />
                                 </div>
                               </details>
                             </div>
