@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Transcript Presentation Audit (2026-05-03)
+
+- `PRJ-1006` is DONE:
+  - `.codex/tasks/PRJ-1006-chat-transcript-presentation-extraction-audit.md`
+- result:
+  - selected transcript message-row presentation extraction as the next safe
+    chat route slice
+  - kept `visibleTranscriptItems.map(...)`, `transcriptMessageRefs`,
+    `chatDeliveryState`, delivery-label selection, timestamp formatting, and
+    markdown rendering in `App()`
+  - queued `PRJ-1007` to add a component that receives precomputed
+    speaker/timestamp/delivery/rendered-content props
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1007` extract chat transcript message row presentation from
+    `web/src/App.tsx`
+
 ## Fresh Chat Composer Shell Extraction (2026-05-03)
 
 - `PRJ-1005` is DONE:

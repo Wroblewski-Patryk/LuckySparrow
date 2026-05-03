@@ -93,3 +93,15 @@ through explicit props. `App()` still owns `handleSendMessage`, `chatText`,
 history refresh. The next safe chat route step is to audit transcript
 message-row presentation extraction now that helper, renderer, and composer
 boundaries are explicit.
+
+`PRJ-1006` selected transcript message-row presentation extraction as the next
+safe implementation slice:
+
+- move the avatar, row alignment class, message article class, metadata chrome,
+  delivery indicator element, and copy wrapper behind a chat transcript message
+  row component
+- keep `visibleTranscriptItems.map(...)`, `transcriptMessageRefs`,
+  `chatDeliveryState`, `deliveryLabel` selection, `formatTimestamp(...)`, and
+  `renderChatMarkdown(...)` in `App()` for this slice
+- pass `isUser`, preview state, speaker label, timestamp label, delivery
+  state/label, and rendered markdown content through explicit props

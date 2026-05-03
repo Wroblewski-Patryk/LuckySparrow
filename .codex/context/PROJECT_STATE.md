@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1006` completed chat transcript presentation extraction
+  audit:
+  - task:
+    - `.codex/tasks/PRJ-1006-chat-transcript-presentation-extraction-audit.md`
+  - result:
+    - selected transcript message-row presentation extraction as the next safe
+      chat route slice
+    - kept transcript mapping, refs, delivery-state calculation, delivery-label
+      selection, timestamp formatting, and markdown rendering in `App()`
+    - queued `PRJ-1007` to add a chat transcript row component with explicit
+      precomputed props
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1007` extract chat transcript message row presentation from
+      `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-1005` completed chat composer shell extraction:
   - task:
     - `.codex/tasks/PRJ-1005-chat-composer-shell-extraction.md`
