@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1034` completed integrations provider row audit:
+  - task:
+    - `.codex/tasks/PRJ-1034-next-live-frontend-cleanup-after-dead-helper-audit.md`
+  - result:
+    - selected integrations provider row presentation extraction as the next
+      live frontend cleanup
+    - target shape: `token/title/detail/value`
+    - kept provider data, fallback row selection, and readiness semantics in
+      `App()`
+    - deferred memory signal cards, progress rows, route data helpers, and
+      decorative panels
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1035` extract shared module value-row list for integrations
+      providers
+
 - 2026-05-03: `PRJ-1033` completed dead channel helper removal:
   - task:
     - `.codex/tasks/PRJ-1033-remove-unused-conversation-channel-status.md`

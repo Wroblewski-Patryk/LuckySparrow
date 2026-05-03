@@ -330,3 +330,10 @@ type, its `lastState` helper, and the stale `AppHealthTelegramChannel` import.
 No live route behavior changed. Future provider/health cleanup should start
 from currently used data projections, not from the removed channel-status
 helper.
+
+`PRJ-1034` selected integrations provider row presentation extraction as the
+next live frontend cleanup. The list has a stable `token/title/detail/value`
+shape and can move behind a route-keyed shared row-list component while
+`integrationProviderRows`, fallback row selection, and provider readiness
+semantics stay in `App()`. Memory signal cards, progress rows, route data-helper
+movement, and decorative panels remain deferred.
