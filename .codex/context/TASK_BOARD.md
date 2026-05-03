@@ -54,6 +54,27 @@ Last updated: 2026-05-03
 - next smallest useful task:
   - `PRJ-960` provider payload sentinel regressions
 
+## Fresh Provider Payload Sentinel Regressions (2026-05-03)
+
+- `PRJ-960` is DONE:
+  - `.codex/tasks/PRJ-960-provider-payload-sentinel-regressions.md`
+- result:
+  - added synthetic ClickUp, Google Calendar, Google Drive, and Telegram raw
+    payload sentinel coverage for app-facing projection surfaces
+  - asserted `/app/personality/overview`, `/app/tools/overview`, and `/health`
+    do not serialize those raw sentinel values
+  - kept pending proposal projection useful through `payload_present` and
+    sorted `payload_keys`
+  - typed the frontend personality overview API response so pending proposals
+    expose sanitized metadata rather than raw `payload`
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "provider_payload_sentinels or personality_overview or tools_overview"; Pop-Location`
+  - result: `6 passed, 117 deselected`
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-961` strict-mode incident sentinel regression
+
 ## Fresh Revision-Aware Production Health Monitor (2026-05-03)
 
 - `PRJ-957` is DONE:
@@ -174,7 +195,10 @@ Last updated: 2026-05-03
     - task: `.codex/tasks/PRJ-959-cross-user-session-regression-tests.md`
     - completed in this iteration with app-route two-user transcript, reset,
       active-cookie switching, and existing Telegram relink ownership evidence
-  - `PRJ-960` Add provider payload sentinel regressions: READY
+  - `PRJ-960` Add provider payload sentinel regressions: DONE
+    - task: `.codex/tasks/PRJ-960-provider-payload-sentinel-regressions.md`
+    - completed in this iteration with backend projection sentinels and
+      frontend sanitized API types
   - `PRJ-961` Add strict-mode incident sentinel regression: READY
   - `PRJ-962` Execute production Telegram live-mode smoke: BLOCKED_EXTERNAL
   - `PRJ-963` Execute organizer provider activation smoke: BLOCKED_EXTERNAL

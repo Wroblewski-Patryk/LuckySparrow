@@ -68,7 +68,7 @@ current blocker is release reality:
 | --- | --- | --- | --- |
 | PRJ-958 | Execute AI red-team scenario pack | DONE_WITH_REVIEW_REQUIRED | runner executed 9 scenarios / 21 steps against production; result is `REVIEW_REQUIRED` because `/event` did not expose assistant reply text for behavioral scoring |
 | PRJ-959 | Add cross-user/session regression tests | DONE | app-route two-user transcript, reset, cookie switching, and Telegram relink/conflict ownership scenarios are covered by focused regressions |
-| PRJ-960 | Add provider payload sentinel regressions | READY | frontend/backend projections prove raw provider payloads do not leak through app surfaces |
+| PRJ-960 | Add provider payload sentinel regressions | DONE | backend projections and frontend API types prove raw provider payload sentinels do not leak through app surfaces |
 | PRJ-961 | Add strict-mode incident sentinel regression | READY | strict-mode incident export keeps safe health-derived evidence and excludes debug payloads |
 | PRJ-962 | Execute production Telegram live-mode smoke | BLOCKED_EXTERNAL | operator token, webhook secret, and known chat id are provided; smoke passes in live mode |
 | PRJ-963 | Execute organizer provider activation smoke | BLOCKED_EXTERNAL | ClickUp, Google Calendar, and Google Drive credentials are configured; provider smoke passes |

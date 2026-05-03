@@ -5840,6 +5840,85 @@ def test_app_personality_overview_uses_authenticated_user() -> None:
     assert "private provider page" not in str(body)
 
 
+def test_app_public_projection_surfaces_do_not_expose_provider_payload_sentinels() -> None:
+    client, _, _ = _client()
+    repository = client.app.state.memory_repository
+    register_response = client.post(
+        "/app/auth/register",
+        json={
+            "email": "payload-sentinel@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    assert register_response.status_code == 200
+    user_id = register_response.json()["user"]["id"]
+    sentinels = {
+        "CLICKUP_RAW_BODY_SENTINEL_DO_NOT_RENDER",
+        "GOOGLE_CALENDAR_PRIVATE_EVENT_SENTINEL",
+        "GOOGLE_DRIVE_FILE_CONTENT_SENTINEL",
+        "TELEGRAM_PROVIDER_UPDATE_SENTINEL",
+    }
+    repository.recent_memory = [
+        {
+            "event_id": "evt-provider-payload-sentinel",
+            "trace_id": "trace-provider-payload-sentinel",
+            "source": "api",
+            "user_id": user_id,
+            "event_timestamp": datetime(2026, 5, 3, 12, 0, tzinfo=timezone.utc),
+            "summary": "Sanitized provider-derived activity summary.",
+            "payload": {
+                "provider_response": {
+                    "clickup": "CLICKUP_RAW_BODY_SENTINEL_DO_NOT_RENDER",
+                    "google_calendar": "GOOGLE_CALENDAR_PRIVATE_EVENT_SENTINEL",
+                    "google_drive": "GOOGLE_DRIVE_FILE_CONTENT_SENTINEL",
+                    "telegram": "TELEGRAM_PROVIDER_UPDATE_SENTINEL",
+                }
+            },
+            "importance": 0.8,
+        }
+    ]
+    repository.pending_proposals = [
+        {
+            "proposal_id": 31,
+            "proposal_type": "provider_review",
+            "summary": "Review sanitized provider metadata.",
+            "payload": {
+                "clickup_raw": "CLICKUP_RAW_BODY_SENTINEL_DO_NOT_RENDER",
+                "calendar_raw": "GOOGLE_CALENDAR_PRIVATE_EVENT_SENTINEL",
+                "drive_raw": "GOOGLE_DRIVE_FILE_CONTENT_SENTINEL",
+                "telegram_raw": "TELEGRAM_PROVIDER_UPDATE_SENTINEL",
+            },
+            "confidence": 0.81,
+            "status": "pending",
+            "research_policy": "read_only",
+            "allowed_tools": ["knowledge_search"],
+            "source_event_id": "evt-provider-payload-sentinel",
+        }
+    ]
+
+    responses = [
+        client.get("/app/personality/overview"),
+        client.get("/app/tools/overview"),
+        client.get("/health"),
+    ]
+
+    assert all(response.status_code == 200 for response in responses)
+    serialized = "\n".join(response.text for response in responses)
+    for sentinel in sentinels:
+        assert sentinel not in serialized
+    overview = responses[0].json()
+    pending_proposal = overview["planning_state"]["pending_proposals"][0]
+    assert pending_proposal["payload_present"] is True
+    assert pending_proposal["payload_keys"] == [
+        "calendar_raw",
+        "clickup_raw",
+        "drive_raw",
+        "telegram_raw",
+    ]
+    assert "payload" not in pending_proposal
+    assert "payload" not in overview["recent_activity"][0]
+
+
 def test_app_tools_overview_requires_authenticated_session() -> None:
     client, _, _ = _client()
 

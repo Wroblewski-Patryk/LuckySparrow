@@ -70,7 +70,44 @@ export type AppChatMessageResponse = {
   } | null;
 };
 
-export type AppPersonalityOverviewResponse = Record<string, unknown>;
+export type AppRecentActivityItem = {
+  event_id: string;
+  title: string;
+  timestamp?: string | null;
+  source?: string | null;
+  importance?: number | null;
+};
+
+export type AppPendingProposalSnapshot = {
+  proposal_id: number | string;
+  proposal_type?: string | null;
+  summary?: string | null;
+  confidence?: number | null;
+  status?: string | null;
+  research_policy?: string | null;
+  allowed_tools?: string[];
+  source_event_id?: string | null;
+  payload_present: boolean;
+  payload_keys: string[];
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type AppPersonalityOverviewResponse = {
+  user_id?: string;
+  recent_activity?: AppRecentActivityItem[];
+  identity_state?: Record<string, unknown>;
+  learned_knowledge?: Record<string, unknown>;
+  planning_state?: {
+    active_goals?: unknown[];
+    active_tasks?: unknown[];
+    pending_proposals?: AppPendingProposalSnapshot[];
+    continuity_summary?: Record<string, unknown>;
+  };
+  role_skill_state?: Record<string, unknown>;
+  capability_catalog?: Record<string, unknown>;
+  api_readiness?: Record<string, unknown>;
+};
 
 export type AppToolProvider = {
   name: string;

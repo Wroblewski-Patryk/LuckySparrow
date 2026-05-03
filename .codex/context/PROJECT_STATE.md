@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-960` completed provider payload sentinel regressions:
+  - task:
+    - `.codex/tasks/PRJ-960-provider-payload-sentinel-regressions.md`
+  - result:
+    - added synthetic ClickUp, Google Calendar, Google Drive, and Telegram raw
+      payload sentinel coverage for app-facing projection surfaces
+    - asserted `/app/personality/overview`, `/app/tools/overview`, and
+      `/health` do not serialize those raw sentinel values
+    - kept pending proposal projection useful through `payload_present` and
+      sorted `payload_keys`
+    - typed the frontend personality overview API response so pending proposals
+      expose sanitized metadata rather than raw `payload`
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "provider_payload_sentinels or personality_overview or tools_overview"; Pop-Location`
+    - result: `6 passed, 117 deselected`
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+  - next execution priority:
+    - `PRJ-961` strict-mode incident sentinel regression
+
 - 2026-05-03: `PRJ-959` completed cross-user/session regression tests:
   - task:
     - `.codex/tasks/PRJ-959-cross-user-session-regression-tests.md`

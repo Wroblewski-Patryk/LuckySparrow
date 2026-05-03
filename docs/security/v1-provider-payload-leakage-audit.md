@@ -2,7 +2,7 @@
 
 Date: 2026-05-03
 Task: `PRJ-933`
-Status: DONE locally with follow-up evidence gaps
+Status: DONE; `PRJ-960` added provider payload sentinel regressions
 
 ## Purpose
 
@@ -59,6 +59,22 @@ Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_rou
 
 Result: `8 passed, 111 deselected`.
 
+Provider sentinel regression:
+
+```powershell
+Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "provider_payload_sentinels or personality_overview or tools_overview"; Pop-Location
+```
+
+Result: `6 passed, 117 deselected`.
+
+Frontend API type/build check:
+
+```powershell
+Push-Location .\web; npm run build; Pop-Location
+```
+
+Result: passed.
+
 Additional checks:
 
 - route/repository/policy inspection
@@ -70,16 +86,19 @@ Additional checks:
 
 - Live provider activation smoke remains blocked until ClickUp, Google Calendar,
   and Google Drive credentials are configured.
-- The PRJ-931 AI red-team scenario pack still needs executed pass/fail evidence,
-  especially data-exfiltration and malicious-web-content scenarios.
+- The PRJ-931 AI red-team scenario pack has first live execution evidence from
+  `PRJ-958`, but it remains `REVIEW_REQUIRED` until assistant reply text can be
+  captured for scoring.
 - Add explicit strict-mode incident-bundle regression that searches exported
   JSON for known synthetic provider payload sentinels.
-- Add frontend route smoke with synthetic payload sentinels once frontend route
-  fixtures can inject overview responses.
+- Frontend route smoke with injected overview fixtures is still useful once a
+  frontend test runner exists; `PRJ-960` adds the current API type/build
+  contract instead.
 
 ## Release Posture
 
 No confirmed raw provider payload leak remains in the inspected app overview,
 tools overview, health, or strict-mode incident evidence paths. The fixed
 proposal snapshot closes the only confirmed public learned-state projection
-leak candidate found during this audit.
+leak candidate found during this audit. `PRJ-960` now pins app overview, tools
+overview, and health projections with synthetic provider payload sentinels.
