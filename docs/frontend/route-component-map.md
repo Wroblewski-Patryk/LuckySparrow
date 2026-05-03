@@ -7,7 +7,8 @@ component refactor. It is grounded in `web/src/App.tsx`,
 `web/src/routes.ts`, `web/src/components/shared.tsx`, `web/src/lib/api.ts`,
 `web/src/components/shell.tsx`, `web/src/components/public-shell.tsx`, and
 `web/src/components/app-icons.tsx`, `web/src/components/chat.tsx`, and
-`web/src/components/personality.tsx`, and `web/src/index.css`.
+`web/src/components/dashboard.tsx`, `web/src/components/personality.tsx`, and
+`web/src/index.css`.
 
 ## Headless Route Smoke
 
@@ -37,6 +38,7 @@ a route-mount guard, not a screenshot parity suite.
 | Shell chrome helpers | `web/src/components/shell.tsx` | `SidebarIconKind`, `ShellNavButton`, `AviaryWordmark`, `SidebarBrandBlock`, `ShellUtilityBar` |
 | App icon primitives | `web/src/components/app-icons.tsx` | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` |
 | Chat components | `web/src/components/chat.tsx` | `ChatFlowStage` |
+| Dashboard components | `web/src/components/dashboard.tsx` | `DashboardSignalCard` |
 | Personality components | `web/src/components/personality.tsx` | `PersonalityTimelineRow` |
 | Shared presentational panels | `web/src/components/shared.tsx` | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel` |
 | API client | `web/src/lib/api.ts` | Typed fetch wrapper and app-facing endpoint methods |
@@ -100,6 +102,7 @@ claim component-level separation beyond the extracted route contract.
 | Cluster | Functions/Components | Main Routes |
 | --- | --- | --- |
 | Routing and labels | `normalizeRoute`, `navigate`, `routeLabel`, `routeDescription` | all routes |
+| Dashboard components | `DashboardSignalCard` in `web/src/components/dashboard.tsx` | dashboard |
 | Public shell | public home render branch in `web/src/App.tsx`, `AviaryWordmark` in `web/src/components/shell.tsx`, `PublicGlyph` in `web/src/components/public-shell.tsx` | `/`, `/login` |
 | Shell chrome | `SidebarGlyph`, `ShellNavButton`, `SidebarBrandBlock`, `AviaryWordmark`, `ShellUtilityBar` in `web/src/components/shell.tsx` | authenticated routes |
 | App control icons | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` in `web/src/components/app-icons.tsx` | public auth modal, sidebar, chat composer |
@@ -119,8 +122,9 @@ claim component-level separation beyond the extracted route contract.
   bar now live in `web/src/components/shell.tsx`; public glyphs now live in
   `web/src/components/public-shell.tsx`; pure control icons now live in
   `web/src/components/app-icons.tsx`; the first chat presentational component
-  now lives in `web/src/components/chat.tsx`; the first personality
-  presentational row now lives in `web/src/components/personality.tsx`.
+  now lives in `web/src/components/chat.tsx`; dashboard signal cards now live
+  in `web/src/components/dashboard.tsx`; the first personality presentational
+  row now lives in `web/src/components/personality.tsx`.
 - Static/fallback copy still exists for several module routes when backend
   overview fields are absent.
 - The current dedicated frontend route smoke covers the public shell and core

@@ -14,6 +14,7 @@ import {
 } from "./lib/api";
 import { ChevronDownIcon, CloseIcon, MicrophoneIcon, PlusIcon, SendArrowIcon } from "./components/app-icons";
 import { ChatFlowStage } from "./components/chat";
+import { DashboardSignalCard } from "./components/dashboard";
 import { PersonalityTimelineRow } from "./components/personality";
 import { PublicGlyph } from "./components/public-shell";
 import {
@@ -4597,13 +4598,13 @@ export default function App() {
                       {dashboardSignalCards
                         .filter((card) => card.placement === "left")
                         .map((card) => (
-                          <article key={card.eyebrow} className="aion-dashboard-signal-card">
-                            <p className="aion-dashboard-signal-eyebrow">{card.eyebrow}</p>
-                            <p className="aion-dashboard-signal-value">{card.value}</p>
-                            <p className="aion-dashboard-signal-detail">{card.detail}</p>
-                            <div className="aion-dashboard-signal-wave" aria-hidden="true" />
-                            <p className="aion-dashboard-signal-note">{card.note}</p>
-                          </article>
+                          <DashboardSignalCard
+                            key={card.eyebrow}
+                            eyebrow={card.eyebrow}
+                            value={card.value}
+                            detail={card.detail}
+                            note={card.note}
+                          />
                         ))}
                     </div>
 
@@ -4630,13 +4631,13 @@ export default function App() {
                       {dashboardSignalCards
                         .filter((card) => card.placement === "right")
                         .map((card) => (
-                          <article key={card.eyebrow} className="aion-dashboard-signal-card">
-                            <p className="aion-dashboard-signal-eyebrow">{card.eyebrow}</p>
-                            <p className="aion-dashboard-signal-value">{card.value}</p>
-                            <p className="aion-dashboard-signal-detail">{card.detail}</p>
-                            <div className="aion-dashboard-signal-wave" aria-hidden="true" />
-                            <p className="aion-dashboard-signal-note">{card.note}</p>
-                          </article>
+                          <DashboardSignalCard
+                            key={card.eyebrow}
+                            eyebrow={card.eyebrow}
+                            value={card.value}
+                            detail={card.detail}
+                            note={card.note}
+                          />
                         ))}
                     </div>
                   </div>

@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-979` completed dashboard signal card extraction:
+  - task:
+    - `.codex/tasks/PRJ-979-dashboard-signal-card-extraction.md`
+  - result:
+    - added `web/src/components/dashboard.tsx`
+    - moved duplicated dashboard signal-card markup into
+      `DashboardSignalCard`
+    - preserved dashboard signal data, left/right placement filtering, route
+      behavior, and visual classes
+    - updated the frontend route/component map and v1 roadmap with dashboard
+      component ownership
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=6`
+  - next execution priority:
+    - `PRJ-980` extract a shared stat-card component cluster from
+      `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-978` completed personality timeline row extraction:
   - task:
     - `.codex/tasks/PRJ-978-personality-timeline-row-extraction.md`

@@ -89,7 +89,8 @@ current blocker is release reality:
 | PRJ-976 | Extract app icon/control component cluster from `web/src/App.tsx` | DONE | pure icon primitives live in `web/src/components/app-icons.tsx`; build and route smoke pass |
 | PRJ-977 | Extract chat flow stage component from `web/src/App.tsx` | DONE | `ChatFlowStage` lives in `web/src/components/chat.tsx`; build and route smoke pass |
 | PRJ-978 | Extract personality timeline row component from `web/src/App.tsx` | DONE | `PersonalityTimelineRow` lives in `web/src/components/personality.tsx`; build and route smoke pass |
-| PRJ-979 | Extract route summary/card component cluster from `web/src/App.tsx` | READY_AFTER_PRJ-978 | next pure repeated route card cluster moves behind explicit props without data behavior change |
+| PRJ-979 | Extract route summary/card component cluster from `web/src/App.tsx` | DONE | `DashboardSignalCard` lives in `web/src/components/dashboard.tsx`; build and route smoke pass |
+| PRJ-980 | Extract shared stat-card component cluster from `web/src/App.tsx` | READY_AFTER_PRJ-979 | repeated route stat-card shapes move behind explicit props without route data behavior change |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |
