@@ -27,8 +27,8 @@ timeline row, and tools component extractions.
 
 | Helper cluster | Current owner | Routes | Posture |
 | --- | --- | --- | --- |
-| Markdown rendering | `renderInlineMarkdown`, `renderMarkdownLines`, `renderChatMarkdown` in `App.tsx` | `/chat` | Behavior-sensitive; defer until transcript metadata helpers are extracted and covered |
-| Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `App.tsx` | `/chat` | Selected for PRJ-1001 because these helpers are pure and non-JSX |
+| Markdown rendering | `renderInlineMarkdown`, `renderMarkdownLines`, `renderChatMarkdown` in `App.tsx` | `/chat` | Behavior-sensitive; still deferred after PRJ-1001 |
+| Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts` | `/chat` | Extracted in PRJ-1001 |
 | Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Deferred in PRJ-998 until provider/integration route ownership is clearer |
 | Metric formatting | `numberValue`, `scaledMetricSize` in `web/src/lib/metric-formatting.ts` | dashboard, automations, integrations, tools summary projections | Extracted in PRJ-999 |
@@ -62,9 +62,9 @@ provider and health semantics. `PRJ-999` extracted pure metric formatting
 helpers while keeping `conversationChannelStatus` in `App()`.
 
 `PRJ-1000` selected chat transcript metadata helper extraction as the next
-frontend architecture slice:
+frontend architecture slice. `PRJ-1001` extracted it:
 
-- move `transcriptMetadataSummary`, `chatDeliveryState`, and
+- moved `transcriptMetadataSummary`, `chatDeliveryState`, and
   `reconcileLocalTranscriptItems` to a small chat transcript module
 - keep markdown rendering, composer behavior, optimistic send state, and route
   rendering in `App()`

@@ -26,6 +26,11 @@ import {
 } from "./lib/learned-state-formatting";
 import { numberValue, scaledMetricSize } from "./lib/metric-formatting";
 import {
+  chatDeliveryState,
+  reconcileLocalTranscriptItems,
+  transcriptMetadataSummary,
+} from "./lib/chat-transcript";
+import {
   UI_LANGUAGE_OPTIONS,
   UTC_OFFSET_OPTIONS,
   localeOptionDisplay,
@@ -78,8 +83,6 @@ import {
 import { ROUTES, navigate, navigatePublicEntry, normalizeRoute, type RoutePath } from "./routes";
 
 type AuthMode = "login" | "register";
-type ChatDeliveryState = "sending" | "delivered" | "failed";
-
 const BUILD_REVISION = String(import.meta.env.VITE_APP_BUILD_REVISION ?? "dev");
 const CANONICAL_PERSONA_FIGURE_SRC = "/aviary-persona-figure-canonical-reference-v1.png";
 const DASHBOARD_HERO_ART_SRC = "/aviary-dashboard-hero-canonical-reference-v4.png";
@@ -1788,44 +1791,6 @@ function renderChatMarkdown(text: string): ReactNode {
   }
 
   return blocks.length > 0 ? blocks : <p>{text}</p>;
-}
-
-function transcriptMetadataSummary(entry: AppChatHistoryEntry) {
-  if (!entry.metadata) {
-    return null;
-  }
-
-  const language = stringValue(entry.metadata.language, "").trim();
-  const tone = stringValue(entry.metadata.tone, "").trim();
-  const runtimeRole = stringValue(entry.metadata.runtime_role, "").trim();
-  const actionStatus = stringValue(entry.metadata.action_status, "").trim();
-
-  const parts = [
-    language ? `lang ${language}` : null,
-    tone ? `tone ${tone}` : null,
-    runtimeRole ? `role ${runtimeRole}` : null,
-    actionStatus ? `action ${actionStatus}` : null,
-  ].filter(Boolean);
-
-  return parts.length > 0 ? parts.join(" | ") : null;
-}
-
-function chatDeliveryState(entry: AppChatHistoryEntry): ChatDeliveryState | null {
-  const value = entry.metadata?.delivery_state;
-  return value === "sending" || value === "delivered" || value === "failed" ? value : null;
-}
-
-function reconcileLocalTranscriptItems(
-  localItems: AppChatHistoryEntry[],
-  durableItems: AppChatHistoryEntry[],
-) {
-  const durableMessageIds = new Set(durableItems.map((item) => item.message_id));
-  const durableEventRoleKeys = new Set(durableItems.map((item) => `${item.event_id}:${item.role}`));
-  return localItems.filter(
-    (item) =>
-      !durableMessageIds.has(item.message_id) &&
-      !durableEventRoleKeys.has(`${item.event_id}:${item.role}`),
-  );
 }
 
 function routeDescription(route: RoutePath, locale: ResolvedUiLanguageCode) {

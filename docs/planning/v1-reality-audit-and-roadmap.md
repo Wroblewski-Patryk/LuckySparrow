@@ -111,7 +111,8 @@ current blocker is release reality:
 | PRJ-998 | Audit remaining health/channel helper extraction | DONE | `conversationChannelStatus` stays in `App()` until provider/integration route ownership is clearer; pure metric helpers were selected next |
 | PRJ-999 | Extract metric formatting helpers from `web/src/App.tsx` | DONE | `numberValue` and `scaledMetricSize` live in `web/src/lib/metric-formatting.ts`; full route smoke passes with `route_count=14` |
 | PRJ-1000 | Audit next v1 frontend architecture slice after helper cleanup | DONE | chat transcript metadata helper extraction was selected before markdown/composer movement because it is pure and non-JSX |
-| PRJ-1001 | Extract chat transcript metadata helpers from `web/src/App.tsx` | READY_AFTER_PRJ-1000 | `transcriptMetadataSummary`, `chatDeliveryState`, and `reconcileLocalTranscriptItems` move to a small chat transcript module without composer/markdown behavior change |
+| PRJ-1001 | Extract chat transcript metadata helpers from `web/src/App.tsx` | DONE | chat transcript metadata/delivery/reconciliation helpers live in `web/src/lib/chat-transcript.ts`; composer and markdown rendering remain in `App()`; full route smoke passes with `route_count=14` |
+| PRJ-1002 | Audit chat markdown renderer extraction readiness | READY_AFTER_PRJ-1001 | decide whether markdown rendering can move safely or needs focused unit coverage first |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |

@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1001` completed chat transcript helper extraction:
+  - task:
+    - `.codex/tasks/PRJ-1001-chat-transcript-helper-extraction.md`
+  - result:
+    - added `web/src/lib/chat-transcript.ts`
+    - moved transcript metadata, delivery-state, and local/durable
+      reconciliation helpers out of `web/src/App.tsx`
+    - kept markdown rendering, composer behavior, and optimistic send state in
+      `App()`
+    - updated the frontend route/component map, route cluster audit, and v1
+      roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+  - next execution priority:
+    - `PRJ-1002` audit chat markdown renderer extraction readiness
+
 - 2026-05-03: `PRJ-1000` completed next frontend slice audit:
   - task:
     - `.codex/tasks/PRJ-1000-next-frontend-slice-audit.md`
