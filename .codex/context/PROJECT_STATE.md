@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-992` completed settings side panel extraction:
+  - task:
+    - `.codex/tasks/PRJ-992-settings-side-panel-extraction.md`
+  - result:
+    - added settings side panel components to `web/src/components/settings.tsx`
+    - moved proactive, save, and danger panel chrome out of
+      `web/src/App.tsx`
+    - kept proactive toggle, submit button, reset confirmation, and reset
+      handler ownership in `App()`
+    - updated the frontend route/component map, route cluster audit, and v1
+      roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+  - next execution priority:
+    - `PRJ-993` extract settings formatting helpers from `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-991` completed settings card/fact extraction:
   - task:
     - `.codex/tasks/PRJ-991-settings-card-fact-extraction.md`

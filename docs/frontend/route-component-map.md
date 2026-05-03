@@ -45,7 +45,7 @@ parity suite.
 | Chat components | `web/src/components/chat.tsx` | `ChatFlowStage` |
 | Dashboard components | `web/src/components/dashboard.tsx` | `DashboardSignalCard` |
 | Personality components | `web/src/components/personality.tsx` | `PersonalityTimelineRow` |
-| Settings components | `web/src/components/settings.tsx` | `SettingsCard`, `SettingsFact` |
+| Settings components | `web/src/components/settings.tsx` | `SettingsCard`, `SettingsFact`, `SettingsProactivePanel`, `SettingsSavePanel`, `SettingsDangerPanel` |
 | Tools components | `web/src/components/tools.tsx` | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` |
 | Shared presentational panels | `web/src/components/shared.tsx` | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard` |
 | API client | `web/src/lib/api.ts` | Typed fetch wrapper and app-facing endpoint methods |
@@ -122,7 +122,7 @@ extraction queue after the tools route component cleanup.
 | Personality route components | `PersonalityTimelineRow` in `web/src/components/personality.tsx` | memory, reflections, plans, personality |
 | Tool helpers | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` in `web/src/lib/tool-formatting.ts` | `/tools`, `/integrations` |
 | Tools components | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` in `web/src/components/tools.tsx` | `/tools` |
-| Settings components | `SettingsCard`, `SettingsFact` in `web/src/components/settings.tsx` | `/settings` |
+| Settings components | `SettingsCard`, `SettingsFact`, `SettingsProactivePanel`, `SettingsSavePanel`, `SettingsDangerPanel` in `web/src/components/settings.tsx` | `/settings` |
 | Profile/settings helpers | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption` | `/settings`, bootstrap |
 | Learned-state helpers | `recentActivityRows`, `summaryLines`, `conversationChannelStatus`, dashboard/personality derived summaries | dashboard, personality, memory, reflections, plans, goals, insights, automations |
 

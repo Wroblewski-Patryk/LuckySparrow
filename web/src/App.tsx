@@ -33,7 +33,13 @@ import {
   RouteStatCard,
   StatePanel,
 } from "./components/shared";
-import { SettingsCard, SettingsFact } from "./components/settings";
+import {
+  SettingsCard,
+  SettingsDangerPanel,
+  SettingsFact,
+  SettingsProactivePanel,
+  SettingsSavePanel,
+} from "./components/settings";
 import {
   AviaryWordmark,
   ShellNavButton,
@@ -5749,9 +5755,10 @@ export default function App() {
                 </section>
 
                 <aside className="aion-settings-side-stack">
-                  <section className="aion-panel aion-settings-proactive-panel">
-                    <p className="aion-settings-card-label">{copy.settings.proactiveTitle}</p>
-                    <h3 className="aion-settings-card-title">{copy.common.proactive}</h3>
+                  <SettingsProactivePanel
+                    label={copy.settings.proactiveTitle}
+                    title={copy.common.proactive}
+                  >
                     <label className="aion-settings-toggle-row">
                       <input
                         className="toggle toggle-primary"
@@ -5766,24 +5773,20 @@ export default function App() {
                         <small>{copy.settings.proactiveBody}</small>
                       </span>
                     </label>
-                  </section>
+                  </SettingsProactivePanel>
 
-                  <section className="aion-settings-save-panel">
-                    <div>
-                      <p className="aion-settings-save-title">{copy.settings.savedState}</p>
-                      <p className="aion-settings-save-body">{copy.settings.saveHint}</p>
-                    </div>
+                  <SettingsSavePanel title={copy.settings.savedState} body={copy.settings.saveHint}>
                     <button className="btn btn-primary" disabled={savingSettings} type="submit">
                       {savingSettings ? copy.common.saving : copy.common.save}
                     </button>
-                  </section>
+                  </SettingsSavePanel>
 
-                  <section className="aion-settings-danger-panel">
-                    <p className="aion-settings-danger-label">{copy.settings.resetTitle}</p>
-                    <h3 className="aion-settings-card-title">{copy.settings.resetAction}</h3>
-                    <p className="aion-settings-card-body">{copy.settings.resetBody}</p>
-                    <p className="aion-settings-help">{copy.settings.resetImpact}</p>
-
+                  <SettingsDangerPanel
+                    label={copy.settings.resetTitle}
+                    title={copy.settings.resetAction}
+                    body={copy.settings.resetBody}
+                    impact={copy.settings.resetImpact}
+                  >
                     <label className="form-control mt-4">
                       <span className="label-text text-base-900">{copy.settings.resetConfirmationLabel}</span>
                       <input
@@ -5806,8 +5809,8 @@ export default function App() {
                       }}
                     >
                       {resettingData ? copy.settings.resetting : copy.settings.resetAction}
-                      </button>
-                  </section>
+                    </button>
+                  </SettingsDangerPanel>
                 </aside>
               </form>
             </div>

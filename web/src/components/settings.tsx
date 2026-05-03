@@ -51,3 +51,65 @@ export function SettingsFact({
     </div>
   );
 }
+
+export function SettingsProactivePanel({
+  label,
+  title,
+  children,
+}: {
+  label: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="aion-panel aion-settings-proactive-panel">
+      <p className="aion-settings-card-label">{label}</p>
+      <h3 className="aion-settings-card-title">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
+export function SettingsSavePanel({
+  title,
+  body,
+  children,
+}: {
+  title: string;
+  body: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="aion-settings-save-panel">
+      <div>
+        <p className="aion-settings-save-title">{title}</p>
+        <p className="aion-settings-save-body">{body}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+export function SettingsDangerPanel({
+  label,
+  title,
+  body,
+  impact,
+  children,
+}: {
+  label: string;
+  title: string;
+  body: string;
+  impact: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="aion-settings-danger-panel">
+      <p className="aion-settings-danger-label">{label}</p>
+      <h3 className="aion-settings-card-title">{title}</h3>
+      <p className="aion-settings-card-body">{body}</p>
+      <p className="aion-settings-help">{impact}</p>
+      {children}
+    </section>
+  );
+}

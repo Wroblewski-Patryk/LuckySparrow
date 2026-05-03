@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+## Fresh Settings Side Panel Extraction (2026-05-03)
+
+- `PRJ-992` is DONE:
+  - `.codex/tasks/PRJ-992-settings-side-panel-extraction.md`
+- result:
+  - added settings side panel components to `web/src/components/settings.tsx`
+  - moved proactive, save, and danger panel chrome out of `web/src/App.tsx`
+  - kept proactive toggle, submit button, reset confirmation, and reset handler
+    ownership in `App()`
+  - updated the frontend route/component map, route cluster audit, and v1
+    roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+- next smallest useful task:
+  - `PRJ-993` extract settings formatting helpers from `web/src/App.tsx`
+
 ## Fresh Settings Card Fact Extraction (2026-05-03)
 
 - `PRJ-991` is DONE:
