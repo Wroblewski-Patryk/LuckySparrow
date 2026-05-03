@@ -11,7 +11,7 @@ timeline row, and tools component extractions.
 | Route branch | Start line in `App.tsx` | Current extraction posture | Recommended next action |
 | --- | ---: | --- | --- |
 | `/dashboard` | 4388 | Large visual flagship branch; partially uses `DashboardSignalCard` and shared panels | Defer broad moves until a screenshot-parity slice is active |
-| `/chat` | 4559 | High-behavior branch with composer, optimistic transcript, markdown rendering, and delivery state | PRJ-1004 selected composer shell extraction next, with send behavior retained in `App()` |
+| `/chat` | 4559 | High-behavior branch with optimistic transcript, markdown rendering, delivery state, and extracted composer shell | PRJ-1005 extracted composer shell chrome; audit transcript message-row extraction next |
 | `/memory` | 4889 | Module-style overview route using shared cards | Good later candidate for route module extraction |
 | `/reflections` | 4984 | Module-style overview route using shared cards | Good later candidate for route module extraction |
 | `/plans` | 5074 | Module-style overview route using shared cards | Good later candidate for route module extraction |
@@ -29,6 +29,7 @@ timeline row, and tools component extractions.
 | --- | --- | --- | --- |
 | Markdown rendering | `renderChatMarkdown` in `web/src/lib/chat-markdown.tsx`; characterization in `web/scripts/chat-markdown-characterization.mjs` | `/chat` | Extracted and characterized in PRJ-1003 |
 | Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts` | `/chat` | Extracted in PRJ-1001 |
+| Chat composer shell | `ChatComposerShell` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1005; send behavior remains in `App()` |
 | Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Deferred in PRJ-998 until provider/integration route ownership is clearer |
 | Metric formatting | `numberValue`, `scaledMetricSize` in `web/src/lib/metric-formatting.ts` | dashboard, automations, integrations, tools summary projections | Extracted in PRJ-999 |
@@ -83,3 +84,12 @@ slice:
 - keep `handleSendMessage`, `chatText`, `sendingMessage`, and optimistic send
   state in `App()`
 - pass quick-action, textarea, and submit behavior through explicit props
+
+`PRJ-1005` implemented that slice with `ChatComposerShell` in
+`web/src/components/chat.tsx`. The component owns only composer presentation
+chrome and receives quick actions, textarea value, labels, icons, and handlers
+through explicit props. `App()` still owns `handleSendMessage`, `chatText`,
+`sendingMessage`, optimistic local transcript reconciliation, and durable
+history refresh. The next safe chat route step is to audit transcript
+message-row presentation extraction now that helper, renderer, and composer
+boundaries are explicit.

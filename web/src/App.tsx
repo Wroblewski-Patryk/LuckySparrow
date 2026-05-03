@@ -44,7 +44,7 @@ import {
   type UiLanguageCode,
 } from "./lib/settings-formatting";
 import { ChevronDownIcon, CloseIcon, MicrophoneIcon, PlusIcon, SendArrowIcon } from "./components/app-icons";
-import { ChatFlowStage } from "./components/chat";
+import { ChatComposerShell, ChatFlowStage } from "./components/chat";
 import { DashboardSignalCard } from "./components/dashboard";
 import { PersonalityTimelineRow } from "./components/personality";
 import { MotifFigurePanel, PublicGlyph } from "./components/public-shell";
@@ -4460,61 +4460,22 @@ export default function App() {
                       })}
                     </div>
 
-                    <div className="aion-chat-composer-zone">
-                      <div className="aion-chat-action-tray">
-                        {chatQuickActions.map((action) => (
-                          <button
-                            key={action}
-                            className={`aion-chat-action-chip ${
-                              chatQuickActions.length === 1 ? "aion-chat-action-chip-solo" : ""
-                            }`}
-                            type="button"
-                            onClick={() => setChatText(action)}
-                          >
-                            {action}
-                          </button>
-                        ))}
-                      </div>
-                      <form className="aion-chat-composer" onSubmit={(event) => void handleSendMessage(event)}>
-                        <div className="aion-chat-mode-tabs" aria-label="Conversation mode">
-                          {["Ask", "Plan", "Reflect", "Execute"].map((mode, index) => (
-                            <span
-                              key={mode}
-                              className={`aion-chat-mode-tab ${index === 0 ? "aion-chat-mode-tab-active" : ""}`}
-                            >
-                              {mode}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="aion-chat-composer-primary">
-                          <button className="aion-chat-icon-button" type="button" aria-label="Add context">
-                            <PlusIcon />
-                          </button>
-                          <div className="aion-chat-input-stack">
-                            <textarea
-                              className="aion-chat-input"
-                              placeholder={copy.chat.placeholder}
-                              value={chatText}
-                              onChange={(event) => setChatText(event.target.value)}
-                            />
-                          </div>
-                          <button className="aion-chat-icon-button hidden sm:inline-flex" type="button" aria-label="Voice input">
-                            <MicrophoneIcon />
-                          </button>
-                          <button
-                            aria-label={copy.chat.send}
-                            className="aion-chat-send"
-                            disabled={sendingMessage}
-                            type="submit"
-                          >
-                            {sendingMessage ? "..." : <SendArrowIcon />}
-                          </button>
-                        </div>
-                      </form>
-                      <p className="aion-chat-composer-note">
-                        AION may make mistakes. Consider checking important information.
-                      </p>
-                    </div>
+                    <ChatComposerShell
+                      quickActions={chatQuickActions}
+                      text={chatText}
+                      placeholder={copy.chat.placeholder}
+                      sending={sendingMessage}
+                      sendLabel={copy.chat.send}
+                      note="AION may make mistakes. Consider checking important information."
+                      addIcon={<PlusIcon />}
+                      voiceIcon={<MicrophoneIcon />}
+                      sendIcon={<SendArrowIcon />}
+                      onQuickAction={setChatText}
+                      onTextChange={setChatText}
+                      onSubmit={(event) => {
+                        void handleSendMessage(event);
+                      }}
+                    />
                   </div>
 
                   <aside className="aion-chat-portrait-panel aion-chat-portrait-panel-elevated">

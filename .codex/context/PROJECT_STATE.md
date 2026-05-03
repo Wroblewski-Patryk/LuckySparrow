@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1005` completed chat composer shell extraction:
+  - task:
+    - `.codex/tasks/PRJ-1005-chat-composer-shell-extraction.md`
+  - result:
+    - added `ChatComposerShell` to `web/src/components/chat.tsx`
+    - moved chat composer shell chrome out of `web/src/App.tsx`
+    - kept `handleSendMessage`, `chatText`, `sendingMessage`, optimistic
+      transcript reconciliation, and history refresh ownership in `App()`
+    - updated the frontend route/component map, route cluster audit, and v1
+      roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1006` audit chat transcript presentation extraction after composer
+      cleanup
+
 - 2026-05-03: `PRJ-1004` completed chat composer shell audit:
   - task:
     - `.codex/tasks/PRJ-1004-chat-composer-shell-audit.md`
