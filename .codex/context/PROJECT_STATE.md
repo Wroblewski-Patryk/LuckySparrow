@@ -2,6 +2,31 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-743` completed flagship polish lane closure:
+  - task:
+    - `.codex/tasks/PRJ-743-dashboard-chat-personality-canonical-polish-and-proof.md`
+  - result:
+    - the dashboard/chat/personality canonical polish task is no longer a stale
+      `IN_PROGRESS` item
+    - active source of truth now points to the newer durable UX baseline docs:
+      `docs/ux/flagship-baseline-transfer.md`,
+      `docs/ux/dashboard-proof-matrix.md`,
+      `docs/ux/personality-module-map.md`, and `docs/ux/design-memory.md`
+    - PRJ-875 remains the current final route-sweep proof anchor for the
+      canonical UI package
+    - remaining dashboard/personality tablet proof, keyboard traversal,
+      touch-target, contrast, and reduced-motion gaps remain explicit follow-up
+      evidence needs
+    - no UI behavior, route contract, backend contract, or duplicate visual
+      system was introduced
+  - validation:
+    - PRJ-743 history, design memory, dashboard proof matrix, personality module
+      map, flagship baseline transfer, and PRJ-875 board proof were reviewed
+    - `git diff --check` passed
+  - next execution priority:
+    - select the next READY task after excluding stale visual tasks already
+      superseded by later canonical proof work
+
 - 2026-05-03: `PRJ-731` completed flagship baseline transfer sync:
   - task:
     - `.codex/tasks/PRJ-731-cross-module-proof-design-memory-update-and-future-app-baseline-sync.md`

@@ -4,8 +4,8 @@
 - ID: PRJ-743
 - Title: Dashboard Chat Personality Canonical Polish And Proof
 - Task Type: design
-- Current Stage: implementation
-- Status: IN_PROGRESS
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-742
 - Priority: P0
@@ -40,9 +40,9 @@ comparison.
 - [x] Validation expectations are explicit for local and deployed proof.
 
 ## Stage Exit Criteria
-- [ ] The output matches the declared `Current Stage`.
-- [ ] Work from later stages was not mixed in without explicit approval.
-- [ ] Risks and assumptions for this stage are stated clearly.
+- [x] The output matches the declared `Current Stage`.
+- [x] Work from later stages was not mixed in without explicit approval.
+- [x] Risks and assumptions for this stage are stated clearly.
 
 ## Forbidden
 - new systems without approval
@@ -54,11 +54,21 @@ comparison.
 ## Validation Evidence
 - Tests:
   - `Push-Location .\web; npm run build; Pop-Location`
+  - Not rerun in the 2026-05-03 closure sync; later route-proof tasks already record successful web builds.
 - Manual checks:
   - reviewed canonical dashboard, chat, and personality references
   - confirmed public production runtime build revision parity through:
     - `GET /health`
     - root HTML build meta tag
+  - 2026-05-03 closure sync reviewed:
+    - `docs/ux/flagship-baseline-transfer.md`
+    - `docs/ux/dashboard-proof-matrix.md`
+    - `docs/ux/personality-module-map.md`
+    - `docs/ux/design-memory.md`
+    - `.codex/context/TASK_BOARD.md`
+  - confirmed later PRJ-875 final route sweep supersedes this in-progress task as the current cross-route proof anchor
+  - confirmed remaining proof gaps are now explicit in durable UX docs instead of hidden in this task body
+  - `git diff --check` passed
 - Screenshots/logs:
   - authenticated deployed screenshot proof now exists in:
     - `.codex/artifacts/production-audit-2026-04-26/dashboard-desktop.png`
@@ -123,16 +133,16 @@ comparison.
   - revert `web/src/` shell and route polish changes
 
 ## Review Checklist (mandatory)
-- [ ] Current stage is declared and respected.
-- [ ] Deliverable for the current stage is complete.
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Current stage is declared and respected.
+- [x] Deliverable for the current stage is complete.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 This task is now active. The first execution pass added:
@@ -415,3 +425,46 @@ Latest dashboard-compaction pass now also complete:
 - validation after this pass:
   - `Push-Location .\web; npm run build; Pop-Location`
   - result: passed on 2026-04-28
+
+2026-05-03 closure sync:
+
+- PRJ-743 is now closed because its implementation and proof history has been
+  superseded by later route-family and canonical proof work, especially:
+  - `PRJ-875` canonical UI final route sweep
+  - `PRJ-728` dashboard proof matrix repair
+  - `PRJ-729` personality module map repair
+  - `PRJ-731` flagship baseline transfer sync
+- durable current references now live in:
+  - `docs/ux/flagship-baseline-transfer.md`
+  - `docs/ux/dashboard-proof-matrix.md`
+  - `docs/ux/personality-module-map.md`
+  - `docs/ux/design-memory.md`
+- remaining gaps are not treated as hidden blockers here:
+  - dashboard-specific tablet proof
+  - personality tablet proof
+  - consistently named keyboard traversal evidence
+  - consistently named touch-target evidence
+  - contrast and reduced-motion review artifacts for future changed routes
+
+## Result Report
+- Goal:
+  - Close the historical dashboard/chat/personality canonical polish lane
+    without duplicating the later canonical proof system.
+- Scope:
+  - Task status synchronization and evidence consolidation only.
+- Implementation Plan:
+  - Verify later proof and baseline docs.
+  - Mark the PRJ-743 task as complete.
+  - Update task board and project state with the current evidence owners.
+- Acceptance Criteria:
+  - PRJ-743 no longer remains a stale `IN_PROGRESS` item.
+  - Current truth points to durable UX proof/baseline docs.
+  - Remaining evidence gaps are explicit.
+- Definition of Done:
+  - Satisfied by existing PRJ-743 implementation history, later PRJ-875 proof,
+    PRJ-728/729/731 documentation repairs, context updates, and `git diff --check`.
+- Result:
+  - PRJ-743 is closed as a historical visual-polish lane.
+- Next:
+  - Select the next READY task from the board after excluding stale visual
+    tasks that already have later closure evidence.
