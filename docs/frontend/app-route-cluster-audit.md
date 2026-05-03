@@ -29,8 +29,8 @@ timeline row, and tools component extractions.
 | --- | --- | --- | --- |
 | Markdown rendering | `renderInlineMarkdown`, `renderMarkdownLines`, `renderChatMarkdown` in `App.tsx` | `/chat` | Behavior-sensitive; needs focused tests before moving |
 | Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `App.tsx` | `/chat` | Candidate for `web/src/lib/chat-formatting.ts` after transcript component extraction |
-| Learned-state summaries | `recentActivityRows`, `summaryLines` in `App.tsx` | dashboard and module routes | Candidate for helper extraction once route modules are split |
-| Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Candidate for a health formatting helper after provider route ownership is clearer |
+| Learned-state summaries | `recentActivityRows`, `summaryLines` in `App.tsx` | dashboard and module routes | Selected for PRJ-997 because the helpers are pure projections and less coupled than health/provider telemetry |
+| Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Defer until provider/integration route ownership is clearer |
 | Settings formatting | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` in `web/src/lib/settings-formatting.ts` | `/settings`, bootstrap | Extracted in PRJ-993 |
 
 ## Next Slice
@@ -44,3 +44,15 @@ the settings formatting helpers.
 
 Chat transcript behavior and dashboard flagship visuals remain higher risk than
 these module-style side-panel shells.
+
+## Helper Extraction Decision
+
+`PRJ-996` compared the remaining helper clusters after module side-panel
+cleanup. The next implementation slice is `PRJ-997`, which should extract
+learned-state summary helpers:
+
+- move `recentActivityRows` and `summaryLines` behind a small learned-state
+  formatting module
+- keep route-specific derived arrays and UI copy in `App()`
+- keep health/channel telemetry helpers in `App()` until integrations/provider
+  route ownership is clearer

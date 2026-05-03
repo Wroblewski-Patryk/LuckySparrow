@@ -2,6 +2,21 @@
 
 Last updated: 2026-05-03
 
+## Fresh Module Helper Extraction Audit (2026-05-03)
+
+- `PRJ-996` is DONE:
+  - `.codex/tasks/PRJ-996-module-helper-extraction-audit.md`
+- result:
+  - compared learned-state summaries against health/channel telemetry helpers
+  - selected learned-state summary helper extraction as the lower-risk next
+    slice
+  - updated the frontend route cluster audit and v1 roadmap
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-997` extract learned-state summary helpers from `web/src/App.tsx`
+
 ## Fresh Module Side Panel Extraction (2026-05-03)
 
 - `PRJ-995` is DONE:
