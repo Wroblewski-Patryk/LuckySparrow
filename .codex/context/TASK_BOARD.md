@@ -33,6 +33,27 @@ Last updated: 2026-05-03
     text-capturing AI red-team runner if final red-team pass/fail evidence is
     prioritized first
 
+## Fresh Cross-User Session Regression Tests (2026-05-03)
+
+- `PRJ-959` is DONE:
+  - `.codex/tasks/PRJ-959-cross-user-session-regression-tests.md`
+- result:
+  - added app-route regressions proving:
+    - two authenticated users see only their own chat-history transcript
+    - resetting user A does not delete user B runtime memory or revoke user B's
+      session
+    - `/app/me` and `/app/chat/history` follow the active session cookie when a
+      client switches between two valid cookies
+  - linked Telegram relink/conflict coverage to the existing memory repository
+    ownership-transfer regression
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "two_authenticated_users or preserves_other_user_runtime_data or active_session_cookie or telegram_link_ownership"; Pop-Location`
+  - result: `3 passed, 119 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py -k "reassigns_telegram_link_ownership_to_latest_user"; Pop-Location`
+  - result: `1 passed, 64 deselected`
+- next smallest useful task:
+  - `PRJ-960` provider payload sentinel regressions
+
 ## Fresh Revision-Aware Production Health Monitor (2026-05-03)
 
 - `PRJ-957` is DONE:
@@ -149,7 +170,10 @@ Last updated: 2026-05-03
     - task: `.codex/tasks/PRJ-958-ai-red-team-scenario-execution.md`
     - result: production run executed 9 scenarios / 21 steps, but final
       behavioral pass/fail scoring needs assistant reply text capture
-  - `PRJ-959` Add cross-user/session regression tests: READY
+  - `PRJ-959` Add cross-user/session regression tests: DONE
+    - task: `.codex/tasks/PRJ-959-cross-user-session-regression-tests.md`
+    - completed in this iteration with app-route two-user transcript, reset,
+      active-cookie switching, and existing Telegram relink ownership evidence
   - `PRJ-960` Add provider payload sentinel regressions: READY
   - `PRJ-961` Add strict-mode incident sentinel regression: READY
   - `PRJ-962` Execute production Telegram live-mode smoke: BLOCKED_EXTERNAL

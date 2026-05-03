@@ -1265,6 +1265,12 @@ def _telegram_update(update_id: int, text: str, *, chat_id: int = 123, user_id: 
     }
 
 
+def _session_cookie(response) -> str:
+    value = response.cookies.get("aion_session")
+    assert value is not None
+    return str(value)
+
+
 def test_health_endpoint_returns_ok() -> None:
     client, _, _ = _client()
 
@@ -5485,6 +5491,229 @@ def test_app_chat_history_excludes_unlinked_telegram_turns_from_authenticated_us
         "evt-app-owned:assistant",
     ]
     assert all(item["channel"] == "api" for item in body["items"])
+
+
+def test_app_chat_history_isolates_two_authenticated_users() -> None:
+    client, _, _ = _client()
+    repository = client.app.state.memory_repository
+    register_a = client.post(
+        "/app/auth/register",
+        json={
+            "email": "user-a@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    assert register_a.status_code == 200
+    user_a_id = register_a.json()["user"]["id"]
+    user_a_cookie = _session_cookie(register_a)
+    register_b = client.post(
+        "/app/auth/register",
+        json={
+            "email": "user-b@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    assert register_b.status_code == 200
+    user_b_id = register_b.json()["user"]["id"]
+    user_b_cookie = _session_cookie(register_b)
+    base_time = datetime(2026, 5, 3, 9, 0, tzinfo=timezone.utc)
+    repository.recent_memory = [
+        {
+            "event_id": "evt-user-a",
+            "source": "api",
+            "user_id": user_a_id,
+            "event_timestamp": base_time,
+            "summary": "User A turn.",
+            "payload": {
+                "event": "alpha private prompt",
+                "expression": "alpha private reply",
+                "response_language": "en",
+            },
+            "importance": 0.7,
+        },
+        {
+            "event_id": "evt-user-b",
+            "source": "api",
+            "user_id": user_b_id,
+            "event_timestamp": base_time + timedelta(minutes=1),
+            "summary": "User B turn.",
+            "payload": {
+                "event": "bravo private prompt",
+                "expression": "bravo private reply",
+                "response_language": "en",
+            },
+            "importance": 0.7,
+        },
+    ]
+
+    client.cookies.set("aion_session", user_a_cookie)
+    history_a = client.get("/app/chat/history")
+    client.cookies.set("aion_session", user_b_cookie)
+    history_b = client.get("/app/chat/history")
+
+    assert history_a.status_code == 200
+    assert history_b.status_code == 200
+    assert [item["text"] for item in history_a.json()["items"]] == [
+        "alpha private prompt",
+        "alpha private reply",
+    ]
+    assert [item["text"] for item in history_b.json()["items"]] == [
+        "bravo private prompt",
+        "bravo private reply",
+    ]
+
+
+def test_app_reset_data_preserves_other_user_runtime_data_and_sessions() -> None:
+    client, _, _ = _client()
+    repository = client.app.state.memory_repository
+    register_a = client.post(
+        "/app/auth/register",
+        json={
+            "email": "reset-a@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    assert register_a.status_code == 200
+    user_a_id = register_a.json()["user"]["id"]
+    user_a_cookie = _session_cookie(register_a)
+    register_b = client.post(
+        "/app/auth/register",
+        json={
+            "email": "reset-b@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    assert register_b.status_code == 200
+    user_b_id = register_b.json()["user"]["id"]
+    user_b_cookie = _session_cookie(register_b)
+    base_time = datetime(2026, 5, 3, 10, 0, tzinfo=timezone.utc)
+    repository.recent_memory = [
+        {
+            "event_id": "evt-reset-a",
+            "source": "api",
+            "user_id": user_a_id,
+            "event_timestamp": base_time,
+            "summary": "User A reset target.",
+            "payload": {
+                "event": "erase only alpha",
+                "expression": "alpha erased",
+                "response_language": "en",
+            },
+            "importance": 0.7,
+        },
+        {
+            "event_id": "evt-reset-b",
+            "source": "api",
+            "user_id": user_b_id,
+            "event_timestamp": base_time + timedelta(minutes=1),
+            "summary": "User B must remain.",
+            "payload": {
+                "event": "keep bravo",
+                "expression": "bravo remains",
+                "response_language": "en",
+            },
+            "importance": 0.7,
+        },
+    ]
+
+    client.cookies.set("aion_session", user_a_cookie)
+    reset_response = client.post(
+        "/app/me/reset-data",
+        json={"confirmation_text": "RESET MY DATA"},
+    )
+
+    assert reset_response.status_code == 200
+    assert reset_response.json()["target_user_id"] == user_a_id
+    assert repository.runtime_reset_calls == [{"user_id": user_a_id}]
+    assert all(item["user_id"] == user_b_id for item in repository.recent_memory)
+    assert [
+        row["revoked_at"] is not None
+        for row in repository.auth_sessions.values()
+        if row["user_id"] == user_a_id
+    ] == [True]
+    assert [
+        row["revoked_at"] is None
+        for row in repository.auth_sessions.values()
+        if row["user_id"] == user_b_id
+    ] == [True]
+
+    client.cookies.set("aion_session", user_b_cookie)
+    history_b = client.get("/app/chat/history")
+    me_b = client.get("/app/me")
+
+    assert history_b.status_code == 200
+    assert [item["text"] for item in history_b.json()["items"]] == [
+        "keep bravo",
+        "bravo remains",
+    ]
+    assert me_b.status_code == 200
+    assert me_b.json()["user"]["email"] == "reset-b@example.com"
+
+
+def test_app_routes_follow_active_session_cookie_when_switching_users() -> None:
+    client, _, _ = _client()
+    repository = client.app.state.memory_repository
+    register_a = client.post(
+        "/app/auth/register",
+        json={
+            "email": "cookie-a@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    assert register_a.status_code == 200
+    user_a_id = register_a.json()["user"]["id"]
+    user_a_cookie = _session_cookie(register_a)
+    register_b = client.post(
+        "/app/auth/register",
+        json={
+            "email": "cookie-b@example.com",
+            "password": "super-secret-123",
+        },
+    )
+    assert register_b.status_code == 200
+    user_b_id = register_b.json()["user"]["id"]
+    user_b_cookie = _session_cookie(register_b)
+    base_time = datetime(2026, 5, 3, 11, 0, tzinfo=timezone.utc)
+    repository.recent_memory = [
+        {
+            "event_id": "evt-cookie-a",
+            "source": "api",
+            "user_id": user_a_id,
+            "event_timestamp": base_time,
+            "summary": "Cookie A turn.",
+            "payload": {"event": "cookie alpha", "expression": "reply alpha"},
+            "importance": 0.7,
+        },
+        {
+            "event_id": "evt-cookie-b",
+            "source": "api",
+            "user_id": user_b_id,
+            "event_timestamp": base_time + timedelta(minutes=1),
+            "summary": "Cookie B turn.",
+            "payload": {"event": "cookie bravo", "expression": "reply bravo"},
+            "importance": 0.7,
+        },
+    ]
+
+    client.cookies.set("aion_session", user_a_cookie)
+    me_a = client.get("/app/me")
+    history_a = client.get("/app/chat/history")
+    client.cookies.set("aion_session", user_b_cookie)
+    me_b = client.get("/app/me")
+    history_b = client.get("/app/chat/history")
+
+    assert me_a.status_code == 200
+    assert me_b.status_code == 200
+    assert me_a.json()["user"]["email"] == "cookie-a@example.com"
+    assert me_b.json()["user"]["email"] == "cookie-b@example.com"
+    assert [item["text"] for item in history_a.json()["items"]] == [
+        "cookie alpha",
+        "reply alpha",
+    ]
+    assert [item["text"] for item in history_b.json()["items"]] == [
+        "cookie bravo",
+        "reply bravo",
+    ]
 
 
 def test_app_chat_message_runs_runtime_under_authenticated_user() -> None:

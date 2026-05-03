@@ -5,7 +5,12 @@ Last updated: 2026-05-03
 ## Status
 
 `PRJ-932` is complete as an audit. No runtime defect was confirmed in this
-pass. Several evidence-depth gaps remain as recommended follow-up tests.
+pass.
+
+`PRJ-959` closes the app-route evidence-depth gaps for two-user chat history,
+single-user reset isolation, and active session-cookie switching. Telegram
+relink/conflict ownership remains covered by the memory repository regression
+`test_memory_repository_reassigns_telegram_link_ownership_to_latest_user`.
 
 Focused validation:
 
@@ -56,35 +61,40 @@ Result:
 
 ## Evidence Gaps
 
-These gaps did not prove a runtime defect in this pass. They are follow-up
-test-depth gaps:
+These gaps did not prove a runtime defect in the audit. Their current status:
 
 - Add an explicit two-user chat-history regression:
   - register user A and user B
   - persist transcript-like memory for both
   - assert user A cannot see user B transcript entries and vice versa
+  - status: `DONE` in `PRJ-959`
 - Add an explicit two-user reset-data regression:
   - register user A and user B
   - seed runtime data for both
   - reset user A with confirmation
   - assert user B data and sessions remain intact
+  - status: `DONE` in `PRJ-959`
 - Add an explicit session-cookie switching regression:
   - hold two valid session cookies
   - switch cookie contexts
   - assert every app overview/history/settings response follows the active
     cookie, not stale client state
+  - status: `DONE` in `PRJ-959`
 - Add an explicit Telegram relink/conflict regression if product policy allows
   resolving a Telegram chat already attached to another backend auth identity.
+  - status: `DONE`; covered by
+    `test_memory_repository_reassigns_telegram_link_ownership_to_latest_user`
 - Execute the PRJ-931 AI red-team scenario pack for behavior-level leakage and
   prompt-injection evidence.
+  - status: `DONE_WITH_REVIEW_REQUIRED` in `PRJ-958`
 
 ## Release Interpretation
 
 Current recommendation:
 
-- `DONE_WITH_FOLLOW_UP_TEST_GAPS`
+- `DONE`
 
-This means the audited server boundaries look aligned with current architecture
-and focused tests passed, but a public release claim should still prefer the
-two-user regression additions above before treating isolation evidence as
-world-class rather than acceptable.
+This means the audited server boundaries look aligned with current
+architecture, and the original app-route evidence-depth gaps are now covered by
+focused regressions. Provider payload, strict-mode incident, and live provider
+credential tests remain separate planned security hardening tasks.

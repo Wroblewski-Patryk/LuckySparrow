@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-959` completed cross-user/session regression tests:
+  - task:
+    - `.codex/tasks/PRJ-959-cross-user-session-regression-tests.md`
+  - result:
+    - added app-route regressions proving:
+      - two authenticated users see only their own chat-history transcript
+      - resetting user A does not delete user B runtime memory or revoke user
+        B's session
+      - `/app/me` and `/app/chat/history` follow the active session cookie when
+        a client switches between two valid cookies
+    - linked Telegram relink/conflict coverage to the existing memory
+      repository ownership-transfer regression
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "two_authenticated_users or preserves_other_user_runtime_data or active_session_cookie or telegram_link_ownership"; Pop-Location`
+    - result: `3 passed, 119 deselected`
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py -k "reassigns_telegram_link_ownership_to_latest_user"; Pop-Location`
+    - result: `1 passed, 64 deselected`
+  - next execution priority:
+    - `PRJ-960` provider payload sentinel regressions
+
 - 2026-05-03: `PRJ-958` completed the first live AI red-team scenario
   execution with `REVIEW_REQUIRED` evidence:
   - task:
