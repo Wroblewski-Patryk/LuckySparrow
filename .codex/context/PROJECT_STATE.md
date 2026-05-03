@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-780` completed canonical sidebar planning closure:
+  - task:
+    - `.codex/tasks/PRJ-780-freeze-canonical-sidebar-layout-and-plan-shell-convergence.md`
+  - result:
+    - the canonical sidebar planning task is no longer a stale `READY` item
+    - later PRJ-781, PRJ-800B, PRJ-868, and PRJ-875 work remains the active
+      sidebar/shell implementation and proof trail
+    - current reusable shell/sidebar truth points to `docs/ux/design-memory.md`,
+      `docs/ux/flagship-baseline-transfer.md`, `web/src/App.tsx`, and
+      `web/src/index.css`
+    - the route-inventory mismatch remains explicit and no route was silently
+      invented
+  - validation:
+    - PRJ-780 history, current sidebar code, design memory, flagship baseline
+      transfer, and later board evidence were reviewed
+    - `git diff --check` passed
+  - next execution priority:
+    - review `PRJ-781` for canonical sidebar desktop spine implementation status
+
 - 2026-05-03: `PRJ-779` completed dashboard structural closure:
   - task:
     - `.codex/tasks/PRJ-779-dashboard-structural-canonical-convergence-pass.md`

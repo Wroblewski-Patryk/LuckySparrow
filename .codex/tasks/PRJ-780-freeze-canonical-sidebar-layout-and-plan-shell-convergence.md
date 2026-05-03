@@ -4,8 +4,8 @@
 - ID: PRJ-780
 - Title: Freeze canonical sidebar layout and plan shell convergence
 - Task Type: design
-- Current Stage: planning
-- Status: READY
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-776, PRJ-779
 - Priority: P1
@@ -55,9 +55,9 @@ Planning output only:
 - stay within the declared current stage unless explicit approval changes it
 
 ## Definition of Done
-- [ ] Canonical sidebar asset is stored in the repo.
-- [ ] Canonical sidebar is recorded in UX source-of-truth docs.
-- [ ] Detailed implementation plan exists for the authenticated sidebar shell pass.
+- [x] Canonical sidebar asset is stored in the repo.
+- [x] Canonical sidebar is recorded in UX source-of-truth docs.
+- [x] Detailed implementation plan exists for the authenticated sidebar shell pass.
 
 ## Stage Exit Criteria
 - [x] The output matches the declared `Current Stage`.
@@ -77,6 +77,14 @@ Planning output only:
 - Manual checks:
   - visual inspection of the supplied sidebar asset
   - sidebar code audit in `web/src/App.tsx` and `web/src/index.css`
+  - 2026-05-03 closure sync reviewed:
+    - `docs/ux/design-memory.md`
+    - `docs/ux/flagship-baseline-transfer.md`
+    - `.codex/context/TASK_BOARD.md`
+    - `web/src/App.tsx`
+    - `web/src/index.css`
+  - confirmed later PRJ-781, PRJ-800B, PRJ-868, and PRJ-875 carry implementation/proof history for sidebar and shell convergence
+  - `git diff --check` passed
 - Screenshots/logs:
   - canonical sidebar source image
 - High-risk checks:
@@ -143,7 +151,7 @@ Planning output only:
 - [x] Definition of Done evidence is attached.
 - [x] Relevant validations were run.
 - [x] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 - The canonical sidebar includes more modules than the current route contract.
@@ -209,3 +217,42 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
   - implement the desktop sidebar shell pass using current route contracts
 - Decisions made:
   - the supplied image is now the single canonical sidebar layout target
+
+## 2026-05-03 Closure Sync
+
+- This task is closed as a completed planning slice.
+- Later implementation/proof work supersedes this task as the active sidebar
+  proof trail:
+  - `PRJ-781` implemented the canonical sidebar desktop spine pass.
+  - `PRJ-800B` refined sidebar pixel-close details.
+  - `PRJ-868` refreshed canonical layout foundation.
+  - `PRJ-875` captured final route-sweep evidence.
+- Current reusable shell/sidebar truth lives in:
+  - `docs/ux/design-memory.md`
+  - `docs/ux/flagship-baseline-transfer.md`
+  - `web/src/App.tsx`
+  - `web/src/index.css`
+- The route-inventory mismatch remains a product-scope decision and should not
+  be solved by silently inventing routes.
+
+## Closure Result Report
+
+- Goal:
+  - Close PRJ-780 as the completed canonical sidebar planning slice.
+- Scope:
+  - Task status synchronization and evidence consolidation only.
+- Implementation Plan:
+  - Verify sidebar planning result, later implementation/proof owners, current
+    shell/sidebar code, and durable UX docs.
+  - Mark task complete and update context truth.
+- Acceptance Criteria:
+  - PRJ-780 no longer remains a stale `READY` item.
+  - Current sidebar truth points to durable docs and later implementation proof.
+  - Route inventory mismatch remains explicit.
+- Definition of Done:
+  - Satisfied by original planning output, later PRJ-781/800B/868/875 evidence,
+    current source review, context updates, and `git diff --check`.
+- Result:
+  - PRJ-780 is closed as a completed canonical sidebar planning task.
+- Next:
+  - Review `PRJ-781` for canonical sidebar desktop spine implementation status.
