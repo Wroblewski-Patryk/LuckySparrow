@@ -2,6 +2,23 @@
 
 Last updated: 2026-05-03
 
+## Fresh App Route Cluster Audit (2026-05-03)
+
+- `PRJ-990` is DONE:
+  - `.codex/tasks/PRJ-990-app-route-cluster-audit.md`
+- result:
+  - added `docs/frontend/app-route-cluster-audit.md`
+  - mapped remaining `web/src/App.tsx` route branches and helper clusters
+  - selected settings preference card/fact extraction as the next lower-risk
+    implementation slice
+  - updated the frontend route/component map and v1 roadmap
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-991` extract settings preference card/fact presentation cluster from
+    `web/src/App.tsx`
+
 ## Fresh Tools Telegram Link Panel Extraction (2026-05-03)
 
 - `PRJ-989` is DONE:

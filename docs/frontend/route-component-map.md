@@ -9,7 +9,8 @@ component refactor. It is grounded in `web/src/App.tsx`,
 `web/src/components/shell.tsx`, `web/src/components/public-shell.tsx`, and
 `web/src/components/app-icons.tsx`, `web/src/components/chat.tsx`, and
 `web/src/components/dashboard.tsx`, `web/src/components/personality.tsx`, and
-`web/src/components/tools.tsx`, and `web/src/index.css`.
+`web/src/components/tools.tsx`, `docs/frontend/app-route-cluster-audit.md`, and
+`web/src/index.css`.
 
 ## Headless Route Smoke
 
@@ -104,6 +105,9 @@ claim component-level separation beyond the extracted route contract.
 | `/settings` | auth required | `api.patchSettings`, `api.resetData`, `api.logout` | Account/interface settings and destructive reset flow | Profile/settings, user data reset, auth session | `backend/tests/test_api_routes.py`, `backend/tests/test_preferences.py`, `backend/tests/test_web_routes.py` |
 
 ## Component And Helper Clusters
+
+See `docs/frontend/app-route-cluster-audit.md` for the current route-local
+extraction queue after the tools route component cleanup.
 
 | Cluster | Functions/Components | Main Routes |
 | --- | --- | --- |
