@@ -13,8 +13,16 @@ const ROUTES = [
   { path: "/login", marker: "aion-public-home", authenticated: false },
   { path: "/dashboard", marker: "aion-dashboard-canvas", authenticated: true },
   { path: "/chat", marker: "aion-chat-workspace", authenticated: true },
-  { path: "/personality", marker: "aion-personality-canvas", authenticated: true },
+  { path: "/memory", marker: "aion-memory-canvas", authenticated: true },
+  { path: "/reflections", marker: "aion-reflections-canvas", authenticated: true },
+  { path: "/plans", marker: "aion-plans-canvas", authenticated: true },
+  { path: "/goals", marker: "aion-goals-canvas", authenticated: true },
+  { path: "/insights", marker: "aion-insights-canvas", authenticated: true },
+  { path: "/automations", marker: "aion-automations-canvas", authenticated: true },
+  { path: "/integrations", marker: "aion-integrations-canvas", authenticated: true },
+  { path: "/settings", marker: "aion-settings-canvas", authenticated: true },
   { path: "/tools", marker: "aion-tools-canvas", authenticated: true },
+  { path: "/personality", marker: "aion-personality-canvas", authenticated: true },
 ];
 
 const MIME_TYPES = {

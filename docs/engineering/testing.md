@@ -51,8 +51,9 @@ Pop-Location
 
 The route smoke serves `web/dist` locally, uses synthetic app-facing API data,
 and runs Chrome or Edge in headless mode. It must not open a visible browser
-window. Use it after route-shell changes and before splitting route ownership
-out of `web/src/App.tsx`.
+window. It checks `/`, `/login`, and every current authenticated route in
+`web/src/routes.ts`. Use it after route-shell changes and before splitting
+route ownership out of `web/src/App.tsx`.
 
 Behavior-validation command (system-debug + scenario harness baseline):
 

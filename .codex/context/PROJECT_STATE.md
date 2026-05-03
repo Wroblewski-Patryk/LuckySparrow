@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-980` completed full route smoke expansion:
+  - task:
+    - `.codex/tasks/PRJ-980-full-route-smoke-expansion.md`
+  - result:
+    - expanded `web/scripts/route-smoke.mjs` from 6 route checks to 14
+    - route smoke now covers `/`, `/login`, and every current authenticated
+      route in `web/src/routes.ts`
+    - deferred shared stat-card extraction one step so broader route refactors
+      are protected by full route-mount coverage
+    - updated testing docs, frontend route map, and v1 roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+  - next execution priority:
+    - `PRJ-981` extract a shared stat-card component cluster from
+      `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-979` completed dashboard signal card extraction:
   - task:
     - `.codex/tasks/PRJ-979-dashboard-signal-card-extraction.md`

@@ -24,8 +24,11 @@ Pop-Location
 
 The smoke serves `web/dist`, supplies synthetic app-facing API responses, runs
 Chrome or Edge headlessly, and checks stable top-level route container markers
-for `/`, `/login`, `/dashboard`, `/chat`, `/personality`, and `/tools`. It is
-a route-mount guard, not a screenshot parity suite.
+for `/`, `/login`, and every current authenticated app route in
+`web/src/routes.ts`: `/dashboard`, `/chat`, `/memory`, `/reflections`,
+`/plans`, `/goals`, `/insights`, `/automations`, `/integrations`, `/settings`,
+`/tools`, and `/personality`. It is a route-mount guard, not a screenshot
+parity suite.
 
 ## Current Ownership Model
 

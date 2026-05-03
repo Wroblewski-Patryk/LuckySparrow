@@ -2,6 +2,26 @@
 
 Last updated: 2026-05-03
 
+## Fresh Full Route Smoke Expansion (2026-05-03)
+
+- `PRJ-980` is DONE:
+  - `.codex/tasks/PRJ-980-full-route-smoke-expansion.md`
+- result:
+  - expanded `web/scripts/route-smoke.mjs` from 6 route checks to 14
+  - route smoke now covers `/`, `/login`, and every current authenticated route
+    in `web/src/routes.ts`
+  - deferred shared stat-card extraction one step so broader route refactors
+    are protected by full route-mount coverage
+  - updated testing docs, frontend route map, and v1 roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+- next smallest useful task:
+  - `PRJ-981` extract a shared stat-card component cluster from
+    `web/src/App.tsx`
+
 ## Fresh Dashboard Signal Card Extraction (2026-05-03)
 
 - `PRJ-979` is DONE:
@@ -627,8 +647,12 @@ Last updated: 2026-05-03
     DONE
     - completed in this iteration by moving duplicated dashboard signal cards
       to `web/src/components/dashboard.tsx`
-  - `PRJ-980` Extract shared stat-card component cluster from `web/src/App.tsx`:
-    READY_AFTER_PRJ-979
+  - `PRJ-980` Expand frontend route smoke before broad stat-card extraction:
+    DONE
+    - completed in this iteration by expanding headless smoke coverage to all
+      current routes
+  - `PRJ-981` Extract shared stat-card component cluster from `web/src/App.tsx`:
+    READY_AFTER_PRJ-980
 
 ## Fresh V1 Deploy Parity Blocker (2026-05-03)
 
