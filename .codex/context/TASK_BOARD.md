@@ -2,6 +2,21 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Composer Shell Audit (2026-05-03)
+
+- `PRJ-1004` is DONE:
+  - `.codex/tasks/PRJ-1004-chat-composer-shell-audit.md`
+- result:
+  - selected chat composer shell extraction as the next chat route slice
+  - kept `handleSendMessage`, `chatText`, `sendingMessage`, and optimistic send
+    ownership in `App()`
+  - updated the frontend route cluster audit and v1 roadmap
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1005` extract chat composer shell from `web/src/App.tsx`
+
 ## Fresh Chat Markdown Characterization (2026-05-03)
 
 - `PRJ-1003` is DONE:

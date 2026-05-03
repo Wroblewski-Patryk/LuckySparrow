@@ -11,7 +11,7 @@ timeline row, and tools component extractions.
 | Route branch | Start line in `App.tsx` | Current extraction posture | Recommended next action |
 | --- | ---: | --- | --- |
 | `/dashboard` | 4388 | Large visual flagship branch; partially uses `DashboardSignalCard` and shared panels | Defer broad moves until a screenshot-parity slice is active |
-| `/chat` | 4559 | High-behavior branch with composer, optimistic transcript, markdown rendering, and delivery state | Extract pure transcript metadata helpers first; defer markdown renderer and composer movement |
+| `/chat` | 4559 | High-behavior branch with composer, optimistic transcript, markdown rendering, and delivery state | PRJ-1004 selected composer shell extraction next, with send behavior retained in `App()` |
 | `/memory` | 4889 | Module-style overview route using shared cards | Good later candidate for route module extraction |
 | `/reflections` | 4984 | Module-style overview route using shared cards | Good later candidate for route module extraction |
 | `/plans` | 5074 | Module-style overview route using shared cards | Good later candidate for route module extraction |
@@ -74,3 +74,12 @@ frontend architecture slice. `PRJ-1001` extracted it:
 the renderer to `web/src/lib/chat-markdown.tsx` and added
 `npm run test:chat-markdown`, a focused characterization proof for inline code,
 bold/italic, lists, paragraph line breaks, and fenced code blocks.
+
+`PRJ-1004` selected chat composer shell extraction as the next safe chat route
+slice:
+
+- move action tray, mode tabs, composer shell, and composer note behind a chat
+  component
+- keep `handleSendMessage`, `chatText`, `sendingMessage`, and optimistic send
+  state in `App()`
+- pass quick-action, textarea, and submit behavior through explicit props
