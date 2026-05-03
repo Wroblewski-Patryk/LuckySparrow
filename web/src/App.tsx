@@ -44,6 +44,7 @@ import {
   ToolsDetailCard,
   ToolsFactCard,
   ToolsSummaryCard,
+  ToolsTelegramLinkPanel,
   ToolsTechnicalDetailPanel,
 } from "./components/tools";
 import { ROUTES, navigate, navigatePublicEntry, normalizeRoute, type RoutePath } from "./routes";
@@ -5975,58 +5976,27 @@ export default function App() {
                               item.user_control.requested_enabled &&
                               item.provider.ready &&
                               item.link_state !== "linked" ? (
-                                <div className="rounded-2xl border border-base-300 px-4 py-4">
-                                  <div className="flex flex-wrap items-start justify-between gap-3">
-                                    <div>
-                                      <p className="text-xs uppercase tracking-[0.18em] text-base-800">
-                                        {copy.tools.telegramLinking}
-                                      </p>
-                                      <p className="mt-2 max-w-2xl text-sm leading-7 text-base-900">
-                                        {copy.tools.telegramInstructionBody}
-                                      </p>
-                                    </div>
-                                    <button
-                                      className="btn btn-primary btn-sm"
-                                      disabled={telegramLinkBusy}
-                                      type="button"
-                                      onClick={() => {
-                                        void handleStartTelegramLink();
-                                      }}
-                                    >
-                                      {telegramLinkBusy
-                                        ? copy.tools.generating
-                                        : telegramLinkStart
-                                          ? copy.tools.rotateCode
-                                          : copy.tools.generateCode}
-                                    </button>
-                                  </div>
-
-                                  {telegramLinkStart ? (
-                                    <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)]">
-                                      <div className="rounded-2xl bg-base-200 p-3">
-                                        <p className="text-xs uppercase tracking-[0.18em] text-base-800">{copy.tools.linkCode}</p>
-                                        <p className="mt-2 font-display text-3xl tracking-[0.18em] text-base-900">
-                                          {telegramLinkStart.link_code}
-                                        </p>
-                                        <p className="mt-2 text-xs text-base-800">
-                                          {copy.tools.expiresInAbout} {telegramLinkStart.expires_in_seconds} {copy.tools.seconds}.
-                                        </p>
-                                      </div>
-                                      <div className="rounded-2xl bg-base-200 p-3">
-                                        <p className="text-xs uppercase tracking-[0.18em] text-base-800">
-                                          {copy.tools.instruction}
-                                        </p>
-                                        <p className="mt-2 text-sm leading-7 text-base-900">
-                                          {telegramLinkStart.instruction_text}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <p className="mt-4 text-sm text-base-800">
-                                      {copy.tools.noLinkCode}
-                                    </p>
-                                  )}
-                                </div>
+                                <ToolsTelegramLinkPanel
+                                  title={copy.tools.telegramLinking}
+                                  body={copy.tools.telegramInstructionBody}
+                                  buttonLabel={
+                                    telegramLinkBusy
+                                      ? copy.tools.generating
+                                      : telegramLinkStart
+                                        ? copy.tools.rotateCode
+                                        : copy.tools.generateCode
+                                  }
+                                  linkStart={telegramLinkStart}
+                                  linkCodeLabel={copy.tools.linkCode}
+                                  expiresInAboutLabel={copy.tools.expiresInAbout}
+                                  secondsLabel={copy.tools.seconds}
+                                  instructionLabel={copy.tools.instruction}
+                                  noLinkCodeLabel={copy.tools.noLinkCode}
+                                  busy={telegramLinkBusy}
+                                  onStart={() => {
+                                    void handleStartTelegramLink();
+                                  }}
+                                />
                               ) : null}
 
                               <details className="aion-tools-details">

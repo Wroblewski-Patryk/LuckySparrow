@@ -99,7 +99,8 @@ current blocker is release reality:
 | PRJ-986 | Extract tools item fact-card component cluster from `web/src/App.tsx` | DONE | `ToolsFactCard` lives in `web/src/components/tools.tsx`; full route smoke passes with `route_count=14` |
 | PRJ-987 | Extract tools detail-card component cluster from `web/src/App.tsx` | DONE | `ToolsDetailCard` lives in `web/src/components/tools.tsx`; full route smoke passes with `route_count=14` |
 | PRJ-988 | Extract tools technical-detail panel component cluster from `web/src/App.tsx` | DONE | `ToolsTechnicalDetailPanel` lives in `web/src/components/tools.tsx`; full route smoke passes with `route_count=14` |
-| PRJ-989 | Audit remaining tools route-local Telegram panel ownership | READY_AFTER_PRJ-988 | decide whether the Telegram link-code panel should stay route-local or move behind a behavior-preserving component |
+| PRJ-989 | Extract tools Telegram link panel from `web/src/App.tsx` | DONE | `ToolsTelegramLinkPanel` lives in `web/src/components/tools.tsx`; route eligibility and link-start handler stay in `App()`; full route smoke passes with `route_count=14` |
+| PRJ-990 | Audit remaining `App.tsx` route-local clusters after tools extraction | READY_AFTER_PRJ-989 | choose the next route/component extraction slice from the current code instead of guessing |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |

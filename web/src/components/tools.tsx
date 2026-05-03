@@ -81,3 +81,74 @@ export function ToolsTechnicalDetailPanel({
     </div>
   );
 }
+
+export function ToolsTelegramLinkPanel({
+  title,
+  body,
+  buttonLabel,
+  linkStart,
+  linkCodeLabel,
+  expiresInAboutLabel,
+  secondsLabel,
+  instructionLabel,
+  noLinkCodeLabel,
+  busy,
+  onStart,
+}: {
+  title: string;
+  body: string;
+  buttonLabel: string;
+  linkStart: {
+    link_code: string;
+    instruction_text: string;
+    expires_in_seconds: number;
+  } | null;
+  linkCodeLabel: string;
+  expiresInAboutLabel: string;
+  secondsLabel: string;
+  instructionLabel: string;
+  noLinkCodeLabel: string;
+  busy: boolean;
+  onStart: () => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-base-300 px-4 py-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.18em] text-base-800">{title}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-base-900">{body}</p>
+        </div>
+        <button
+          className="btn btn-primary btn-sm"
+          disabled={busy}
+          type="button"
+          onClick={onStart}
+        >
+          {buttonLabel}
+        </button>
+      </div>
+
+      {linkStart ? (
+        <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)]">
+          <div className="rounded-2xl bg-base-200 p-3">
+            <p className="text-xs uppercase tracking-[0.18em] text-base-800">{linkCodeLabel}</p>
+            <p className="mt-2 font-display text-3xl tracking-[0.18em] text-base-900">
+              {linkStart.link_code}
+            </p>
+            <p className="mt-2 text-xs text-base-800">
+              {expiresInAboutLabel} {linkStart.expires_in_seconds} {secondsLabel}.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-base-200 p-3">
+            <p className="text-xs uppercase tracking-[0.18em] text-base-800">{instructionLabel}</p>
+            <p className="mt-2 text-sm leading-7 text-base-900">
+              {linkStart.instruction_text}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-4 text-sm text-base-800">{noLinkCodeLabel}</p>
+      )}
+    </div>
+  );
+}

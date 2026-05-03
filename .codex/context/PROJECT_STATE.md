@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-989` completed tools Telegram link panel extraction:
+  - task:
+    - `.codex/tasks/PRJ-989-tools-telegram-link-panel-extraction.md`
+  - result:
+    - added `ToolsTelegramLinkPanel` to `web/src/components/tools.tsx`
+    - moved Telegram link-code panel presentation out of `web/src/App.tsx`
+    - kept route eligibility, busy state, generated-code state, and
+      `handleStartTelegramLink()` ownership in `App()`
+    - updated the frontend route/component map and v1 roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+  - next execution priority:
+    - `PRJ-990` audit remaining `App.tsx` route-local clusters after tools
+      extraction
+
 - 2026-05-03: `PRJ-988` completed tools technical-detail panel extraction:
   - task:
     - `.codex/tasks/PRJ-988-tools-technical-detail-panel-extraction.md`
