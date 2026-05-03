@@ -4,8 +4,8 @@
 - ID: PRJ-795
 - Title: Freeze shared canonical persona figure and apply it to flagship routes
 - Task Type: design
-- Current Stage: implementation
-- Status: IN_PROGRESS
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-784
 - Priority: P1
@@ -96,6 +96,16 @@ One frontend and documentation slice that:
   - `git diff --check -- web/src/App.tsx web/src/index.css docs/ux/design-memory.md docs/ux/canonical-web-screen-reference-set.md docs/ux/aion-visual-motif-system.md docs/ux/background-and-decorative-asset-strategy.md .codex/context/PROJECT_STATE.md .codex/context/TASK_BOARD.md .codex/tasks/PRJ-795-freeze-shared-canonical-persona-figure-and-dashboard-pass.md`
 - Manual checks:
   - verified there are no remaining active web-shell references to `aion-personality-figure-reference-v1.png`
+  - 2026-05-03 closure sync reviewed `docs/ux/design-memory.md`,
+    `docs/ux/flagship-baseline-transfer.md`, `web/src/App.tsx`,
+    `web/src/index.css`, `.codex/context/TASK_BOARD.md`, and
+    `.codex/context/PROJECT_STATE.md`
+  - confirmed current source keeps `CANONICAL_PERSONA_FIGURE_SRC` for shared
+    persona identity surfaces and approved route-specific hero assets for
+    landing and dashboard
+  - confirmed later `PRJ-796`, `PRJ-800F`, `PRJ-870`, `PRJ-871`, and
+    `PRJ-875` carry active route adaptation and proof history
+  - `git diff --check` passed
 - Screenshots/logs:
   - frontend production build completed successfully
 - High-risk checks:
@@ -165,11 +175,32 @@ One frontend and documentation slice that:
 - [x] Definition of Done evidence is attached.
 - [x] Relevant validations were run.
 - [x] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Notes
 - This slice focuses on freezing the shared persona rule and applying it where
   current flagship routes already host an embodied figure.
+- Later route-specific hero assets such as the approved landing and dashboard
+  rasters are allowed when they preserve one coherent Aviary identity and
+  adapt the props/crop to route purpose.
+
+## 2026-05-03 Closure Sync
+
+- This is a historical shared-persona freeze slice, no longer an active
+  `IN_PROGRESS` task.
+- Current durable rule lives in `docs/ux/design-memory.md`: reuse one approved
+  Aviary persona family across flagship routes, then adapt crop, callout map,
+  and supporting objects to the route context.
+- Current source still exposes `CANONICAL_PERSONA_FIGURE_SRC` for shared
+  persona identity surfaces, while `LANDING_HERO_ART_SRC` and
+  `DASHBOARD_HERO_ART_SRC` represent later approved route-specific hero
+  artwork derived from the same identity direction.
+- Later proof owners:
+  - `PRJ-796` chat shared-persona adaptation
+  - `PRJ-800F` dashboard route-corrected hero artwork
+  - `PRJ-870` dashboard `99%` evidence pass
+  - `PRJ-871` personality `99%` canonical pass
+  - `PRJ-875` final canonical UI route sweep
 
 ## Production-Grade Required Contract
 
@@ -239,3 +270,30 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
   - the shared canonical persona now comes from the user-approved `tools`
     artwork and supersedes the older route-local figure asset for current
     flagship reuse
+
+## Closure Result Report
+
+- Goal:
+  - close stale `PRJ-795` after confirming shared persona continuity is now a
+    durable design rule with later route-specific proof
+- Scope:
+  - task status, task evidence, and context sync only
+- Implementation Plan:
+  - verify current design memory and source constants
+  - record later proof owners
+  - mark the historical task done
+  - update project context and task board
+- Acceptance Criteria:
+  - no stale `IN_PROGRESS` state remains for `PRJ-795`
+  - shared persona continuity remains explicit
+  - later route-specific hero assets are not mistaken for drift when they keep
+    the same Aviary identity direction
+- Definition of Done:
+  - original validation evidence is preserved
+  - current source review is recorded
+  - later proof ownership is recorded
+  - context files are updated
+  - `git diff --check` passes
+- Next:
+  - review `PRJ-800F` dashboard editorial parity lane, which remains the next
+    visible active flagship surface in the historical queue

@@ -2,6 +2,29 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-795` completed shared persona freeze closure:
+  - task:
+    - `.codex/tasks/PRJ-795-freeze-shared-canonical-persona-figure-and-dashboard-pass.md`
+  - result:
+    - the shared canonical persona figure task is no longer a stale
+      `IN_PROGRESS` item
+    - design memory keeps the durable rule: reuse one approved Aviary persona
+      family across flagship routes and adapt crop/callouts/supporting objects
+      to route context
+    - current source keeps `CANONICAL_PERSONA_FIGURE_SRC` for shared persona
+      identity surfaces
+    - approved route-specific hero assets such as `LANDING_HERO_ART_SRC` and
+      `DASHBOARD_HERO_ART_SRC` are treated as later route adaptation, not a new
+      character system
+    - later PRJ-796, PRJ-800F, PRJ-870, PRJ-871, and PRJ-875 work remains the
+      active route-adaptation and proof history
+  - validation:
+    - PRJ-795 history, design memory, flagship baseline transfer, current
+      source constants, and later board/project-state proof were reviewed
+    - `git diff --check` passed
+  - next execution priority:
+    - review `PRJ-800F` dashboard editorial parity lane
+
 - 2026-05-03: `PRJ-785` completed backend architecture audit closure:
   - task:
     - `.codex/tasks/PRJ-785-backend-architecture-quality-audit-and-improvement-plan.md`
