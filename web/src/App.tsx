@@ -68,6 +68,7 @@ import {
   ModuleRouteSidePanel,
   ModuleRouteSideRow,
   ModuleStatRow,
+  ModuleTextCardList,
   RouteNoteCard,
   RouteHeroPanel,
   RouteStatCard,
@@ -4584,14 +4585,7 @@ export default function App() {
                   <section className="aion-reflections-side-panel aion-reflections-side-panel-prompts">
                     <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.reflections.recent}</p>
                     <h3 className="mt-2 font-display text-2xl text-base-900">{copy.reflections.promptsTitle}</h3>
-                    <div className="mt-5 grid gap-3">
-                      {reflectionPromptCards.map((item) => (
-                        <article key={item.title} className="aion-reflections-prompt-card">
-                          <h4 className="aion-reflections-prompt-title">{item.title}</h4>
-                          <p className="aion-reflections-prompt-body">{item.body}</p>
-                        </article>
-                      ))}
-                    </div>
+                    <ModuleTextCardList routeKey="reflections" cardKey="prompt" items={reflectionPromptCards} />
                   </section>
 
                   <section className="aion-reflections-side-panel">
@@ -4664,14 +4658,7 @@ export default function App() {
                   <section className="aion-plans-side-panel aion-plans-side-panel-next">
                     <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.plans.nextStep}</p>
                     <h3 className="mt-2 font-display text-2xl text-base-900">{copy.plans.planningSuggestions}</h3>
-                    <div className="mt-5 grid gap-3">
-                      {plansNextSteps.map((item) => (
-                        <article key={item.title} className="aion-plans-step-card">
-                          <h4 className="aion-plans-step-title">{item.title}</h4>
-                          <p className="aion-plans-step-body">{item.body}</p>
-                        </article>
-                      ))}
-                    </div>
+                    <ModuleTextCardList routeKey="plans" cardKey="step" items={plansNextSteps} />
                   </section>
 
                   <section className="aion-plans-side-panel">
@@ -4757,14 +4744,7 @@ export default function App() {
                   <section className="aion-goals-side-panel aion-goals-side-panel-signals">
                     <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.goals.momentum}</p>
                     <h3 className="mt-2 font-display text-2xl text-base-900">{copy.goals.goalSignals}</h3>
-                    <div className="mt-5 grid gap-3">
-                      {goalSignalCards.map((item) => (
-                        <article key={item.title} className="aion-goals-signal-card">
-                          <h4 className="aion-goals-signal-title">{item.title}</h4>
-                          <p className="aion-goals-signal-body">{item.body}</p>
-                        </article>
-                      ))}
-                    </div>
+                    <ModuleTextCardList routeKey="goals" cardKey="signal" items={goalSignalCards} />
                   </section>
 
                   <section className="aion-goals-side-panel">

@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+## Fresh Module Text Card List Extraction (2026-05-03)
+
+- `PRJ-1025` is DONE:
+  - `.codex/tasks/PRJ-1025-module-text-card-list-extraction.md`
+- result:
+  - added `ModuleTextCardList` to `web/src/components/shared.tsx`
+  - replaced repeated title/body card map markup for `/reflections`,
+    `/plans`, and `/goals`
+  - preserved route-specific CSS selectors through explicit `routeKey` and
+    `cardKey`
+  - kept all card arrays and route data construction in `App()`
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1026` audit next module cleanup target after text card list extraction
+
 ## Fresh Module Text Card List Audit (2026-05-03)
 
 - `PRJ-1024` is DONE:

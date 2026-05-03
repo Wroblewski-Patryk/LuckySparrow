@@ -267,3 +267,11 @@ route/card keys, keeps all card data and copy construction in `App()`, and
 avoids the higher-risk decorative goal horizon panel. Memory signal cards are
 deferred because they include a `meta` field; plans/goals dot-row context lists
 are deferred because their chrome differs from the simple title/body cards.
+
+`PRJ-1025` implemented that slice with `ModuleTextCardList` in
+`web/src/components/shared.tsx`. `/reflections` prompt cards, `/plans`
+next-step cards, and `/goals` signal cards now share the same title/body
+card-list component while preserving their route-specific class selectors and
+keeping all route data arrays in `App()`. The next module cleanup target should
+be audited separately before touching memory signal cards, dot-row
+guidance/context lists, or decorative route panels.

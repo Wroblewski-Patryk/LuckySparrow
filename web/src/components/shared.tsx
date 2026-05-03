@@ -168,6 +168,30 @@ export function ModuleActivityList({
   );
 }
 
+export function ModuleTextCardList({
+  routeKey,
+  cardKey,
+  items,
+}: {
+  routeKey: string;
+  cardKey: string;
+  items: Array<{
+    title: ReactNode;
+    body: ReactNode;
+  }>;
+}) {
+  return (
+    <div className="mt-5 grid gap-3">
+      {items.map((item) => (
+        <article key={String(item.title)} className={`aion-${routeKey}-${cardKey}-card`}>
+          <h4 className={`aion-${routeKey}-${cardKey}-title`}>{item.title}</h4>
+          <p className={`aion-${routeKey}-${cardKey}-body`}>{item.body}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export function RouteHeroPanel({
   eyebrow,
   title,
