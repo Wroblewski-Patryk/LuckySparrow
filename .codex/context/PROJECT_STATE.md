@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1033` completed dead channel helper removal:
+  - task:
+    - `.codex/tasks/PRJ-1033-remove-unused-conversation-channel-status.md`
+  - result:
+    - removed unused `conversationChannelStatus`
+    - removed local `ConversationChannelStatus` and `lastState`
+    - removed stale `AppHealthTelegramChannel` import
+    - updated frontend docs so the helper is no longer mapped as live ownership
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1034` audit next live frontend route/helper cleanup after dead
+      channel helper removal
+
 - 2026-05-03: `PRJ-1032` completed dead channel helper audit:
   - task:
     - `.codex/tasks/PRJ-1032-next-frontend-architecture-after-automations-audit.md`

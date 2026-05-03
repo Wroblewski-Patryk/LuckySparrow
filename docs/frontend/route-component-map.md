@@ -133,7 +133,7 @@ extraction queue after the tools route component cleanup.
 | Tools components | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` in `web/src/components/tools.tsx` | `/tools` |
 | Settings components | `SettingsCard`, `SettingsFact`, `SettingsProactivePanel`, `SettingsSavePanel`, `SettingsDangerPanel` in `web/src/components/settings.tsx` | `/settings` |
 | Profile/settings helpers | `normalizeUiLanguage`, `resolveUiLanguage`, `normalizeUtcOffset`, `utcOffsetOption`, `localeOptionDisplay` in `web/src/lib/settings-formatting.ts` | `/settings`, bootstrap |
-| Learned-state helpers | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts`; `conversationChannelStatus` and route-derived summaries remain in `App.tsx` | dashboard, personality, memory, reflections, plans, goals, insights, automations |
+| Learned-state helpers | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts`; route-derived summaries remain in `App.tsx` | dashboard, personality, memory, reflections, plans, goals, insights, automations |
 
 ## Gaps
 

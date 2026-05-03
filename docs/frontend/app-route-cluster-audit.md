@@ -324,3 +324,9 @@ are the type and function declarations. The next implementation slice is
 therefore dead-code removal, not helper extraction. Live provider/health helper
 movement, integrations provider rows, memory signal cards, and decorative panels
 remain deferred for separate audits.
+
+`PRJ-1033` removed that unused helper, its local `ConversationChannelStatus`
+type, its `lastState` helper, and the stale `AppHealthTelegramChannel` import.
+No live route behavior changed. Future provider/health cleanup should start
+from currently used data projections, not from the removed channel-status
+helper.
