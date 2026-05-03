@@ -40,6 +40,8 @@ import {
   FlowRail,
   InsightPanel,
   ModuleEntryCard,
+  ModuleRouteSidePanel,
+  ModuleRouteSideRow,
   RouteNoteCard,
   RouteHeroPanel,
   RouteStatCard,
@@ -5320,9 +5322,12 @@ export default function App() {
                 </section>
 
                 <aside className="aion-insights-side-stack">
-                  <section className="aion-insights-side-panel aion-insights-side-panel-clarity">
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.insights.clarity}</p>
-                    <h3 className="mt-2 font-display text-2xl text-base-900">{copy.insights.sensemakingNotes}</h3>
+                  <ModuleRouteSidePanel
+                    routeKey="insights"
+                    eyebrow={copy.insights.clarity}
+                    title={copy.insights.sensemakingNotes}
+                    variant="clarity"
+                  >
                     <div className="mt-5 grid gap-3">
                       {insightClarityCards.map((item) => (
                         <RouteNoteCard
@@ -5333,22 +5338,21 @@ export default function App() {
                         />
                       ))}
                     </div>
-                  </section>
+                  </ModuleRouteSidePanel>
 
-                  <section className="aion-insights-side-panel">
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.insights.guidanceCandidates}</p>
+                  <ModuleRouteSidePanel routeKey="insights" eyebrow={copy.insights.guidanceCandidates}>
                     <div className="mt-4 grid gap-3">
                       {insightGuidanceCards.map((card) => (
-                        <article key={card.title} className="aion-insights-guidance-row">
-                          <span className="aion-insights-guidance-dot" aria-hidden="true" />
-                          <div>
-                            <p className="text-sm font-semibold text-base-900">{card.title}</p>
-                            <p className="mt-1 text-sm leading-6 text-base-800">{card.body}</p>
-                          </div>
-                        </article>
+                        <ModuleRouteSideRow
+                          key={card.title}
+                          routeKey="insights"
+                          rowKey="guidance"
+                          title={card.title}
+                          body={card.body}
+                        />
                       ))}
                     </div>
-                  </section>
+                  </ModuleRouteSidePanel>
                 </aside>
               </div>
             </div>
@@ -5416,9 +5420,12 @@ export default function App() {
                 </section>
 
                 <aside className="aion-automations-side-stack">
-                  <section className="aion-automations-side-panel aion-automations-side-panel-boundary">
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.automations.boundary}</p>
-                    <h3 className="mt-2 font-display text-2xl text-base-900">{copy.automations.guardrails}</h3>
+                  <ModuleRouteSidePanel
+                    routeKey="automations"
+                    eyebrow={copy.automations.boundary}
+                    title={copy.automations.guardrails}
+                    variant="boundary"
+                  >
                     <div className="mt-5 grid gap-3">
                       {automationBoundaryCards.map((item) => (
                         <RouteNoteCard
@@ -5429,22 +5436,21 @@ export default function App() {
                         />
                       ))}
                     </div>
-                  </section>
+                  </ModuleRouteSidePanel>
 
-                  <section className="aion-automations-side-panel">
-                    <p className="text-sm uppercase tracking-[0.24em] text-base-800">{copy.automations.healthDetails}</p>
+                  <ModuleRouteSidePanel routeKey="automations" eyebrow={copy.automations.healthDetails}>
                     <div className="mt-4 grid gap-3">
                       {automationHealthRows.map((item) => (
-                        <article key={item.title} className="aion-automations-health-row">
-                          <span className="aion-automations-health-dot" aria-hidden="true" />
-                          <div>
-                            <p className="text-sm font-semibold text-base-900">{item.title}</p>
-                            <p className="mt-1 text-sm leading-6 text-base-800">{item.body}</p>
-                          </div>
-                        </article>
+                        <ModuleRouteSideRow
+                          key={item.title}
+                          routeKey="automations"
+                          rowKey="health"
+                          title={item.title}
+                          body={item.body}
+                        />
                       ))}
                     </div>
-                  </section>
+                  </ModuleRouteSidePanel>
                 </aside>
               </div>
             </div>

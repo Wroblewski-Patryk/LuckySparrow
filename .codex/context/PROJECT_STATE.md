@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-995` completed module side panel extraction:
+  - task:
+    - `.codex/tasks/PRJ-995-module-side-panel-extraction.md`
+  - result:
+    - added `ModuleRouteSidePanel` and `ModuleRouteSideRow` to
+      `web/src/components/shared.tsx`
+    - moved insights/automations side-panel and row chrome behind route-keyed
+      shared components
+    - kept derived row data in `web/src/App.tsx`
+    - updated the frontend route/component map, route cluster audit, and v1
+      roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+  - next execution priority:
+    - `PRJ-996` audit module route helper extraction after side-panel cleanup
+
 - 2026-05-03: `PRJ-994` completed post-settings route cluster audit:
   - task:
     - `.codex/tasks/PRJ-994-post-settings-route-cluster-audit.md`

@@ -188,6 +188,52 @@ export function RouteNoteCard({
   );
 }
 
+export function ModuleRouteSidePanel({
+  routeKey,
+  eyebrow,
+  title,
+  variant,
+  children,
+}: {
+  routeKey: string;
+  eyebrow: ReactNode;
+  title?: ReactNode;
+  variant?: string;
+  children: ReactNode;
+}) {
+  const variantClass = variant ? ` aion-${routeKey}-side-panel-${variant}` : "";
+
+  return (
+    <section className={`aion-${routeKey}-side-panel${variantClass}`}>
+      <p className="text-sm uppercase tracking-[0.24em] text-base-800">{eyebrow}</p>
+      {title ? <h3 className="mt-2 font-display text-2xl text-base-900">{title}</h3> : null}
+      {children}
+    </section>
+  );
+}
+
+export function ModuleRouteSideRow({
+  routeKey,
+  rowKey,
+  title,
+  body,
+}: {
+  routeKey: string;
+  rowKey: string;
+  title: ReactNode;
+  body: ReactNode;
+}) {
+  return (
+    <article className={`aion-${routeKey}-${rowKey}-row`}>
+      <span className={`aion-${routeKey}-${rowKey}-dot`} aria-hidden="true" />
+      <div>
+        <p className="text-sm font-semibold text-base-900">{title}</p>
+        <p className="mt-1 text-sm leading-6 text-base-800">{body}</p>
+      </div>
+    </article>
+  );
+}
+
 export function FeedbackBanner({
   tone,
   title,
