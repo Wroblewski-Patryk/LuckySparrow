@@ -48,6 +48,7 @@ import {
   ChatCognitiveBelt,
   ChatComposerShell,
   ChatFlowStage,
+  ChatTopbar,
   ChatTranscriptMessageRow,
   type ChatCognitiveBeltItem,
 } from "./components/chat";
@@ -4370,23 +4371,12 @@ export default function App() {
           {route === "/chat" ? (
             <section className="grid gap-4">
               <section className="aion-chat-workspace">
-                <div className="aion-chat-topbar">
-                  <div className="aion-chat-headline">
-                    <div>
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <h2 className="aion-chat-title">Conversation</h2>
-                      <span className="aion-chat-live-status">
-                        <span className="aion-chat-live-status-dot" />
-                        {chatActiveSummary}
-                      </span>
-                    </div>
-                    </div>
-                  </div>
-                  <div className="aion-chat-route-posture">
-                    <span>{chatLinkedChannelsStatus}</span>
-                    <span>{stringValue(me?.settings.preferred_language, "adaptive")}</span>
-                  </div>
-                </div>
+                <ChatTopbar
+                  title="Conversation"
+                  activeSummary={chatActiveSummary}
+                  linkedChannelsLabel={chatLinkedChannelsStatus}
+                  preferredLanguageLabel={stringValue(me?.settings.preferred_language, "adaptive")}
+                />
 
                 <ChatCognitiveBelt
                   items={chatCognitiveBelt}

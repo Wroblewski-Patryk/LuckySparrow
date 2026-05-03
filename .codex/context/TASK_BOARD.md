@@ -2,6 +2,28 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Topbar Extraction (2026-05-03)
+
+- `PRJ-1011` is DONE:
+  - `.codex/tasks/PRJ-1011-chat-topbar-extraction.md`
+- result:
+  - added `ChatTopbar` to `web/src/components/chat.tsx`
+  - moved chat headline, live-status, and route-posture presentation out of
+    `web/src/App.tsx`
+  - kept `chatActiveSummary`, `chatLinkedChannelsStatus`,
+    preferred-language fallback formatting, and route data derivation in
+    `App()`
+  - updated frontend route/component map, route cluster audit, and v1 roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1012` audit next chat extraction target after topbar cleanup
+
 ## Fresh Chat Extraction Target Audit (2026-05-03)
 
 - `PRJ-1010` is DONE:

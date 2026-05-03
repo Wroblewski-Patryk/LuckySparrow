@@ -32,6 +32,7 @@ timeline row, and tools component extractions.
 | Chat transcript row | `ChatTranscriptMessageRow` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1007; mapping, refs, delivery, timestamp, and markdown remain in `App()` |
 | Chat composer shell | `ChatComposerShell` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1005; send behavior remains in `App()` |
 | Chat cognitive belt | `ChatCognitiveBelt` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1009; card data and goal-progress derivation remain in `App()` |
+| Chat topbar | `ChatTopbar` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1011; active summary and posture labels remain in `App()` |
 | Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Deferred in PRJ-998 until provider/integration route ownership is clearer |
 | Metric formatting | `numberValue`, `scaledMetricSize` in `web/src/lib/metric-formatting.ts` | dashboard, automations, integrations, tools summary projections | Extracted in PRJ-999 |
@@ -142,3 +143,10 @@ topbar, portrait/support panel, or transcript shell ownership.
   formatting, and all route data derivation in `App()`
 - defer portrait/support panel because it is visual-composition sensitive
 - defer transcript shell/container because it owns loading state and refs
+
+`PRJ-1011` implemented that slice with `ChatTopbar` in
+`web/src/components/chat.tsx`. The component owns only headline, live-status,
+and route-posture presentation. `App()` still owns `chatActiveSummary`,
+`chatLinkedChannelsStatus`, preferred-language fallback formatting, and all
+route data derivation. Portrait/support panel and transcript shell remain
+deferred until separate audits.

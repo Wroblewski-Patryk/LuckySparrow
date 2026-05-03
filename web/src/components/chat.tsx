@@ -32,6 +32,36 @@ export function ChatFlowStage({
   );
 }
 
+export function ChatTopbar({
+  title,
+  activeSummary,
+  linkedChannelsLabel,
+  preferredLanguageLabel,
+}: {
+  title: string;
+  activeSummary: string;
+  linkedChannelsLabel: string;
+  preferredLanguageLabel: string;
+}) {
+  return (
+    <div className="aion-chat-topbar">
+      <div className="aion-chat-headline">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h2 className="aion-chat-title">{title}</h2>
+          <span className="aion-chat-live-status">
+            <span className="aion-chat-live-status-dot" />
+            {activeSummary}
+          </span>
+        </div>
+      </div>
+      <div className="aion-chat-route-posture">
+        <span>{linkedChannelsLabel}</span>
+        <span>{preferredLanguageLabel}</span>
+      </div>
+    </div>
+  );
+}
+
 export const ChatTranscriptMessageRow = forwardRef<
   HTMLDivElement,
   {
