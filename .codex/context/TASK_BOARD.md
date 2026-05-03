@@ -2,6 +2,32 @@
 
 Last updated: 2026-05-03
 
+## Fresh PRJ-643 Channel-Aware Delivery Status Closure (2026-05-03)
+
+- `PRJ-643` is DONE:
+  - `.codex/tasks/PRJ-643-freeze-channel-aware-delivery-constraint-baseline.md`
+- result:
+  - normalized the stale `BACKLOG` task file to `DONE`
+  - preserved the completed channel-aware delivery baseline:
+    - channel adaptation belongs below expression, inside action/delivery
+      ownership
+    - Telegram segmentation and formatting are explicit delivery-layer rules
+    - future UI/API channels can declare separate limits and formatting
+      capabilities
+  - completed follow-up owners remain:
+    - `PRJ-644`
+    - `PRJ-645`
+    - `PRJ-646`
+- validation:
+  - reviewed PRJ-643, PRJ-644, PRJ-645, PRJ-646, project state, testing
+    guidance, ops runbook, agent contracts, and planning truth
+  - `Select-String` evidence search was used because `rg` returned access
+    denied in this shell
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - audit remaining `BLOCKED` tasks and leave only true external blockers open
+
 ## Fresh PRJ-742 Dashboard Route Status Normalization (2026-05-03)
 
 - `PRJ-742` is DONE:
