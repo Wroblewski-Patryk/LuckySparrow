@@ -2,6 +2,32 @@
 
 Last updated: 2026-05-03
 
+## Fresh PRJ-829 Authenticated Sidebar Final Rhythm Closure (2026-05-03)
+
+- `PRJ-829` is DONE:
+  - `.codex/tasks/PRJ-829-authenticated-sidebar-final-gap-and-copy-rhythm-pass.md`
+- result:
+  - the authenticated sidebar final gap and copy rhythm pass is no longer a
+    stale `IN_PROGRESS` item
+  - historical implementation is preserved:
+    - tighter rail-to-canvas proportion and shell gap
+    - calmer rail padding and shadow weight
+    - tighter lower-stack spacing and micro-typography rhythm
+  - current source keeps the shared authenticated rail and support-stack CSS
+    as the active sidebar implementation
+  - later proof owners remain:
+    - `PRJ-868` canonical layout foundation
+    - `PRJ-875` canonical UI final route sweep
+    - `docs/ux/flagship-baseline-transfer.md`
+- validation:
+  - reviewed PRJ-829 task history, current sidebar source, design memory,
+    flagship baseline transfer, and later board/project proof
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - review `PRJ-830` authenticated sidebar quote CSS consolidation pass for
+    stale status
+
 ## Fresh PRJ-828 Authenticated Sidebar Support CSS Ownership Closure (2026-05-03)
 
 - `PRJ-828` is DONE:

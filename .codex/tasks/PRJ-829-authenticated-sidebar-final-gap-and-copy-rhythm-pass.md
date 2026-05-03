@@ -4,8 +4,8 @@
 - ID: PRJ-829
 - Title: Authenticated sidebar final gap and copy rhythm pass
 - Task Type: design
-- Current Stage: implementation
-- Status: IN_PROGRESS
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-828
 - Priority: P1
@@ -58,14 +58,14 @@ A bounded authenticated-sidebar refinement pass plus synced task/context notes.
 - stay within the declared current stage unless explicit approval changes it
 
 ## Definition of Done
-- [ ] Sidebar proportion and copy-rhythm refinements are implemented.
-- [ ] Context is synced.
-- [ ] Focused validation evidence is attached.
+- [x] Sidebar proportion and copy-rhythm refinements are implemented.
+- [x] Context is synced.
+- [x] Focused validation evidence is attached.
 
 ## Stage Exit Criteria
-- [ ] The output matches the declared `Current Stage`.
-- [ ] Work from later stages was not mixed in without explicit approval.
-- [ ] Risks and assumptions for this stage are stated clearly.
+- [x] The output matches the declared `Current Stage`.
+- [x] Work from later stages was not mixed in without explicit approval.
+- [x] Risks and assumptions for this stage are stated clearly.
 
 ## Forbidden
 - new systems without approval
@@ -128,20 +128,40 @@ A bounded authenticated-sidebar refinement pass plus synced task/context notes.
 - Staged rollout or feature flag: no
 
 ## Review Checklist (mandatory)
-- [ ] Current stage is declared and respected.
-- [ ] Deliverable for the current stage is complete.
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Current stage is declared and respected.
+- [x] Deliverable for the current stage is complete.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal update was not required; no new recurring pitfall was
+  confirmed in this closure sync.
 
 ## Notes
 This slice is intended as the final pre-proof sidebar refinement before moving
 to the next canonical surface group.
+
+## Closure Sync - 2026-05-03
+
+- Current release status:
+  - DONE as a historical authenticated-sidebar final rhythm slice.
+- Current source truth:
+  - `web/src/App.tsx` keeps the shared authenticated rail and support-stack
+    structure.
+  - `web/src/index.css` keeps the rail-to-canvas proportion, rail padding,
+    shadow, lower-stack spacing, and micro-typography refinements from this
+    slice.
+- Superseding proof owners:
+  - `PRJ-868` canonical layout foundation.
+  - `PRJ-875` canonical UI final route sweep.
+  - `docs/ux/flagship-baseline-transfer.md`.
+- Closure evidence:
+  - reviewed this task history, current sidebar source, design memory,
+    flagship baseline transfer, and later project/board proof.
+  - no runtime files were changed by this closure sync.
 
 ## Production-Grade Required Contract
 
