@@ -78,7 +78,7 @@ current blocker is release reality:
 | ID | Task | Status | Definition Of Done |
 | --- | --- | --- | --- |
 | PRJ-964 | Add provider request/response examples | DONE | provider docs include sanitized examples for ready/failure paths without secrets |
-| PRJ-965 | Add OpenAPI-to-web type sync plan or generator | READY | web API client drift can be checked against generated OpenAPI |
+| PRJ-965 | Add OpenAPI-to-web type sync plan or generator | DONE | web API client route/method drift can be checked against generated OpenAPI |
 | PRJ-966 | Add stable frontend route e2e smoke | READY | public, auth, dashboard, chat, personality, and tools routes have repeatable smoke coverage |
 | PRJ-967 | Split `web/src/App.tsx` after e2e coverage | READY_AFTER_PRJ-966 | route/component extraction reduces monolith without changing behavior |
 | PRJ-968 | Add release evidence index | READY | one index shows current candidate, production SHA, smoke status, blockers, and next action |

@@ -120,6 +120,26 @@ Last updated: 2026-05-03
 - next smallest useful task:
   - `PRJ-965` OpenAPI-to-web type sync plan or generator
 
+## Fresh OpenAPI Web API Sync Check (2026-05-03)
+
+- `PRJ-965` is DONE:
+  - `.codex/tasks/PRJ-965-openapi-web-api-sync-check.md`
+- result:
+  - added `backend/scripts/check_web_api_openapi_sync.py`
+  - checker extracts `requestJson(...)` calls from `web/src/lib/api.ts`
+  - checker compares route/method pairs against generated
+    `docs/api/openapi.json`
+  - current repo result is `status=ok` with `web_call_count=13`,
+    `openapi_operation_count=18`, and `missing_operations=[]`
+  - documented the command and its limitation in `docs/api/index.md`
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_web_api_openapi_sync_script.py; Pop-Location`
+  - result: `3 passed`
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\check_web_api_openapi_sync.py --openapi ..\docs\api\openapi.json --web-api ..\web\src\lib\api.ts --print-json; Pop-Location`
+  - result: `status=ok`
+- next smallest useful task:
+  - `PRJ-966` stable frontend route e2e smoke
+
 ## Fresh Revision-Aware Production Health Monitor (2026-05-03)
 
 - `PRJ-957` is DONE:
@@ -254,7 +274,9 @@ Last updated: 2026-05-03
   - `PRJ-964` Add provider request/response examples: DONE
     - task: `.codex/tasks/PRJ-964-provider-request-response-examples.md`
     - completed in this iteration with sanitized ready/failure examples
-  - `PRJ-965` Add OpenAPI-to-web type sync plan or generator: READY
+  - `PRJ-965` Add OpenAPI-to-web type sync plan or generator: DONE
+    - task: `.codex/tasks/PRJ-965-openapi-web-api-sync-check.md`
+    - completed in this iteration with route/method drift checker
   - `PRJ-966` Add stable frontend route e2e smoke: READY
   - `PRJ-967` Split `web/src/App.tsx` after e2e coverage:
     READY_AFTER_PRJ-966

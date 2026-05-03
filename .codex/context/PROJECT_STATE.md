@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-965` completed OpenAPI/web API sync checking:
+  - task:
+    - `.codex/tasks/PRJ-965-openapi-web-api-sync-check.md`
+  - result:
+    - added `backend/scripts/check_web_api_openapi_sync.py`
+    - checker extracts `requestJson(...)` calls from `web/src/lib/api.ts`
+    - checker compares route/method pairs against generated
+      `docs/api/openapi.json`
+    - current repo result is `status=ok` with `web_call_count=13`,
+      `openapi_operation_count=18`, and `missing_operations=[]`
+    - documented the command and its limitation in `docs/api/index.md`
+  - validation:
+    - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_web_api_openapi_sync_script.py; Pop-Location`
+    - result: `3 passed`
+    - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\check_web_api_openapi_sync.py --openapi ..\docs\api\openapi.json --web-api ..\web\src\lib\api.ts --print-json; Pop-Location`
+    - result: `status=ok`
+  - next execution priority:
+    - `PRJ-966` stable frontend route e2e smoke
+
 - 2026-05-03: `PRJ-964` completed provider request/response examples:
   - task:
     - `.codex/tasks/PRJ-964-provider-request-response-examples.md`

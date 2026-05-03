@@ -32,6 +32,21 @@ Validation expectation:
 - `info.title` is `AION MVP`
 - the exported `paths` object currently contains `18` paths
 
+## Web Client Drift Check
+
+The web API client is checked against generated OpenAPI with:
+
+```powershell
+Push-Location .\backend
+..\.venv\Scripts\python .\scripts\check_web_api_openapi_sync.py --openapi ..\docs\api\openapi.json --web-api ..\web\src\lib\api.ts --print-json
+Pop-Location
+```
+
+This checker extracts `requestJson(...)` calls from `web/src/lib/api.ts` and
+fails when the web client calls an endpoint/method pair that does not exist in
+the generated OpenAPI paths. It is a drift guard for route coverage, not a full
+TypeScript type generator.
+
 ## Route Groups
 
 | Group | Routes | Primary Consumer |
@@ -380,9 +395,10 @@ Verified in `backend/app/api/schemas.py`.
 
 ## Known API Documentation Gaps
 
-- No generated OpenAPI artifact is checked in or linked from this reference.
 - Flexible response schemas with `extra="allow"` still need dedicated shape
   docs for personality overview and tools overview.
+- The OpenAPI-to-web guard currently checks route/method presence only; full
+  response-type generation remains a future enhancement.
 - `GET /health` has a broad nested response assembled from policy snapshots;
   this file documents the sections, not every nested field.
 - Generic event payload shape for `/event` and debug ingress is owned by
