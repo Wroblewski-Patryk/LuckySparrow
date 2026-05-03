@@ -1322,6 +1322,11 @@ Operator-ready incident evidence should be captured as one bounded bundle:
 - `health_snapshot.json`
 - optional `behavior_validation_report.json`
 
+Release evidence archive ownership is defined in
+`docs/planning/v1-release-evidence-archive-standard.md`. Use that standard to
+decide which generated bundle directories stay local, which committed docs hold
+the durable release decision, and when archive pointers must be refreshed.
+
 Recommended artifact root:
 
 - `artifacts/incident_evidence/<captured_at_utc>_<trace_id_or_event_id>/`

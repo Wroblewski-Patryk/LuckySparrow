@@ -2,6 +2,30 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-921` completed the release evidence archive standard:
+  - new task:
+    - `.codex/tasks/PRJ-921-release-evidence-archive-standard.md`
+  - new planning source:
+    - `docs/planning/v1-release-evidence-archive-standard.md`
+  - result:
+    - release evidence now has one archive standard for committed decision
+      docs versus generated local artifacts
+    - the standard maps final acceptance bundle, incident evidence bundle,
+      release smoke, behavior validation, rollback/recovery, and external
+      health monitor evidence
+    - generated `.codex/artifacts/**` and `artifacts/**` evidence remains
+      local by default unless an operator intentionally selects a sanitized
+      artifact
+    - v1 release plan and core acceptance bundle now mark `PRJ-921` complete
+  - validation:
+    - reviewed incident-evidence architecture, runtime ops runbook, final v1
+      acceptance bundle, and release audit plan
+    - local markdown link check
+    - `git diff --check` passed
+  - next execution priority:
+    - `PRJ-930` deployment trigger SLO evidence or `PRJ-931` AI red-team
+      scenario pack while `PRJ-909` and `PRJ-918` wait for operator inputs
+
 - 2026-05-03: remaining blocked queue audit normalized stale release tasks:
   - tasks:
     - `.codex/tasks/PRJ-632-capture-live-production-acceptance-evidence-for-final-v1-closure.md`

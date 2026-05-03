@@ -93,7 +93,8 @@ broader public or web-led release claim:
 - `PRJ-919` tool authorization UX tightening
 - `PRJ-920` minimal external health monitor: DONE with active hourly
   `aion-production-health-monitor`
-- `PRJ-921` release-evidence archive
+- `PRJ-921` release-evidence archive: DONE with
+  `docs/planning/v1-release-evidence-archive-standard.md`
 - `PRJ-930` deployment trigger SLO evidence
 - `PRJ-931..PRJ-933` AI/security/privacy hardening
 - `PRJ-934..PRJ-936` final go/no-go, handoff, and release marker
@@ -112,4 +113,4 @@ broader public or web-led release claim:
 
 Rerun `PRJ-909` when Telegram operator preconditions are available. Until then,
 continue with locally actionable public-launch hardening, starting with
-`PRJ-931` AI red-team evidence or the web/product-honesty lane.
+`PRJ-930` deployment trigger SLO evidence or `PRJ-931` AI red-team evidence.

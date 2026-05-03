@@ -433,10 +433,12 @@ Tasks:
     alert criteria, check cadence, and operator response path.
 
 - `PRJ-921` Release Evidence Archive Standard
-  - Define where latest release smoke, behavior report, incident bundle, and
-    rollback notes live.
-  - Avoid committing generated machine-local artifacts unless intentionally
-    selected.
+  - Status: DONE
+  - Output: `docs/planning/v1-release-evidence-archive-standard.md` defines
+    where latest release smoke, behavior report, incident bundle, rollback
+    notes, local generated artifacts, and committed decision summaries live.
+  - Generated machine-local artifacts remain local by default unless an
+    operator explicitly selects a sanitized artifact for repository history.
 
 - `PRJ-930` Deployment Trigger SLO Evidence
   - Prove Coolify source automation triggers reliably enough or document manual
@@ -506,7 +508,7 @@ Tasks:
 7. `PRJ-918` Organizer Provider Activation Smoke - BLOCKED by provider
    credentials
 8. `PRJ-920` Minimal External Health Monitor - DONE locally
-9. `PRJ-921` Release Evidence Archive Standard
+9. `PRJ-921` Release Evidence Archive Standard - DONE locally
 10. `PRJ-931` V1 AI Red-Team Scenario Pack
 11. `PRJ-932` Cross-User And Session Isolation Audit
 12. `PRJ-933` Provider Payload Leakage Audit
