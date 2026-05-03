@@ -226,3 +226,12 @@ next safe frontend architecture slice is a shared module overview bar:
 `web/src/components/shared.tsx`. `/memory`, `/reflections`, `/plans`, and
 `/goals` now pass route key, copy, status label/value, and aria label explicitly
 while preserving existing route-specific selectors and route data ownership.
+
+`PRJ-1020` selected the repeated stat-row wrapper as the next implementation
+slice:
+
+- add a route-keyed `ModuleStatRow` shared component
+- replace the repeated stat-row section wrappers for `/memory`, `/reflections`,
+  `/plans`, and `/goals`
+- keep stat card arrays and `RouteStatCard` usage in `App()`
+- preserve route-specific aria labels and CSS selectors through explicit props

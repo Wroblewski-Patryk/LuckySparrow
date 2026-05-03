@@ -2,6 +2,21 @@
 
 Last updated: 2026-05-03
 
+## Fresh Module Route Stat Row Audit (2026-05-03)
+
+- `PRJ-1020` is DONE:
+  - `.codex/tasks/PRJ-1020-next-module-route-cleanup-audit.md`
+- result:
+  - selected shared module stat-row wrapper extraction as the next safe module
+    route slice
+  - kept stat card data construction and `RouteStatCard` usage in `App()`
+  - deferred decorative inner panels and provider/health helpers
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1021` extract shared module stat row wrapper
+
 ## Fresh Module Overview Bar Extraction (2026-05-03)
 
 - `PRJ-1019` is DONE:
