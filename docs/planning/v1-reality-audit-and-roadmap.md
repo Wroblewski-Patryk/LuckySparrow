@@ -21,7 +21,7 @@ v1 factual, executable, and resistant to drift.
 | Deploy policy | `backend/app/core/deployment_policy.py`, `/health.deployment` | Runtime declares source automation and build revision | The proof surface exists; the automation did not converge for the latest push |
 | API/routes | `backend/app/api/routes.py`, `docs/api/openapi.json` | App auth, chat, tools, Telegram link, event, debug, health, and webhook routes exist; generated OpenAPI is in sync | API foundation is documented enough for v1 hardening |
 | Database/model docs | `backend/app/memory/models.py`, `docs/data/columns.md`, `docs/data/erd.mmd` | Generated column reference and ERD match the current ORM metadata | The previous ERD/model-reference gap is closed |
-| Frontend | `web/src/App.tsx`, `web/src/lib/api.ts`, `docs/frontend/route-component-map.md` | Browser shell exists but most route ownership remains monolithic in `App.tsx` | Usable, but future v1-web confidence needs e2e route coverage before refactor |
+| Frontend | `web/src/App.tsx`, `web/src/routes.ts`, `web/src/lib/api.ts`, `docs/frontend/route-component-map.md` | Browser shell exists; route contract ownership has been extracted to `web/src/routes.ts`, while route rendering and state remain mostly in `App.tsx` | Usable, with headless route smoke now protecting further route/component extraction |
 | Tests | `backend/tests/*`, focused deployment-trigger tests | Backend coverage is broad; deployment parity tests passed locally | Missing evidence is now mostly live/fixture/e2e, not basic unit coverage |
 | AI/security hardening | `docs/security/v1-ai-red-team-scenario-pack.md`, PRJ-932/933 audits | Scenario pack and audits exist; execution evidence gaps remain | Public v1 claim should either run or explicitly defer these |
 | Provider integrations | `backend/app/integrations/**`, `docs/integrations/index.md` | Provider docs exist; live provider credentials are still missing for some smokes | Core v1 can proceed, broader organizer/provider claims remain blocked |
@@ -80,7 +80,8 @@ current blocker is release reality:
 | PRJ-964 | Add provider request/response examples | DONE | provider docs include sanitized examples for ready/failure paths without secrets |
 | PRJ-965 | Add OpenAPI-to-web type sync plan or generator | DONE | web API client route/method drift can be checked against generated OpenAPI |
 | PRJ-966 | Add stable frontend route e2e smoke | DONE | public, auth, dashboard, chat, personality, and tools routes have repeatable headless smoke coverage |
-| PRJ-967 | Split `web/src/App.tsx` after e2e coverage | READY_AFTER_PRJ-966 | route/component extraction reduces monolith without changing behavior |
+| PRJ-967 | Split route ownership out of `web/src/App.tsx` | DONE | route type/list/normalization/history helpers live in `web/src/routes.ts`; build and route smoke pass |
+| PRJ-971 | Extract first route-rendering component from `web/src/App.tsx` | READY_AFTER_PRJ-967 | one low-risk route view or shared shell cluster moves behind route smoke without visual behavior change |
 | PRJ-968 | Add release evidence index | READY | one index shows current candidate, production SHA, smoke status, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | READY | operator docs and local check clearly show whether approved webhook fallback can be run |
 | PRJ-970 | Add release go/no-go command wrapper | READY_AFTER_PRJ-956 | one command runs local release audit plus production smoke and prints GO/HOLD |

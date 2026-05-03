@@ -2,9 +2,9 @@
 
 Last updated: 2026-05-03
 
-This map documents the current browser shell without requiring a component
-refactor. It is grounded in `web/src/App.tsx`, `web/src/lib/api.ts`, and
-`web/src/index.css`.
+This map documents the current browser shell without requiring a broad
+component refactor. It is grounded in `web/src/App.tsx`,
+`web/src/routes.ts`, `web/src/lib/api.ts`, and `web/src/index.css`.
 
 ## Headless Route Smoke
 
@@ -27,7 +27,7 @@ a route-mount guard, not a screenshot parity suite.
 
 | Area | Owner File | Responsibility |
 | --- | --- | --- |
-| Route list and route normalization | `web/src/App.tsx` | `RoutePath`, `ROUTES`, `normalizeRoute`, `navigate`, `navigatePublicEntry` |
+| Route list and route normalization | `web/src/routes.ts` | `RoutePath`, `ROUTES`, `normalizeRoute`, `navigate`, `navigatePublicEntry` |
 | Public/auth shell | `web/src/App.tsx` | Public home, login/register modal, session bootstrap, logout/reset redirects |
 | Authenticated product shell | `web/src/App.tsx` | Sidebar, mobile tab bar, utility bar, route rendering, route copy |
 | API client | `web/src/lib/api.ts` | Typed fetch wrapper and app-facing endpoint methods |
@@ -35,7 +35,7 @@ a route-mount guard, not a screenshot parity suite.
 
 `GAP`: route rendering and many route-local UI fragments are still mostly
 inside `web/src/App.tsx`; this document maps current ownership but does not
-claim component-level separation.
+claim component-level separation beyond the extracted route contract.
 
 ## API Client Surface
 
@@ -101,8 +101,9 @@ claim component-level separation.
 
 ## Gaps
 
-- `web/src/App.tsx` remains the route/component/state owner for most of the
-  browser shell.
+- `web/src/App.tsx` remains the route-rendering/component/state owner for most
+  of the browser shell, while route type/list/history helpers now live in
+  `web/src/routes.ts`.
 - Static/fallback copy still exists for several module routes when backend
   overview fields are absent.
 - The current dedicated frontend route smoke covers the public shell and core

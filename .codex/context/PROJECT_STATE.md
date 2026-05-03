@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-967` completed route ownership extraction from
+  `web/src/App.tsx`:
+  - task:
+    - `.codex/tasks/PRJ-967-route-ownership-extraction.md`
+  - result:
+    - added `web/src/routes.ts`
+    - moved `RoutePath`, `ROUTES`, `normalizeRoute`, `navigate`, and
+      `navigatePublicEntry` into the route module
+    - preserved route labels, localized copy, render branches, API usage, and
+      visual layout
+    - updated the frontend route map and v1 roadmap to name
+      `web/src/routes.ts` as the route contract owner
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=6`
+  - next execution priority:
+    - `PRJ-971` extract one low-risk route-rendering component or shared shell
+      cluster from `web/src/App.tsx` behind the route smoke safety net
+
 - 2026-05-03: `PRJ-966` completed stable frontend route smoke coverage:
   - task:
     - `.codex/tasks/PRJ-966-stable-frontend-route-e2e-smoke.md`

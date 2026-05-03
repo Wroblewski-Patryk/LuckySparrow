@@ -12,21 +12,8 @@ import {
   type AppTelegramLinkStartResponse,
   type AppToolsOverviewResponse,
 } from "./lib/api";
+import { ROUTES, navigate, navigatePublicEntry, normalizeRoute, type RoutePath } from "./routes";
 
-type RoutePath =
-  | "/login"
-  | "/dashboard"
-  | "/chat"
-  | "/memory"
-  | "/reflections"
-  | "/plans"
-  | "/goals"
-  | "/insights"
-  | "/automations"
-  | "/integrations"
-  | "/settings"
-  | "/personality"
-  | "/tools";
 type AuthMode = "login" | "register";
 type UiLanguageCode = "system" | "en" | "pl" | "de";
 type ResolvedUiLanguageCode = Exclude<UiLanguageCode, "system">;
@@ -46,20 +33,6 @@ const CANONICAL_PERSONA_FIGURE_SRC = "/aviary-persona-figure-canonical-reference
 const DASHBOARD_HERO_ART_SRC = "/aviary-dashboard-hero-canonical-reference-v4.png";
 const LANDING_HERO_ART_SRC = "/aviary-landing-hero-canonical-reference-v1.png";
 const RESET_DATA_CONFIRMATION_TEXT = "RESET MY DATA";
-const ROUTES: RoutePath[] = [
-  "/dashboard",
-  "/chat",
-  "/personality",
-  "/memory",
-  "/reflections",
-  "/plans",
-  "/goals",
-  "/insights",
-  "/automations",
-  "/integrations",
-  "/tools",
-  "/settings",
-];
 const UI_LANGUAGE_OPTIONS: Array<{
   value: UiLanguageCode;
   iconToken: string;
@@ -1644,58 +1617,6 @@ const UI_COPY = {
   },
 } as const;
 
-function normalizeRoute(pathname: string): RoutePath {
-  if (pathname === "/dashboard") {
-    return "/dashboard";
-  }
-  if (pathname === "/") {
-    return "/login";
-  }
-  if (pathname === "/settings") {
-    return "/settings";
-  }
-  if (pathname === "/memory") {
-    return "/memory";
-  }
-  if (pathname === "/reflections") {
-    return "/reflections";
-  }
-  if (pathname === "/plans") {
-    return "/plans";
-  }
-  if (pathname === "/goals") {
-    return "/goals";
-  }
-  if (pathname === "/insights") {
-    return "/insights";
-  }
-  if (pathname === "/automations") {
-    return "/automations";
-  }
-  if (pathname === "/integrations") {
-    return "/integrations";
-  }
-  if (pathname === "/tools") {
-    return "/tools";
-  }
-  if (pathname === "/personality") {
-    return "/personality";
-  }
-  if (pathname === "/chat") {
-    return "/chat";
-  }
-  return "/login";
-}
-function navigate(path: RoutePath) {
-  if (window.location.pathname !== path) {
-    window.history.pushState({}, "", path);
-  }
-}
-function navigatePublicEntry(path: "/" | "/login") {
-  if (window.location.pathname !== path) {
-    window.history.pushState({}, "", path);
-  }
-}
 function normalizeUiLanguage(value: string | null | undefined): UiLanguageCode {
   if (value === "en" || value === "pl" || value === "de" || value === "system") {
     return value;

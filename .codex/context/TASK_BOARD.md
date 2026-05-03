@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+## Fresh Route Ownership Extraction (2026-05-03)
+
+- `PRJ-967` is DONE:
+  - `.codex/tasks/PRJ-967-route-ownership-extraction.md`
+- result:
+  - added `web/src/routes.ts`
+  - moved `RoutePath`, `ROUTES`, `normalizeRoute`, `navigate`, and
+    `navigatePublicEntry` out of `web/src/App.tsx`
+  - preserved route labels, localized copy, render branches, API usage, and
+    visual layout
+  - updated the frontend route map and v1 roadmap to name the new route
+    contract owner
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=6`
+- next smallest useful task:
+  - `PRJ-971` extract one low-risk route-rendering component or shared shell
+    cluster from `web/src/App.tsx` behind the route smoke safety net
+
 ## Fresh Stable Frontend Route Smoke (2026-05-03)
 
 - `PRJ-966` is DONE:
@@ -306,12 +327,16 @@ Last updated: 2026-05-03
   - `PRJ-965` Add OpenAPI-to-web type sync plan or generator: DONE
     - task: `.codex/tasks/PRJ-965-openapi-web-api-sync-check.md`
     - completed in this iteration with route/method drift checker
-  - `PRJ-966` Add stable frontend route e2e smoke: READY
-  - `PRJ-967` Split `web/src/App.tsx` after e2e coverage:
-    READY_AFTER_PRJ-966
+  - `PRJ-966` Add stable frontend route e2e smoke: DONE
+    - completed in this iteration with headless route-mount smoke
+  - `PRJ-967` Split route ownership out of `web/src/App.tsx`: DONE
+    - completed in this iteration by moving route type/list/history helpers to
+      `web/src/routes.ts`
   - `PRJ-968` Add release evidence index: READY
   - `PRJ-969` Add Coolify fallback secret/runbook readiness check: READY
   - `PRJ-970` Add release go/no-go command wrapper: READY_AFTER_PRJ-956
+  - `PRJ-971` Extract first route-rendering component from `web/src/App.tsx`:
+    READY_AFTER_PRJ-967
 
 ## Fresh V1 Deploy Parity Blocker (2026-05-03)
 
