@@ -2,6 +2,21 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1002` completed chat markdown renderer readiness audit:
+  - task:
+    - `.codex/tasks/PRJ-1002-chat-markdown-renderer-readiness-audit.md`
+  - result:
+    - confirmed chat markdown rendering is behavior-sensitive JSX, not a pure
+      scalar helper
+    - selected a focused characterization proof before moving the renderer
+    - avoided adding a broad test framework in the planning decision
+    - updated the frontend route cluster audit and v1 roadmap
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1003` add focused chat markdown renderer characterization proof
+
 - 2026-05-03: `PRJ-1001` completed chat transcript helper extraction:
   - task:
     - `.codex/tasks/PRJ-1001-chat-transcript-helper-extraction.md`

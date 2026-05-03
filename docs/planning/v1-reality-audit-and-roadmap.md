@@ -112,7 +112,8 @@ current blocker is release reality:
 | PRJ-999 | Extract metric formatting helpers from `web/src/App.tsx` | DONE | `numberValue` and `scaledMetricSize` live in `web/src/lib/metric-formatting.ts`; full route smoke passes with `route_count=14` |
 | PRJ-1000 | Audit next v1 frontend architecture slice after helper cleanup | DONE | chat transcript metadata helper extraction was selected before markdown/composer movement because it is pure and non-JSX |
 | PRJ-1001 | Extract chat transcript metadata helpers from `web/src/App.tsx` | DONE | chat transcript metadata/delivery/reconciliation helpers live in `web/src/lib/chat-transcript.ts`; composer and markdown rendering remain in `App()`; full route smoke passes with `route_count=14` |
-| PRJ-1002 | Audit chat markdown renderer extraction readiness | READY_AFTER_PRJ-1001 | decide whether markdown rendering can move safely or needs focused unit coverage first |
+| PRJ-1002 | Audit chat markdown renderer extraction readiness | DONE | markdown renderer movement needs a focused characterization proof first because it returns JSX and encodes parser behavior |
+| PRJ-1003 | Add focused chat markdown renderer characterization proof | READY_AFTER_PRJ-1002 | add a small proof for inline code, bold/italic, lists, paragraphs, and fenced code blocks without introducing a broad test framework |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |
