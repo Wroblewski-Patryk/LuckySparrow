@@ -2,6 +2,33 @@
 
 Last updated: 2026-05-03
 
+## Fresh PRJ-825 Authenticated Shell Canvas Opening Closure (2026-05-03)
+
+- `PRJ-825` is DONE:
+  - `.codex/tasks/PRJ-825-authenticated-shell-canvas-opening-pass.md`
+- result:
+  - the authenticated-shell canvas opening pass is no longer a stale
+    `IN_PROGRESS` item
+  - historical implementation is preserved:
+    - tighter shared shell padding and frame gap
+    - reduced shell backdrop/stage atmosphere intensity
+    - calmer toolbar-to-route-canvas opening
+  - current source keeps `aion-shell`, `aion-shell-window`,
+    `aion-shell-frame`, `aion-shell-stage`, and `aion-shell-toolbar` as shared
+    authenticated route infrastructure
+  - later proof owners remain:
+    - `PRJ-868` canonical layout foundation
+    - `PRJ-875` canonical UI final route sweep
+    - `docs/ux/flagship-baseline-transfer.md`
+- validation:
+  - reviewed PRJ-825 task history, current authenticated shell source, design
+    memory, flagship baseline transfer, and later board/project proof
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - review `PRJ-826` authenticated sidebar lockup and nav rhythm pass for
+    stale status
+
 ## Fresh PRJ-824 Authenticated Utility Bar Closure (2026-05-03)
 
 - `PRJ-824` is DONE:

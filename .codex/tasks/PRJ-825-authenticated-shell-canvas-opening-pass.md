@@ -4,8 +4,8 @@
 - ID: PRJ-825
 - Title: Authenticated Shell Canvas Opening Pass
 - Task Type: design
-- Current Stage: implementation
-- Status: IN_PROGRESS
+- Current Stage: release
+- Status: DONE
 - Owner: Frontend Builder
 - Depends on: PRJ-824
 - Priority: P1
@@ -58,14 +58,14 @@ backdrop, and toolbar-to-canvas spacing.
 - focused validation passes
 
 ## Definition of Done
-- [ ] shell opening styles are refined
-- [ ] context is synced
-- [ ] focused validation evidence is attached
+- [x] shell opening styles are refined
+- [x] context is synced
+- [x] focused validation evidence is attached
 
 ## Stage Exit Criteria
-- [ ] The output matches the declared `Current Stage`.
-- [ ] Work from later stages was not mixed in without explicit approval.
-- [ ] Risks and assumptions for this stage are stated clearly.
+- [x] The output matches the declared `Current Stage`.
+- [x] Work from later stages was not mixed in without explicit approval.
+- [x] Risks and assumptions for this stage are stated clearly.
 
 ## Forbidden
 - new systems without approval
@@ -128,20 +128,45 @@ backdrop, and toolbar-to-canvas spacing.
 - Staged rollout or feature flag: no
 
 ## Review Checklist (mandatory)
-- [ ] Current stage is declared and respected.
-- [ ] Deliverable for the current stage is complete.
-- [ ] Architecture alignment confirmed.
-- [ ] Existing systems were reused where applicable.
-- [ ] No workaround paths were introduced.
-- [ ] No logic duplication was introduced.
-- [ ] Definition of Done evidence is attached.
-- [ ] Relevant validations were run.
-- [ ] Docs or context were updated if repository truth changed.
-- [ ] Learning journal was updated if a recurring pitfall was confirmed.
+- [x] Current stage is declared and respected.
+- [x] Deliverable for the current stage is complete.
+- [x] Architecture alignment confirmed.
+- [x] Existing systems were reused where applicable.
+- [x] No workaround paths were introduced.
+- [x] No logic duplication was introduced.
+- [x] Definition of Done evidence is attached.
+- [x] Relevant validations were run.
+- [x] Docs or context were updated if repository truth changed.
+- [x] Learning journal update was not required; no new recurring pitfall was
+  confirmed in this closure sync.
 
 ## Notes
 This slice stays on shared authenticated frame logic only, before sidebar
 exactness begins.
+
+## Closure Sync - 2026-05-03
+
+- Current release status:
+  - DONE as a historical authenticated-shell canvas opening slice.
+- Current source truth:
+  - `web/src/App.tsx` keeps the shared `aion-shell`, `aion-shell-window`,
+    `aion-shell-frame`, `aion-shell-stage`, and `aion-shell-toolbar` structure.
+  - `web/src/index.css` keeps the route-shared shell opening, frame gap,
+    backdrop, and toolbar-to-canvas spacing rules from this slice.
+  - `docs/ux/design-memory.md` and
+    `docs/ux/flagship-baseline-transfer.md` keep the authenticated shell frame
+    as shared route infrastructure.
+- Superseding proof owners:
+  - `PRJ-868` canonical layout foundation.
+  - `PRJ-875` canonical UI final route sweep.
+  - `docs/ux/flagship-baseline-transfer.md`.
+- Browser/mockup note:
+  - the shell frame is product layout, not simulated browser chrome; do not
+    add browser controls, title bars, or fake window UI.
+- Closure evidence:
+  - reviewed this task history, current authenticated shell source, design
+    memory, flagship baseline transfer, and later project/board proof.
+  - no runtime files were changed by this closure sync.
 
 ## Production-Grade Required Contract
 
