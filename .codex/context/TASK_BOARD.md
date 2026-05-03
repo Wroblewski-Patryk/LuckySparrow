@@ -2,6 +2,28 @@
 
 Last updated: 2026-05-03
 
+## Fresh Shell Utility Bar Extraction (2026-05-03)
+
+- `PRJ-974` is DONE:
+  - `.codex/tasks/PRJ-974-shell-utility-bar-extraction.md`
+- result:
+  - moved `ShellUtilityBar` out of `web/src/App.tsx` into
+    `web/src/components/shell.tsx`
+  - passed account/session state and the canonical persona asset through
+    explicit props
+  - preserved utility-bar markup, copy, account menu toggle behavior, and
+    visual classes
+  - updated the frontend route/component map and v1 roadmap with the expanded
+    shell module owner
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=6`
+- next smallest useful task:
+  - `PRJ-975` extract `PublicGlyph` into a small public-shell component module
+    behind the same build and route-smoke gate
+
 ## Fresh Shell Chrome Component Extraction (2026-05-03)
 
 - `PRJ-973` is DONE:
@@ -483,7 +505,11 @@ Last updated: 2026-05-03
     - completed in this iteration by moving nav/brand helpers to
       `web/src/components/shell.tsx`
   - `PRJ-974` Extract shell utility bar from `web/src/App.tsx`:
-    READY_AFTER_PRJ-973
+    DONE
+    - completed in this iteration by moving `ShellUtilityBar` to
+      `web/src/components/shell.tsx` behind explicit props
+  - `PRJ-975` Extract public glyph component cluster from `web/src/App.tsx`:
+    READY_AFTER_PRJ-974
 
 ## Fresh V1 Deploy Parity Blocker (2026-05-03)
 

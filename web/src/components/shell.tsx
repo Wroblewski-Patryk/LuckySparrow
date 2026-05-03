@@ -207,3 +207,69 @@ export function SidebarBrandBlock() {
     </div>
   );
 }
+
+export function ShellUtilityBar({
+  currentSurface,
+  currentUserLabel,
+  currentUserEmail,
+  accountPanelOpen,
+  avatarSrc,
+  onAccountClick,
+}: {
+  currentSurface: string;
+  currentUserLabel: string;
+  currentUserEmail: string;
+  accountPanelOpen: boolean;
+  avatarSrc: string;
+  onAccountClick: () => void;
+}) {
+  return (
+    <header className="aion-utility-bar hidden xl:grid">
+      <div className="aion-utility-context">
+        <span className="aion-utility-context-emblem" aria-hidden="true">
+          <span className="aion-utility-context-emblem-core" />
+        </span>
+        <div className="min-w-0">
+          <p className="aion-utility-context-label">Aviary workspace</p>
+          <p className="aion-utility-context-copy">{currentSurface}</p>
+        </div>
+      </div>
+      <label className="aion-utility-search" aria-label="Workspace continuity frame">
+        <span className="aion-utility-search-icon">âŚ•</span>
+        <input
+          readOnly
+          type="text"
+          value=""
+          placeholder="One calm shell for memory, planning, and the next meaningful action."
+        />
+        <span className="aion-utility-search-shortcut">âŚK</span>
+      </label>
+      <div className="aion-utility-actions">
+        <button className="aion-utility-pill" type="button">
+          <span className="aion-utility-pill-dot" />
+          Focus mode
+        </button>
+        <button className="aion-utility-pill" type="button">
+          âś§
+          Quick capture
+        </button>
+        <button className="aion-utility-icon-pill" type="button" aria-label="Notifications">
+          3
+        </button>
+        <button
+          className={`aion-utility-account ${accountPanelOpen ? "aion-utility-account-active" : ""}`}
+          onClick={onAccountClick}
+          type="button"
+        >
+          <span className="aion-utility-account-avatar" aria-hidden="true">
+            <img alt="" src={avatarSrc} />
+          </span>
+          <span className="aion-utility-account-copy">
+            <span className="aion-utility-account-name">{currentUserLabel}</span>
+            <span className="aion-utility-account-email">{currentUserEmail}</span>
+          </span>
+        </button>
+      </div>
+    </header>
+  );
+}

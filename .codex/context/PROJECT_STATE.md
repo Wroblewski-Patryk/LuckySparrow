@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-974` completed shell utility bar extraction:
+  - task:
+    - `.codex/tasks/PRJ-974-shell-utility-bar-extraction.md`
+  - result:
+    - moved `ShellUtilityBar` out of `web/src/App.tsx` into
+      `web/src/components/shell.tsx`
+    - passed account/session state and the canonical persona asset through
+      explicit props
+    - preserved utility-bar markup, copy, account menu toggle behavior, and
+      visual classes
+    - updated the frontend route/component map and v1 roadmap with the
+      expanded shell module owner
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=6`
+  - next execution priority:
+    - `PRJ-975` extract `PublicGlyph` into a small public-shell component
+      module behind the same build and route-smoke gate
+
 - 2026-05-03: `PRJ-973` completed shell chrome component extraction:
   - task:
     - `.codex/tasks/PRJ-973-shell-chrome-component-extraction.md`
