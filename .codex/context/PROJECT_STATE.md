@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1016` completed chat route data-helper audit:
+  - task:
+    - `.codex/tasks/PRJ-1016-chat-route-data-helper-audit.md`
+  - result:
+    - selected focused chat route display-model helper extraction as the next
+      safe chat route slice
+    - queued `web/src/lib/chat-route-model.ts` for quick actions, focus,
+      linked-channel fallback, intent, motivation, goal, and related-memory
+      projections
+    - kept chat API calls, chat state, transcript behavior, send behavior, and
+      route rendering in `App()`
+  - validation:
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1017` extract chat route display-model helpers from
+      `web/src/App.tsx`
+
 - 2026-05-03: `PRJ-1015` completed chat transcript shell extraction:
   - task:
     - `.codex/tasks/PRJ-1015-chat-transcript-shell-extraction.md`

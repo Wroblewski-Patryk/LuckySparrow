@@ -191,3 +191,14 @@ transcript-container classes and forwards the container ref. `App()` still owns
 loading fallback selection, message mapping, message refs, delivery-state and
 delivery-label calculation, timestamp formatting, markdown rendering, composer
 state/handlers, and chat route data helpers.
+
+`PRJ-1016` selected a focused chat route display-model helper extraction as the
+next implementation slice:
+
+- create `web/src/lib/chat-route-model.ts`
+- move pure display projections for quick actions, current focus, linked-channel
+  fallback, intent card, motivation metrics, goal card, and related-memory
+  cards behind explicit summary inputs
+- keep chat API calls, chat state, transcript mapping, send behavior, and route
+  rendering in `App()`
+- preserve current fallback strings and route display behavior
