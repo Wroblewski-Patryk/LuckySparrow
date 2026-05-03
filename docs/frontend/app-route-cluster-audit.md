@@ -337,3 +337,9 @@ shape and can move behind a route-keyed shared row-list component while
 `integrationProviderRows`, fallback row selection, and provider readiness
 semantics stay in `App()`. Memory signal cards, progress rows, route data-helper
 movement, and decorative panels remain deferred.
+
+`PRJ-1035` implemented that slice with `ModuleValueRowList` in
+`web/src/components/shared.tsx`. `/integrations` provider rows now use the
+shared route-keyed value-row presentation while `integrationProviderRows`,
+`integrationProviderDisplayRows`, provider readiness values, and fallback
+selection stay in `App()`.

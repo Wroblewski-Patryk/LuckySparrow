@@ -145,7 +145,8 @@ current blocker is release reality:
 | PRJ-1032 | Audit next frontend architecture slice after automations shell alignment | DONE | selected unused `conversationChannelStatus` cleanup because it has declarations but no call sites |
 | PRJ-1033 | Remove unused conversation channel status helper | DONE | removed dead `conversationChannelStatus`, its type/helper, and stale import while build and route smoke stay green |
 | PRJ-1034 | Audit next live frontend route/helper cleanup after dead channel helper removal | DONE | selected integrations provider row presentation extraction while provider semantics stay in `App()` |
-| PRJ-1035 | Extract shared module value-row list for integrations providers | READY_AFTER_PRJ-1034 | move integrations provider row presentation behind `ModuleValueRowList` while data and fallback selection stay in `App()` |
+| PRJ-1035 | Extract shared module value-row list for integrations providers | DONE | integrations provider row presentation uses `ModuleValueRowList` while data and fallback selection stay in `App()` |
+| PRJ-1036 | Audit next live frontend cleanup after provider row extraction | READY_AFTER_PRJ-1035 | choose between memory signal cards, progress row components, route data helpers, or visual panel extraction |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |

@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+## Fresh Integrations Provider Row Extraction (2026-05-03)
+
+- `PRJ-1035` is DONE:
+  - `.codex/tasks/PRJ-1035-integrations-provider-value-row-list.md`
+- result:
+  - added `ModuleValueRowList` to `web/src/components/shared.tsx`
+  - replaced integrations provider row markup
+  - preserved `aion-integrations-provider-*` selectors
+  - kept provider row projection and fallback selection in `App()`
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1036` audit next live frontend cleanup after provider row extraction
+
 ## Fresh Integrations Provider Row Audit (2026-05-03)
 
 - `PRJ-1034` is DONE:

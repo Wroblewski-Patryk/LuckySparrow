@@ -69,6 +69,7 @@ import {
   ModuleRouteSideRow,
   ModuleStatRow,
   ModuleTextCardList,
+  ModuleValueRowList,
   RouteNoteCard,
   RouteHeroPanel,
   RouteStatCard,
@@ -2910,6 +2911,16 @@ export default function App() {
     detail: item.status_reason || item.description,
     value: item.link_required ? copy.integrations.linkValue : item.provider.ready ? copy.integrations.readyValue : copy.integrations.blockedValue,
   }));
+  const integrationProviderDisplayRows = integrationProviderRows.length
+    ? integrationProviderRows
+    : [
+        {
+          token: "I",
+          title: copy.integrations.noProvidersTitle,
+          detail: copy.integrations.noProvidersDetail,
+          value: copy.integrations.quietValue,
+        },
+      ];
   const integrationBoundaryCards = [
     {
       title: copy.integrations.toolsOwnTogglesTitle,
@@ -4862,22 +4873,11 @@ export default function App() {
                     <span className="aion-integrations-web-node aion-integrations-web-node-three" />
                   </div>
 
-                  <div className="aion-integrations-provider-list">
-                    {(integrationProviderRows.length ? integrationProviderRows : [
-                      { token: "I", title: copy.integrations.noProvidersTitle, detail: copy.integrations.noProvidersDetail, value: copy.integrations.quietValue },
-                    ]).map((row) => (
-                      <article key={row.title} className="aion-integrations-provider-row">
-                        <div className="aion-integrations-provider-copy">
-                          <span className="aion-integrations-provider-token">{row.token}</span>
-                          <div>
-                            <p className="aion-integrations-provider-title">{row.title}</p>
-                            <p className="aion-integrations-provider-detail">{row.detail}</p>
-                          </div>
-                        </div>
-                        <strong>{row.value}</strong>
-                      </article>
-                    ))}
-                  </div>
+                  <ModuleValueRowList
+                    routeKey="integrations"
+                    rowKey="provider"
+                    items={integrationProviderDisplayRows}
+                  />
                 </section>
 
                 <aside className="aion-integrations-side-stack">

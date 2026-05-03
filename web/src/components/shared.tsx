@@ -219,6 +219,38 @@ export function ModuleDotRowList({
   );
 }
 
+export function ModuleValueRowList({
+  routeKey,
+  rowKey,
+  items,
+}: {
+  routeKey: string;
+  rowKey: string;
+  items: Array<{
+    token: ReactNode;
+    title: ReactNode;
+    detail: ReactNode;
+    value: ReactNode;
+  }>;
+}) {
+  return (
+    <div className={`aion-${routeKey}-${rowKey}-list`}>
+      {items.map((item) => (
+        <article key={String(item.title)} className={`aion-${routeKey}-${rowKey}-row`}>
+          <div className={`aion-${routeKey}-${rowKey}-copy`}>
+            <span className={`aion-${routeKey}-${rowKey}-token`}>{item.token}</span>
+            <div>
+              <p className={`aion-${routeKey}-${rowKey}-title`}>{item.title}</p>
+              <p className={`aion-${routeKey}-${rowKey}-detail`}>{item.detail}</p>
+            </div>
+          </div>
+          <strong>{item.value}</strong>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export function RouteHeroPanel({
   eyebrow,
   title,
