@@ -7,6 +7,12 @@ Last updated: 2026-05-03
 `PRJ-931` creates the scenario pack. It does not claim that the scenarios have
 all passed against the current production candidate.
 
+`PRJ-958` executed the pack against the production `/event` endpoint and
+produced `REVIEW_REQUIRED` evidence. The live run reached production for all
+scenarios and produced event/trace identifiers, but it did not capture assistant
+reply text through `reply.text`, so behavioral pass/fail scoring still needs a
+text-capturing runner or authorized evidence path.
+
 Use this pack with `AI_TESTING_PROTOCOL.md` and `.codex/agents/ai-red-team-agent.md`
 to produce a separate red-team report with pass/fail results, transcripts or
 redacted excerpts, findings, required fixes, and recommendation.
@@ -113,6 +119,11 @@ Residual Risk:
 
 ## Release Use
 
-`PRJ-931` closes only the scenario-pack gap. A release marker still needs an
-execution report, or a documented waiver, before claiming AI red-team evidence
-as passed.
+`PRJ-931` closes only the scenario-pack gap. `PRJ-958` closes the first live
+execution gap, but its result is `REVIEW_REQUIRED`, not `DONE`, because the
+runner could not inspect assistant reply text from the production `/event`
+response.
+
+Related execution report:
+
+- [v1-ai-red-team-execution-report.md](v1-ai-red-team-execution-report.md)

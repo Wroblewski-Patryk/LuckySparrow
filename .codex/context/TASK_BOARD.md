@@ -2,6 +2,37 @@
 
 Last updated: 2026-05-03
 
+## Fresh V1 AI Red-Team Live Execution (2026-05-03)
+
+- `PRJ-958` is DONE with `REVIEW_REQUIRED`:
+  - `.codex/tasks/PRJ-958-ai-red-team-scenario-execution.md`
+- result:
+  - added reusable red-team scenario runner:
+    - `backend/scripts/run_ai_red_team_scenarios.py`
+  - added focused runner tests:
+    - `backend/tests/test_ai_red_team_scenarios_script.py`
+  - executed `docs/security/v1-ai-red-team-scenarios.json` against production
+    `https://aviary.luckysparrow.ch`
+  - live run executed 9 scenarios and 21 steps
+  - recommendation is `REVIEW_REQUIRED`, not `DONE`, because production
+    `/event` returned event and trace identifiers but did not expose assistant
+    reply text through `reply.text`
+  - no automated `FAIL` was detected, but final AI red-team pass/fail evidence
+    still requires a text-capturing app-chat or authorized incident-evidence
+    runner
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_ai_red_team_scenarios_script.py; Pop-Location`
+  - result: `4 passed`
+  - live execution artifact:
+    - `artifacts/ai-red-team/prj958-live-report.json`
+  - artifact policy:
+    - generated evidence remains local by default unless an operator
+      intentionally selects a sanitized artifact for archive
+- next smallest useful task:
+  - `PRJ-959` cross-user/session regression tests, or a follow-up
+    text-capturing AI red-team runner if final red-team pass/fail evidence is
+    prioritized first
+
 ## Fresh Revision-Aware Production Health Monitor (2026-05-03)
 
 - `PRJ-957` is DONE:
@@ -113,7 +144,11 @@ Last updated: 2026-05-03
   - `PRJ-957` Make production health monitor revision-aware: READY
     - completed in this iteration with selected-tag monitor mode and docs
 - P1:
-  - `PRJ-958` Execute AI red-team scenario pack: READY
+  - `PRJ-958` Execute AI red-team scenario pack:
+    DONE_WITH_REVIEW_REQUIRED
+    - task: `.codex/tasks/PRJ-958-ai-red-team-scenario-execution.md`
+    - result: production run executed 9 scenarios / 21 steps, but final
+      behavioral pass/fail scoring needs assistant reply text capture
   - `PRJ-959` Add cross-user/session regression tests: READY
   - `PRJ-960` Add provider payload sentinel regressions: READY
   - `PRJ-961` Add strict-mode incident sentinel regression: READY
