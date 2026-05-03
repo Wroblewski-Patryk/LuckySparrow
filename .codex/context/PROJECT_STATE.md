@@ -1792,13 +1792,16 @@ Last updated: 2026-05-03
   - new task:
     - `.codex/tasks/PRJ-869-public-home-landing-99-pass.md`
   - web implementation:
-    - desktop public home now renders inside a canonical browser-window frame
-      with chrome, address bar, rounded border, shadow, and top `Landing Page`
-      tag
+    - historical note: this slice originally rendered desktop public home
+      inside a browser-window frame with chrome, address bar, rounded border,
+      shadow, and top `Landing Page` tag
+    - 2026-05-03 supersession:
+      - browser/mockup chrome in canonical images is preview context and must
+        be ignored in implementation
+      - current public home uses the chrome-free landing shell from `PRJ-782`
     - hero, feature bridge, proof bridge, and trust band are contained more
       like `docs/ux/assets/aion-landing-canonical-reference-v1.png`
-    - mobile keeps the native full-width landing flow for readability instead
-      of shrinking into a browser mockup
+    - mobile keeps the native full-width landing flow for readability
     - public auth modal no longer displays a technical `/app/me` bootstrap
       error before the user submits credentials
   - verification:

@@ -2152,13 +2152,16 @@ Last updated: 2026-05-03
     `docs/ux/assets/aion-landing-canonical-reference-v1.png`
   - preserve mobile readability and public auth behavior
 - implemented:
-  - desktop public home now renders inside a canonical browser-window frame
-    with chrome, address bar, rounded border, shadow, and top `Landing Page`
-    tag
+  - historical note: this slice originally rendered desktop public home inside
+    a browser-window frame with chrome, address bar, rounded border, shadow,
+    and top `Landing Page` tag
+  - 2026-05-03 supersession:
+    - browser/mockup chrome in canonical images is preview context and must be
+      ignored in implementation
+    - current public home uses the chrome-free landing shell from `PRJ-782`
   - first-viewport hero, feature bridge, proof bridge, and trust band now sit
     in one framed composition closer to the approved reference
-  - mobile intentionally keeps the native full-width flow instead of shrinking
-    into a mock browser frame
+  - mobile keeps the native full-width flow for readability
   - public auth modal no longer starts with a technical `/app/me` bootstrap
     error before user action
 - validation:

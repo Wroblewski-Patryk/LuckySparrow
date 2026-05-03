@@ -37,6 +37,10 @@ existing public auth flow and landing hero asset.
 - Expected product or reliability outcome: public home has a stronger browser
   frame, hero composition, proof band, and mobile continuation without changing
   runtime/API behavior.
+  - 2026-05-03 supersession: browser/mockup frames in canonical images are
+    preview context, not product UI. Current success should be judged on hero
+    composition, proof rhythm, mobile continuation, and auth behavior without
+    implementing browser chrome.
 - How success will be observed: desktop and mobile screenshots compared against
   the canonical reference.
 - Post-launch learning needed: no
@@ -62,13 +66,14 @@ whitespace checks, and screenshot comparison before moving to dashboard.
 ## Implementation Plan
 1. Capture current desktop/mobile landing screenshots.
 2. Compare against the canonical landing reference and record visible gaps.
-3. Tighten the public first viewport, browser-frame framing, hero/proof rhythm,
-   and mobile continuation using existing landing classes and assets.
+3. Tighten the public first viewport, product framing, hero/proof rhythm, and
+   mobile continuation using existing landing classes and assets.
 4. Verify public auth modal still opens and layout has no horizontal overflow.
 5. Run build, `git diff --check`, and screenshot comparison.
 
 ## Acceptance Criteria
-- First viewport has a stronger canonical browser-frame/product-shell read.
+- First viewport has a stronger canonical product-shell read without treating
+  browser mockup chrome as implementation guidance.
 - Hero copy, hero art, proof cards, and security strip align more closely with
   the approved landing reference.
 - Mobile landing remains readable, with no content overlap or horizontal page
@@ -136,9 +141,11 @@ whitespace checks, and screenshot comparison before moving to dashboard.
 - Background or decorative asset strategy: preserve approved raster asset
 - Canonical asset extraction required: no
 - Screenshot comparison pass completed: yes
-- Remaining mismatches: exact canonical copy, exact illustrated figure, and
-  browser chrome micro-icons are not pixel-identical because the route preserves
-  the current approved AION/Aviary copy and raster asset.
+- Remaining mismatches: exact canonical copy and exact illustrated figure are
+  not pixel-identical because the route preserves the current approved
+  AION/Aviary copy and raster asset. Browser chrome micro-icons from reference
+  images are ignored as preview/mockup context per the 2026-05-03 user
+  clarification recorded in `PRJ-782` and `docs/ux/design-memory.md`.
 - State checks: loading | success
 - Feedback locality checked: not applicable
 - Raw technical errors hidden from end users: not applicable
@@ -153,14 +160,18 @@ whitespace checks, and screenshot comparison before moving to dashboard.
     - `.codex/artifacts/prj869-public-home-landing-99-pass/landing-mobile-after-390x844-v2.png`
     - `.codex/artifacts/prj869-public-home-landing-99-pass/landing-auth-modal-mobile-390x844-v2.png`
   - comparison ledger:
-    - browser-window container: added desktop canonical frame, border, radius,
-      chrome, address bar, and top `Landing Page` tag
+    - historical browser-window container: this PR originally added desktop
+      canonical frame, border, radius, chrome, address bar, and top
+      `Landing Page` tag
+    - 2026-05-03 supersession: browser chrome and address-bar treatment were
+      later removed because canonical browser mockups are preview context, not
+      product UI
     - first viewport rhythm: hero, feature bridge, proof copy, and trust strip
       now sit inside one framed composition
     - imagery: existing approved landing raster remains primary and is not
       replaced by CSS approximations
-    - mobile: browser frame is intentionally removed to preserve native phone
-      readability and no horizontal overflow
+    - mobile: native full-width readability and no horizontal overflow were
+      preserved
     - auth modal: public bootstrap no longer preloads a technical `/app/me`
       error into the modal before user action
 
@@ -190,9 +201,11 @@ whitespace checks, and screenshot comparison before moving to dashboard.
 - [x] Learning journal was updated if a recurring pitfall was confirmed.
 
 ## Result Report
-- Task summary: completed the public home/landing `99%` canonical pass with a
-  desktop browser-window frame, stronger first-viewport containment, mobile
-  readability preservation, and cleaner public auth-modal startup.
+- Task summary: completed the public home/landing `99%` canonical pass with
+  stronger first-viewport containment, mobile readability preservation, and
+  cleaner public auth-modal startup. Historical browser-window framing from
+  this task was superseded on 2026-05-03 by the explicit no-browser-mockup
+  product decision.
 - Files changed:
   - `web/src/App.tsx`
   - `web/src/index.css`
@@ -208,17 +221,24 @@ whitespace checks, and screenshot comparison before moving to dashboard.
 - What is incomplete: dashboard and personality `99%` route passes remain.
 - Next steps: start dashboard `99%` canonical pass after this public home
   surface.
-- Decisions made: desktop uses the canonical browser-window mockup; mobile keeps
-  a native full-width flow because the browser frame would reduce readability.
+- Decisions made:
+  - historical: desktop used the canonical browser-window mockup and mobile
+    kept a native full-width flow because the browser frame would reduce
+    readability
+  - 2026-05-03 supersession: browser-window mockups in canonical images are
+    generated preview context and must be ignored in implementation
 
 ## Autonomous Loop Evidence
 
 ### 1. Analyze Current State
-- Issues: public home rendered as a full-bleed page instead of the canonical
-  browser-window mockup; auth modal could inherit a technical bootstrap error.
+- Issues: public home needed stronger canonical composition and auth modal
+  could inherit a technical bootstrap error. Historical concern about lacking a
+  browser-window mockup is superseded by the 2026-05-03 no-browser-mockup
+  decision.
 - Gaps: public home needed a dedicated `99%` pass after shared shell foundation.
-- Inconsistencies: desktop lacked canonical frame/chrome while mobile already
-  used a native flow.
+- Inconsistencies: desktop lacked the then-targeted canonical frame/chrome
+  while mobile already used a native flow. This framing target was superseded
+  on 2026-05-03.
 - Architecture constraints: public landing only; no auth/API changes.
 
 ### 2. Select One Priority Task
@@ -234,22 +254,27 @@ whitespace checks, and screenshot comparison before moving to dashboard.
 - Edge cases: mobile hero overlap, auth modal, horizontal overflow.
 
 ### 4. Execute Implementation
-- Implementation notes: added desktop canonical landing tag, browser chrome,
-  framed public window treatment, tightened first-viewport height/bridge rhythm,
-  preserved the existing landing raster asset, hid the desktop mockup frame on
-  mobile, and prevented public bootstrap errors from preloading into auth.
+- Implementation notes: historically added desktop canonical landing tag,
+  browser chrome, framed public window treatment, tightened first-viewport
+  height/bridge rhythm, preserved the existing landing raster asset, hid the
+  desktop mockup frame on mobile, and prevented public bootstrap errors from
+  preloading into auth. The browser chrome and mockup-frame treatment were
+  later removed after user clarification.
 
 ### 5. Verify and Test
 - Validation performed: web build, diff whitespace check, Chrome CDP screenshot
   pass, and direct `view_image` inspection.
-- Result: passed; latest desktop render showed the canonical browser chrome and
-  `bodyWidth` did not exceed viewport width. Latest mobile auth modal showed no
-  preloaded `Request failed with status 500` error.
+- Result: passed for the historical slice; latest desktop render at that time
+  showed the then-targeted browser chrome and `bodyWidth` did not exceed
+  viewport width. Latest mobile auth modal showed no preloaded `Request failed
+  with status 500` error. The browser chrome expectation is now superseded.
 
 ### 6. Self-Review
 - Simpler option considered: CSS-only first-viewport spacing without browser
-  chrome; rejected because the approved landing reference structurally depends
-  on the browser mockup frame.
+  chrome; originally rejected because the approved landing reference appeared
+  to structurally depend on the browser mockup frame. This rejection is
+  superseded by the 2026-05-03 user clarification that browser frames in
+  canonical images are preview context.
 - Technical debt introduced: none expected; changes stay within existing public
   landing components and styles.
 - Refinements made: fixed the top tag number rendering and cleaned public auth
@@ -258,4 +283,13 @@ whitespace checks, and screenshot comparison before moving to dashboard.
 ### 7. Update Documentation and Knowledge
 - Docs updated: task contract, task board, and project state.
 - Context updated: yes.
+
+## 2026-05-03 Supersession Note
+
+- User clarified that browser chrome in canonical images is generated
+  browser/mockup preview context and must be ignored in implementation.
+- `PRJ-782` removed public `aion-public-browser-*` chrome and updated
+  `docs/ux/design-memory.md` with the durable rule.
+- This task remains `DONE` as landing proof history, but its browser-frame
+  wording is historical and no longer guides implementation.
 - Learning journal updated: not required; no recurring pitfall was confirmed.
