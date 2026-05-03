@@ -353,3 +353,9 @@ remain deferred because they include sizing/progress visuals.
 `PRJ-1037` implemented that slice with `ModuleMetaCardList` in
 `web/src/components/shared.tsx`. `/memory` signal cards now share route-keyed
 meta-card presentation while `memorySignalCards` remains in `App()`.
+
+`PRJ-1038` selected `/goals` horizon row extraction as the next implementation
+slice. The rows have stable `aion-goals-row-*` and `aion-goals-progress`
+selectors and a bounded `token/title/detail/progress/value` shape. Dashboard
+progress rows remain deferred because they sit in the flagship dashboard lower
+card composition and should be handled by a dedicated dashboard audit.

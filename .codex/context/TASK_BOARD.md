@@ -2,6 +2,23 @@
 
 Last updated: 2026-05-03
 
+## Fresh Goal Horizon Row Audit (2026-05-03)
+
+- `PRJ-1038` is DONE:
+  - `.codex/tasks/PRJ-1038-next-cleanup-after-memory-signal-audit.md`
+- result:
+  - selected `/goals` horizon progress row extraction as the next frontend
+    cleanup
+  - target shape: `token/title/detail/progress/value`
+  - kept `goalHorizonRows` data and copy construction in `App()`
+  - deferred dashboard progress rows because they are part of the flagship
+    dashboard composition
+- validation:
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1039` extract shared module progress value row list for goal horizon
+
 ## Fresh Memory Signal Card Extraction (2026-05-03)
 
 - `PRJ-1037` is DONE:
