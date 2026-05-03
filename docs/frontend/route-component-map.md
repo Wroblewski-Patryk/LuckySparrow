@@ -10,7 +10,7 @@ component refactor. It is grounded in `web/src/App.tsx`,
 `web/src/components/app-icons.tsx`, `web/src/components/chat.tsx`, and
 `web/src/components/dashboard.tsx`, `web/src/components/personality.tsx`,
 `web/src/components/settings.tsx`, `web/src/components/tools.tsx`,
-`web/src/lib/chat-transcript.ts`, `web/src/lib/learned-state-formatting.ts`,
+`web/src/lib/chat-markdown.tsx`, `web/src/lib/chat-transcript.ts`, `web/src/lib/learned-state-formatting.ts`,
 `web/src/lib/metric-formatting.ts`,
 `web/src/lib/settings-formatting.ts`, `docs/frontend/app-route-cluster-audit.md`,
 and `web/src/index.css`.
@@ -52,6 +52,7 @@ parity suite.
 | Tools components | `web/src/components/tools.tsx` | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` |
 | Shared presentational panels | `web/src/components/shared.tsx` | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard`, `ModuleRouteSidePanel`, `ModuleRouteSideRow` |
 | API client | `web/src/lib/api.ts` | Typed fetch wrapper and app-facing endpoint methods |
+| Chat markdown renderer | `web/src/lib/chat-markdown.tsx` | `renderChatMarkdown` |
 | Chat transcript helpers | `web/src/lib/chat-transcript.ts` | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` |
 | Tools formatting helpers | `web/src/lib/tool-formatting.ts` | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` |
 | Learned-state formatting helpers | `web/src/lib/learned-state-formatting.ts` | `formatTimestamp`, `stringValue`, `recentActivityRows`, `summaryLines` |
@@ -125,7 +126,7 @@ extraction queue after the tools route component cleanup.
 | Shell chrome | `SidebarGlyph`, `ShellNavButton`, `SidebarBrandBlock`, `AviaryWordmark`, `ShellUtilityBar` in `web/src/components/shell.tsx` | authenticated routes |
 | App control icons | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` in `web/src/components/app-icons.tsx` | public auth modal, sidebar, chat composer |
 | Shared panels | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard`, `ModuleRouteSidePanel`, `ModuleRouteSideRow` in `web/src/components/shared.tsx` | dashboard and module routes |
-| Chat helpers | `renderChatMarkdown` in `web/src/App.tsx`; `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts`; `ChatFlowStage` in `web/src/components/chat.tsx` | `/chat` |
+| Chat helpers | `renderChatMarkdown` in `web/src/lib/chat-markdown.tsx`; `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts`; `ChatFlowStage` in `web/src/components/chat.tsx` | `/chat` |
 | Personality route components | `PersonalityTimelineRow` in `web/src/components/personality.tsx` | memory, reflections, plans, personality |
 | Tool helpers | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` in `web/src/lib/tool-formatting.ts` | `/tools`, `/integrations` |
 | Tools components | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` in `web/src/components/tools.tsx` | `/tools` |

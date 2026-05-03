@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "npm exec tsc -b && npm exec vite build",
     "preview": "vite preview",
-    "smoke:routes": "node scripts/route-smoke.mjs"
+    "smoke:routes": "node scripts/route-smoke.mjs",
+    "test:chat-markdown": "node scripts/chat-markdown-characterization.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

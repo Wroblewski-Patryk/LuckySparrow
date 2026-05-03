@@ -27,7 +27,7 @@ timeline row, and tools component extractions.
 
 | Helper cluster | Current owner | Routes | Posture |
 | --- | --- | --- | --- |
-| Markdown rendering | `renderInlineMarkdown`, `renderMarkdownLines`, `renderChatMarkdown` in `App.tsx` | `/chat` | PRJ-1002 selected a focused characterization proof before moving this JSX renderer |
+| Markdown rendering | `renderChatMarkdown` in `web/src/lib/chat-markdown.tsx`; characterization in `web/scripts/chat-markdown-characterization.mjs` | `/chat` | Extracted and characterized in PRJ-1003 |
 | Chat transcript metadata | `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts` | `/chat` | Extracted in PRJ-1001 |
 | Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Deferred in PRJ-998 until provider/integration route ownership is clearer |
@@ -70,9 +70,7 @@ frontend architecture slice. `PRJ-1001` extracted it:
   rendering in `App()`
 - run `npm run build` and the 14-route smoke
 
-`PRJ-1002` reviewed markdown renderer extraction readiness. Because the renderer
-returns JSX and covers inline code, bold, italic, lists, paragraphs, and fenced
-code blocks, the next slice should characterize the current behavior before
-moving the implementation. The web package has no existing test runner, so the
-proof should stay small and use current build/smoke tooling rather than adding a
-broad test stack.
+`PRJ-1002` reviewed markdown renderer extraction readiness. `PRJ-1003` moved
+the renderer to `web/src/lib/chat-markdown.tsx` and added
+`npm run test:chat-markdown`, a focused characterization proof for inline code,
+bold/italic, lists, paragraph line breaks, and fenced code blocks.

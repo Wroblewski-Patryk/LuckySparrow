@@ -2,6 +2,28 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Markdown Characterization (2026-05-03)
+
+- `PRJ-1003` is DONE:
+  - `.codex/tasks/PRJ-1003-chat-markdown-characterization.md`
+- result:
+  - added `web/src/lib/chat-markdown.tsx`
+  - moved `renderChatMarkdown` out of `web/src/App.tsx`
+  - added `web/scripts/chat-markdown-characterization.mjs`
+  - added `npm run test:chat-markdown`
+  - kept chat composer behavior and optimistic send state in `App()`
+  - updated the frontend route/component map, route cluster audit, and v1
+    roadmap
+- validation:
+  - `Push-Location .\web; npm run test:chat-markdown; Pop-Location`
+  - result: `status=ok`, `case_count=5`
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+- next smallest useful task:
+  - `PRJ-1004` audit chat composer shell extraction after markdown cleanup
+
 ## Fresh Chat Markdown Renderer Readiness Audit (2026-05-03)
 
 - `PRJ-1002` is DONE:
