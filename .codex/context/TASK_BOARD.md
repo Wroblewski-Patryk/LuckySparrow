@@ -2,6 +2,27 @@
 
 Last updated: 2026-05-03
 
+## Fresh Chat Portrait Panel Extraction (2026-05-03)
+
+- `PRJ-1013` is DONE:
+  - `.codex/tasks/PRJ-1013-chat-portrait-panel-extraction.md`
+- result:
+  - added `ChatPortraitPanel` to `web/src/components/chat.tsx`
+  - moved chat support notes, planning overlay, learned-cue display chrome, and
+    portrait copy out of `web/src/App.tsx`
+  - kept `chatCurrentFocus`, `chatIntentCard.emphasis`, learned-cue count
+    fallback formatting, and route data derivation in `App()`
+  - updated frontend route/component map, route cluster audit, and v1 roadmap
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=14`
+  - `git diff --check`
+  - result: passed
+- next smallest useful task:
+  - `PRJ-1014` audit next chat extraction target after portrait panel cleanup
+
 ## Fresh Chat Post-Topbar Extraction Audit (2026-05-03)
 
 - `PRJ-1012` is DONE:

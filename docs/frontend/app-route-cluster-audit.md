@@ -33,6 +33,7 @@ timeline row, and tools component extractions.
 | Chat composer shell | `ChatComposerShell` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1005; send behavior remains in `App()` |
 | Chat cognitive belt | `ChatCognitiveBelt` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1009; card data and goal-progress derivation remain in `App()` |
 | Chat topbar | `ChatTopbar` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1011; active summary and posture labels remain in `App()` |
+| Chat portrait/support panel | `ChatPortraitPanel` in `web/src/components/chat.tsx` | `/chat` | Extracted in PRJ-1013; focus/emphasis/learned-cue labels remain in `App()` |
 | Learned-state summaries | `recentActivityRows`, `summaryLines`, `stringValue`, `formatTimestamp` in `web/src/lib/learned-state-formatting.ts` | dashboard and module routes | Extracted in PRJ-997 |
 | Health/channel summaries | `conversationChannelStatus` in `App.tsx` | dashboard, automations, integrations | Deferred in PRJ-998 until provider/integration route ownership is clearer |
 | Metric formatting | `numberValue`, `scaledMetricSize` in `web/src/lib/metric-formatting.ts` | dashboard, automations, integrations, tools summary projections | Extracted in PRJ-999 |
@@ -162,3 +163,10 @@ slice:
 - defer transcript shell/container because it owns loading state and refs
 - defer chat route data-helper extraction because it is broader than a single
   presentational slice
+
+`PRJ-1013` implemented the portrait/support panel slice with
+`ChatPortraitPanel` in `web/src/components/chat.tsx`. The component owns support
+notes, planning overlay chrome, learned-cue display chrome, and portrait copy.
+`App()` still owns `chatCurrentFocus`, `chatIntentCard.emphasis`,
+learned-cue count fallback formatting, and all route data derivation.
+Transcript shell/container and chat data-helper extraction remain deferred.

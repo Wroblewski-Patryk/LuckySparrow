@@ -48,6 +48,7 @@ import {
   ChatCognitiveBelt,
   ChatComposerShell,
   ChatFlowStage,
+  ChatPortraitPanel,
   ChatTopbar,
   ChatTranscriptMessageRow,
   type ChatCognitiveBeltItem,
@@ -4446,51 +4447,11 @@ export default function App() {
                     />
                   </div>
 
-                  <aside className="aion-chat-portrait-panel aion-chat-portrait-panel-elevated">
-                    <article className="aion-chat-portrait-note aion-chat-portrait-note-memory">
-                      <p className="aion-chat-portrait-note-eyebrow">Memory continuity</p>
-                      <p className="aion-chat-portrait-note-title">Strong coherence</p>
-                      <p className="aion-chat-portrait-note-body">
-                        Preferences stable across touchpoints.
-                      </p>
-                    </article>
-                    <article className="aion-chat-portrait-note aion-chat-portrait-note-expression">
-                      <p className="aion-chat-portrait-note-eyebrow">Expression</p>
-                      <p className="aion-chat-portrait-note-title">Attentive</p>
-                      <p className="aion-chat-portrait-note-body">
-                        Listening and synthesizing context.
-                      </p>
-                    </article>
-                    <article className="aion-chat-portrait-note aion-chat-portrait-note-channels">
-                      <p className="aion-chat-portrait-note-eyebrow">Channel</p>
-                      <p className="aion-chat-portrait-note-title">App</p>
-                      <p className="aion-chat-portrait-note-body">
-                        Private focused environment.
-                      </p>
-                    </article>
-                    <div className="aion-chat-portrait-overlay">
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-[#5f8f93]">Planning</p>
-                      <p className="mt-2 font-display text-[1.62rem] leading-[1.08] text-base-900">{chatCurrentFocus}</p>
-                      <div className="mt-3 text-[0.8rem] text-base-800">
-                        <div className="flex items-center justify-between gap-3">
-                          <span>Current focus</span>
-                          <span className="font-semibold text-base-900">{chatIntentCard.emphasis}</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-3">
-                          <span>Learned cues</span>
-                          <span className="font-semibold text-[#5f8f93]">
-                            {stringValue(preferenceSummary?.learned_preference_count, "0")}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="aion-chat-portrait-copy">
-                      <span className="aion-chat-portrait-chip">Embodied cognition</span>
-                      <p className="mt-3.5 max-w-[12rem] text-[0.84rem] leading-6 text-base-800">
-                        Clarity forms before action takes shape.
-                      </p>
-                    </div>
-                  </aside>
+                  <ChatPortraitPanel
+                    currentFocus={chatCurrentFocus}
+                    emphasis={chatIntentCard.emphasis}
+                    learnedCueCount={stringValue(preferenceSummary?.learned_preference_count, "0")}
+                  />
                 </div>
               </section>
             </section>

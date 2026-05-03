@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-1013` completed chat portrait panel extraction:
+  - task:
+    - `.codex/tasks/PRJ-1013-chat-portrait-panel-extraction.md`
+  - result:
+    - added `ChatPortraitPanel` to `web/src/components/chat.tsx`
+    - moved chat support-side presentation out of `web/src/App.tsx`
+    - kept current focus, emphasis, learned-cue count formatting, and route
+      data derivation in `App()`
+    - updated frontend route/component map, route cluster audit, and v1 roadmap
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=14`
+    - `git diff --check`
+    - result: passed
+  - next execution priority:
+    - `PRJ-1014` audit next chat extraction target after portrait panel cleanup
+
 - 2026-05-03: `PRJ-1012` completed post-topbar chat extraction audit:
   - task:
     - `.codex/tasks/PRJ-1012-next-chat-extraction-after-topbar-audit.md`

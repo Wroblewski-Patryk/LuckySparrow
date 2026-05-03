@@ -45,7 +45,7 @@ parity suite.
 | Authenticated product shell | `web/src/App.tsx` | Sidebar layout, mobile tab bar, route rendering, route copy |
 | Shell chrome helpers | `web/src/components/shell.tsx` | `SidebarIconKind`, `ShellNavButton`, `AviaryWordmark`, `SidebarBrandBlock`, `ShellUtilityBar` |
 | App icon primitives | `web/src/components/app-icons.tsx` | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` |
-| Chat components | `web/src/components/chat.tsx` | `ChatFlowStage`, `ChatTopbar`, `ChatCognitiveBelt`, `ChatTranscriptMessageRow`, `ChatComposerShell` |
+| Chat components | `web/src/components/chat.tsx` | `ChatFlowStage`, `ChatTopbar`, `ChatCognitiveBelt`, `ChatTranscriptMessageRow`, `ChatComposerShell`, `ChatPortraitPanel` |
 | Dashboard components | `web/src/components/dashboard.tsx` | `DashboardSignalCard` |
 | Personality components | `web/src/components/personality.tsx` | `PersonalityTimelineRow` |
 | Settings components | `web/src/components/settings.tsx` | `SettingsCard`, `SettingsFact`, `SettingsProactivePanel`, `SettingsSavePanel`, `SettingsDangerPanel` |
@@ -126,7 +126,7 @@ extraction queue after the tools route component cleanup.
 | Shell chrome | `SidebarGlyph`, `ShellNavButton`, `SidebarBrandBlock`, `AviaryWordmark`, `ShellUtilityBar` in `web/src/components/shell.tsx` | authenticated routes |
 | App control icons | `ChevronDownIcon`, `CloseIcon`, `PlusIcon`, `MicrophoneIcon`, `SendArrowIcon` in `web/src/components/app-icons.tsx` | public auth modal, sidebar, chat composer |
 | Shared panels | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel`, `RouteStatCard`, `RouteNoteCard`, `ModuleRouteSidePanel`, `ModuleRouteSideRow` in `web/src/components/shared.tsx` | dashboard and module routes |
-| Chat helpers | `renderChatMarkdown` in `web/src/lib/chat-markdown.tsx`; `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts`; `ChatFlowStage`, `ChatTopbar`, `ChatCognitiveBelt`, `ChatTranscriptMessageRow`, and `ChatComposerShell` in `web/src/components/chat.tsx` | `/chat` |
+| Chat helpers | `renderChatMarkdown` in `web/src/lib/chat-markdown.tsx`; `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems` in `web/src/lib/chat-transcript.ts`; `ChatFlowStage`, `ChatTopbar`, `ChatCognitiveBelt`, `ChatTranscriptMessageRow`, `ChatComposerShell`, and `ChatPortraitPanel` in `web/src/components/chat.tsx` | `/chat` |
 | Personality route components | `PersonalityTimelineRow` in `web/src/components/personality.tsx` | memory, reflections, plans, personality |
 | Tool helpers | `toolStatusClass`, `formatToolState`, `formatToolLinkState`, `summarizeToolAction` in `web/src/lib/tool-formatting.ts` | `/tools`, `/integrations` |
 | Tools components | `ToolsSummaryCard`, `ToolsFactCard`, `ToolsDetailCard`, `ToolsTechnicalDetailPanel`, `ToolsTelegramLinkPanel` in `web/src/components/tools.tsx` | `/tools` |
@@ -143,7 +143,7 @@ extraction queue after the tools route component cleanup.
   bar now live in `web/src/components/shell.tsx`; public glyphs now live in
   `web/src/components/public-shell.tsx`; pure control icons now live in
   `web/src/components/app-icons.tsx`; chat flow stage, topbar, cognitive belt,
-  transcript row, and composer shell
+  transcript row, composer shell, and portrait support panel
   presentation now live in `web/src/components/chat.tsx`; dashboard signal cards now live
   in `web/src/components/dashboard.tsx`; the first personality presentational
   row now lives in `web/src/components/personality.tsx`.
