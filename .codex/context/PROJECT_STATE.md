@@ -2,6 +2,24 @@
 
 Last updated: 2026-05-03
 
+- 2026-05-03: `PRJ-975` completed public glyph extraction:
+  - task:
+    - `.codex/tasks/PRJ-975-public-glyph-extraction.md`
+  - result:
+    - added `web/src/components/public-shell.tsx`
+    - moved `PublicGlyph` out of `web/src/App.tsx`
+    - preserved SVG markup, public route render behavior, and copy
+    - updated the frontend route/component map and v1 roadmap with
+      public-shell helper ownership
+  - validation:
+    - `Push-Location .\web; npm run build; Pop-Location`
+    - result: passed
+    - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    - result: `status=ok`, `route_count=6`
+  - next execution priority:
+    - `PRJ-976` extract pure app icon/control primitives from
+      `web/src/App.tsx` behind the same build and route-smoke gate
+
 - 2026-05-03: `PRJ-974` completed shell utility bar extraction:
   - task:
     - `.codex/tasks/PRJ-974-shell-utility-bar-extraction.md`

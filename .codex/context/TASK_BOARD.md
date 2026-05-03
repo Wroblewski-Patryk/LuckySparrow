@@ -2,6 +2,25 @@
 
 Last updated: 2026-05-03
 
+## Fresh Public Glyph Extraction (2026-05-03)
+
+- `PRJ-975` is DONE:
+  - `.codex/tasks/PRJ-975-public-glyph-extraction.md`
+- result:
+  - added `web/src/components/public-shell.tsx`
+  - moved `PublicGlyph` out of `web/src/App.tsx`
+  - preserved SVG markup, public route render behavior, and copy
+  - updated the frontend route/component map and v1 roadmap with public-shell
+    helper ownership
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location`
+  - result: passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+  - result: `status=ok`, `route_count=6`
+- next smallest useful task:
+  - `PRJ-976` extract pure app icon/control primitives from `web/src/App.tsx`
+    behind the same build and route-smoke gate
+
 ## Fresh Shell Utility Bar Extraction (2026-05-03)
 
 - `PRJ-974` is DONE:
@@ -509,7 +528,11 @@ Last updated: 2026-05-03
     - completed in this iteration by moving `ShellUtilityBar` to
       `web/src/components/shell.tsx` behind explicit props
   - `PRJ-975` Extract public glyph component cluster from `web/src/App.tsx`:
-    READY_AFTER_PRJ-974
+    DONE
+    - completed in this iteration by moving `PublicGlyph` to
+      `web/src/components/public-shell.tsx`
+  - `PRJ-976` Extract app icon/control component cluster from `web/src/App.tsx`:
+    READY_AFTER_PRJ-975
 
 ## Fresh V1 Deploy Parity Blocker (2026-05-03)
 

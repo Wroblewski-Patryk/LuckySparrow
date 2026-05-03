@@ -5,7 +5,8 @@ Last updated: 2026-05-03
 This map documents the current browser shell without requiring a broad
 component refactor. It is grounded in `web/src/App.tsx`,
 `web/src/routes.ts`, `web/src/components/shared.tsx`, `web/src/lib/api.ts`,
-`web/src/components/shell.tsx`, and `web/src/index.css`.
+`web/src/components/shell.tsx`, `web/src/components/public-shell.tsx`, and
+`web/src/index.css`.
 
 ## Headless Route Smoke
 
@@ -30,6 +31,7 @@ a route-mount guard, not a screenshot parity suite.
 | --- | --- | --- |
 | Route list and route normalization | `web/src/routes.ts` | `RoutePath`, `ROUTES`, `normalizeRoute`, `navigate`, `navigatePublicEntry` |
 | Public/auth shell | `web/src/App.tsx` | Public home, login/register modal, session bootstrap, logout/reset redirects |
+| Public shell helpers | `web/src/components/public-shell.tsx` | `PublicGlyph` SVG selection used by public proof and feature sections |
 | Authenticated product shell | `web/src/App.tsx` | Sidebar layout, mobile tab bar, route rendering, route copy |
 | Shell chrome helpers | `web/src/components/shell.tsx` | `SidebarIconKind`, `ShellNavButton`, `AviaryWordmark`, `SidebarBrandBlock`, `ShellUtilityBar` |
 | Shared presentational panels | `web/src/components/shared.tsx` | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel` |
@@ -94,7 +96,7 @@ claim component-level separation beyond the extracted route contract.
 | Cluster | Functions/Components | Main Routes |
 | --- | --- | --- |
 | Routing and labels | `normalizeRoute`, `navigate`, `routeLabel`, `routeDescription` | all routes |
-| Public shell | public home render branch, `AviaryWordmark`, `PublicGlyph` | `/`, `/login` |
+| Public shell | public home render branch in `web/src/App.tsx`, `AviaryWordmark` in `web/src/components/shell.tsx`, `PublicGlyph` in `web/src/components/public-shell.tsx` | `/`, `/login` |
 | Shell chrome | `SidebarGlyph`, `ShellNavButton`, `SidebarBrandBlock`, `AviaryWordmark`, `ShellUtilityBar` in `web/src/components/shell.tsx` | authenticated routes |
 | Shared panels | `StatePanel`, `FeedbackBanner`, `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, `InsightPanel` in `web/src/components/shared.tsx` | dashboard and module routes |
 | Chat helpers | `renderChatMarkdown`, `transcriptMetadataSummary`, `chatDeliveryState`, `reconcileLocalTranscriptItems`, `ChatFlowStage` | `/chat` |
@@ -108,7 +110,8 @@ claim component-level separation beyond the extracted route contract.
   of the browser shell, while route type/list/history helpers now live in
   `web/src/routes.ts` and the first shared panels now live in
   `web/src/components/shared.tsx`. Shell branding, nav helpers, and the utility
-  bar now live in `web/src/components/shell.tsx`.
+  bar now live in `web/src/components/shell.tsx`; public glyphs now live in
+  `web/src/components/public-shell.tsx`.
 - Static/fallback copy still exists for several module routes when backend
   overview fields are absent.
 - The current dedicated frontend route smoke covers the public shell and core

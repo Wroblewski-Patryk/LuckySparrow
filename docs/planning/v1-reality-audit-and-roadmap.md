@@ -85,7 +85,8 @@ current blocker is release reality:
 | PRJ-972 | Extract next shared shell component cluster from `web/src/App.tsx` | DONE | `ModuleEntryCard`, `FlowRail`, `RouteHeroPanel`, and `InsightPanel` live in `web/src/components/shared.tsx`; build and route smoke pass |
 | PRJ-973 | Extract shell chrome component cluster from `web/src/App.tsx` | DONE | wordmark, sidebar brand, nav button, and sidebar icon type live in `web/src/components/shell.tsx`; build and route smoke pass |
 | PRJ-974 | Extract shell utility bar from `web/src/App.tsx` | DONE | `ShellUtilityBar` lives in `web/src/components/shell.tsx` behind explicit props; build and route smoke pass |
-| PRJ-975 | Extract public glyph component cluster from `web/src/App.tsx` | READY_AFTER_PRJ-974 | public glyph moves to a small public-shell component module without auth or route behavior change |
+| PRJ-975 | Extract public glyph component cluster from `web/src/App.tsx` | DONE | `PublicGlyph` lives in `web/src/components/public-shell.tsx`; build and route smoke pass |
+| PRJ-976 | Extract app icon/control component cluster from `web/src/App.tsx` | READY_AFTER_PRJ-975 | pure icon primitives move behind an app-icons module without changing auth/chat behavior |
 | PRJ-968 | Add release evidence index | DONE | `docs/operations/release-evidence-index.md` shows current candidate lineage, production SHA, release tag target, blockers, and next action |
 | PRJ-969 | Add Coolify fallback secret/runbook readiness check | DONE | `check_coolify_fallback_readiness.py` reports whether approved webhook fallback inputs are present without triggering deploy |
 | PRJ-970 | Add release go/no-go command wrapper | DONE | `run_release_go_no_go.py` composes release reality audit with release-smoke posture and prints GO/HOLD |
