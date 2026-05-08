@@ -13,6 +13,15 @@ Read these before starting non-trivial work:
 - `.codex/context/PROJECT_STATE.md`
 - `.codex/context/TASK_BOARD.md`
 - `.codex/context/LEARNING_JOURNAL.md`
+- `.agents/core/operating-system.md`
+- `.agents/core/execution-loop.md`
+- `.agents/core/anti-regression.md`
+- `.agents/core/quality-gates.md`
+- `.agents/state/current-focus.md`
+- `.agents/state/known-issues.md`
+- `.agents/state/regression-log.md`
+- `.agents/state/system-health.md`
+- `.agents/state/next-steps.md`
 - `.agents/workflows/general.md`
 - `.agents/workflows/documentation-governance.md`
 - `.agents/workflows/subagent-orchestration.md`
@@ -171,12 +180,13 @@ If any check fails, fix before closure.
 - When a recurring environment or execution pitfall is discovered, record it in
   `.codex/context/LEARNING_JOURNAL.md` in the same task.
 - Follow the default loop:
-  - check architecture
-  - create task
-  - implement
-  - review
-  - fix or refactor
-  - sync docs and context
+  - analyze current state
+  - select one priority task
+  - plan implementation
+  - execute implementation
+  - verify and test
+  - self-review
+  - update documentation and knowledge
   - repeat
 
 ## Project Validation Baseline
@@ -216,6 +226,14 @@ Operation mode rotates by iteration number:
 - `BUILDER`: default mode
 - `ARCHITECT`: every third iteration, unless the iteration is also a tester iteration
 - `TESTER`: every fifth iteration
+
+Use `.agents/core/operating-system.md` as the startup and continuation path for
+non-trivial work. Use `.agents/core/execution-loop.md`,
+`.agents/core/anti-regression.md`, and `.agents/core/quality-gates.md` for the
+iteration checklist, regression hunt, and validation contract. Keep
+`.agents/state/*` current enough that a future session can continue from repo
+state without hidden chat memory.
+
 ## Agent Catalog
 
 - Planner: `.agents/prompts/planner.md` or `.claude/agents/planner.agent.md`
@@ -243,19 +261,22 @@ Operation mode rotates by iteration number:
 If the user sends a short execution nudge such as `rob`, `dzialaj`, `start`,
 `go`, `next`, or `lecimy`:
 
-1. Read `.codex/context/TASK_BOARD.md`.
-2. Take the first `READY` or `IN_PROGRESS` task.
-3. If no task is `READY`, derive the next smallest useful task from:
+1. Read `.agents/core/operating-system.md` and refresh `.agents/state/*`.
+2. Read `.codex/context/TASK_BOARD.md`.
+3. Take the first `READY` or `IN_PROGRESS` task.
+4. If no task is `READY`, derive the next smallest useful task from:
    - `docs/planning/next-iteration-plan.md`
    - `docs/planning/open-decisions.md`
+   - `.agents/state/next-steps.md`
    - `docs/governance/function-coverage-ledger-standard.md` and any active
      `docs/operations/*function-coverage*` artifacts when the queue is stale,
      release confidence is unclear, or a handoff/incident needs a module map
-4. If planning docs and board drift, sync them before implementation.
-5. Implement exactly one small slice.
-6. Run relevant validation.
-7. Update task, project state, and docs in the same cycle.
-8. Return files changed, tests run, deployment impact, and the next tiny task.
+5. If planning docs, board, and `.agents/state/next-steps.md` drift, sync them
+   before implementation.
+6. Implement exactly one small slice.
+7. Run relevant validation.
+8. Update task, project state, docs, and `.agents/state/*` in the same cycle.
+9. Return files changed, tests run, deployment impact, and the next tiny task.
 
 ## UX/UI Rule
 

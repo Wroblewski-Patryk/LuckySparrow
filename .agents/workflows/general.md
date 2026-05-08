@@ -85,6 +85,9 @@ description: Workspace rules for this project
   task contract, validation evidence, and result report current.
 - Follow the default loop:
   `analyze -> select one task -> plan -> implement -> verify -> self-review -> sync knowledge -> repeat`.
+- Keep `.agents/state/current-focus.md`, `.agents/state/known-issues.md`,
+  `.agents/state/regression-log.md`, `.agents/state/system-health.md`, and
+  `.agents/state/next-steps.md` synchronized when the project state changes.
 - Apply the validation commands from `.codex/context/PROJECT_STATE.md` before
   every commit.
 - Use subagents only according to `.agents/workflows/subagent-orchestration.md`.
@@ -108,6 +111,10 @@ description: Workspace rules for this project
 - Use `.agents/workflows/world-class-delivery.md` for substantial product,
   runtime, release, UX, security, or AI work.
 - Use `docs/governance/autonomous-engineering-loop.md` for autonomous iteration structure, process self-audit, one-task selection, and `BUILDER` / `ARCHITECT` / `TESTER` mode rotation.
+- Use `.agents/core/operating-system.md` for startup, continuation semantics,
+  and state updates.
+- Use `.agents/core/execution-loop.md`, `.agents/core/anti-regression.md`, and
+  `.agents/core/quality-gates.md` before calling substantial work complete.
 - For broad UX review, use `docs/ux/evidence-driven-ux-review.md` and turn
   screenshot or clickthrough evidence into prioritized implementation slices.
 - For deployable services or critical journeys, define the relevant SLI/SLO,

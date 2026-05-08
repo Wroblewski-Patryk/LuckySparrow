@@ -16,6 +16,21 @@ This repository uses a two-layer documentation model:
 - `architecture/16_agent_contracts.md` - canonical stage contracts
 - `../backend/README.md` - backend workspace entrypoint for runtime commands
 
+## Agent Operating Docs
+
+These files live outside `docs/` because they are execution state, not product
+or architecture truth:
+
+- `.agents/core/operating-system.md`
+- `.agents/core/execution-loop.md`
+- `.agents/core/anti-regression.md`
+- `.agents/core/quality-gates.md`
+- `.agents/state/current-focus.md`
+- `.agents/state/known-issues.md`
+- `.agents/state/regression-log.md`
+- `.agents/state/system-health.md`
+- `.agents/state/next-steps.md`
+
 If an older numbered architecture doc ever reads differently from `02`, `15`,
 and `16`, treat `02/15/16` as canonical and update the older file instead of
 carrying two competing architecture narratives.

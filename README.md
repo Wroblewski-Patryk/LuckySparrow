@@ -46,6 +46,13 @@ curl http://localhost:8000/health
 - canonical docs index:
   [docs/README.md](/C:/Personal/Projekty/Aplikacje/Personality/docs/README.md)
 
+## Agent Operating System
+
+Agent continuation state lives in `.agents/core/` and `.agents/state/`. These
+files define the startup order, execution loop, anti-regression checks, quality
+gates, current focus, known issues, regression log, system health, and next
+steps for future Codex sessions.
+
 ## Deployment
 
 - local Docker uses [docker-compose.yml](/C:/Personal/Projekty/Aplikacje/Personality/docker-compose.yml)
