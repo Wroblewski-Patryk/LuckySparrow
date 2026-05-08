@@ -2,6 +2,37 @@
 
 Last updated: 2026-05-04
 
+- 2026-05-08: `PRJ-1146` reviewed the local app-building workflow helper sync:
+  - task:
+    - `.codex/tasks/PRJ-1146-app-building-workflow-helper-sync-review.md`
+  - reviewed commit:
+    - `82b0b052e79fdf9b3e62d40c4e2d498757375109`
+      (`Sync app-building workflow helpers`)
+  - result:
+    - classified the commit as docs/process-only before any further
+      publication decision
+    - affected surfaces are agent operating docs, Codex task/templates,
+      app-building and user-feedback governance docs, and README discovery
+      links
+    - no backend, web, mobile, API, migration, runtime, env, secret,
+      deployment, or `v1.1.0` marker surface changed
+    - no push, deploy, release marker, or Coolify fallback action was taken in
+      this task
+  - validation:
+    - `git show --stat --find-renames --format=fuller 82b0b05` -> docs/process
+      files only
+    - `git show --name-only --format=fuller 82b0b05` -> no runtime/deploy
+      files
+    - targeted secret/workaround scan across affected governance and template
+      surfaces -> only policy/prohibition language and existing anti-pattern
+      references; no literal secrets found
+    - `git show --check --stat --find-renames 82b0b05` -> passed
+    - `git diff --check HEAD` -> passed
+  - next execution priority:
+    - resolve the `PRJ-1145` Coolify source automation drift blocker through an
+      operator UI redeploy or approved webhook/API token inputs, then rerun
+      release smoke with deploy parity
+
 - 2026-05-08: `PRJ-1145` found Coolify source automation drift after docs-only
   publication:
   - task:

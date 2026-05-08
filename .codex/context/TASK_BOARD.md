@@ -2,6 +2,36 @@
 
 Last updated: 2026-05-04
 
+## Fresh App-Building Workflow Helper Sync Review (2026-05-08)
+
+- `PRJ-1146` is DONE:
+  - `.codex/tasks/PRJ-1146-app-building-workflow-helper-sync-review.md`
+- result:
+  - local commit `82b0b052e79fdf9b3e62d40c4e2d498757375109`
+    (`Sync app-building workflow helpers`) was reviewed before any further
+    publication decision
+  - scope is docs/process-only:
+    - agent operating docs
+    - Codex agent/task templates
+    - app-building and user-feedback governance docs
+    - README discovery links
+  - no backend, web, mobile, API, migration, runtime, env, secret, deployment,
+    or `v1.1.0` marker surface changed
+  - no publication or deploy action was taken in this task
+- validation:
+  - `git show --stat --find-renames --format=fuller 82b0b05` -> docs/process
+    files only
+  - `git show --name-only --format=fuller 82b0b05` -> no runtime/deploy files
+  - targeted secret/workaround scan across affected governance and template
+    surfaces -> only policy/prohibition language and existing anti-pattern
+    references; no literal secrets found
+  - `git show --check --stat --find-renames 82b0b05` -> passed
+  - `git diff --check HEAD` -> passed
+- next smallest useful task:
+  - resolve `PRJ-1145` by using an operator-triggered Coolify UI redeploy for
+    canonical app `jr1oehwlzl8tcn3h8gh2vvih`, or approved Coolify
+    webhook/API token inputs; then rerun release smoke with deploy parity
+
 ## Fresh Coolify Source Automation Drift After Docs Publication (2026-05-08)
 
 - `PRJ-1145` is BLOCKED:
