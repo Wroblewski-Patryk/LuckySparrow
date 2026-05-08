@@ -2,6 +2,30 @@
 
 Last updated: 2026-05-04
 
+- 2026-05-08: `PRJ-1144` published the v1.1 source-truth sync:
+  - task:
+    - `.codex/tasks/PRJ-1144-publish-v1-1-source-truth-sync.md`
+  - result:
+    - PRJ-1143 docs/source-truth sync is now on `origin/main`
+    - production deployed docs-only SHA
+      `74216d29e84355c1820216aea9c78ead871f5c40`
+    - `v1.1.0` remains fixed on hardening marker SHA
+      `d6bf35251577ce71848b33eb109c560cbf74778a`
+    - no runtime code, endpoint, environment variable, secret, or architecture
+      boundary changed
+  - validation:
+    - `git push origin main` -> pushed
+      `74216d29e84355c1820216aea9c78ead871f5c40`
+    - release smoke with deploy parity -> passed after one transient deployment
+      window `503`
+    - release go/no-go for selected SHA
+      `74216d29e84355c1820216aea9c78ead871f5c40` -> `GO`
+    - `git rev-list -n 1 v1.1.0` ->
+      `d6bf35251577ce71848b33eb109c560cbf74778a`
+  - next execution priority:
+    - run Telegram live-mode or organizer provider extension smokes when the
+      required external credentials are available
+
 - 2026-05-04: `PRJ-1142` fixed the remaining AIRT-005 private-source hint
   review and released v1.1.0:
   - task:
