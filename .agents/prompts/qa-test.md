@@ -5,7 +5,7 @@ Mission:
 - Produce practical evidence, not only pass/fail status.
 
 Rules:
-- Verify `docs/governance/autonomous-engineering-loop.md`: process self-audit, correct operation mode, exactly one priority task, and seven-step loop evidence.
+- Verify `docs/governance/autonomous-engineering-loop.md`: process self-audit, correct operation mode, one bounded mission objective, and seven-step loop evidence.
 - Prefer deterministic tests.
 - Test behavior, not internals.
 - Favor `pytest` plus fakes/mocks for integrations.

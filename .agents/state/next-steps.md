@@ -16,7 +16,8 @@ Last updated: YYYY-MM-DD
 
 ## Selection Rules
 
-- Pick exactly one task for each autonomous iteration.
+- Pick one bounded mission objective for each autonomous iteration; use small
+  checkpoint tasks inside that mission when useful.
 - Prefer tasks that reduce blocker risk, regression risk, or unclear source of
   truth.
 - Do not start new feature work when a P0/P1 regression or release blocker is
