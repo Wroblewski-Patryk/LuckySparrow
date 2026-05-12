@@ -4,6 +4,13 @@ Last updated: 2026-05-12
 
 ## Project Status Dashboard (2026-05-12)
 
+- v1.5 mobile UI/deploy branch is pushed:
+  - branch: `codex/v15-mobile-ui-deploy-commits`
+  - remote: `origin/codex/v15-mobile-ui-deploy-commits`
+  - PR URL:
+    `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
+  - `gh` is unavailable locally, so PR creation remains manual from the URL.
+
 - `PRJ-1182` is DONE:
   - `.codex/tasks/PRJ-1182-v15-mobile-device-proof-doctor.md`
 - result:

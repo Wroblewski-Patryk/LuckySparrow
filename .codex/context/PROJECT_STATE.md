@@ -6,6 +6,17 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-12: v1.5 mobile UI/deploy branch was pushed:
+  - branch:
+    - `codex/v15-mobile-ui-deploy-commits`
+  - remote:
+    - `origin/codex/v15-mobile-ui-deploy-commits`
+  - PR URL:
+    - `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
+  - note:
+    - GitHub CLI (`gh`) is unavailable in this environment, so the branch was
+      pushed but no PR was created locally.
+
 - 2026-05-12: `PRJ-1182` added a v1.5 mobile device-proof doctor:
   - task:
     - `.codex/tasks/PRJ-1182-v15-mobile-device-proof-doctor.md`

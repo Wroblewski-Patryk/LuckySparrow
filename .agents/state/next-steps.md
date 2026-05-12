@@ -36,6 +36,10 @@ Last updated: 2026-05-12
      `Push-Location .\mobile; npm run doctor:ui-mobile-device; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
      currently reports `status=blocked` because `adb` and `emulator` are
      unavailable
+   - pushed branch:
+     `origin/codex/v15-mobile-ui-deploy-commits`
+   - PR creation URL:
+     `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
 
 2. Preserve the completed `v1.1` web UI responsive quality baseline:
    - plan: `docs/planning/v1.1-web-ui-responsive-plan.md`
