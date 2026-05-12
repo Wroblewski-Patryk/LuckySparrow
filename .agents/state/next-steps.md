@@ -7,6 +7,8 @@ Last updated: 2026-05-12
 1. Promote the pushed `v1.5` mobile UI branch through PR and production gates:
    - branch: `codex/v15-mobile-ui-deploy-commits`
    - remote: `origin/codex/v15-mobile-ui-deploy-commits`
+   - GitHub PR:
+     `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
    - PR creation URL:
      `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
    - promotion handoff:
@@ -14,7 +16,10 @@ Last updated: 2026-05-12
    - local preview remains available at `http://127.0.0.1:8093`
    - production is not yet claimed green; required path is PR creation/review,
      merge, Coolify deploy, and production release smoke with deploy parity
-   - next smallest slice: open the PR, merge after review, then run
+   - local conflict posture: `git merge-tree` showed no conflict output
+     against `origin/main`
+   - next smallest slice: resolve any GitHub branch-protection/CI status on
+     PR #1, merge after review, then run
      `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -WaitForDeployParity`
 
 2. Continue `v1.5` native/mobile UI from the verified shell seed:

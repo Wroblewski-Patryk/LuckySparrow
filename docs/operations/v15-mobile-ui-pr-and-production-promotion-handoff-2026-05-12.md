@@ -11,6 +11,8 @@ has been pushed for review:
 | --- | --- |
 | Local branch | `codex/v15-mobile-ui-deploy-commits` |
 | Remote branch | `origin/codex/v15-mobile-ui-deploy-commits` |
+| GitHub PR | `https://github.com/Wroblewski-Patryk/Aviary/pull/1` |
+| PR number | `#1` |
 | PR creation URL | `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits` |
 | Local preview | `http://127.0.0.1:8093` |
 | Preview health | `http://127.0.0.1:8093/__preview_health` |
@@ -18,9 +20,8 @@ has been pushed for review:
 | Production deployed | Not yet. Requires PR creation, review, merge, Coolify deploy, and release smoke. |
 | Native device proof | Blocked locally by missing `adb` and `emulator`. |
 
-`gh` is not available in this environment, and no GitHub PR creation tool was
-available locally. The branch is pushed, so the PR can be opened from the URL
-above.
+`gh` is not available in this environment. The GitHub connector created PR
+`#1` from the pushed branch into `main`.
 
 ## Already Verified Locally
 
@@ -55,9 +56,9 @@ missing `adb` and `emulator`.
 
 ## PR Promotion Steps
 
-1. Open the PR from:
-   `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
-2. Use the repository PR template and include:
+1. Review PR `#1`:
+   `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
+2. Confirm the repository PR template evidence remains accurate:
    - scope: v1.5 mobile UI, local preview/deploy scripts, smoke proof, and
      release handoff
    - risk level: medium, because production promotion and native proof are
@@ -70,8 +71,7 @@ missing `adb` and `emulator`.
      - web route/build gate already passed before push
    - manual smoke:
      - local preview health and five-route preview smoke
-3. Review the PR.
-4. Merge only after accepting the native-proof blocker as out-of-current-local
+3. Merge only after accepting the native-proof blocker as out-of-current-local
    environment or after capturing device/simulator proof.
 
 ## Production Promotion Steps
@@ -137,6 +137,8 @@ After merge but before production is green:
 ## Evidence Links
 
 - Task: `.codex/tasks/PRJ-1183-v15-mobile-ui-pr-and-production-promotion-handoff.md`
+- PR task: `.codex/tasks/PRJ-1184-v15-mobile-ui-pr-created.md`
+- GitHub PR: `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
 - Local preview handoff:
   `docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md`
 - Device proof doctor report:

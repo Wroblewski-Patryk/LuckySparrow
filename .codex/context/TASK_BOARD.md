@@ -4,6 +4,29 @@ Last updated: 2026-05-12
 
 ## Project Status Dashboard (2026-05-12)
 
+- `PRJ-1184` is DONE:
+  - `.codex/tasks/PRJ-1184-v15-mobile-ui-pr-created.md`
+- GitHub PR:
+  - `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
+- result:
+  - v1.5 mobile UI branch now has an open GitHub PR from
+    `codex/v15-mobile-ui-deploy-commits` into `main`
+  - local merge-base/conflict check found no content conflict with
+    `origin/main`
+  - production remains pending until merge, Coolify deploy, and release smoke
+    with deploy parity
+- validation:
+  - `git fetch origin main` -> PASS
+  - `git merge-base HEAD origin/main` ->
+    `d25014296d7e00f968b5ac7da04ef02b6d199af7`
+  - `git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main`
+    -> no conflict output
+  - `git diff --check` -> PASS
+- next smallest useful task:
+  - resolve any GitHub branch-protection/CI status on PR #1, merge after
+    review, wait for Coolify, then run production release smoke with deploy
+    parity
+
 - `PRJ-1183` is DONE:
   - `.codex/tasks/PRJ-1183-v15-mobile-ui-pr-and-production-promotion-handoff.md`
 - handoff:

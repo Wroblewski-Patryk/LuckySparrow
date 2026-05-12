@@ -6,6 +6,27 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-12: `PRJ-1184` created GitHub PR #1 for the v1.5 mobile UI branch:
+  - task:
+    - `.codex/tasks/PRJ-1184-v15-mobile-ui-pr-created.md`
+  - PR:
+    - `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
+  - result:
+    - PR #1 points from `codex/v15-mobile-ui-deploy-commits` into `main`
+    - local conflict checks found no content conflict with `origin/main`
+    - production remains pending until merge, Coolify deploy, and release smoke
+      with deploy parity
+  - validation:
+    - `git fetch origin main` -> PASS
+    - `git merge-base HEAD origin/main` ->
+      `d25014296d7e00f968b5ac7da04ef02b6d199af7`
+    - `git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main`
+      -> no conflict output
+    - `git diff --check` -> PASS
+  - next execution priority:
+    - resolve any PR branch-protection/CI status, merge after review, wait for
+      Coolify, then run production release smoke with deploy parity
+
 - 2026-05-12: `PRJ-1183` added the v1.5 mobile UI PR and production promotion handoff:
   - task:
     - `.codex/tasks/PRJ-1183-v15-mobile-ui-pr-and-production-promotion-handoff.md`
