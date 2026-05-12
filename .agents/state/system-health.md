@@ -6,6 +6,7 @@ Last updated: 2026-05-12
 
 | Check | Command or method | Result | Evidence | Notes |
 | --- | --- | --- | --- | --- |
+| v1.5 mobile local preview handoff | operations handoff plus `npm run smoke:ui-mobile-preview`; `git diff --check` | PASS | PRJ-1181 | `docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md` records run, validation, screenshot, risk, blocker, and resume instructions; smoke stayed green with `preview_health.ok=true`, `screenshot_count=10`, `failed_count=0`. |
 | v1.5 mobile local deploy git hygiene | `git status --short -- .codex/tmp artifacts mobile/.expo-web-export web/debug.log`; `git diff --check` | PASS | PRJ-1180 | Generated local deploy/cache/log artifacts are ignored; active preview export was preserved; `adb` and `emulator` remain unavailable for native device proof. |
 | v1.5 mobile local deploy command | `PORT=8094 npm run deploy:ui-mobile-local`; `npm run smoke:ui-mobile-preview`; `npm run typecheck` | PASS | PRJ-1179 | One-command local deploy was verified on test port `8094`; `/__preview_health` returned `app=aviary-mobile-ui-preview`, `route_count=5`; test process stopped; user preview on `8093` remained available and smoke stayed green. |
 | v1.5 mobile preview health gate | `GET /__preview_health`; `npm run smoke:ui-mobile-preview`; `npm run typecheck` | PASS | PRJ-1178 | Preview health returned HTTP 200 with `app=aviary-mobile-ui-preview` and `route_count=5`; smoke passed with `preview_health.ok=true`, `viewport_count=2`, `screenshot_count=10`, and `failed_count=0`; preview restarted on `127.0.0.1:8093`. |
@@ -83,4 +84,4 @@ posture. Provider mutation remains action-owned and confirmation-gated.
 ## Quality Gate Notes
 
 Latest task evidence:
-`.codex/tasks/PRJ-1180-v15-mobile-local-deploy-hygiene.md`.
+`.codex/tasks/PRJ-1181-v15-mobile-ui-local-preview-handoff.md`.

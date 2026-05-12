@@ -27,6 +27,10 @@ the native Stack header with mobile tokens and caches audit DOM proof.
 `PRJ-1176` adds a local static preview deployment for the verified mobile UI
 at `http://127.0.0.1:8093`. `PRJ-1177` adds all-route smoke proof for that
 running preview across Home, Chat, Personality, Settings, and Tools.
+`PRJ-1178` adds preview identity health gating, `PRJ-1179` adds the
+one-command local deploy path, `PRJ-1180` ignores generated local deploy
+artifacts, and `PRJ-1181` adds the operations handoff:
+`docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md`.
 
 Previous web milestone:
 

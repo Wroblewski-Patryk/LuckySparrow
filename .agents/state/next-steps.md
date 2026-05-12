@@ -6,7 +6,8 @@ Last updated: 2026-05-12
 
 1. Continue `v1.5` native/mobile UI from the verified shell seed:
    - plan: `docs/planning/v1.5-mobile-ui-plan.md`
-   - latest task: `.codex/tasks/PRJ-1180-v15-mobile-local-deploy-hygiene.md`
+   - latest task: `.codex/tasks/PRJ-1181-v15-mobile-ui-local-preview-handoff.md`
+   - handoff: `docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md`
    - evidence:
      `.codex/artifacts/prj1158-mobile-native-shell/mobile-shell-390x1200-v2.png`
      `.codex/artifacts/prj1159-mobile-chat-route/mobile-chat-390x1200-v2.png`,

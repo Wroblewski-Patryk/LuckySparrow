@@ -6,6 +6,26 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-12: `PRJ-1181` added a v1.5 mobile UI local preview handoff:
+  - task:
+    - `.codex/tasks/PRJ-1181-v15-mobile-ui-local-preview-handoff.md`
+  - handoff:
+    - `docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md`
+  - result:
+    - handoff records local deploy command, preview URL, health endpoint,
+      validation commands, screenshot/report paths, ignored generated outputs,
+      residual risks, and resume instructions
+    - local preview proof remains separated from native-device proof
+    - `adb` and `emulator` remain unavailable in this environment
+  - validation:
+    - `Push-Location .\mobile; npm run smoke:ui-mobile-preview; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+      -> PASS; `preview_health.ok=true`, `route_count=5`,
+      `viewport_count=2`, `screenshot_count=10`, `failed_count=0`
+    - `git diff --check` -> PASS with LF/CRLF warnings only
+  - next execution priority:
+    - capture Expo Go/simulator proof when Android tooling or a device is
+      available
+
 - 2026-05-12: `PRJ-1180` ignored generated local UI deploy artifacts:
   - task:
     - `.codex/tasks/PRJ-1180-v15-mobile-local-deploy-hygiene.md`

@@ -4,6 +4,25 @@ Last updated: 2026-05-12
 
 ## Project Status Dashboard (2026-05-12)
 
+- `PRJ-1181` is DONE:
+  - `.codex/tasks/PRJ-1181-v15-mobile-ui-local-preview-handoff.md`
+- handoff:
+  - `docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md`
+- result:
+  - local mobile UI preview run, health, validation, screenshot, risk, and
+    resume instructions are now in a single operations handoff
+  - local preview proof remains explicitly separate from native-device proof
+  - no product code, auth, provider, live data, or local cognition behavior
+    changed
+- validation:
+  - `Push-Location .\mobile; npm run smoke:ui-mobile-preview; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `preview_health.ok=true`, `route_count=5`,
+    `viewport_count=2`, `screenshot_count=10`, `failed_count=0`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- next smallest useful task:
+  - capture Expo Go/simulator proof when Android tooling or a device is
+    available
+
 - `PRJ-1180` is DONE:
   - `.codex/tasks/PRJ-1180-v15-mobile-local-deploy-hygiene.md`
 - result:
