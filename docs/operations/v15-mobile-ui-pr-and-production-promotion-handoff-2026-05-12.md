@@ -17,7 +17,7 @@ has been pushed for review:
 | Local preview | `http://127.0.0.1:8093` |
 | Preview health | `http://127.0.0.1:8093/__preview_health` |
 | Production host | `https://aviary.luckysparrow.ch` |
-| Production deployed | Not yet. Requires PR creation, review, merge, Coolify deploy, and release smoke. |
+| Production deployed | Yes. PR #1 merged and production release smoke passed for merge commit `43837bb183c8975845b99b65a03cea5ccf4903a0`. |
 | Native device proof | Blocked locally by missing `adb` and `emulator`. |
 
 `gh` is not available in this environment. The GitHub connector created PR
@@ -74,7 +74,24 @@ missing `adb` and `emulator`.
 3. Merge only after accepting the native-proof blocker as out-of-current-local
    environment or after capturing device/simulator proof.
 
-## Production Promotion Steps
+## Production Promotion Result
+
+PR #1 is merged:
+
+- URL: `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
+- merge commit: `43837bb183c8975845b99b65a03cea5ccf4903a0`
+- production host: `https://aviary.luckysparrow.ch`
+- release smoke: passed after one transient deploy-window `503`
+
+Release-smoke output included:
+
+- `health_status=ok`
+- `release_ready=true`
+- `deployment_runtime_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+- `web_shell_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+- `deployment_local_repo_head_sha=43837bb183c8975845b99b65a03cea5ccf4903a0`
+
+## Production Promotion Steps For Future Runs
 
 The existing production path is Coolify source-driven deployment from the repo.
 After the PR is merged into the deployment source, wait for Coolify and then
@@ -130,14 +147,16 @@ After merge but before production is green:
 | Risk | State | Next action |
 | --- | --- | --- |
 | Native device/simulator proof | Blocked locally | Install Android platform tools or connect a supported device, then rerun `npm run doctor:ui-mobile-device` and capture Expo Go/simulator proof. |
-| Production promotion | Not yet performed | Open PR, merge, wait for Coolify, run release smoke with deploy parity. |
-| Coolify source/webhook reliability | Follow-up | Capture source/webhook convergence or approved fallback evidence for this candidate. |
+| Production promotion | Verified | Monitor production health; rollback by redeploying the previous selected SHA/tag if smoke regresses. |
+| Coolify source/webhook reliability | Verified for this candidate after transient deploy-window 503 | Keep capturing source/webhook convergence evidence for future candidates. |
 | Expo dependency audit | Open | `npm audit` reports moderate advisories in Expo dependency chain; forced fix would downgrade Expo, so do not apply without an Expo upgrade decision. |
 
 ## Evidence Links
 
 - Task: `.codex/tasks/PRJ-1183-v15-mobile-ui-pr-and-production-promotion-handoff.md`
 - PR task: `.codex/tasks/PRJ-1184-v15-mobile-ui-pr-created.md`
+- Production deploy task:
+  `.codex/tasks/PRJ-1185-v15-mobile-ui-production-deploy-verified.md`
 - GitHub PR: `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
 - Local preview handoff:
   `docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md`

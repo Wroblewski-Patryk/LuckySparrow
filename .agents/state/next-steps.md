@@ -4,23 +4,26 @@ Last updated: 2026-05-12
 
 ## NOW
 
-1. Promote the pushed `v1.5` mobile UI branch through PR and production gates:
+1. Capture native device proof for the deployed `v1.5` mobile UI:
    - branch: `codex/v15-mobile-ui-deploy-commits`
    - remote: `origin/codex/v15-mobile-ui-deploy-commits`
    - GitHub PR:
      `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
+   - production merge commit:
+     `43837bb183c8975845b99b65a03cea5ccf4903a0`
    - PR creation URL:
      `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
    - promotion handoff:
      `docs/operations/v15-mobile-ui-pr-and-production-promotion-handoff-2026-05-12.md`
    - local preview remains available at `http://127.0.0.1:8093`
-   - production is not yet claimed green; required path is PR creation/review,
-     merge, Coolify deploy, and production release smoke with deploy parity
+   - production is green for the merge commit; release smoke passed with
+     runtime and web shell revisions matching
+     `43837bb183c8975845b99b65a03cea5ccf4903a0`
    - local conflict posture: `git merge-tree` showed no conflict output
      against `origin/main`
-   - next smallest slice: resolve any GitHub branch-protection/CI status on
-     PR #1, merge after review, then run
-     `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -WaitForDeployParity`
+   - next smallest slice: install Android platform tools or connect a
+     supported device, then run `npm run doctor:ui-mobile-device` and capture
+     Expo Go/simulator proof
 
 2. Continue `v1.5` native/mobile UI from the verified shell seed:
    - plan: `docs/planning/v1.5-mobile-ui-plan.md`

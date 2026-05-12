@@ -4,6 +4,32 @@ Last updated: 2026-05-12
 
 ## Project Status Dashboard (2026-05-12)
 
+- `PRJ-1185` is DONE:
+  - `.codex/tasks/PRJ-1185-v15-mobile-ui-production-deploy-verified.md`
+- result:
+  - PR #1 was merged and `main` was pushed to origin
+  - production release smoke passed for merge commit
+    `43837bb183c8975845b99b65a03cea5ccf4903a0`
+  - production runtime and web shell revisions both match the merge commit
+  - first smoke attempt hit a transient deploy-window `503`; the extended retry
+    passed
+  - native Expo Go/simulator proof remains blocked by missing `adb` and
+    `emulator`
+- validation:
+  - backend: `1074 passed`
+  - web: `tsc`, `vite build`, `smoke:routes` -> PASS; `route_count=14`
+  - mobile: `typecheck`, `smoke:ui-mobile-preview`,
+    `doctor:ui-mobile-device` -> PASS; preview smoke `failed_count=0`;
+    doctor `status=blocked`, missing `adb`, `emulator`
+  - production:
+    `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -HealthRetryMaxAttempts 12 -HealthRetryDelaySeconds 10 -WaitForDeployParity -DeployParityMaxWaitSeconds 600 -DeployParityPollSeconds 20`
+    -> PASS; `health_status=ok`, `release_ready=true`,
+    `deployment_runtime_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`,
+    `web_shell_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+- next smallest useful task:
+  - capture native Expo Go/simulator proof after installing Android platform
+    tools or connecting a supported device
+
 - `PRJ-1184` is DONE:
   - `.codex/tasks/PRJ-1184-v15-mobile-ui-pr-created.md`
 - GitHub PR:

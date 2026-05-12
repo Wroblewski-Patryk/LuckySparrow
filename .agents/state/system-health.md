@@ -6,6 +6,7 @@ Last updated: 2026-05-12
 
 | Check | Command or method | Result | Evidence | Notes |
 | --- | --- | --- | --- | --- |
+| v1.5 mobile UI production deployment | backend pytest; web tsc/build/route smoke; mobile typecheck/preview smoke/device doctor; `git push origin main`; production release smoke with deploy parity | PASS | PRJ-1185 | PR #1 is merged and production release smoke passed for `43837bb183c8975845b99b65a03cea5ccf4903a0`; runtime and web shell revisions match the merge commit. First smoke attempt saw transient `503`; extended retry passed. Native proof remains blocked by missing `adb` and `emulator`. |
 | v1.5 mobile UI GitHub PR | GitHub connector PR creation; `git fetch origin main`; `git merge-base`; `git merge-tree`; `git diff --check` | PASS | PRJ-1184 | PR #1 is open at `https://github.com/Wroblewski-Patryk/Aviary/pull/1`; local merge/conflict check found no content conflict with `origin/main`; production remains pending until merge, Coolify deploy, and release smoke with deploy parity. |
 | v1.5 mobile UI PR and production promotion handoff | `npm run smoke:ui-mobile-preview`; `git diff --check` | PASS | PRJ-1183 | `docs/operations/v15-mobile-ui-pr-and-production-promotion-handoff-2026-05-12.md` records the pushed branch, PR URL, local preview URL, production promotion order, release-smoke command, rollback, and residual blockers. Production deployment is not yet claimed. |
 | v1.5 mobile native proof readiness | `npm run doctor:ui-mobile-device`; `npm run typecheck`; `npm run smoke:ui-mobile-preview` | BLOCKED | PRJ-1182 | Device-proof doctor writes `.codex/artifacts/prj1182-mobile-device-proof-doctor/report.json` and currently reports `status=blocked`, missing `adb` and `emulator`; local preview smoke remains green. |
@@ -87,4 +88,4 @@ posture. Provider mutation remains action-owned and confirmation-gated.
 ## Quality Gate Notes
 
 Latest task evidence:
-`.codex/tasks/PRJ-1184-v15-mobile-ui-pr-created.md`.
+`.codex/tasks/PRJ-1185-v15-mobile-ui-production-deploy-verified.md`.

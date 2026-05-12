@@ -1,6 +1,6 @@
 # Release Evidence Index
 
-Last updated: 2026-05-04
+Last updated: 2026-05-12
 
 ## Purpose
 
@@ -14,27 +14,27 @@ deployed.
 | Field | Value |
 | --- | --- |
 | Local branch | `main` |
-| Local selected candidate | `3b46ed3878a8560c3adb147fcadf064818ccc322` |
-| Local relation to `origin/main` | equal at PRJ-1125 refresh |
+| Local selected candidate | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
+| Local relation to `origin/main` | equal after PRJ-1185 v1.5 mobile UI production deploy |
 | Current release tag | `v1.0.1` |
 | Current release tag object | `b016c4f33051805cfa09664f79bbe57f5b30811b` |
 | Current release tag target commit | `3b46ed3878a8560c3adb147fcadf064818ccc322` |
 | Historical release tag | `v1.0.0` |
 | Historical release tag object | `b5d8379df1898aa5533bd72a7a1631d6044f2125` |
 | Historical release tag target commit | `5e64f494e2aac8d29cea532d95f7039ed6029213` |
-| Production backend revision | `3b46ed3878a8560c3adb147fcadf064818ccc322` |
-| Production web meta revision | `3b46ed3878a8560c3adb147fcadf064818ccc322` |
-| Production health | `ok`; HTTP `200` after PRJ-1128 Coolify UI redeploy |
+| Production backend revision | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
+| Production web meta revision | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
+| Production health | `ok`; HTTP `200` after PRJ-1185 Coolify source deploy |
 | Production release readiness | `true` |
 | Production v1 final acceptance | `core_v1_bundle_ready` |
 | Production deploy parity | `deploy_parity_surface_ready` |
 | Selected candidate release verdict | `GO_FOR_SELECTED_SHA`; `v1.0.1` go/no-go `GO` in PRJ-1131 |
-| Current workspace local validation | `passed`; backend pytest, web build, route smoke, focused web characterizations |
-| Current packaged candidate SHA | `3b46ed3878a8560c3adb147fcadf064818ccc322` |
+| Current workspace local validation | `passed`; backend pytest, web typecheck/build/route smoke, mobile typecheck/preview smoke/device doctor |
+| Current packaged candidate SHA | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
 | Post-push deploy parity wait | initially `failed`; recovered by approved Coolify UI redeploy in PRJ-1128 |
 | Local Coolify-shape candidate smoke | `passed`; build, migrate, app health, `/health`, and `/settings` |
 | Incident evidence export | `available`; PRJ-1128 exported a release-smoke bundle |
-| Coolify automation reliability | current release recovered by UI fallback; source/webhook reliability remains future-candidate follow-up |
+| Coolify automation reliability | PRJ-1185 source deploy reached parity after one transient production `503` during deploy window |
 | Coolify fallback readiness | UI fallback executed by explicit operator access; webhook fallback inputs still unavailable locally |
 | Organizer daily-use extension | `daily_use_workflows_blocked_by_provider_activation` |
 
@@ -107,6 +107,38 @@ Push-Location .\backend; ..\.venv\Scripts\python .\scripts\run_release_go_no_go.
 ```
 
 ## Latest Refresh Evidence
+
+- PRJ-1185 v1.5 mobile UI production deploy:
+  - GitHub PR:
+    `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
+  - merge commit:
+    `43837bb183c8975845b99b65a03cea5ccf4903a0`
+  - `git push origin main`:
+    `d250142..43837bb  main -> main`
+  - pre-merge backend gate:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `1074 passed`
+  - pre-merge web gate:
+    `Push-Location .\web; npm exec -- tsc -b --pretty false; if ($LASTEXITCODE -eq 0) { npm exec -- vite build }; if ($LASTEXITCODE -eq 0) { npm run smoke:routes }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=14`, `status=ok`
+  - pre-merge mobile gate:
+    `Push-Location .\mobile; npm run typecheck; if ($LASTEXITCODE -eq 0) { npm run smoke:ui-mobile-preview }; if ($LASTEXITCODE -eq 0) { npm run doctor:ui-mobile-device }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; preview smoke `failed_count=0`; device doctor
+    `status=blocked`, missing `adb`, `emulator`
+  - first production smoke:
+    failed with transient `503 Service Unavailable`
+  - second production smoke:
+    `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -HealthRetryMaxAttempts 12 -HealthRetryDelaySeconds 10 -WaitForDeployParity -DeployParityMaxWaitSeconds 600 -DeployParityPollSeconds 20`
+    -> PASS
+  - production smoke revision evidence:
+    - `health_status=ok`
+    - `release_ready=true`
+    - `deployment_runtime_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+    - `web_shell_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+    - `deployment_local_repo_head_sha=43837bb183c8975845b99b65a03cea5ccf4903a0`
+  - residual blocker:
+    native Expo Go/simulator proof remains blocked until Android platform tools
+    or a supported device is available
 
 - PRJ-1131 current release marker:
   - current release tag: `v1.0.1`

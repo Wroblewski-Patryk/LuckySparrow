@@ -6,6 +6,35 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-12: `PRJ-1185` verified the v1.5 mobile UI production deployment:
+  - task:
+    - `.codex/tasks/PRJ-1185-v15-mobile-ui-production-deploy-verified.md`
+  - PR:
+    - `https://github.com/Wroblewski-Patryk/Aviary/pull/1`
+  - production merge commit:
+    - `43837bb183c8975845b99b65a03cea5ccf4903a0`
+  - result:
+    - PR #1 is merged
+    - `main` was pushed to origin
+    - production release smoke passed against
+      `https://aviary.luckysparrow.ch`
+    - production runtime and web shell revisions both match
+      `43837bb183c8975845b99b65a03cea5ccf4903a0`
+    - the first smoke attempt saw transient deploy-window `503`; extended
+      retry passed
+  - validation:
+    - backend: `1074 passed`
+    - web: `tsc`, `vite build`, `smoke:routes` -> PASS; `route_count=14`
+    - mobile: `typecheck`, `smoke:ui-mobile-preview`,
+      `doctor:ui-mobile-device` -> PASS; preview smoke `failed_count=0`;
+      doctor `status=blocked`, missing `adb`, `emulator`
+    - production smoke -> PASS; `health_status=ok`, `release_ready=true`,
+      `deployment_runtime_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`,
+      `web_shell_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+  - next execution priority:
+    - capture native Expo Go/simulator proof after installing Android platform
+      tools or connecting a supported device
+
 - 2026-05-12: `PRJ-1184` created GitHub PR #1 for the v1.5 mobile UI branch:
   - task:
     - `.codex/tasks/PRJ-1184-v15-mobile-ui-pr-created.md`
