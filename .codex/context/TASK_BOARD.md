@@ -6,11 +6,14 @@ Last updated: 2026-05-12
 
 - `PRJ-1185` is DONE:
   - `.codex/tasks/PRJ-1185-v15-mobile-ui-production-deploy-verified.md`
-- result:
-  - PR #1 was merged and `main` was pushed to origin
-  - production release smoke passed for merge commit
-    `43837bb183c8975845b99b65a03cea5ccf4903a0`
-  - production runtime and web shell revisions both match the merge commit
+  - result:
+    - PR #1 was merged and `main` was pushed to origin
+    - production release smoke passed for merge commit
+      `43837bb183c8975845b99b65a03cea5ccf4903a0`
+    - production runtime and web shell revisions both match the merge commit
+    - final closure smoke and browser proof later passed for
+      `ff48b9b331aa2c924fa2a0025c0813883564b24a`; production rendered
+      `Poznaj Aviary` with JS/CSS assets
   - first smoke attempt hit a transient deploy-window `503`; the extended retry
     passed
   - native Expo Go/simulator proof remains blocked by missing `adb` and
@@ -26,6 +29,11 @@ Last updated: 2026-05-12
     -> PASS; `health_status=ok`, `release_ready=true`,
     `deployment_runtime_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`,
     `web_shell_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+  - production browser proof:
+    Chrome headless rendered `https://aviary.luckysparrow.ch/`; DOM included
+    `<title>Aviary</title>`, `aion-public-home`, `Poznaj Aviary`, and
+    production JS/CSS assets; screenshot:
+    `.codex/artifacts/prj1185-production-ui-browser-proof/production-home-1440x1200.png`
 - next smallest useful task:
   - capture native Expo Go/simulator proof after installing Android platform
     tools or connecting a supported device
@@ -39,8 +47,8 @@ Last updated: 2026-05-12
     `codex/v15-mobile-ui-deploy-commits` into `main`
   - local merge-base/conflict check found no content conflict with
     `origin/main`
-  - production remains pending until merge, Coolify deploy, and release smoke
-    with deploy parity
+  - at PR creation time, production still required merge, Coolify deploy, and
+    release smoke with deploy parity; PRJ-1185 later completed those gates
 - validation:
   - `git fetch origin main` -> PASS
   - `git merge-base HEAD origin/main` ->
@@ -80,7 +88,8 @@ Last updated: 2026-05-12
   - remote: `origin/codex/v15-mobile-ui-deploy-commits`
   - PR URL:
     `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
-  - `gh` is unavailable locally, so PR creation remains manual from the URL.
+  - historical note: `gh` was unavailable locally at branch-push time; PR #1
+    was later created through the GitHub connector and merged in PRJ-1185.
 
 - `PRJ-1182` is DONE:
   - `.codex/tasks/PRJ-1182-v15-mobile-device-proof-doctor.md`

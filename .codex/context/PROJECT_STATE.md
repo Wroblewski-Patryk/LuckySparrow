@@ -22,6 +22,10 @@ the same project.
       `43837bb183c8975845b99b65a03cea5ccf4903a0`
     - the first smoke attempt saw transient deploy-window `503`; extended
       retry passed
+    - final closure smoke and browser proof later passed for
+      `ff48b9b331aa2c924fa2a0025c0813883564b24a`; Chrome rendered
+      `https://aviary.luckysparrow.ch/` with `Poznaj Aviary` and production
+      JS/CSS assets
   - validation:
     - backend: `1074 passed`
     - web: `tsc`, `vite build`, `smoke:routes` -> PASS; `route_count=14`
@@ -31,6 +35,8 @@ the same project.
     - production smoke -> PASS; `health_status=ok`, `release_ready=true`,
       `deployment_runtime_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`,
       `web_shell_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
+    - closure production browser proof -> PASS; screenshot:
+      `.codex/artifacts/prj1185-production-ui-browser-proof/production-home-1440x1200.png`
   - next execution priority:
     - capture native Expo Go/simulator proof after installing Android platform
       tools or connecting a supported device
@@ -43,8 +49,9 @@ the same project.
   - result:
     - PR #1 points from `codex/v15-mobile-ui-deploy-commits` into `main`
     - local conflict checks found no content conflict with `origin/main`
-    - production remains pending until merge, Coolify deploy, and release smoke
-      with deploy parity
+    - at PR creation time, production still required merge, Coolify deploy,
+      and release smoke with deploy parity; PRJ-1185 later completed those
+      gates
   - validation:
     - `git fetch origin main` -> PASS
     - `git merge-base HEAD origin/main` ->

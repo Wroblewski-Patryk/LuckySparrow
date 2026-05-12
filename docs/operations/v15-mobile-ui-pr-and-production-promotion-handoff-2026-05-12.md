@@ -17,7 +17,7 @@ has been pushed for review:
 | Local preview | `http://127.0.0.1:8093` |
 | Preview health | `http://127.0.0.1:8093/__preview_health` |
 | Production host | `https://aviary.luckysparrow.ch` |
-| Production deployed | Yes. PR #1 merged and production release smoke passed for merge commit `43837bb183c8975845b99b65a03cea5ccf4903a0`. |
+| Production deployed | Yes. PR #1 merged, production release smoke passed for the UI merge commit `43837bb183c8975845b99b65a03cea5ccf4903a0`, and closure proof later confirmed deployed revision `ff48b9b331aa2c924fa2a0025c0813883564b24a`. |
 | Native device proof | Blocked locally by missing `adb` and `emulator`. |
 
 `gh` is not available in this environment. The GitHub connector created PR
@@ -90,6 +90,17 @@ Release-smoke output included:
 - `deployment_runtime_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
 - `web_shell_build_revision=43837bb183c8975845b99b65a03cea5ccf4903a0`
 - `deployment_local_repo_head_sha=43837bb183c8975845b99b65a03cea5ccf4903a0`
+
+Final closure proof after evidence-only updates:
+
+- production smoke passed for
+  `ff48b9b331aa2c924fa2a0025c0813883564b24a`
+- Chrome headless rendered `https://aviary.luckysparrow.ch/` with
+  `<title>Aviary</title>`, `aion-public-home`, `Poznaj Aviary`, production
+  JS/CSS assets, and screenshot
+  `.codex/artifacts/prj1185-production-ui-browser-proof/production-home-1440x1200.png`
+- later docs-only commits may change the live production revision; use
+  `/health` and `/settings` as the current revision source
 
 ## Production Promotion Steps For Future Runs
 

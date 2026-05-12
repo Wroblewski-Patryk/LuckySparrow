@@ -15,24 +15,24 @@ deployed.
 | --- | --- |
 | Local branch | `main` |
 | Local selected UI candidate | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
-| Latest verified evidence-only commit | `1b801d6813d8b6a0763a0ef996466392762e1b37` |
-| Local relation to `origin/main` | equal after PRJ-1185 evidence refresh |
+| Latest committed closure-proof revision | `ff48b9b331aa2c924fa2a0025c0813883564b24a` |
+| Local relation to `origin/main` | equal after PRJ-1185 closure-proof refresh |
 | Current release tag | `v1.0.1` |
 | Current release tag object | `b016c4f33051805cfa09664f79bbe57f5b30811b` |
 | Current release tag target commit | `3b46ed3878a8560c3adb147fcadf064818ccc322` |
 | Historical release tag | `v1.0.0` |
 | Historical release tag object | `b5d8379df1898aa5533bd72a7a1631d6044f2125` |
 | Historical release tag target commit | `5e64f494e2aac8d29cea532d95f7039ed6029213` |
-| Production backend revision | `1b801d6813d8b6a0763a0ef996466392762e1b37` at final PRJ-1185 smoke; verify with `/health` before treating as current after later docs commits |
-| Production web meta revision | `1b801d6813d8b6a0763a0ef996466392762e1b37` at final PRJ-1185 smoke; verify with `/settings` before treating as current after later docs commits |
-| Production health | `ok`; HTTP `200` after PRJ-1185 Coolify source deploy |
+| Production backend revision | live value must be read from `/health`; closure proof confirmed `ff48b9b331aa2c924fa2a0025c0813883564b24a` |
+| Production web meta revision | live value must be read from `/settings`; closure proof confirmed `ff48b9b331aa2c924fa2a0025c0813883564b24a` |
+| Production health | `ok`; HTTP `200` after PRJ-1185 Coolify source deploy and closure proof |
 | Production release readiness | `true` |
 | Production v1 final acceptance | `core_v1_bundle_ready` |
 | Production deploy parity | `deploy_parity_surface_ready` |
 | Selected candidate release verdict | `GO_FOR_SELECTED_SHA`; `v1.0.1` go/no-go `GO` in PRJ-1131 |
 | Current workspace local validation | `passed`; backend pytest, web typecheck/build/route smoke, mobile typecheck/preview smoke/device doctor |
 | Current packaged UI candidate SHA | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
-| Current packaged evidence SHA | `1b801d6813d8b6a0763a0ef996466392762e1b37` |
+| Current packaged closure-proof SHA | `ff48b9b331aa2c924fa2a0025c0813883564b24a` |
 | Post-push deploy parity wait | initially `failed`; recovered by approved Coolify UI redeploy in PRJ-1128 |
 | Local Coolify-shape candidate smoke | `passed`; build, migrate, app health, `/health`, and `/settings` |
 | Incident evidence export | `available`; PRJ-1128 exported a release-smoke bundle |
@@ -42,19 +42,22 @@ deployed.
 
 ## Current Decision
 
-`v1.0.1` is the current selected-SHA release marker for tag target commit
-`3b46ed3878a8560c3adb147fcadf064818ccc322`. `v1.0.0` remains historical marker
+`v1.0.1` remains the current selected-SHA release marker for tag target commit
+`3b46ed3878a8560c3adb147fcadf064818ccc322`; `v1.0.0` remains historical marker
 truth for tag target commit `5e64f494e2aac8d29cea532d95f7039ed6029213`.
 
-Local `main`, `origin/main`, production backend, and production web now point at
-the pushed post-v1 candidate
-`3b46ed3878a8560c3adb147fcadf064818ccc322`. PRJ-1128 restored production with
-the approved Coolify UI fallback and release smoke with deploy parity passed
-for that selected SHA.
+The current post-marker UI deployment evidence is PRJ-1185. PR #1 merged the
+v1.5 mobile/web UI candidate at
+`43837bb183c8975845b99b65a03cea5ccf4903a0`, production release smoke passed,
+and follow-up browser proof confirmed the public UI render on
+`https://aviary.luckysparrow.ch/`. Later evidence-only commits may update the
+live production revision without changing the v1.5 UI product candidate; always
+read `/health` and `/settings` for the latest deployed SHA.
 
 PRJ-1115 is retained as historical evidence for the `v1.0.0` marker. PRJ-1128
-is the current post-v1 candidate recovery point, and PRJ-1131 created and
-pushed annotated tag `v1.0.1` after selected-tag go/no-go returned `GO`.
+is the current post-v1 candidate recovery point, PRJ-1131 created and pushed
+annotated tag `v1.0.1`, and PRJ-1185 is the current v1.5 UI production evidence
+point.
 
 ## Required Proof Chain For A New Candidate
 
@@ -153,6 +156,18 @@ Push-Location .\backend; ..\.venv\Scripts\python .\scripts\run_release_go_no_go.
     future evidence-only commits change the production revision without
     changing the v1.5 UI product candidate; verify `/health` before treating
     this snapshot as the latest production SHA
+  - final closure proof after evidence wording cleanup:
+    - commit:
+      `ff48b9b331aa2c924fa2a0025c0813883564b24a`
+    - production smoke:
+      PASS; `health_status=ok`, `release_ready=true`,
+      `deployment_runtime_build_revision=ff48b9b331aa2c924fa2a0025c0813883564b24a`,
+      `web_shell_build_revision=ff48b9b331aa2c924fa2a0025c0813883564b24a`
+    - production browser proof:
+      Chrome headless rendered `https://aviary.luckysparrow.ch/` with
+      `<title>Aviary</title>`, `aion-public-home`, `Poznaj Aviary`, production
+      JS/CSS assets, and screenshot
+      `.codex/artifacts/prj1185-production-ui-browser-proof/production-home-1440x1200.png`
   - residual blocker:
     native Expo Go/simulator proof remains blocked until Android platform tools
     or a supported device is available
