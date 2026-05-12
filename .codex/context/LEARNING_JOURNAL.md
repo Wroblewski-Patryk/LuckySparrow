@@ -2111,3 +2111,23 @@ fixes for this repository.
 - Evidence:
   - `.codex/tasks/PRJ-1155-v11-settings-mobile-density.md`
   - `.agents/state/system-health.md`
+
+### 2026-05-12 - Mobile preview proof can leave the local Node preview server running
+
+- Context: PRJ-1185 v1.5 production closure audit after mobile/web UI proof.
+- Symptom: final environment cleanup found `node.exe scripts/serve-mobile-preview.mjs 8093`
+  still listening after prior preview validation.
+- Root cause: the local mobile preview server was kept alive for inspection
+  during the handoff and was not stopped before closure.
+- Guardrail: after mobile/web preview proof, check the exact preview port and
+  stop only the validation-owned process before final handoff.
+- Preferred pattern:
+  - `Get-NetTCPConnection -LocalPort 8093 -State Listen -ErrorAction SilentlyContinue`
+  - inspect `Win32_Process.CommandLine` for the owning PID
+  - stop the process only when it is the validation-owned preview command
+- Avoid:
+  - leaving preview servers running after browser/UI evidence is captured
+  - killing unrelated Node processes without command-line confirmation
+- Evidence:
+  - PRJ-1185 closure audit
+  - `Stop-Process -Id 34856 -Force`
