@@ -1,6 +1,1583 @@
 # TASK_BOARD
 
-Last updated: 2026-05-04
+Last updated: 2026-05-12
+
+## Project Status Dashboard (2026-05-12)
+
+- `PRJ-1179` is DONE:
+  - `.codex/tasks/PRJ-1179-v15-mobile-local-deploy-command.md`
+- result:
+  - `mobile/package.json` now exposes `deploy:ui-mobile-local`
+  - the command runs the Expo web export and then starts the local preview
+  - the deploy command was tested on `PORT=8094` without disturbing the
+    intentional user preview on `8093`
+  - no backend, auth, provider, live data, native device, or local cognition
+    behavior changed
+- validation:
+  - `PORT=8094 npm run deploy:ui-mobile-local` via `Start-Process`
+    -> PASS; `/__preview_health` returned HTTP 200,
+    `app=aviary-mobile-ui-preview`, `route_count=5`; test process stopped
+  - `Push-Location .\mobile; npm run smoke:ui-mobile-preview; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `preview_health.ok=true`, `route_count=5`,
+    `viewport_count=2`, `screenshot_count=10`, `failed_count=0`
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+- next smallest useful task:
+  - capture Expo Go/simulator proof when Android tooling or a device is
+    available
+
+- `PRJ-1178` is DONE:
+  - `.codex/tasks/PRJ-1178-v15-mobile-preview-health-gate.md`
+- result:
+  - `mobile/scripts/serve-mobile-preview.mjs` now exposes
+    `/__preview_health`
+  - `mobile/scripts/mobile-preview-smoke.mjs` now validates preview identity
+    before route screenshot proof
+  - local preview was restarted on `http://127.0.0.1:8093`
+  - no backend, auth, provider, live data, native device, or local cognition
+    behavior changed
+- validation:
+  - preview health check -> HTTP 200, `app=aviary-mobile-ui-preview`,
+    `route_count=5`
+  - `Push-Location .\mobile; npm run smoke:ui-mobile-preview; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `preview_health.ok=true`, `route_count=5`,
+    `viewport_count=2`, `screenshot_count=10`, `failed_count=0`
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+- next smallest useful task:
+  - capture Expo Go/simulator proof when Android tooling or a device is
+    available
+
+- `PRJ-1177` is DONE:
+  - `.codex/tasks/PRJ-1177-v15-mobile-preview-all-routes-smoke.md`
+- result:
+  - `mobile/package.json` now exposes `smoke:ui-mobile-preview`
+  - `mobile/scripts/mobile-preview-smoke.mjs` validates the running local
+    preview across Home, Chat, Personality, Settings, and Tools
+  - all five seeded routes now have phone and tablet preview HTTP, DOM, and
+    screenshot proof
+  - no backend, auth, provider, live data, native device, or local cognition
+    behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run smoke:ui-mobile-preview; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - screenshots reviewed:
+    `.codex/artifacts/prj1177-mobile-ui-preview-smoke/preview-personality-phone-390x1200.png`
+    and
+    `.codex/artifacts/prj1177-mobile-ui-preview-smoke/preview-tools-tablet-820x1180.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof when Android tooling or a device is
+    available
+
+- `PRJ-1176` is DONE:
+  - `.codex/tasks/PRJ-1176-v15-mobile-ui-local-preview.md`
+- result:
+  - `mobile/package.json` now exposes `export:ui-mobile` and
+    `preview:ui-mobile`
+  - `mobile/scripts/serve-mobile-preview.mjs` serves the Expo web export with
+    fallback-to-index routing
+  - local preview is available at `http://127.0.0.1:8093`
+  - no backend, auth, provider, live data, or local cognition behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`,
+    `screenshot_count=10`, `action_proof_count=3`,
+    `state_proof_count=4`, `failed_count=0`, `export_cleaned=true`
+  - `Push-Location .\mobile; npm run export:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - HTTP smoke: `/` -> 200 and `/chat` -> 200
+  - render smoke screenshots:
+    `.codex/artifacts/prj1176-mobile-ui-preview/preview-home-390x1200.png`,
+    `.codex/artifacts/prj1176-mobile-ui-preview/preview-chat-390x1200.png`,
+    and `.codex/artifacts/prj1176-mobile-ui-preview/preview-tools-390x1200.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof when Android tooling or a device is
+    available
+
+- `PRJ-1175` is DONE:
+  - `.codex/tasks/PRJ-1175-v15-mobile-stack-header-and-audit-cache.md`
+- result:
+  - `mobile/app/_layout.tsx` now aligns Stack header chrome with mobile theme
+    tokens
+  - `mobile/scripts/mobile-ui-audit.mjs` now caches route DOM dumps so action
+    and state proof rows do not repeat Chromium page dumps
+  - Expo Go/device proof remains blocked in this local session because `adb`
+    is not available
+  - no live data loading, backend, auth, provider, internal debug, interaction
+    state, or local cognition behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`,
+    `screenshot_count=10`, `action_proof_count=3`,
+    `state_proof_count=4`, `failed_count=0`, `export_cleaned=true`
+  - screenshots reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-home-phone-390x1200.png`
+    and `.codex/artifacts/prj1164-mobile-ui-audit/mobile-chat-tablet-820x1180.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof when Android tooling or a device is
+    available
+
+- `PRJ-1174` is DONE:
+  - `.codex/tasks/PRJ-1174-v15-mobile-ui-state-coverage.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `StateNotice`
+  - Tools includes visible loading, empty, error, and success state coverage
+  - `mobile/scripts/mobile-ui-audit.mjs` now reports
+    `state_proof_count=4`
+  - no live data loading, backend, auth, provider, internal debug, interaction
+    state, or local cognition behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS on rerun; `route_count=5`, `viewport_count=2`,
+    `screenshot_count=10`, `action_proof_count=3`,
+    `state_proof_count=4`, `failed_count=0`, `export_cleaned=true`
+  - screenshots reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-tools-phone-390x1200.png`
+    and `.codex/artifacts/prj1164-mobile-ui-audit/mobile-tools-tablet-820x1180.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof before app-facing data wiring
+
+- `PRJ-1173` is DONE:
+  - `.codex/tasks/PRJ-1173-v15-mobile-shared-section-header.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `SectionHeader`
+  - Home, Personality, Settings, and Tools matching panel headers use the
+    shared label/title/description pattern
+  - no mobile runtime, backend, auth, provider, internal debug, interaction
+    state, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `action_proof_count=3`, `failed_count=0`, `export_cleaned=true`
+  - screenshots reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-settings-tablet-820x1180.png`
+    and `.codex/artifacts/prj1164-mobile-ui-audit/mobile-personality-phone-390x1200.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof before app-facing data wiring
+
+- `PRJ-1172` is DONE:
+  - `.codex/tasks/PRJ-1172-v15-mobile-action-proof-audit.md`
+- result:
+  - `mobile/scripts/mobile-ui-audit.mjs` now reports
+    `action_proof_count=3`
+  - Chat `Send`, Settings `Review reset boundary`, and Tools
+    `Review preferences` are checked through repeatable DOM proof
+  - Chromium audit calls now have timeout protection
+  - no mobile runtime, backend, auth, provider, internal debug, interaction
+    state, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `action_proof_count=3`, `failed_count=0`, `export_cleaned=true`
+- next smallest useful task:
+  - capture Expo Go/simulator proof before app-facing data wiring, or add
+    Playwright-based full-page visual CTA screenshots if that becomes required
+
+- `PRJ-1171` is DONE:
+  - `.codex/tasks/PRJ-1171-v15-mobile-shared-action-button.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `ActionButton`
+  - Chat, Settings, and Tools CTAs use the shared primary/danger button pattern
+  - no backend, auth, provider, internal debug, interaction state, or data
+    wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`, `export_cleaned=true`
+  - tablet screenshots reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-chat-tablet-820x1180.png`,
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-settings-tablet-820x1180.png`,
+    and `.codex/artifacts/prj1164-mobile-ui-audit/mobile-tools-tablet-820x1180.png`
+- next smallest useful task:
+  - extend `npm run audit:ui-mobile` for full-page/scroll CTA proof or capture
+    Expo Go/simulator proof before app-facing data wiring
+
+- `PRJ-1170` is DONE:
+  - `.codex/tasks/PRJ-1170-v15-mobile-shared-segmented-control.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `SegmentedControl`
+  - Home and Chat mode selectors use the shared pill-based segmented control
+  - no backend, auth, provider, internal debug, interaction state, or data
+    wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`, `export_cleaned=true`
+  - phone screenshots reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-chat-phone-390x1200.png`
+    and `.codex/artifacts/prj1164-mobile-ui-audit/mobile-home-phone-390x1200.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1169` is DONE:
+  - `.codex/tasks/PRJ-1169-v15-mobile-shared-info-row.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `InfoRow`
+  - personality mind-layer and foreground rows use the shared row pattern
+  - tools item rows use the shared row pattern
+  - Home contract rows remain separate because they optimize for long endpoint
+    strings
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`, `export_cleaned=true`
+  - phone screenshot reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-personality-phone-390x1200.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1168` is DONE:
+  - `.codex/tasks/PRJ-1168-v15-mobile-shared-metric-card.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `MetricCard`
+  - chat context cards, settings facts, and tools posture cards use the shared
+    metric/fact card pattern
+  - Home keeps bespoke signal cards because they carry a tone marker inside the
+    landing hero
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS after fixing `MetricCard.minWidth` to use React Native
+    `DimensionValue`
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`, `export_cleaned=true`
+  - phone screenshot reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-settings-phone-390x1200.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1167` is DONE:
+  - `.codex/tasks/PRJ-1167-v15-mobile-shared-screen-hero.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `ScreenHero`
+  - chat, personality, settings, and tools use the shared label/title/
+    description plus status pattern
+  - Home keeps its bespoke introductory hero for the mobile landing shell
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`, `export_cleaned=true`
+  - phone screenshot reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-chat-phone-390x1200.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1166` is DONE:
+  - `.codex/tasks/PRJ-1166-v15-mobile-shared-screen-scroll-width.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `ScreenScrollView`
+  - Home, chat, personality, settings, and tools screens now use the shared
+    scroll primitive instead of route-local `ScrollView` wrappers
+  - tablet content is centered with a calmer max width while phone layout keeps
+    compact spacing
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`, `export_cleaned=true`
+  - tablet screenshot reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-home-tablet-820x1180.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1165` is DONE:
+  - `.codex/tasks/PRJ-1165-v15-mobile-tablet-audit-coverage.md`
+- result:
+  - `mobile/scripts/mobile-ui-audit.mjs` now captures Home, chat,
+    personality, settings, and tools in both `390x1200` phone and `820x1180`
+    tablet viewports
+  - the audit report now includes `viewport_count`, `screenshot_count`, and
+    per-result viewport metadata
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `viewport_count=2`, `screenshot_count=10`,
+    `failed_count=0`, `export_cleaned=true`
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - tablet screenshot reviewed:
+    `.codex/artifacts/prj1164-mobile-ui-audit/mobile-personality-tablet-820x1180.png`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1164` is DONE:
+  - `.codex/tasks/PRJ-1164-v15-mobile-ui-audit-command.md`
+- result:
+  - `mobile/package.json` now exposes `npm run audit:ui-mobile`
+  - `mobile/scripts/mobile-ui-audit.mjs` exports the Expo web build,
+    fallback-hosts deep links, captures Home/chat/personality/settings/tools
+    screenshots at `390x1200`, checks expected route text through DOM dump,
+    writes a JSON report, and cleans up `.expo-web-export`
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run audit:ui-mobile; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=5`, `failed_count=0`, `export_cleaned=true`
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - report and screenshots:
+    `.codex/artifacts/prj1164-mobile-ui-audit/`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1163` is DONE:
+  - `.codex/tasks/PRJ-1163-v15-mobile-home-route-rail.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now includes Home in the shared `RouteRail`
+    route list and supports `active="home"`
+  - `mobile/src/ui/home-screen.tsx` now renders the shared route rail and no
+    longer keeps a duplicate local route-button list
+  - the simple shared rail remains the current v1.5 navigation seed; native
+    tabs remain deferred until device proof
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npx expo export --platform web --output-dir .expo-web-export; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - fallback-hosted screenshots:
+    `.codex/artifacts/prj1163-mobile-home-route-rail/` reviewed
+  - cleanup:
+    no `chrome-headless-shell` process and no active listener on validation
+    port `8089`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1162` is DONE:
+  - `.codex/tasks/PRJ-1162-v15-mobile-route-rail.md`
+- result:
+  - `mobile/src/ui/primitives.tsx` now exports `RouteRail`
+  - chat, personality, settings, and tools routes render the shared rail with
+    active route state
+  - the rail uses existing Expo Router `Link` primitives and does not add a
+    native tabs dependency
+  - no backend, auth, provider, internal debug, or data wiring behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npx expo export --platform web --output-dir .expo-web-export; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - fallback-hosted screenshots:
+    `.codex/artifacts/prj1162-mobile-route-rail/` reviewed
+  - cleanup:
+    no `chrome-headless-shell` process and no active listener on validation
+    port `8088`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1161` is DONE:
+  - `.codex/tasks/PRJ-1161-v15-mobile-personality-route.md`
+- result:
+  - `mobile/app/personality.tsx` now owns a native `/personality` route
+  - `mobile/app/_layout.tsx` registers personality in the Expo stack
+  - `mobile/src/ui/personality-screen.tsx` adds a mobile observational state
+    map for identity, knowledge, planning, skills, mind layers, and
+    conscious-layer posture
+  - `mobile/src/ui/home-screen.tsx` now links to chat, personality, settings,
+    and tools with wrapped touch-sized route buttons
+  - no live personality API wiring, provider execution, action controls, auth,
+    backend, internal debug, or cognition behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npx expo export --platform web --output-dir .expo-web-export; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - fallback-hosted screenshot:
+    `.codex/artifacts/prj1161-mobile-personality-route/mobile-personality-390x1400.png`
+    reviewed
+  - cleanup:
+    no `chrome-headless-shell` process and no active listener on validation
+    port `8087`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1160` is DONE:
+  - `.codex/tasks/PRJ-1160-v15-mobile-support-routes.md`
+- result:
+  - `mobile/app/settings.tsx` and `mobile/src/ui/settings-screen.tsx` add a
+    native settings route focused on profile, language, UTC, follow-up posture,
+    and guarded reset boundary
+  - `mobile/app/tools.tsx` and `mobile/src/ui/tools-screen.tsx` add a native
+    tools route focused on app-facing capability visibility without provider
+    secrets or local execution claims
+  - `mobile/app/_layout.tsx` registers settings and tools in the Expo stack
+  - `mobile/src/ui/home-screen.tsx` now links to chat, settings, and tools
+  - no settings persistence, tool preference mutation, provider execution,
+    auth, backend, internal debug, or cognition behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npx expo export --platform web --output-dir .expo-web-export; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - fallback-hosted screenshots:
+    `.codex/artifacts/prj1160-mobile-support-routes/mobile-settings-390x1200.png`
+    and
+    `.codex/artifacts/prj1160-mobile-support-routes/mobile-tools-390x1200.png`
+    reviewed
+  - cleanup:
+    no `chrome-headless-shell` process and no active listener on validation
+    port `8086`
+- next smallest useful task:
+  - capture Expo Go/simulator proof or decide native auth transport before
+    app-facing data wiring
+
+- `PRJ-1159` is DONE:
+  - `.codex/tasks/PRJ-1159-v15-mobile-chat-route.md`
+- result:
+  - `mobile/app/chat.tsx` now owns a native `/chat` route
+  - `mobile/app/_layout.tsx` registers the chat route in the Expo stack
+  - `mobile/src/ui/chat-screen.tsx` adds a conversation-first chat screen with
+    context cards, transcript, mode selector, text input, and send affordance
+  - `mobile/src/ui/primitives.tsx` centralizes shared mobile UI pieces used by
+    home and chat
+  - `mobile/src/ui/home-screen.tsx` links to the chat route
+  - no backend, auth, provider, internal debug, send-message, or cognition
+    behavior changed
+- validation:
+  - `Push-Location .\mobile; npm run typecheck; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npx expo export --platform web --output-dir .expo-web-export; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - fallback-hosted screenshot:
+    `.codex/artifacts/prj1159-mobile-chat-route/mobile-chat-390x1200-v2.png`
+    reviewed
+  - cleanup:
+    no `chrome-headless-shell` process and no active listeners on validation
+    ports `8084` or `8085`
+- known validation note:
+  - plain static `/chat` capture returned `404`; Expo static export deep links
+    require fallback-to-index hosting, which produced the valid proof
+- next smallest useful task:
+  - capture Expo Go/simulator proof or wire read-only app-facing chat data
+    after native auth transport posture is selected
+
+- `PRJ-1158` is DONE:
+  - `.codex/tasks/PRJ-1158-v15-mobile-native-shell-seed.md`
+- plan:
+  - `docs/planning/v1.5-mobile-ui-plan.md`
+- result:
+  - `mobile/app/index.tsx` now stays a thin Expo Router route wrapper
+  - `mobile/src/ui/home-screen.tsx` introduces a conversation-first native
+    shell with signal cards, transcript preview, composer affordance, and a
+    backend-owned contract boundary summary
+  - `mobile/src/theme.ts` now carries native UI tokens derived from the v1.1
+    visual direction
+  - `mobile/package.json` and `mobile/package-lock.json` include
+    `react-native-web` plus pinned `react-dom@19.2.0` so Expo web export can
+    provide lightweight render proof
+  - no backend, auth, provider, internal debug, or cognition behavior changed
+- validation:
+  - `Push-Location .\mobile; npm install; if ($LASTEXITCODE -eq 0) { npm run typecheck }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npm install react-native-web@^0.21.0 react-dom@19.2.0; if ($LASTEXITCODE -eq 0) { npm run typecheck }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - `Push-Location .\mobile; npx expo export --platform web --output-dir .expo-web-export; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - headless Chromium screenshot:
+    `.codex/artifacts/prj1158-mobile-native-shell/mobile-shell-390x1200-v2.png`
+    reviewed; first screenshot attempt was blank, rerun with
+    `--virtual-time-budget=10000` was nonblank
+  - cleanup:
+    no `chrome-headless-shell` process and no active `8083` listener remained
+- known validation note:
+  - `npm audit --omit=dev --audit-level=moderate` reports 4 moderate
+    advisories through Expo's `postcss` dependency chain; the suggested force
+    fix would downgrade Expo to `49.0.23`, so it was not applied
+- next smallest useful task:
+  - add focused native chat route or capture Expo Go/simulator proof before
+    claiming production mobile readiness
+
+- `PRJ-1157` is DONE:
+  - `.codex/tasks/PRJ-1157-v11-web-ui-responsive-handoff.md`
+- result:
+  - v1.1 web responsive UI is verified for the selected web scope
+  - representative desktop/tablet/mobile screenshots were reviewed after the
+    route-specific polish sequence
+  - native/mobile remains a later `v1.5` product scope
+- validation:
+  - latest `PRJ-1156` gate:
+    `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS
+  - report readback:
+    `route_count=14`, `screenshot_count=18`, `ui_audit.status=ok`,
+    `failed_count=0`
+  - cleanup:
+    no `chrome-headless-shell` process and no `5173` listener remained after
+    validation
+- next smallest useful task:
+  - use v1.1 evidence to plan `v1.5` mobile or start a new explicit UI polish
+    slice from feedback
+
+- `PRJ-1156` is DONE:
+  - `.codex/tasks/PRJ-1156-v11-dashboard-lower-mobile-ranking.md`
+- result:
+  - dashboard lower mobile guidance, recent activity, intention, and closure
+    sections now read as a more compact ranked sequence after the first-read
+    hero/flow content
+  - dashboard behavior, data contracts, API calls, auth/session behavior, and
+    native mobile scope were not changed
+- validation:
+  - `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `ui_audit.status=ok`; `failed_count=0`; refreshed
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-dashboard.png`
+    reviewed
+- next smallest useful task:
+  - continue v1.1 with a final route/screenshot pass or another narrow route
+    polish item found by that pass
+
+- `PRJ-1155` is DONE:
+  - `.codex/tasks/PRJ-1155-v11-settings-mobile-density.md`
+- result:
+  - settings mobile cards, controls, fact rows, proactive/save panels, and
+    reset panel now use a denser mobile rhythm
+  - settings behavior, reset behavior, API contracts, and auth/session behavior
+    were not changed
+- validation:
+  - `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> build PASS; first audit failed before product assertions with
+    `Target page, context or browser has been closed`
+  - cleanup plus
+    `Push-Location .\web; npm run audit:ui-responsive; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `ui_audit.status=ok`; `failed_count=0`; refreshed
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-settings.png`
+    reviewed
+- next smallest useful task:
+  - continue v1.1 route-by-route polish; likely next candidate is dashboard
+    lower-section ranking
+
+- `PRJ-1154` is DONE:
+  - `.codex/tasks/PRJ-1154-v11-tools-mobile-density.md`
+- result:
+  - tools mobile metadata now uses a compact two-column fact grid
+  - route-local overview, summary, directory, item-card, fact-card, and
+    detail-card spacing was reduced
+  - no route behavior, provider execution, API, data contract, auth, env,
+    secret, or deployment behavior changed
+- validation:
+  - `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `ui_audit.status=ok`; `failed_count=0`; refreshed
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-tools.png`
+    reviewed
+- next smallest useful task:
+  - continue v1.1 route-by-route polish; likely next candidates are dashboard
+    lower-section ranking or settings mobile refinement
+
+- `PRJ-1153` is DONE:
+  - `.codex/tasks/PRJ-1153-v11-tools-tablet-readability.md`
+- result:
+  - tools tablet cards now use full-width item layout and a two-column metadata
+    grid
+  - the `Control` label/value no longer collides with adjacent tool metadata
+    in the `1024px` tablet screenshot
+  - no route behavior, provider execution, API, data contract, auth, env,
+    secret, or deployment behavior changed
+- validation:
+  - `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `ui_audit.status=ok`; `failed_count=0`; refreshed
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/tablet-tools.png`
+    reviewed
+- next smallest useful task:
+  - continue v1.1 route-by-route polish; likely next candidates are dashboard
+    lower-section ranking or support-route mobile length refinement
+
+- `PRJ-1152` is DONE:
+  - `.codex/tasks/PRJ-1152-v11-personality-mobile-balance.md`
+- result:
+  - personality mobile callouts now keep readable labels and titles while
+    exposing more of the embodied figure scene
+  - the layer timeline is compacted on narrow screens so it behaves like a
+    mobile summary instead of a tall desktop-derived panel
+  - no route behavior, API, data contract, provider, auth, env, secret, or
+    deployment behavior changed
+- validation:
+  - `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `ui_audit.status=ok`; `failed_count=0`; refreshed
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-personality.png`
+    reviewed
+- next smallest useful task:
+  - continue v1.1 route-by-route polish; likely next candidates are dashboard
+    lower-section ranking or support-route mobile/tablet refinement
+
+- `PRJ-1151` is DONE:
+  - `.codex/tasks/PRJ-1151-v11-dashboard-mobile-compression.md`
+- result:
+  - dashboard mobile first-read composition now brings the figure scene above
+    the signal grid at narrow widths
+  - repeated mobile spacing, signal cards, flow steps, and lower cards were
+    compressed through existing dashboard CSS classes
+  - no route behavior, API, data contract, provider, auth, env, secret, or
+    deployment behavior changed
+- validation:
+  - `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `ui_audit.status=ok`; `failed_count=0`; refreshed
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-dashboard.png`
+    reviewed
+- next smallest useful task:
+  - continue v1.1 route-by-route polish; likely next candidates are
+    personality mobile balance or dashboard lower-section ranking
+
+- `PRJ-1150` is DONE:
+  - `.codex/tasks/PRJ-1150-v11-web-ui-responsive-baseline.md`
+- result:
+  - started `v1.1` as the web UI responsive quality milestone after the
+    selected-scope v1 handoff
+  - added `npm run audit:ui-responsive`, backed by the existing
+    `web/scripts/route-smoke.mjs` server/mock API path
+  - captured responsive screenshots for landing, dashboard, chat, personality,
+    settings, and tools across desktop, tablet, and mobile web
+  - fixed the shared authenticated tablet shell overflow discovered at
+    `1024px`
+  - aligned chat tablet composition with the documented v5
+    conversation/persona split
+  - recorded the v1.1 plan in
+    `docs/planning/v1.1-web-ui-responsive-plan.md`
+- validation:
+  - `Push-Location .\web; npm run build; if ($LASTEXITCODE -eq 0) { npm run audit:ui-responsive }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `route_count=14`; `ui_audit.screenshot_count=18`;
+    `ui_audit.status=ok`; `failed_count=0`
+  - `Push-Location .\web; npm run audit:ui-responsive; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; report stored at
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/report.json`
+- next smallest useful task:
+  - review captured screenshots and rank remaining visual drift; likely first
+    candidates are dashboard mobile compression and personality mobile balance
+
+- Selected-scope v1 handoff is recorded:
+  - `docs/operations/v1-selected-scope-handoff-2026-05-11.md`
+- current selected-scope status:
+  - `docs/operations/project-status-dashboard.md` reports `11/11` selected
+    rows ready, no active blockers, and no evidence gaps
+  - `docs/planning/v1-core-acceptance-bundle.md` reports core no-UI v1 GO and
+    current selected release marker `v1.0.1`
+- residual scope:
+  - deferred extension/follow-up rows stay visible and should restart only
+    when their explicit triggers exist
+
+- `PRJ-933` is DONE:
+  - `.codex/tasks/PRJ-933-align-architecture-radar-with-v1-release-boundary.md`
+- result:
+  - aligned generated architecture radar semantics with the existing current-v1
+    release boundary
+  - organizer provider activation, proactive target sampling, future-candidate
+    source/webhook automation proof, and mobile restart are now visible
+    deferred extension/follow-up rows, not selected-scope blockers
+  - current dashboard state:
+    - phase:
+      `architecture complete for selected scope with deferred extensions`
+    - selected-scope readiness: `11/11` rows, `100.0%`
+    - all-scope readiness: `11/15` rows, `73.3%`
+    - bucket counts:
+      `DEFERRED=4`, `READY=11`
+    - active blockers: none
+    - evidence gaps: none
+  - no runtime, API, provider, auth, DB, env, secret, deployment, mobile, or
+    product UI behavior changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_architecture_implementation_map.py; if ($LASTEXITCODE -eq 0) { ..\.venv\Scripts\python .\scripts\generate_project_status_dashboard.py }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `rows=15`;
+    `buckets=DEFERRED:4,READY:11`;
+    selected-scope readiness `11/11`
+- next smallest useful task:
+  - preserve evidence; do not reopen deferred extension rows without their
+    explicit release-scope trigger
+
+- `PRJ-932` is DONE:
+  - `.codex/tasks/PRJ-932-refresh-secondary-architecture-maps.md`
+- result:
+  - refreshed the secondary architecture traceability/codebase maps from the
+    current generated audit/dashboard
+  - `ARCH-DOC-MAPS-001` moved to `READY`
+  - current dashboard state:
+    - phase:
+      `architecture evidence hardening with external blocker`
+    - selected-scope readiness: `11/14` rows, `78.6%`
+    - all-scope readiness: `11/15` rows, `73.3%`
+    - bucket counts:
+      `DEFERRED=1`, `IMPLEMENTED_NEEDS_EVIDENCE=2`, `READY=11`,
+      `V1_BLOCKER=1`
+    - top blocker: `ARCH-CONNECTORS-001`
+    - remaining evidence/scope rows:
+      `ARCH-PROACTIVE-001`, `ARCH-DEPLOY-AUTO-001`, `ARCH-MOBILE-001`
+  - no runtime, API, provider, auth, DB, env, secret, deployment, mobile, or
+    product UI behavior changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_architecture_implementation_map.py; if ($LASTEXITCODE -eq 0) { ..\.venv\Scripts\python .\scripts\generate_project_status_dashboard.py }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `rows=15`;
+    `buckets=DEFERRED:1,IMPLEMENTED_NEEDS_EVIDENCE:2,READY:11,V1_BLOCKER:1`;
+    selected-scope readiness `11/14`
+- next smallest useful task:
+  - use existing release-boundary docs to decide whether remaining rows are
+    active blockers, accepted external follow-ups, or explicit deferred scope
+
+- `PRJ-931` is DONE:
+  - `.codex/tasks/PRJ-931-repair-web-route-smoke-and-close-web-ux-evidence.md`
+- result:
+  - repaired `ARCH-WEB-UX-001` after the `PRJ-930` browser harness blocker
+  - `web/scripts/route-smoke.mjs` now uses Playwright when available and
+    validates route markers, body text, framework overlay absence, and visible
+    interactive control accessible names
+  - `web/src/components/chat.tsx` now gives the chat composer textarea an
+    accessible name
+  - `ARCH-WEB-UX-001` moved to `READY`
+  - current dashboard state:
+    - phase:
+      `architecture evidence hardening with external blocker`
+    - selected-scope readiness: `10/14` rows, `71.4%`
+    - all-scope readiness: `10/15` rows, `66.7%`
+    - bucket counts:
+      `DEFERRED=1`, `IMPLEMENTED_NEEDS_EVIDENCE=3`, `READY=10`,
+      `V1_BLOCKER=1`
+    - top blocker: `ARCH-CONNECTORS-001`
+    - next without external inputs: `ARCH-DOC-MAPS-001`
+  - no runtime, API, provider, auth, DB, env, secret, deployment, or product UI
+    flow changed
+- validation:
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; if ($LASTEXITCODE -eq 0) { npm exec -- vite build }; if ($LASTEXITCODE -eq 0) { npm run smoke:routes }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> passed with route smoke `status=ok`, `route_count=14`, zero visible
+    unnamed interactive controls
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_architecture_implementation_map.py; if ($LASTEXITCODE -eq 0) { ..\.venv\Scripts\python .\scripts\generate_project_status_dashboard.py }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `rows=15`;
+    `buckets=DEFERRED:1,IMPLEMENTED_NEEDS_EVIDENCE:3,READY:10,V1_BLOCKER:1`;
+    selected-scope readiness `10/14`
+  - cleanup checks found no local `5173` listener, no validation Chrome
+    profile processes, and zero `aion-route-smoke-*` temp profile directories
+- next smallest useful task:
+  - if provider credentials are available, work `ARCH-CONNECTORS-001`
+  - otherwise work `ARCH-DOC-MAPS-001`
+
+- `PRJ-930` is BLOCKED:
+  - `.codex/tasks/PRJ-930-run-web-ux-route-state-evidence-pass.md`
+- result:
+  - attempted `ARCH-WEB-UX-001` route-state evidence after `PRJ-929`
+  - Browser plugin path was blocked by no active Codex browser pane
+  - `npm run smoke:routes` failed before route-state assertions with Chrome/CDP
+    timeout:
+    `Timed out waiting for CDP response to Page.enable`
+  - `npm exec -- tsc -b --pretty false` passed
+  - `npm exec -- vite build` passed
+  - generated command packs now preserve native exit codes so failed `npm`
+    commands are not hidden by a later `Pop-Location`
+  - cleanup completed:
+    - validation-owned Vite server on `127.0.0.1:5173` was stopped
+    - no Chrome processes with `aion-route-smoke`,
+      `aion-connector-confirmation`, or `aion-dump-test` profiles remained
+  - no runtime, API, provider, auth, DB, env, secret, deployment, or UI
+    behavior changed
+- validation:
+  - `Push-Location .\web; npm run smoke:routes; if ($LASTEXITCODE -eq 0) { npm exec -- tsc -b --pretty false }; if ($LASTEXITCODE -eq 0) { npm exec -- vite build }; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> failed with `Timed out waiting for CDP response to Page.enable`
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location`
+    -> passed
+- next smallest useful task:
+  - repair or replace `web/scripts/route-smoke.mjs` route-state browser proof,
+    then rerun `ARCH-WEB-UX-001`
+
+- `PRJ-929` is DONE:
+  - `.codex/tasks/PRJ-929-add-architecture-row-validation-command-packs.md`
+- result:
+  - added generated row-specific validation command packs to the architecture
+    implementation audit CSV/report
+  - exposed `validation_command_pack` in the project status dashboard JSON and
+    evidence-gap dashboard table
+  - moved `ARCH-TEST-EVIDENCE-001` from `IMPLEMENTED_NEEDS_EVIDENCE` to
+    `READY`
+  - current dashboard state:
+    - phase:
+      `architecture evidence hardening with external blocker`
+    - selected-scope readiness: `9/14` rows, `64.3%`
+    - all-scope readiness: `9/15` rows, `60.0%`
+    - bucket counts:
+      `DEFERRED=1`, `IMPLEMENTED_NEEDS_EVIDENCE=4`, `READY=9`,
+      `V1_BLOCKER=1`
+    - top blocker: `ARCH-CONNECTORS-001`
+    - next without external inputs: `ARCH-WEB-UX-001`
+  - no runtime, API, provider, auth, DB, env, secret, deployment, or UI
+    behavior changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_architecture_implementation_map.py; ..\.venv\Scripts\python .\scripts\generate_project_status_dashboard.py; Pop-Location`
+    -> `rows=15`;
+    `buckets=DEFERRED:1,IMPLEMENTED_NEEDS_EVIDENCE:4,READY:9,V1_BLOCKER:1`;
+    selected-scope readiness `9/14`
+- next smallest useful task:
+  - if provider credentials are available, work `ARCH-CONNECTORS-001`
+  - otherwise work `ARCH-WEB-UX-001` for focused route-state and accessibility
+    evidence
+
+- `PRJ-928` is DONE:
+  - `.codex/tasks/PRJ-928-create-project-status-dashboard.md`
+- result:
+  - added a generated current-status dashboard:
+    - `docs/operations/project-status-dashboard.md`
+    - `docs/operations/project-status-dashboard.json`
+  - added the dashboard generator:
+    - `backend/scripts/generate_project_status_dashboard.py`
+  - current dashboard state:
+    - phase:
+      `architecture evidence hardening with external blocker`
+    - selected-scope readiness: `8/14` rows, `57.1%`
+    - all-scope readiness: `8/15` rows, `53.3%`
+    - bucket counts:
+      `DEFERRED=1`, `IMPLEMENTED_NEEDS_EVIDENCE=5`, `READY=8`,
+      `V1_BLOCKER=1`
+    - top blocker: `ARCH-CONNECTORS-001`
+    - next without external inputs: `ARCH-TEST-EVIDENCE-001`
+  - no runtime, API, provider, auth, DB, env, secret, deployment, or UI
+    behavior changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_architecture_implementation_map.py; Pop-Location`
+    -> `rows=15`;
+    `buckets=DEFERRED:1,IMPLEMENTED_NEEDS_EVIDENCE:5,READY:8,V1_BLOCKER:1`
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\generate_project_status_dashboard.py; Pop-Location`
+    -> phase `architecture evidence hardening with external blocker`;
+    selected-scope readiness `8/14`;
+    next rows
+    `ARCH-CONNECTORS-001,ARCH-TEST-EVIDENCE-001,ARCH-WEB-UX-001,ARCH-DOC-MAPS-001,ARCH-PROACTIVE-001`
+- next smallest useful task:
+  - if provider credentials are available, work `ARCH-CONNECTORS-001`
+  - otherwise work `ARCH-TEST-EVIDENCE-001` to add row-specific validation
+    command packs
+
+## Architecture Implementation Audit Map (2026-05-10)
+
+- `PRJ-927` is DONE:
+  - `.codex/tasks/PRJ-927-create-architecture-implementation-audit-map.md`
+- result:
+  - added a reusable audit generator:
+    - `backend/scripts/audit_architecture_implementation_map.py`
+  - generated the canonical architecture implementation matrix:
+    - `docs/operations/architecture-implementation-map-2026-05-10.csv`
+  - generated the human-readable audit report:
+    - `docs/operations/architecture-implementation-audit-2026-05-10.md`
+  - current snapshot:
+    - `15` rows total
+    - `8` `READY`
+    - `5` `IMPLEMENTED_NEEDS_EVIDENCE`
+    - `1` `V1_BLOCKER`
+    - `1` `DEFERRED`
+  - main gap index:
+    - `ARCH-CONNECTORS-001`: external provider activation blocker
+    - `ARCH-PROACTIVE-001`: target proactive sample evidence gap
+    - `ARCH-WEB-UX-001`: fresh UX state/accessibility evidence gap
+    - `ARCH-DEPLOY-AUTO-001`: future source automation reliability evidence
+      gap
+    - `ARCH-DOC-MAPS-001`: secondary traceability/codebase map refresh gap
+    - `ARCH-TEST-EVIDENCE-001`: row-specific validation command-pack gap
+    - `ARCH-MOBILE-001`: deferred mobile implementation scope
+  - no runtime, API, provider, auth, DB, env, secret, deployment, or UI
+    behavior changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_architecture_implementation_map.py; Pop-Location`
+    -> wrote the CSV and Markdown report; `rows=15`;
+    `buckets=DEFERRED:1,IMPLEMENTED_NEEDS_EVIDENCE:5,READY:8,V1_BLOCKER:1`
+  - CSV bucket review confirmed the seven non-ready rows and next
+    verification actions
+  - `git diff --check -- backend/scripts/audit_architecture_implementation_map.py docs/operations/architecture-implementation-map-2026-05-10.csv docs/operations/architecture-implementation-audit-2026-05-10.md`
+    -> passed
+- next smallest useful task:
+  - use the audit row order instead of ad hoc selection; if no provider
+    credentials are available, prioritize `ARCH-TEST-EVIDENCE-001` or
+    `ARCH-WEB-UX-001`
+
+## Action-Loop Debug And Ops Docs Sync (2026-05-10)
+
+- `PRJ-926` is DONE:
+  - `.codex/tasks/PRJ-926-sync-action-loop-debug-and-ops-docs.md`
+- result:
+  - logging/debugging docs now name
+    `system_debug.action_result.action_loop` as the canonical summary surface
+    for bounded action-loop operator triage
+  - per-step `system_debug.action_result.observations` remain the canonical
+    detailed evidence after the summary is inspected
+  - the runtime ops runbook now explains how to triage `completion_state`,
+    blockers, selected skills, used tools, and bounded observations
+  - the detailed skill-guided bounded action-loop plan records PRJ-926
+  - no runtime, API, provider, auth, DB, env, secret, deployment, UI, or health
+    behavior changed
+- validation:
+  - `rg -n "system_debug\.action_result\.action_loop|completion_state|raw_payload_included=false|canonical per-step evidence" docs\architecture\17_logging_and_debugging.md docs\operations\runtime-ops-runbook.md docs\planning\skill-guided-bounded-action-loop-plan.md`
+    -> matches found in expected docs
+  - `rg -n "For bounded action-loop work, `system_debug\.action_result\.observations` is the canonical" docs\architecture\17_logging_and_debugging.md docs\operations\runtime-ops-runbook.md docs\planning\skill-guided-bounded-action-loop-plan.md`
+    -> no matches
+- next smallest useful task:
+  - choose one fresh architecture-alignment or stability slice; the action-loop
+    debug/ops source of truth now matches the implemented summary contract
+
+## Action-Loop Summary Backend Confidence Gate (2026-05-10)
+
+- `PRJ-925` is DONE:
+  - `.codex/tasks/PRJ-925-run-action-loop-summary-backend-confidence-gate.md`
+- result:
+  - ran the full backend confidence gate after `PRJ-924`
+  - no application regression was found
+  - the first sandboxed run failed only because pytest could not create the
+    shared `.codex/tmp/pytest-prj925-full-backend` basetemp directory on
+    Windows
+  - the escalated rerun passed the full suite
+  - no provider behavior, auth, DB, env, secret, deployment, UI, or new
+    execution authority changed
+- validation:
+  - sandboxed:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q --basetemp ..\.codex\tmp\pytest-prj925-full-backend; Pop-Location`
+    -> `953 passed, 121 errors`; errors were `PermissionError` for pytest
+    basetemp setup
+  - escalated:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q --basetemp ..\.codex\tmp\pytest-prj925-full-backend-escalated; Pop-Location`
+    -> `1074 passed`
+- next smallest useful task:
+  - select one fresh architecture-alignment or stability slice; backend
+    confidence is green after `ActionResult.action_loop`
+
+## Action-Loop Summary Contract (2026-05-10)
+
+- `PRJ-924` is DONE:
+  - `.codex/tasks/PRJ-924-expose-action-loop-summary-on-action-result.md`
+- result:
+  - `ActionResult` now exposes an action-owned `action_loop` summary for
+    bounded runtime/debug inspection
+  - the summary records policy owner, execution owner, step count, selected
+    skill ids, used tool ids, completion state, blockers, and
+    `raw_payload_included=false`
+  - search-first website review reports `completion_state=satisfied`
+  - confirmation-gated ClickUp update triage reports
+    `completion_state=needs_confirmation` with `confirmation_required`
+  - no provider behavior, auth, DB, env, secret, deployment, UI, or new
+    execution authority changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py -k "search_first_website_review_loop or triages_clickup_task_update_until_confirmation" --basetemp ..\.codex\tmp\pytest-prj924-action-focused-3; Pop-Location`
+    -> `2 passed, 50 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "website_review_loop or work_partner_orchestration_baseline" --basetemp ..\.codex\tmp\pytest-prj924-runtime-focused-3; Pop-Location`
+    -> `2 passed, 108 deselected`
+- next smallest useful task:
+  - select one fresh architecture-alignment or stability slice; the next
+    deeper loop extension should be evidence-backed and should preserve action
+    as the only provider execution owner
+
+## Skill-Guided Loop Plan Evidence Sync (2026-05-09)
+
+- `PRJ-919` is DONE:
+  - `.codex/tasks/PRJ-919-sync-skill-guided-loop-plan-after-confirmation-ui-evidence.md`
+- result:
+  - updated `docs/planning/skill-guided-bounded-action-loop-plan.md` with the
+    missing `PRJ-816` through `PRJ-822` implementation queue entries
+  - the detailed lane plan now records first-party confirmation controls,
+    source/render/browser characterizations, route smoke repair, and the full
+    post-confirmation architecture confidence gate
+  - older browser-blocked and replay-unavailable notes were kept as historical
+    context instead of current blockers
+  - no runtime, API, frontend, provider, auth, DB, env, secret, deployment, or
+    health behavior changed
+- validation:
+  - `rg -n "valid pending evidence still fails closed|proof still|currently blocked|stops at PRJ-815|does not include PRJ-816" docs\planning\skill-guided-bounded-action-loop-plan.md`
+    -> no matches
+  - `git diff --check -- docs\planning\skill-guided-bounded-action-loop-plan.md .codex\tasks\PRJ-919-sync-skill-guided-loop-plan-after-confirmation-ui-evidence.md`
+    -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - select one fresh architecture-alignment or stability slice from current
+    evidence; both active action-loop planning docs are now synced through
+    `PRJ-822`
+
+## Action-Loop Planning Truth Sync (2026-05-09)
+
+- `PRJ-907` is DONE:
+  - `.codex/tasks/PRJ-907-sync-action-loop-planning-truth-after-browser-proof.md`
+- result:
+  - updated `docs/planning/next-iteration-plan.md` so the active
+    skill-guided bounded action-loop queue no longer presents connector
+    confirmation browser proof as blocked after `PRJ-819`
+  - added the superseding `PRJ-820`, `PRJ-821`, and `PRJ-822` evidence:
+    real Chrome/CDP connector confirmation browser proof, route smoke recovery
+    across `14` routes, and the full backend/web confidence gate
+  - preserved the historical `PRJ-817` and `PRJ-818` blocked-browser notes as
+    past-tense context
+  - no runtime, API, frontend, provider, auth, DB, env, secret, deployment, or
+    health behavior changed
+- validation:
+  - `rg -n "still blocked locally|still requires a host|True browser screenshot/interaction proof still requires|did not restore rendered proof in the current host" docs\planning\next-iteration-plan.md`
+    -> no matches
+  - `git diff --check -- docs\planning\next-iteration-plan.md .codex\tasks\PRJ-907-sync-action-loop-planning-truth-after-browser-proof.md`
+    -> passed with LF/CRLF warnings only
+  - `git diff --check -- docs\planning\next-iteration-plan.md .codex\tasks\PRJ-907-sync-action-loop-planning-truth-after-browser-proof.md .codex\context\TASK_BOARD.md .codex\context\PROJECT_STATE.md .agents\state\current-focus.md .agents\state\next-steps.md .agents\state\system-health.md .agents\state\regression-log.md`
+    -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - choose a fresh architecture-alignment or stability slice from current
+    evidence; the connector-confirmation browser-proof blocker is resolved
+    unless a new failing smoke identifies a concrete regression
+
+## Post-Confirmation Architecture Confidence Gate (2026-05-08)
+
+- `PRJ-822` is DONE:
+  - `.codex/tasks/PRJ-822-run-post-confirmation-architecture-confidence-gate.md`
+- result:
+  - ran a fresh backend and web confidence gate after the skill-guided
+    bounded action-loop and connector-confirmation slices
+  - fixed stale test-contract expectations exposed by the full backend gate:
+    release-smoke assertions now expect the current `9` item skill catalog,
+    and the work-partner orchestration baseline now asserts the expanded
+    selected skill metadata plus confirmation-gated ClickUp mutation behavior
+  - no runtime, provider, DB, auth, env, secret, deployment, or health behavior
+    changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q --basetemp ..\.codex\tmp\pytest-prj822-full-final; Pop-Location`
+    -> `1074 passed`
+  - `Push-Location .\web; npm run test:connector-confirmation; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm run test:connector-confirmation-render; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location` -> passed
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    -> passed with `14` routes and status `ok`
+  - `Push-Location .\web; npm run test:connector-confirmation-browser; Pop-Location`
+    -> passed with report status `ok`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+  - in-app Browser check at `http://127.0.0.1:5173/` -> rendered public
+    heading `Poznaj Aviary`; `/chat` without synthetic auth redirected to
+    `/login` as expected
+- next smallest useful task:
+  - choose one narrow architecture-alignment or stability slice from fresh
+    evidence; the current action-loop and connector-confirmation baseline is
+    full-backend and web-gate green
+
+## Fresh Skill-Tool Bindings Tools Overview Slice (2026-05-08)
+
+- `PRJ-821` is DONE:
+  - `.codex/tasks/PRJ-821-repair-route-smoke-browser-rendering.md`
+- result:
+  - repaired `npm run smoke:routes`
+  - route smoke now serves `web/dist` with the existing synthetic app-facing
+    API data and drives Chrome through CDP `Runtime.evaluate` instead of the
+    previous `--dump-dom` path that timed out in this host
+  - route smoke now waits for each route marker before reporting diagnostics
+  - the `/tools` mock was brought back into parity with the current
+    `AppToolItem` contract by adding `skill_tool_bindings`, preventing the
+    tools route from crashing during smoke
+  - no product runtime, backend, provider, auth, DB, env, secret, deployment,
+    or health behavior changed
+- validation:
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    -> passed with `14` routes and status `ok`
+  - `Push-Location .\web; npm run test:connector-confirmation-browser; Pop-Location`
+    -> passed with report status `ok`
+  - `Push-Location .\web; npm run test:connector-confirmation; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm run test:connector-confirmation-render; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location` -> passed
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - select the next evidence-backed stability or architecture-alignment slice
+    from the current queue; broad route-shell browser smoke is green again
+
+- `PRJ-820` is DONE:
+  - `.codex/tasks/PRJ-820-add-connector-confirmation-browser-characterization.md`
+- result:
+  - added `npm run test:connector-confirmation-browser`
+  - the new harness serves `web/dist` with synthetic app-facing API data and
+    drives real Chrome through CDP
+  - the browser characterization proves the end-to-end app chat confirmation
+    UI path:
+    - sending a chat message receives a bounded `pending_confirmation`
+    - the pending confirmation section renders with `aria-live=polite`, the
+      blocked chip, candidate summary, and enabled `Confirm` control
+    - the first confirmation request posts the exact server-projected pending
+      payload and fails closed with `confirmation_stale`
+    - failed confirmation keeps the pending action visible and retryable
+    - the retry posts the same bounded payload, clears the pending candidate,
+      removes the confirm button, and shows success feedback
+  - no product runtime, backend, provider, auth, DB, env, secret, deployment,
+    or health behavior changed
+- validation:
+  - `Push-Location .\web; npm run build; Pop-Location` -> passed
+  - `Push-Location .\web; npm run test:connector-confirmation-browser; Pop-Location`
+    -> passed with report status `ok`
+  - `Push-Location .\web; npm run test:connector-confirmation; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm run test:connector-confirmation-render; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location` -> passed
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - select the next evidence-backed stability or architecture-alignment slice
+    from `.agents/state/next-steps.md`; do not add broader action-loop
+    capability until a concrete gap appears
+
+- `PRJ-819` is DONE:
+  - `.codex/tasks/PRJ-819-add-connector-confirmation-component-render-characterization.md`
+- result:
+  - added `npm run test:connector-confirmation-render`
+  - the new script transpiles `ChatComposerShell` in-memory and renders it
+    through `react-dom/server`
+  - the render characterization proves pending, submitting, success, and
+    fail-closed error markup without relying on blocked local Chrome/CDP
+  - pending state verifies candidate details, blocked chip, and enabled confirm
+  - submitting state verifies disabled `Confirming...` control and feedback
+    class
+  - success state verifies `Confirmation complete`, success feedback, and no
+    stale confirm button
+  - error state verifies the pending candidate remains visible with retry
+    confirm available
+  - no product runtime, backend, provider, auth, DB, env, secret, deployment,
+    or health behavior changed
+- validation:
+  - `Push-Location .\web; npm run test:connector-confirmation-render; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm run test:connector-confirmation; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location` -> passed
+- next smallest useful task:
+  - still pursue true browser screenshot/interaction proof on a host where
+    Chrome/CDP or the in-app Browser can render local routes normally
+
+- `PRJ-818` is DONE:
+  - `.codex/tasks/PRJ-818-harden-frontend-chrome-characterization-launch.md`
+- result:
+  - existing Chrome-based frontend harnesses now launch with additional
+    conservative headless GPU-disable flags
+  - route smoke now has a bounded 30-second Chrome DOM-dump timeout instead of
+    hanging indefinitely
+  - chat transcript and tools directory CDP harnesses now use bounded DevTools
+    discovery fetches, Blob-safe WebSocket message parsing, and 10-second CDP
+    command timeouts
+  - this did not restore rendered proof in the current environment, but it
+    converted long hangs into actionable failures:
+    `Chrome timed out while dumping DOM` and
+    `Timed out waiting for CDP response to Page.enable`
+  - no product runtime, backend, provider, auth, DB, env, secret, deployment,
+    or health behavior changed
+- validation:
+  - `Push-Location .\web; npm run smoke:routes; Pop-Location`
+    -> failed fast with `Chrome timed out while dumping DOM`
+  - `Push-Location .\web; npm run test:chat-transcript; Pop-Location`
+    -> failed fast with `Timed out waiting for CDP response to Page.enable`
+  - `Push-Location .\web; npm run test:tools-directory; Pop-Location`
+    -> failed fast with `Timed out waiting for CDP response to Page.enable`
+  - `Push-Location .\web; npm run test:connector-confirmation; Pop-Location`
+    -> passed
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - use an alternate rendered validation path that does not depend on this
+    local Chrome/CDP behavior, or run the same harnesses in CI/another host
+    where headless Chrome responds normally
+
+- `PRJ-817` is DONE:
+  - `.codex/tasks/PRJ-817-add-connector-confirmation-ui-characterization.md`
+- result:
+  - added `npm run test:connector-confirmation`
+  - the characterization pins the app-side connector confirmation source
+    contract: API client path, bounded payload submission, explicit
+    `idle|submitting|success|error` state matrix, localized copy, composer
+    controls, aria-live region, and responsive/error/success styling hooks
+  - refined success-state copy so the composer shows `Confirmation complete`
+    after a successful replay instead of keeping the pending-state eyebrow
+  - no backend route, provider, auth, DB, env, secret, deployment, or health
+    behavior changed
+- validation:
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location` -> passed
+  - `Push-Location .\web; npm run test:connector-confirmation; Pop-Location`
+    -> passed
+  - dynamic headless CDP characterization was attempted but timed out in this
+    local environment after CDP connection; the delivered guard is therefore a
+    source-contract characterization, not screenshot proof
+- next smallest useful task:
+  - unblock or replace rendered browser evidence for chat confirmation controls
+    before claiming visual parity across pending/submitting/success/error
+    states
+
+- `PRJ-816` is DONE:
+  - `.codex/tasks/PRJ-816-add-app-chat-connector-confirmation-controls.md`
+- result:
+  - web chat now exposes a confirm action when `/app/chat/message` returns a
+    pending connector confirmation payload
+  - the client submits only the server-projected pending payload to
+    `/app/connectors/confirm`
+  - the composer renders local submitting, success, and fail-closed error
+    feedback
+  - successful confirmation clears the pending payload while preserving a
+    bounded result note in the composer
+  - provider mutation logic remains backend/action-owned; the UI does not
+    reconstruct plans, gates, or provider calls
+- validation:
+  - `Push-Location .\web; npm exec -- tsc -b --pretty false; Pop-Location`
+    -> passed
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location`
+    -> passed
+  - Browser rendered check attempted against local Vite at
+    `http://127.0.0.1:5173/chat`, but the in-app browser blocked the local URL
+    with `net::ERR_BLOCKED_BY_CLIENT`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - add broader UX/a11y validation for confirmation controls across pending,
+    submitting, executed, stale, and provider-blocked states when rendered
+    browser access is available
+
+- `PRJ-815` is DONE:
+  - `.codex/tasks/PRJ-815-execute-confirmed-connector-replay-from-snapshot.md`
+- result:
+  - `/app/connectors/confirm` now reconstructs a replay `PlanOutput` from the
+    persisted server-side snapshot after pending evidence, freshness, user,
+    provider, operation, and candidate checks pass
+  - the route converts only the matching stored confirmation gate to
+    `allowed=true` with `explicit_user_confirmation_received`
+  - confirmed replay calls the existing `ActionExecutor.execute` path with the
+    standard action delivery envelope
+  - successful replay returns bounded action status, actions, notes, and
+    pending confirmation evidence
+  - replay drift, missing executor, missing replay evidence, stale evidence,
+    and cross-user evidence remain fail-closed
+  - provider mutation still happens only in action, not in the API route
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "connector_confirmation or app_chat_message"; Pop-Location`
+    -> `11 passed, 121 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py -k "clickup_update or pending_connector_confirmation"; Pop-Location`
+    -> `1 passed, 51 deselected`
+  - final focused regression:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_api_routes.py tests/test_memory_repository.py -k "pending_connector_confirmation or connector_confirmation or app_chat_message or episode_by_user_and_event_id" --basetemp ..\.codex\tmp\pytest-prj815-combined; Pop-Location`
+    -> `13 passed, 237 deselected`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - add app UI confirmation controls that submit the existing pending
+    confirmation payload to `/app/connectors/confirm` and render execution
+    success or fail-closed errors
+
+- `PRJ-814` is DONE:
+  - `.codex/tasks/PRJ-814-persist-connector-confirmation-replay-snapshot.md`
+- result:
+  - pending connector confirmation episodes now also store
+    `connector_confirmation_replay`
+  - replay snapshot contains the matching typed domain intent, matching
+    not-yet-allowed connector permission gate, and bounded confirmation
+    observation
+  - replay snapshot records `execution_allowed=false` and `replay_owner=action`
+  - `/app/connectors/confirm` now recognizes the replay snapshot and still
+    fails closed with `confirmation_replay_not_implemented`
+  - no provider mutation, allowed gate creation, or confirmed replay execution
+    was added
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py -k "pending_connector_confirmation"; Pop-Location`
+    -> `1 passed, 51 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "connector_confirmation or app_chat_message"; Pop-Location`
+    -> `9 passed, 121 deselected`
+  - final focused regression:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_api_routes.py tests/test_memory_repository.py -k "pending_connector_confirmation or connector_confirmation or app_chat_message or episode_by_user_and_event_id" --basetemp ..\.codex\tmp\pytest-prj814-combined; Pop-Location`
+    -> `11 passed, 237 deselected`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - implement confirmed replay execution from the persisted replay snapshot
+    with an allowed gate only after rechecking source event, freshness,
+    authenticated user, provider, operation, and candidate evidence
+
+- `PRJ-813` is DONE:
+  - `.codex/tasks/PRJ-813-add-fail-closed-connector-confirmation-submit-path.md`
+- result:
+  - `/app/connectors/confirm` now requires app authentication and loads
+    pending confirmation evidence only from the authenticated user's episode
+  - the submission path verifies source event, trace, connector kind, provider,
+    operation, mode, bounded candidate summary, source reference, and freshness
+  - valid evidence still fails closed with `confirmation_replay_unavailable`
+    because replayable typed plan snapshots are not persisted yet
+  - missing, stale, drifted, or cross-user evidence is rejected before any
+    provider mutation path can run
+  - no allowed connector permission gate, replay execution, or provider
+    mutation was added
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "connector_confirmation or app_chat_message"; Pop-Location`
+    -> `8 passed, 121 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py -k "episode_by_user_and_event_id or structured_episode_payload" --basetemp ..\.codex\tmp\pytest-prj813; Pop-Location`
+    -> `2 passed, 64 deselected`
+  - final focused regression:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py tests/test_memory_repository.py -k "connector_confirmation or app_chat_message or episode_by_user_and_event_id" --basetemp ..\.codex\tmp\pytest-prj813-combined; Pop-Location`
+    -> `9 passed, 186 deselected`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - persist a replay-safe connector confirmation snapshot containing the typed
+    domain intent and matching permission gate evidence, without executing
+    mutation yet
+
+- `PRJ-812` is DONE:
+  - `.codex/tasks/PRJ-812-persist-pending-connector-confirmation-evidence.md`
+- result:
+  - pending confirmation projection now uses one shared core helper
+  - app chat API and action episode persistence reuse the same bounded payload
+  - episode payload now stores `pending_connector_confirmation` when action
+    stops on confirmation-required connector mutation with a matching
+    not-yet-allowed gate
+  - runtime ClickUp update triage now proves the persisted evidence exists
+  - no confirmation submission endpoint or provider mutation execution was
+    added
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "app_chat_message"; Pop-Location`
+    -> `3 passed, 121 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py -k "pending_connector_confirmation or clickup"; Pop-Location`
+    -> `8 passed, 44 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "clickup_task_update_until_confirmation"; Pop-Location`
+    -> `1 passed, 109 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_api_routes.py -k "pending_connector_confirmation or app_chat_message"; Pop-Location`
+    -> `4 passed, 172 deselected`
+  - final focused regression:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_api_routes.py tests/test_runtime_pipeline.py -k "pending_connector_confirmation or app_chat_message or clickup_task_update_until_confirmation"; Pop-Location`
+    -> `6 passed, 280 deselected`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - implement dedicated confirmation submission with replay, freshness,
+    user-scope, and candidate-drift checks
+
+- `PRJ-811` is DONE:
+  - `.codex/tasks/PRJ-811-expose-app-chat-pending-connector-confirmation.md`
+- result:
+  - `/app/chat/message` now returns an optional bounded
+    `pending_confirmation` object when action stops on a
+    `confirmation_required` connector observation and a matching not-yet-allowed
+    confirmation gate exists
+  - app chat response includes source event, trace, connector kind, provider,
+    operation, mode, bounded candidate summary, source reference, and reason
+  - debug and system-debug payloads remain hidden from the app chat response
+  - web chat stores and renders the pending confirmation as a read-only blocked
+    composer banner without adding a mutation endpoint or confirmation button
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k "app_chat_message"; Pop-Location`
+    -> `3 passed, 121 deselected`
+  - `Push-Location .\web; npm exec -- vite build; Pop-Location` -> passed
+  - Browser rendered check attempted against local Vite, but the in-app browser
+    blocked `localhost:5173` with `net::ERR_BLOCKED_BY_CLIENT`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - implement a dedicated confirmation submission path only as a separate
+    selected slice with replay/freshness/user-scope checks
+
+- `PRJ-810` is DONE:
+  - `.codex/tasks/PRJ-810-freeze-app-facing-connector-confirmation-handoff-contract.md`
+- result:
+  - app-facing connector confirmation is now frozen as a contract before any
+    endpoint or UI implementation
+  - future confirmation must bind to one source event or trace, connector
+    kind, provider, operation, mode, bounded candidate summary, and source
+    reference
+  - confirmed execution must re-enter action with the same typed domain intent
+    plus a matching connector permission gate where
+    `requires_confirmation=true` and `allowed=true`
+  - generic follow-up chat text, tool preference toggles, provider readiness,
+    and skill metadata must not authorize external mutation
+  - confirmation must fail closed on user/session mismatch, stale evidence,
+    provider mismatch, or candidate drift
+- validation:
+  - targeted scans across app chat/API response shape, connector permission
+    gates, action confirmation stops, and ClickUp mutation wording
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - implement a narrow app-facing pending-confirmation response/API only after
+    selecting that implementation slice
+
+- `PRJ-809` is DONE:
+  - `.codex/tasks/PRJ-809-sync-runtime-docs-ops-notes-and-behavior-evidence.md`
+- result:
+  - runtime flow now states that action owns bounded provider observations and
+    confirmation-required mutation stops
+  - agent contracts now distinguish ClickUp provider readiness from mutation
+    authorization; `create_task` and `update_task` require a matching allowed
+    confirmation gate before provider mutation
+  - logging/debugging docs now name
+    `system_debug.action_result.observations` as the bounded action-loop
+    evidence surface
+  - behavior-testing anchors now expect ClickUp update triage and
+    confirmation gating for T14/T15 rather than direct mutation
+  - ops runbook now tells operators to interpret provider-ready ClickUp
+    mutation paths as adapter availability, not permission to mutate
+  - no runtime code, provider, auth, DB schema, env, secret, deployment, or
+    health endpoint behavior changed
+- validation:
+  - targeted source scans for `ClickUp`, `confirmation_required`,
+    `observations`, `T14.3`, and bounded action-loop wording
+  - stale direct-mutation wording scan returned no matches
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - select the next architecture-aligned runtime or product slice from fresh
+    evidence
+
+- `PRJ-808` is DONE:
+  - `.codex/tasks/PRJ-808-extend-loop-to-clickup-read-and-confirmation-gated-mutation.md`
+- result:
+  - ClickUp `list_tasks` remains provider-backed and read-only
+  - ClickUp `create_task` now stops before provider mutation unless a matching
+    `task_system/clickup/create_task` permission gate has
+    `requires_confirmation=true` and `allowed=true`
+  - ClickUp `update_task` now performs read-only candidate triage with
+    `list_tasks`, records a `confirmation_required` observation, and stops
+    before mutation until a matching allowed confirmation gate is present
+  - confirmed create/update paths remain covered by tests with explicit
+    allowed gates
+  - ClickUp provider-not-ready requests now return an observable
+    `clickup_client_not_ready` blocker instead of silently disappearing
+  - skills remain metadata-only; no new provider family, auth, DB schema, env,
+    secret, deployment, or confirmation subsystem was introduced
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py -k clickup; Pop-Location`
+    -> `6 passed, 44 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py; Pop-Location`
+    -> `51 passed`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "clickup or role_governed_tool_usage or work_partner_scenarios"; Pop-Location`
+    -> `4 passed, 106 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_connector_policy.py; Pop-Location`
+    -> `6 passed`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_connector_policy.py; Pop-Location`
+    -> `57 passed`
+  - final focused regression:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_connector_policy.py tests/test_runtime_pipeline.py -k "clickup or role_governed_tool_usage or work_partner_scenarios or connector_operation"; Pop-Location`
+    -> `13 passed, 154 deselected`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - `PRJ-809` Sync runtime docs, ops notes, and behavior evidence after the
+    first bounded action loop slices
+
+- `PRJ-807` is DONE:
+  - `.codex/tasks/PRJ-807-add-bounded-read-only-action-loop-for-website-review.md`
+- result:
+  - action now runs a bounded read-only `website_review` loop when the selected
+    skill is `website_review` and the page-read intent has no bounded URL
+  - the loop uses existing providers only:
+    `knowledge_search.search_web` -> `web_browser.read_page`
+  - ambiguous website-review requests search with limit `3`, select the first
+    bounded result URL, read it with the generic HTTP page client, and stop
+    within the approved two-step path
+  - `ActionResult.observations` records `web_search` then `web_browser` with
+    next-step relevance and `raw_payload_included=false`
+  - direct URL page reads, connector permission gates, provider readiness
+    checks, delivery merge, auth, DB schema, env, secrets, and deployment
+    posture remain unchanged
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py -k website_review; Pop-Location`
+    -> `1 passed, 47 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k website_review; Pop-Location`
+    -> `1 passed, 109 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py; Pop-Location`
+    -> `48 passed`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "website_review or web_search or page_read or role_skill"; Pop-Location`
+    -> `4 passed, 106 deselected`
+  - final focused regression:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_runtime_pipeline.py -k "website_review or web_search or page_read or role_skill"; Pop-Location`
+    -> `7 passed, 151 deselected`
+  - `git diff --check` -> passed with LF/CRLF warnings only
+- next smallest useful task:
+  - `PRJ-808` Extend the bounded loop to ClickUp read and confirmation-gated
+    mutation
+
+- `PRJ-806` is DONE:
+  - `.codex/tasks/PRJ-806-introduce-action-execution-observation-contract.md`
+- result:
+  - `ActionResult` now carries bounded `observations`
+  - observations record tool id, operation, provider path, source reference,
+    bounded summary, confidence, blocker, next-step relevance, and
+    `raw_payload_included=false`
+  - existing provider-backed action paths emit observations for ClickUp
+    create/list/update, Google Calendar availability, Google Drive file
+    listing, web search, and browser page read
+  - runtime debug exposes observations through `system_debug.action_result`
+  - no new execute-observe-adjust loop, provider authority, DB schema, auth,
+    secrets, deployment, or connector permission behavior changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py; Pop-Location`
+    -> `47 passed`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_runtime_pipeline.py -k "web_search or page_read or clickup or role_skill"; Pop-Location`
+    -> `11 passed, 145 deselected`
+  - final focused regression:
+    `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_action_executor.py tests/test_api_routes.py tests/test_runtime_pipeline.py -k "web_search or page_read or clickup or role_skill or tools_overview or capability_catalog"; Pop-Location`
+    -> `16 passed, 263 deselected`
+- next smallest useful task:
+  - `PRJ-807` Add bounded read-only action loop for website review
+
+- `PRJ-805` is DONE:
+  - `.codex/tasks/PRJ-805-add-skill-registry-metadata-for-tool-aware-skills.md`
+- result:
+  - runtime skill registry now contains metadata-only records for
+    `website_review`, `web_research`, `clickup_task_management`, and
+    `work_partner_task_management`
+  - capability catalog skill count is now `9`
+  - each tool-aware skill records allowed tools, limitations, `action` as
+    execution owner, connector permission gates as authorization boundary, and
+    `tool_execution_allowed=false`
+  - role selection may emit these skills as metadata hints for clear web,
+    website-review, and ClickUp requests
+  - no provider calls, side-effect authority, DB schema, auth, secrets,
+    deployment, or action-loop execution behavior changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_role_agent.py tests/test_api_routes.py; Pop-Location`
+    -> `142 passed`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k role_skill; Pop-Location`
+    -> `1 passed, 108 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_deployment_trigger_scripts.py -k "capability_catalog or incident_bundle"; Pop-Location`
+    -> `2 passed, 62 deselected`
+- next smallest useful task:
+  - `PRJ-806` Introduce action execution observation contract
+
+- `PRJ-804` is DONE:
+  - `.codex/tasks/PRJ-804-expose-skill-tool-bindings-in-tools-overview.md`
+- result:
+  - `/app/tools/overview` now exposes metadata-only `skill_tool_bindings`
+    for `web_search`, `web_browser`, and `clickup`
+  - `web_search` links to `web_research` and `website_review`
+  - `web_browser` links to `website_review` and `web_research`
+  - `clickup` links to `clickup_task_management` and
+    `work_partner_task_management`
+  - each binding records allowed operations, posture, `action` as execution
+    owner, and `metadata_only_not_execution_authority`
+  - the web Tools route renders bindings through the existing technical
+    details panel
+  - no provider calls, side-effect authority, DB schema, auth, secrets,
+    deployment, or runtime execution loop changed
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py -k tools_overview; Pop-Location`
+    -> `4 passed, 119 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_api_routes.py; Pop-Location`
+    -> `123 passed`
+  - `Push-Location .\web; npm run build; Pop-Location` -> passed
+- next smallest useful task:
+  - `PRJ-805` Add skill registry metadata for tool-aware skills so runtime
+    skill catalog truth aligns with the visible tools overview bindings
 
 ## Fresh App-Building Workflow Helper Sync Review (2026-05-08)
 

@@ -1,6 +1,6 @@
 # Delivery Map
 
-Last updated: 2026-05-11
+Last updated: 2026-05-12
 
 ## Project Alias
 
@@ -9,11 +9,13 @@ The product name is Aviary. The repository folder is `Personality`.
 ## Current Product Target
 
 - Product: Aviary
-- Current release or milestone: architecture evidence hardening with external blocker
+- Current release or milestone: v1.5 native/mobile UI continuation after selected-scope v1.1 web UI
 - Primary user: Aviary operator/user
-- Primary outcome: Runtime, memory, reflection, scheduler, connector, API, web, and ops journeys work with proof.
-- Top blockers: `ARCH-CONNECTORS-001` provider credential activation smoke is externally blocked.
-- Next mission: Convert project-status-dashboard and architecture implementation map rows into module/journey delivery rows.
+- Primary outcome: Selected core/web-supported runtime, memory, reflection,
+  scheduler, connector, API, web, and ops journeys work with proof.
+- Top blockers: none for selected scope.
+- Next mission: continue the native/mobile UI lane from the verified Expo shell
+  seed while preserving backend-owned `/app/*` contracts.
 
 ## Source Inputs
 
@@ -22,16 +24,43 @@ The product name is Aviary. The repository folder is `Personality`.
 | SRC-001 | dashboard | `docs/operations/project-status-dashboard.md` | Current readiness radar | active |
 | SRC-002 | architecture map | `docs/operations/architecture-implementation-map-2026-05-10.csv` | Architecture implementation/evidence rows | active |
 | SRC-003 | architecture | `docs/architecture/` | Runtime, memory, action, logging, behavior contracts | active |
+| SRC-004 | UX references | `docs/ux/canonical-web-screen-reference-set.md` | Canonical web screen targets for landing, dashboard, chat, personality, and shell posture | active |
+| SRC-005 | planning | `docs/planning/v1.1-web-ui-responsive-plan.md` | v1.1 web responsive scope and evidence expectations before v1.5 mobile | active |
+| SRC-006 | planning | `docs/planning/v1.5-mobile-ui-plan.md` | v1.5 native/mobile UI scope, evidence expectations, and current shell seed | active |
 
 ## Module / Journey Map
 
 | ID | Module | Journey or screen | Layers needed | Current state | Evidence | Next mission |
 | --- | --- | --- | --- | --- | --- | --- |
-| AVIARY-DM-001 | Project status radar | Generated dashboard and architecture map | scripts, docs, evidence | partial | `project-status-dashboard.md`, `module-confidence-ledger.md` | Mirror dashboard rows into delivery/module confidence rows. |
+| AVIARY-DM-001 | Project status radar | Generated dashboard, architecture map, and secondary architecture maps | scripts, docs, evidence | verified | `PRJ-932`; `project-status-dashboard.md`, `module-confidence-ledger.md`, `traceability-matrix.md`, `codebase-map.md` | Keep maps refreshed after material architecture-row changes. |
 | AVIARY-DM-002 | External providers | Provider activation smoke | integrations, secrets, ops, tests | blocked | `ARCH-CONNECTORS-001` | Run smoke when credentials are available. |
+| AVIARY-DM-003 | Web UI responsive shell | Public/authenticated web route render across desktop, tablet, mobile web | web, UX, tests, artifacts | verified | `PRJ-1150`..`PRJ-1157`; `.codex/artifacts/prj1150-v11-ui-responsive-audit/report.json`; `npm run audit:ui-responsive` | Preserve as v1.1 baseline and use findings for mobile. |
+| AVIARY-DM-004 | Native mobile UI shell | Expo-managed conversation-first mobile home, chat, personality, settings, and tools routes over shared `/app/*` contracts | mobile, UX, tests, artifacts | verified seed | `PRJ-1158`, `PRJ-1159`, `PRJ-1160`, `PRJ-1161`, `PRJ-1162`, `PRJ-1163`, `PRJ-1164`, `PRJ-1165`, `PRJ-1166`, `PRJ-1167`, `PRJ-1168`, `PRJ-1169`, `PRJ-1170`, `PRJ-1171`, `PRJ-1172`, `PRJ-1173`, `PRJ-1174`, `PRJ-1175`, `PRJ-1176`, `PRJ-1177`, `PRJ-1178`, `PRJ-1179`; `npm run typecheck`; `npm run audit:ui-mobile`; `npm run export:ui-mobile`; `npm run deploy:ui-mobile-local`; `npm run smoke:ui-mobile-preview`; local preview health and HTTP smoke on `127.0.0.1:8093`; `.codex/artifacts/prj1158-mobile-native-shell/mobile-shell-390x1200-v2.png`; `.codex/artifacts/prj1159-mobile-chat-route/mobile-chat-390x1200-v2.png`; `.codex/artifacts/prj1160-mobile-support-routes/`; `.codex/artifacts/prj1161-mobile-personality-route/`; `.codex/artifacts/prj1162-mobile-route-rail/`; `.codex/artifacts/prj1163-mobile-home-route-rail/`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `viewport_count=2`, `screenshot_count=10`, `action_proof_count=3`, `state_proof_count=4`; `.codex/artifacts/prj1176-mobile-ui-preview/`; `.codex/artifacts/prj1177-mobile-ui-preview-smoke/` -> `preview_health.ok=true`, `route_count=5`, `viewport_count=2`, `screenshot_count=10`, `failed_count=0`; shared `ScreenScrollView`, `ScreenHero`, `SectionHeader`, `MetricCard`, `InfoRow`, `SegmentedControl`, `ActionButton`, `StateNotice`, token-aligned Stack header, local preview server, and one-command local deploy adopted | Capture Expo Go/simulator proof when Android tooling or a device is available. |
 
 ## Visual Slice Map
 
 | ID | Reference | Screen / zone | Components | States | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| AVIARY-VIS-001 | TBD | Web shell/dashboard/chat | TBD | loading, empty, error, success, blocked | planned | none |
+| AVIARY-VIS-001 | `docs/ux/canonical-web-screen-reference-set.md` | Web shell, landing, dashboard, chat, personality, settings, tools | `web/src/App.tsx`, `web/src/index.css`, `web/src/components/*`, `web/scripts/route-smoke.mjs` | route success baseline; loading/empty/error still future slices | verified baseline | `PRJ-1150`; `.codex/artifacts/prj1150-v11-ui-responsive-audit/` |
+| AVIARY-VIS-002 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile home shell | `mobile/app/index.tsx`, `mobile/src/ui/home-screen.tsx`, `mobile/src/theme.ts` | success render proxy; native auth/device proof still future slices | verified seed | `PRJ-1158`; `.codex/artifacts/prj1158-mobile-native-shell/mobile-shell-390x1200-v2.png` |
+| AVIARY-VIS-003 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile chat route | `mobile/app/chat.tsx`, `mobile/src/ui/chat-screen.tsx`, `mobile/src/ui/primitives.tsx` | success render proxy; live app-facing chat data still future slice | verified seed | `PRJ-1159`; `.codex/artifacts/prj1159-mobile-chat-route/mobile-chat-390x1200-v2.png` |
+| AVIARY-VIS-004 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile settings and tools routes | `mobile/app/settings.tsx`, `mobile/app/tools.tsx`, `mobile/src/ui/settings-screen.tsx`, `mobile/src/ui/tools-screen.tsx` | success render proxy; live mutation/data wiring still future slice | verified seed | `PRJ-1160`; `.codex/artifacts/prj1160-mobile-support-routes/` |
+| AVIARY-VIS-005 | `docs/planning/v1.5-mobile-ui-plan.md`; `docs/ux/personality-module-map.md` | Native mobile personality route | `mobile/app/personality.tsx`, `mobile/src/ui/personality-screen.tsx` | success render proxy; live personality overview data still future slice | verified seed | `PRJ-1161`; `.codex/artifacts/prj1161-mobile-personality-route/` |
+| AVIARY-VIS-006 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared route rail | `mobile/src/ui/primitives.tsx`, seeded route screens | success render proxy; native tabs decision still future slice | verified seed | `PRJ-1162`; `.codex/artifacts/prj1162-mobile-route-rail/` |
+| AVIARY-VIS-007 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile Home route rail continuity | `mobile/src/ui/primitives.tsx`, `mobile/src/ui/home-screen.tsx` | success render proxy; device proof still future slice | verified seed | `PRJ-1163`; `.codex/artifacts/prj1163-mobile-home-route-rail/` |
+| AVIARY-VIS-008 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile repeatable UI audit | `mobile/scripts/mobile-ui-audit.mjs`, `mobile/package.json` | success render proxy; device proof still future slice | verified seed | `PRJ-1164`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` |
+| AVIARY-VIS-009 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile phone/tablet UI audit coverage | `mobile/scripts/mobile-ui-audit.mjs` | success render proxy; device proof still future slice | verified seed | `PRJ-1165`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `viewport_count=2`, `screenshot_count=10` |
+| AVIARY-VIS-010 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared screen scroll width | `mobile/src/ui/primitives.tsx`, seeded route screens | success render proxy; device proof still future slice | verified seed | `PRJ-1166`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `failed_count=0` |
+| AVIARY-VIS-011 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared standard screen hero | `mobile/src/ui/primitives.tsx`, standard seeded route screens | success render proxy; device proof still future slice | verified seed | `PRJ-1167`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `failed_count=0` |
+| AVIARY-VIS-012 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared metric cards | `mobile/src/ui/primitives.tsx`, chat/settings/tools screens | success render proxy; device proof still future slice | verified seed | `PRJ-1168`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `failed_count=0` |
+| AVIARY-VIS-013 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared info rows | `mobile/src/ui/primitives.tsx`, personality/tools screens | success render proxy; device proof still future slice | verified seed | `PRJ-1169`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `failed_count=0` |
+| AVIARY-VIS-014 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared segmented controls | `mobile/src/ui/primitives.tsx`, `mobile/src/ui/home-screen.tsx`, `mobile/src/ui/chat-screen.tsx` | success render proxy; live mode state and device proof still future slices | verified seed | `PRJ-1170`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `failed_count=0`; Home/Chat phone screenshots reviewed |
+| AVIARY-VIS-015 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared action buttons | `mobile/src/ui/primitives.tsx`, `mobile/src/ui/chat-screen.tsx`, `mobile/src/ui/settings-screen.tsx`, `mobile/src/ui/tools-screen.tsx` | success render proxy; live button behavior, full-page CTA proof, and device proof still future slices | verified seed | `PRJ-1171`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `failed_count=0`; Chat/Settings/Tools tablet screenshots reviewed |
+| AVIARY-VIS-016 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile CTA audit proof | `mobile/scripts/mobile-ui-audit.mjs` | DOM proof for seeded CTAs; full-page visual CTA proof and device proof still future slices | verified seed | `PRJ-1172`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `action_proof_count=3`, `failed_count=0` |
+| AVIARY-VIS-017 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile shared section headers | `mobile/src/ui/primitives.tsx`, Home, personality, settings, and tools UI screens | success render proxy; device proof still future slice | verified seed | `PRJ-1173`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `action_proof_count=3`, `failed_count=0`; Settings tablet and Personality phone screenshots reviewed |
+| AVIARY-VIS-018 | `docs/planning/v1.5-mobile-ui-plan.md`; `docs/ux/screen-quality-checklist.md` | Native mobile loading/empty/error/success state coverage | `mobile/src/ui/primitives.tsx`, `mobile/src/ui/tools-screen.tsx`, `mobile/scripts/mobile-ui-audit.mjs` | state copy proof; live data-state wiring and device proof still future slices | verified seed | `PRJ-1174`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `state_proof_count=4`, `failed_count=0`; Tools phone/tablet screenshots reviewed |
+| AVIARY-VIS-019 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile Stack header and audit stability | `mobile/app/_layout.tsx`, `mobile/scripts/mobile-ui-audit.mjs` | route chrome proof; Expo Go/device proof still blocked by missing local `adb` | verified seed | `PRJ-1175`; `.codex/artifacts/prj1164-mobile-ui-audit/report.json` -> `state_proof_count=4`, `failed_count=0`; Home phone and Chat tablet screenshots reviewed |
+| AVIARY-VIS-020 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile local preview deployment | `mobile/scripts/serve-mobile-preview.mjs`, `mobile/package.json`, Expo web export | local preview proof; Expo Go/device proof still blocked by missing local `adb` | verified seed | `PRJ-1176`; `npm run export:ui-mobile`; HTTP smoke `/` and `/chat` -> `200`; `.codex/artifacts/prj1176-mobile-ui-preview/preview-home-390x1200.png`, `preview-chat-390x1200.png`, `preview-tools-390x1200.png`; local preview running on `http://127.0.0.1:8093` |
+| AVIARY-VIS-021 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile deployed preview all-route smoke | `mobile/scripts/mobile-preview-smoke.mjs`, `mobile/package.json`, running preview URL | all-route phone/tablet preview proof; Expo Go/device proof still blocked by missing local `adb` | verified seed | `PRJ-1177`; `npm run smoke:ui-mobile-preview` -> `route_count=5`, `viewport_count=2`, `screenshot_count=10`, `failed_count=0`; `.codex/artifacts/prj1177-mobile-ui-preview-smoke/`; local preview running on `http://127.0.0.1:8093` |
+| AVIARY-VIS-022 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile preview health gate | `mobile/scripts/serve-mobile-preview.mjs`, `mobile/scripts/mobile-preview-smoke.mjs` | local preview identity proof; Expo Go/device proof still blocked by missing local `adb` | verified seed | `PRJ-1178`; `/__preview_health` -> `app=aviary-mobile-ui-preview`, `route_count=5`; `npm run smoke:ui-mobile-preview` -> `preview_health.ok=true`, `failed_count=0`; local preview running on `http://127.0.0.1:8093` |
+| AVIARY-VIS-023 | `docs/planning/v1.5-mobile-ui-plan.md` | Native mobile one-command local deploy | `mobile/package.json` | local deploy handoff proof; Expo Go/device proof still blocked by missing local `adb` | verified seed | `PRJ-1179`; `PORT=8094 npm run deploy:ui-mobile-local` -> health HTTP 200 with `app=aviary-mobile-ui-preview`, `route_count=5`; `npm run smoke:ui-mobile-preview` -> `preview_health.ok=true`, `failed_count=0`; local preview running on `http://127.0.0.1:8093` |

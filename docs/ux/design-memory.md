@@ -106,6 +106,33 @@
   Keep the main chat input, send control, and low-priority support actions
   inside one shared tray so the conversation footer reads like one premium
   surface instead of stacked unrelated controls.
+- Native segmented mode control:
+  In the Expo mobile shell, use one shared pill-based segmented control for
+  simple mode selectors such as Ask, Plan, Reflect, and Execute. Keep it
+  visually compact enough for phone width, and do not couple it to backend mode
+  behavior until the native auth and data transport slice is selected.
+- Native action buttons:
+  In the Expo mobile shell, use one shared full-width action button for seeded
+  CTAs. Keep `primary` for positive route actions and `danger` for guarded
+  destructive-boundary review; do not add press behavior until the matching
+  app-facing contract slice exists.
+- Native section headers:
+  In the Expo mobile shell, use one shared `SectionHeader` for repeated
+  label/title/description panel headers. Keep bespoke heroes separate when they
+  carry route identity or status.
+- Native state notices:
+  For app-facing data surfaces, design loading, empty, error, and success as
+  calm copy-first notices before wiring live data. Do not expose raw provider
+  errors, secrets, or backend internals in user-facing state copy.
+- Native route chrome:
+  Keep Expo Router Stack headers token-aligned with the mobile canvas and text
+  color. Avoid default platform chrome that visually disconnects route titles
+  from the seeded shell.
+- Native local preview handoff:
+  For seeded Expo mobile UI work, keep a fallback-to-index web-export preview
+  available for review before device proof exists. Treat that preview as a
+  handoff and responsive evidence tool, not as a substitute for later Expo Go
+  or simulator validation.
 - Chat v5 canonical composition:
   The active chat canonical reference is now
   `docs/ux/assets/aion-chat-canonical-reference-v5.png`. Below the top

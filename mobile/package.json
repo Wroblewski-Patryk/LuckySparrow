@@ -8,15 +8,22 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "export:ui-mobile": "expo export --platform web --output-dir .expo-web-export",
+    "preview:ui-mobile": "node scripts/serve-mobile-preview.mjs",
+    "deploy:ui-mobile-local": "npm run export:ui-mobile && node scripts/serve-mobile-preview.mjs",
+    "smoke:ui-mobile-preview": "node scripts/mobile-preview-smoke.mjs",
+    "audit:ui-mobile": "expo export --platform web --output-dir .expo-web-export && node scripts/mobile-ui-audit.mjs"
   },
   "dependencies": {
     "expo": "~55.0.0",
     "expo-router": "~55.0.11",
     "react": "19.2.0",
+    "react-dom": "^19.2.0",
     "react-native": "0.83.0",
     "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "~4.18.0"
+    "react-native-screens": "~4.18.0",
+    "react-native-web": "^0.21.2"
   },
   "devDependencies": {
     "@types/react": "~19.2.0",

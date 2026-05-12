@@ -83,12 +83,17 @@ Current repo fact:
 - the current `web` client uses backend-owned session cookies
 - `mobile/` now has an Expo-managed scaffold that records the shared resource
   contract without claiming final native auth transport is solved
+- `PRJ-1158` adds the first v1.5 native UI shell seed over the same shared
+  resource model; it does not solve final native auth transport or introduce
+  mobile-owned cognition/provider behavior
 
 Bounded posture for the mobile foundation:
 
 - `PRJ-668` scaffolds the client around the shared backend-owned resource model
 - later API-client adapter work must decide final native auth transport before
   the scaffold becomes a production auth client
+- `PRJ-1158` may use Expo web export as a lightweight render proof until a
+  device/simulator proof is available
 
 ## Non-Goals For This Freeze
 
