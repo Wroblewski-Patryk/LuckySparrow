@@ -4,6 +4,28 @@ Last updated: 2026-05-12
 
 ## Project Status Dashboard (2026-05-12)
 
+- `PRJ-1183` is DONE:
+  - `.codex/tasks/PRJ-1183-v15-mobile-ui-pr-and-production-promotion-handoff.md`
+- handoff:
+  - `docs/operations/v15-mobile-ui-pr-and-production-promotion-handoff-2026-05-12.md`
+- result:
+  - pushed v1.5 mobile UI branch now has an explicit PR and production
+    promotion handoff
+  - production deployment is intentionally not claimed yet; it requires PR
+    creation/review/merge, Coolify deploy, and release smoke with deploy parity
+  - local preview, production promotion, and native device proof are documented
+    as separate gates
+- validation:
+  - `Push-Location .\mobile; npm run smoke:ui-mobile-preview; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> PASS; `preview_health.ok=true`, `route_count=5`,
+    `viewport_count=2`, `screenshot_count=10`, `failed_count=0`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- next smallest useful task:
+  - open the PR from
+    `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`,
+    review/merge, wait for Coolify, then run production release smoke with
+    deploy parity
+
 - v1.5 mobile UI/deploy branch is pushed:
   - branch: `codex/v15-mobile-ui-deploy-commits`
   - remote: `origin/codex/v15-mobile-ui-deploy-commits`

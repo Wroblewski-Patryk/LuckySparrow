@@ -6,6 +6,28 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-12: `PRJ-1183` added the v1.5 mobile UI PR and production promotion handoff:
+  - task:
+    - `.codex/tasks/PRJ-1183-v15-mobile-ui-pr-and-production-promotion-handoff.md`
+  - handoff:
+    - `docs/operations/v15-mobile-ui-pr-and-production-promotion-handoff-2026-05-12.md`
+  - result:
+    - the pushed branch now has an operator-ready path from PR creation to
+      Coolify production promotion and release smoke
+    - production deployment is not yet claimed; it remains gated by PR
+      creation/review/merge, Coolify deploy, and deploy-parity smoke
+    - native device proof remains blocked by local environment tooling
+  - validation:
+    - `Push-Location .\mobile; npm run smoke:ui-mobile-preview; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+      -> PASS; `preview_health.ok=true`, `route_count=5`,
+      `viewport_count=2`, `screenshot_count=10`, `failed_count=0`
+    - `git diff --check` -> PASS with LF/CRLF warnings only
+  - next execution priority:
+    - open the PR from
+      `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`,
+      review/merge, wait for Coolify, then run production release smoke with
+      deploy parity
+
 - 2026-05-12: v1.5 mobile UI/deploy branch was pushed:
   - branch:
     - `codex/v15-mobile-ui-deploy-commits`

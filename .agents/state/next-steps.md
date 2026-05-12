@@ -4,9 +4,24 @@ Last updated: 2026-05-12
 
 ## NOW
 
-1. Continue `v1.5` native/mobile UI from the verified shell seed:
+1. Promote the pushed `v1.5` mobile UI branch through PR and production gates:
+   - branch: `codex/v15-mobile-ui-deploy-commits`
+   - remote: `origin/codex/v15-mobile-ui-deploy-commits`
+   - PR creation URL:
+     `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
+   - promotion handoff:
+     `docs/operations/v15-mobile-ui-pr-and-production-promotion-handoff-2026-05-12.md`
+   - local preview remains available at `http://127.0.0.1:8093`
+   - production is not yet claimed green; required path is PR creation/review,
+     merge, Coolify deploy, and production release smoke with deploy parity
+   - next smallest slice: open the PR, merge after review, then run
+     `.\backend\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -WaitForDeployParity`
+
+2. Continue `v1.5` native/mobile UI from the verified shell seed:
    - plan: `docs/planning/v1.5-mobile-ui-plan.md`
    - latest task: `.codex/tasks/PRJ-1182-v15-mobile-device-proof-doctor.md`
+   - promotion handoff:
+     `docs/operations/v15-mobile-ui-pr-and-production-promotion-handoff-2026-05-12.md`
    - handoff: `docs/operations/v15-mobile-ui-local-preview-handoff-2026-05-12.md`
    - evidence:
      `.codex/artifacts/prj1158-mobile-native-shell/mobile-shell-390x1200-v2.png`
@@ -41,7 +56,7 @@ Last updated: 2026-05-12
    - PR creation URL:
      `https://github.com/Wroblewski-Patryk/Aviary/pull/new/codex/v15-mobile-ui-deploy-commits`
 
-2. Preserve the completed `v1.1` web UI responsive quality baseline:
+3. Preserve the completed `v1.1` web UI responsive quality baseline:
    - plan: `docs/planning/v1.1-web-ui-responsive-plan.md`
    - handoff task: `.codex/tasks/PRJ-1157-v11-web-ui-responsive-handoff.md`
    - evidence: `.codex/artifacts/prj1150-v11-ui-responsive-audit/report.json`
@@ -53,7 +68,7 @@ Last updated: 2026-05-12
    responsive handoff. Next smallest slice: plan `v1.5` mobile from these
    learnings or start a new narrow UI polish item from explicit feedback.
 
-3. Keep `npm run audit:ui-responsive` in the web validation set for shell,
+4. Keep `npm run audit:ui-responsive` in the web validation set for shell,
    route layout, navigation, and responsive UI changes.
 
 ## Previous Architecture Queue
