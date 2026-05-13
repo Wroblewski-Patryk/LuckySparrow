@@ -4,7 +4,7 @@
 - ID: PRJ-1187
 - Title: Production OpenAI vector dimension alignment
 - Task Type: fix
-- Current Stage: implementation
+- Current Stage: verification
 - Status: IN_PROGRESS
 - Owner: Backend Builder
 - Depends on: PRJ-1186
@@ -22,13 +22,17 @@
 ## Context
 Production Aviary runs on Coolify/VPS with PostgreSQL pgvector and
 `OPENAI_API_KEY` configured. A controlled production event proved that the API
-can answer and write `aion_memory`, but OpenAI embedding persistence failed
-because runtime requested 32-dimensional embeddings while the database column is
-`vector(1536)`.
+can answer and write `aion_memory`, but OpenAI embedding persistence initially
+failed because runtime requested 32-dimensional embeddings while the database
+column is `vector(1536)`. After dimension alignment, production wrote 1536
+dimensional vectors, but serialization of pgvector-returned array values still
+used a truthiness check and marked the memory write as failed.
 
 ## Goal
 Align the Coolify production embedding dimensions with the deployed pgvector
-schema so OpenAI provider-owned embeddings can be written and later retrieved.
+schema and serialize pgvector-returned arrays without boolean evaluation so
+OpenAI provider-owned embeddings can be written, reported as successful, and
+later retrieved.
 
 ## Constraints
 - Touch only Aviary/Coolify resources, not other VPS applications.
@@ -39,6 +43,8 @@ schema so OpenAI provider-owned embeddings can be written and later retrieved.
 ## Definition of Done
 - [ ] Coolify compose defaults `EMBEDDING_DIMENSIONS` to `1536`.
 - [ ] Tests cover the Coolify production default.
+- [ ] Repository serialization handles pgvector array values without
+      truthiness checks.
 - [ ] Production deployment is updated.
 - [ ] Production event writes both `aion_memory` and `aion_semantic_embedding`.
 - [ ] Production health reports OpenAI embeddings with 1536 dimensions.
@@ -49,4 +55,5 @@ schema so OpenAI provider-owned embeddings can be written and later retrieved.
 - Do not disable semantic vector retrieval as a workaround.
 
 ## Result Report
-- Pending.
+- Pending final production verification after pgvector serialization fix
+  deployment.

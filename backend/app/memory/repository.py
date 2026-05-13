@@ -3668,6 +3668,18 @@ class MemoryRepository:
             "created_at": row.created_at,
         }
 
+    @staticmethod
+    def _embedding_vector_to_list(value: Any) -> list[float]:
+        if value is None:
+            return []
+        to_list = getattr(value, "tolist", None)
+        if callable(to_list):
+            value = to_list()
+        try:
+            return [float(item) for item in value]
+        except TypeError:
+            return []
+
     def _serialize_semantic_embedding(self, row: AionSemanticEmbedding) -> dict:
         return {
             "id": row.id,
@@ -3678,7 +3690,7 @@ class MemoryRepository:
             "scope_type": row.scope_type,
             "scope_key": row.scope_key,
             "content": row.content,
-            "embedding": list(row.embedding or []),
+            "embedding": self._embedding_vector_to_list(row.embedding),
             "embedding_model": row.embedding_model,
             "embedding_dimensions": row.embedding_dimensions,
             "metadata": row.metadata_json or {},

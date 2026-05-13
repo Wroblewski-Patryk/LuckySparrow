@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -43,6 +44,43 @@ class FakeOpenAIEmbeddingClient:
             }
         )
         return [0.25] * dimensions
+
+
+class BoolHostileVector:
+    def __init__(self, values: list[float]):
+        self.values = values
+
+    def __bool__(self) -> bool:
+        raise ValueError("truth value is ambiguous")
+
+    def tolist(self) -> list[float]:
+        return list(self.values)
+
+
+def test_memory_repository_serializes_pgvector_array_without_truthiness_check() -> None:
+    repository = object.__new__(MemoryRepository)
+    now = datetime.now(timezone.utc)
+    row = SimpleNamespace(
+        id=1,
+        user_id="u-1",
+        source_kind="episodic",
+        source_id="memory:1",
+        source_event_id="evt-1",
+        scope_type="global",
+        scope_key="global",
+        content="User remembers Roki.",
+        embedding=BoolHostileVector([0.1, 0.2, 0.3]),
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=1536,
+        metadata_json={"embedding_status": "materialized_by_openai_provider"},
+        updated_at=now,
+        created_at=now,
+    )
+
+    serialized = repository._serialize_semantic_embedding(row)
+
+    assert serialized["embedding"] == [0.1, 0.2, 0.3]
+    assert serialized["embedding_dimensions"] == 1536
 
 
 async def test_memory_repository_persists_structured_episode_payload(tmp_path) -> None:
