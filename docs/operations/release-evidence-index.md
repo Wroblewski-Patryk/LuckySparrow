@@ -1,6 +1,6 @@
 # Release Evidence Index
 
-Last updated: 2026-05-12
+Last updated: 2026-05-13
 
 ## Purpose
 
@@ -15,17 +15,17 @@ deployed.
 | --- | --- |
 | Local branch | `main` |
 | Local selected UI candidate | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
-| Latest committed closure-proof revision | `07b3b3e5fe3bd37439dd1cafbdc7fb15c4ef3a7b` |
-| Local relation to `origin/main` | equal after PRJ-1185 cleanup refresh |
+| Latest committed closure-proof revision | `7cd85fafee06449749d71bdefdad85a9798defbf` |
+| Local relation to `origin/main` | equal after PRJ-1196 structured-perception deploy |
 | Current release tag | `v1.0.1` |
 | Current release tag object | `b016c4f33051805cfa09664f79bbe57f5b30811b` |
 | Current release tag target commit | `3b46ed3878a8560c3adb147fcadf064818ccc322` |
 | Historical release tag | `v1.0.0` |
 | Historical release tag object | `b5d8379df1898aa5533bd72a7a1631d6044f2125` |
 | Historical release tag target commit | `5e64f494e2aac8d29cea532d95f7039ed6029213` |
-| Production backend revision | live value must be read from `/health`; cleanup proof confirmed `07b3b3e5fe3bd37439dd1cafbdc7fb15c4ef3a7b` |
-| Production web meta revision | live value must be read from `/settings`; cleanup proof confirmed `07b3b3e5fe3bd37439dd1cafbdc7fb15c4ef3a7b` |
-| Production health | `ok`; HTTP `200` after PRJ-1185 Coolify source deploy and closure proof |
+| Production backend revision | live `/health` confirmed `7cd85fafee06449749d71bdefdad85a9798defbf` after PRJ-1196 |
+| Production web meta revision | release smoke confirmed `7cd85fafee06449749d71bdefdad85a9798defbf` after PRJ-1196 |
+| Production health | `ok`; HTTP `200` after PRJ-1196 Coolify redeploy recovery and release smoke |
 | Production release readiness | `true` |
 | Production v1 final acceptance | `core_v1_bundle_ready` |
 | Production deploy parity | `deploy_parity_surface_ready` |
@@ -36,7 +36,7 @@ deployed.
 | Post-push deploy parity wait | initially `failed`; recovered by approved Coolify UI redeploy in PRJ-1128 |
 | Local Coolify-shape candidate smoke | `passed`; build, migrate, app health, `/health`, and `/settings` |
 | Incident evidence export | `available`; PRJ-1128 exported a release-smoke bundle |
-| Coolify automation reliability | PRJ-1185 source deploy reached parity after one transient production `503` during deploy window |
+| Coolify automation reliability | PRJ-1196 initial deploy failed during `docker compose up -d` with a transient `No such container` after old-container removal; a queued Coolify redeploy of the same commit finished and release smoke passed |
 | Coolify fallback readiness | UI fallback executed by explicit operator access; webhook fallback inputs still unavailable locally |
 | Organizer daily-use extension | `daily_use_workflows_blocked_by_provider_activation` |
 

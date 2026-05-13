@@ -2155,3 +2155,18 @@ fixes for this repository.
 - Evidence:
   - PRJ-1185 closure audit
   - `Stop-Process -Id 34856 -Force`
+### 2026-05-13 - Coolify Compose Redeploy Can Fail After Removing Old Containers
+
+- Context: PRJ-1196 initial Coolify deployment for commit
+  `7cd85fafee06449749d71bdefdad85a9798defbf` built images successfully, removed
+  the old app/worker/db containers, then failed during `docker compose up -d`
+  with `Error response from daemon: No such container: <id>` while starting the
+  migration container.
+- Impact: The app briefly returned `503 no available server` because old
+  containers had already been removed and the new app container did not finish
+  starting.
+- Recovery: Query Coolify deployment logs from `application_deployment_queues`,
+  queue a redeploy of the same application/commit through
+  `queue_application_deployment`, wait for `finished`, then rerun release smoke.
+- Evidence: redeploy `tlw7g263ig2uum227tdnn4gc` finished; production smoke
+  returned `release_ready=true`.

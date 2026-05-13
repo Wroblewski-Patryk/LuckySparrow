@@ -56,6 +56,7 @@ Add a minimal AI-first structured perception path for language, topic, tags, int
 - [x] Focused tests pass.
 - [x] Full backend pytest passes.
 - [x] State/docs updated.
+- [x] Production smoke passes.
 
 ## Forbidden
 - Removing deterministic fallback.
@@ -68,7 +69,9 @@ Add a minimal AI-first structured perception path for language, topic, tags, int
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_perception_assessor.py tests/test_runtime_pipeline.py -k "ai_assisted_structured_perception or runtime_pipeline_api_source"; Pop-Location` -> `2 passed, 115 deselected`
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_config.py tests/test_runtime_policy.py tests/test_main_lifespan_policy.py; Pop-Location` -> `70 passed`
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; Pop-Location` -> `1098 passed`
+  - `Push-Location .\backend; .\scripts\run_release_smoke.ps1 -BaseUrl "https://aviary.luckysparrow.ch" -HealthRetryMaxAttempts 12 -HealthRetryDelaySeconds 10 -WaitForDeployParity -DeployParityMaxWaitSeconds 300 -DeployParityPollSeconds 20; Pop-Location` -> `release_ready=true`, runtime/web revision `7cd85fafee06449749d71bdefdad85a9798defbf`
 - Manual checks: code inspection of perception graph ordering and fallback posture.
+- Production checks: `/health.runtime_policy` reported `structured_perception_enabled=true`, `structured_perception_classifier_available=true`, `structured_perception_posture=ai_assisted_active`.
 - Module confidence ledger updated: yes
 - Module confidence rows closed or changed: AVIARY-COGNITIVE-RUNTIME-001
 - Requirements matrix updated: yes
@@ -97,6 +100,6 @@ Add a minimal AI-first structured perception path for language, topic, tags, int
 - Task summary: Added AI-assisted structured perception with schema validation, fallback, graph integration, health/debug visibility, and tests.
 - Files changed: see git diff.
 - How tested: focused backend tests plus full backend pytest listed above.
-- What is incomplete: production smoke remains to run after deployment.
-- Next steps: deploy/push and run production smoke if this change is promoted now.
+- What is incomplete: nothing for this slice.
+- Next steps: monitor live behavior and move to the next non-memory/non-perception priority.
 - Decisions made: default structured perception is active when OpenAI is configured, with explicit disable flag.

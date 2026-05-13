@@ -11,7 +11,6 @@ Last updated: 2026-05-13
 | ARCH-DEPLOY-AUTO-001 | P1 | operations | Current release parity is green; source/webhook deploy convergence remains a future-candidate follow-up. | Ops/Release | DEFERRED_FUTURE_CANDIDATE | Capture source/webhook deploy convergence or fallback evidence on the next selected release candidate. |
 | ARCH-MOBILE-001 | P2 | mobile | Mobile is approved topology and v1.5 UI work has started, but production mobile readiness still needs native auth transport and device/simulator proof. | Mobile + Planning | IN_PROGRESS_EXTENSION | Continue from `PRJ-1158`; add focused native chat route or device/simulator proof before claiming production mobile readiness. |
 | V11-UI-DRIFT-001 | P2 | web_ui | v1.1 responsive automation is green, but full canonical visual parity can still be improved by explicit future feedback. | Frontend + QA/Test | MONITORING | v1.1 web responsive handoff is complete; start a new narrow polish task only from explicit feedback or v1.5 mobile planning. |
-| ARCH-AI-PERCEPTION-001 | P1 | cognitive_runtime | Baseline perception used deterministic keyword hints for language/topic/intent and affective fallback. PRJ-1196 adds provider-backed structured perception and leaves heuristics as fail-safe fallback. | Backend + AI | FIX_IMPLEMENTED_PENDING_FULL_VALIDATION | Run full backend pytest and production smoke, then move to Recently Closed if green. |
 
 ## Accepted Residual Risks
 
@@ -24,6 +23,7 @@ Move closed issues here only when the fix and validation evidence are recorded.
 
 | ID | Closed | Evidence |
 | --- | --- | --- |
+| ARCH-AI-PERCEPTION-001 | AI-assisted structured perception now owns language/topic/intent when OpenAI is configured; deterministic keyword hints remain fallback only. | `PRJ-1196`; full backend pytest `1098 passed`; Coolify production revision `7cd85fafee06449749d71bdefdad85a9798defbf`; release smoke `release_ready=true`; `/health.runtime_policy.structured_perception_posture=ai_assisted_active`. |
 | ARCH-TEST-EVIDENCE-001 | Row-specific architecture validation command packs are now generated in the audit CSV/report and dashboard JSON/Markdown. | `PRJ-929`; `docs/operations/architecture-implementation-map-2026-05-10.csv`; `docs/operations/project-status-dashboard.json`; selected-scope readiness `9/14`. |
 | ARCH-WEB-UX-001 | Fresh route-state and lightweight accessibility evidence now passes for all current web routes. | `PRJ-931`; `npm exec -- tsc -b --pretty false`; `npm exec -- vite build`; `npm run smoke:routes` -> `14` routes, `status=ok`, zero visible unnamed interactive controls. |
 | ARCH-DOC-MAPS-001 | Secondary traceability and codebase maps now point to the generated architecture audit/dashboard. | `PRJ-932`; `docs/architecture/traceability-matrix.md`; `docs/architecture/codebase-map.md`; audit/dashboard readiness `11/14`. |

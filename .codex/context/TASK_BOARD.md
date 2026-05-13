@@ -4,7 +4,7 @@ Last updated: 2026-05-13
 
 ## Project Status Dashboard (2026-05-13)
 
-- `PRJ-1196` is DONE locally:
+- `PRJ-1196` is DONE:
   - `.codex/tasks/PRJ-1196-ai-assisted-structured-perception.md`
 - result:
   - provider-backed structured perception classifier added for language,
@@ -19,8 +19,14 @@ Last updated: 2026-05-13
   - structured perception focused pack -> `2 passed, 115 deselected`
   - config/policy/lifespan pack -> `70 passed`
   - full backend pytest -> `1098 passed`
+  - Coolify production revision matched
+    `7cd85fafee06449749d71bdefdad85a9798defbf`
+  - production release smoke returned `release_ready=true`
+  - `/health.runtime_policy` reported
+    `structured_perception_posture=ai_assisted_active`
 - residual risk:
-  - production smoke remains pending after deployment
+  - native device proof and external provider activation remain separate
+    tracked work
 
 - `PRJ-1195` is DONE:
   - `.codex/tasks/PRJ-1195-runtime-layer-audit-and-polish-perception-fix.md`

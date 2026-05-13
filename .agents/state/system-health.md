@@ -8,6 +8,7 @@ Last updated: 2026-05-13
 | --- | --- | --- | --- |
 | AI-assisted perception | Structured assessor/runtime/config/policy focused packs | PASS | `PRJ-1196`; `2 passed, 115 deselected`; `70 passed` |
 | Backend regression | Full backend pytest | PASS | `PRJ-1196`; `1098 passed` |
+| Production release | Coolify deploy and release smoke for structured perception | PASS | revision `7cd85fafee06449749d71bdefdad85a9798defbf`; `release_ready=true`; `structured_perception_posture=ai_assisted_active` |
 
 ## Latest Validation Snapshot
 

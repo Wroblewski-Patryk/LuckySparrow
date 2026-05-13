@@ -22,8 +22,14 @@ the same project.
     - structured perception focused pack -> `2 passed, 115 deselected`
     - config/policy/lifespan pack -> `70 passed`
     - full backend pytest -> `1098 passed`
+    - Coolify production revision matched
+      `7cd85fafee06449749d71bdefdad85a9798defbf`
+    - production release smoke returned `release_ready=true`
+    - `/health.runtime_policy` reported
+      `structured_perception_posture=ai_assisted_active`
   - residual:
-    - production smoke remains pending after deployment
+    - native device proof and external provider activation remain separate
+      tracked gaps
 
 - 2026-05-13: `PRJ-1195` audited runtime layers and repaired a Polish
   perception cue:
