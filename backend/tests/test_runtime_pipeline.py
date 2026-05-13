@@ -681,10 +681,21 @@ class FakeGenericHttpPageClient:
 
 
 class FakeHybridMemoryRepository(FakeMemoryRepository):
-    def __init__(self, recent_memory: list[dict] | None = None, user_profile: dict | None = None):
+    def __init__(
+        self,
+        recent_memory: list[dict] | None = None,
+        user_profile: dict | None = None,
+        query_embedding: list[float] | None = None,
+    ):
         super().__init__(recent_memory=recent_memory, user_profile=user_profile)
         self.hybrid_calls: list[dict] = []
+        self.query_embedding_calls: list[str] = []
+        self.query_embedding = query_embedding or [0.1] * 32
         self.relations: list[dict] = []
+
+    async def build_query_embedding(self, query_text: str) -> list[float]:
+        self.query_embedding_calls.append(query_text)
+        return list(self.query_embedding)
 
     async def get_hybrid_memory_bundle(
         self,
@@ -1158,6 +1169,7 @@ async def test_runtime_pipeline_uses_hybrid_memory_bundle_when_supported() -> No
 
     assert len(memory.hybrid_calls) == 1
     assert memory.hybrid_calls[0]["query_text"] == "help me sequence this deploy blocker"
+    assert memory.query_embedding_calls == ["help me sequence this deploy blocker"]
     assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 32
     assert memory.hybrid_calls[0]["episodic_limit"] == RuntimeOrchestrator.MEMORY_LOAD_LIMIT
     assert memory.hybrid_calls[0]["conclusion_limit"] == RuntimeOrchestrator.SEMANTIC_MEMORY_TOP_K
@@ -1194,13 +1206,14 @@ async def test_runtime_pipeline_uses_lexical_only_hybrid_query_when_semantic_vec
     await runtime.run(event)
 
     assert len(memory.hybrid_calls) == 1
+    assert memory.query_embedding_calls == []
     assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 0
     assert memory.hybrid_calls[0]["episodic_limit"] == RuntimeOrchestrator.MEMORY_LOAD_LIMIT
     assert memory.hybrid_calls[0]["conclusion_limit"] == RuntimeOrchestrator.SEMANTIC_MEMORY_TOP_K
 
 
 async def test_runtime_pipeline_uses_configured_embedding_dimensions_even_when_provider_falls_back_to_deterministic() -> None:
-    memory = FakeHybridMemoryRepository(recent_memory=[])
+    memory = FakeHybridMemoryRepository(recent_memory=[], query_embedding=[0.1] * 24)
     action = ActionExecutor(
         memory_repository=memory,
         telegram_client=FakeTelegramClient(),
@@ -1236,6 +1249,7 @@ async def test_runtime_pipeline_uses_configured_embedding_dimensions_even_when_p
     await runtime.run(event)
 
     assert len(memory.hybrid_calls) == 1
+    assert memory.query_embedding_calls == ["help me sequence this deploy blocker"]
     assert memory.hybrid_calls[0]["query_embedding_dimensions"] == 24
 
 

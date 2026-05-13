@@ -804,6 +804,34 @@ async def test_memory_repository_materializes_openai_embedding_provider_when_sel
     await engine.dispose()
 
 
+async def test_memory_repository_builds_query_embedding_with_configured_openai_provider(tmp_path) -> None:
+    database_path = tmp_path / "memory-query-embedding-openai.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    embedding_client = FakeOpenAIEmbeddingClient()
+    repository = MemoryRepository(
+        session_factory=session_factory,
+        embedding_provider="openai",
+        embedding_model="text-embedding-3-small",
+        embedding_dimensions=12,
+        openai_api_key="test-openai-key",
+        openai_embedding_client=embedding_client,
+    )
+
+    embedding = await repository.build_query_embedding("  przypomnij podobny deploy blocker  ")
+
+    assert embedding == [0.25] * 12
+    assert embedding_client.calls == [
+        {
+            "text": "przypomnij podobny deploy blocker",
+            "model": "text-embedding-3-small",
+            "dimensions": 12,
+        }
+    ]
+
+    await engine.dispose()
+
+
 async def test_memory_repository_upsert_conclusion_keeps_affective_embedding_pending_in_manual_refresh_mode(
     tmp_path,
 ) -> None:
@@ -940,6 +968,74 @@ async def test_memory_repository_builds_hybrid_memory_bundle_with_vector_and_lex
     assert bundle["diagnostics"]["episodic_candidates"] >= 1
     assert bundle["diagnostics"]["semantic_candidates"] >= 1
     assert bundle["diagnostics"]["vector_hits"] >= 1
+
+    await engine.dispose()
+
+
+async def test_memory_repository_includes_vector_matched_episodic_memory_outside_recent_window(tmp_path) -> None:
+    database_path = tmp_path / "memory-hybrid-episodic-vector.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{database_path}")
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+    repository = MemoryRepository(session_factory=session_factory)
+    await repository.create_tables(engine)
+
+    old = await repository.write_episode(
+        event_id="evt-old-project-atlas",
+        trace_id="trace-old-project-atlas",
+        source="api",
+        user_id="u-1",
+        event_timestamp=datetime.now(timezone.utc) - timedelta(days=2),
+        summary="User said project Atlas uses sea green.",
+        payload={
+            "event": "project Atlas uses sea green",
+            "memory_topics": ["atlas", "color"],
+            "memory_kind": "semantic",
+            "response_language": "en",
+        },
+        importance=0.86,
+    )
+    await repository.upsert_semantic_embedding(
+        user_id="u-1",
+        source_kind="episodic",
+        source_id=str(old["id"]),
+        source_event_id="evt-old-project-atlas",
+        scope_type="global",
+        scope_key="global",
+        content="project Atlas uses sea green",
+        embedding=[1.0, 0.0, 0.0],
+        embedding_model="test-v1",
+        embedding_dimensions=3,
+        metadata={"memory_kind": "semantic"},
+    )
+    for index in range(13):
+        await repository.write_episode(
+            event_id=f"evt-filler-{index}",
+            trace_id=f"trace-filler-{index}",
+            source="api",
+            user_id="u-1",
+            event_timestamp=datetime.now(timezone.utc) - timedelta(minutes=index),
+            summary=f"User said unrelated filler {index}.",
+            payload={
+                "event": f"unrelated filler {index}",
+                "memory_topics": ["filler"],
+                "memory_kind": "episodic",
+                "response_language": "en",
+            },
+            importance=0.1,
+        )
+
+    bundle = await repository.get_hybrid_memory_bundle(
+        user_id="u-1",
+        query_text="what color is project atlas",
+        query_embedding=[0.95, 0.05, 0.0],
+        episodic_limit=6,
+        conclusion_limit=5,
+    )
+
+    summaries = [str(item.get("summary", "")).lower() for item in bundle["episodic"]]
+    assert any("project atlas uses sea green" in summary for summary in summaries)
+    assert bundle["diagnostics"]["episodic_candidates"] == 12
+    assert bundle["diagnostics"]["vector_episodic_hits"] == 1
 
     await engine.dispose()
 

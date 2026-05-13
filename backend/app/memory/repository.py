@@ -970,6 +970,19 @@ class MemoryRepository:
             for item, score in ranked[:limit]
         ]
 
+    async def build_query_embedding(self, query_text: str) -> list[float]:
+        normalized = " ".join(str(query_text or "").split())
+        if not normalized:
+            return []
+        embedding, _ = await materialize_embedding(
+            content=normalized,
+            posture=self.embedding_posture,
+            dimensions=self.embedding_dimensions,
+            refresh_mode="on_write",
+            openai_embedding_client=self.openai_embedding_client,
+        )
+        return [float(value) for value in (embedding or [])]
+
     async def get_hybrid_memory_bundle(
         self,
         *,
@@ -1040,6 +1053,49 @@ class MemoryRepository:
             ): float(hit.get("similarity", 0.0) or 0.0)
             for hit in vector_hits
         }
+        vector_episodic_ids: list[int] = []
+        for hit in vector_hits:
+            if str(hit.get("source_kind", "")).strip().lower() != "episodic":
+                continue
+            raw_source_id = str(hit.get("source_id", "") or "").strip().lower()
+            if raw_source_id.startswith("memory:"):
+                raw_source_id = raw_source_id.split(":", 1)[1]
+            try:
+                vector_episodic_ids.append(int(raw_source_id))
+            except ValueError:
+                continue
+        vector_episodic = await self.get_episodes_by_ids_for_user(
+            user_id=user_id,
+            ids=vector_episodic_ids,
+        )
+        vector_episodic_by_id = {
+            int(item["id"]): item
+            for item in vector_episodic
+            if item.get("id") is not None
+        }
+        merged_episodic: list[dict] = []
+        merged_ids: set[int] = set()
+        for row_id in vector_episodic_ids:
+            item = vector_episodic_by_id.get(row_id)
+            if item is None or row_id in merged_ids:
+                continue
+            merged_episodic.append(item)
+            merged_ids.add(row_id)
+        for item in episodic:
+            raw_id = item.get("id")
+            if raw_id is None:
+                merged_episodic.append(item)
+                continue
+            try:
+                row_id = int(raw_id)
+            except (TypeError, ValueError):
+                merged_episodic.append(item)
+                continue
+            if row_id in merged_ids:
+                continue
+            merged_episodic.append(item)
+            merged_ids.add(row_id)
+        episodic = merged_episodic[:episodic_limit]
         semantic_scored = sorted(
             (
                 (
@@ -1090,6 +1146,7 @@ class MemoryRepository:
                 "affective_candidates": len(affective_conclusions),
                 "episodic_lexical_hits": lexical_hit_count,
                 "vector_hits": len(vector_hits),
+                "vector_episodic_hits": len(vector_episodic),
                 "semantic_selected": len(semantic),
                 "affective_selected": len(affective),
             },
@@ -1163,6 +1220,36 @@ class MemoryRepository:
             **self._serialize_memory(row),
             "event_timestamp": row.event_timestamp,
         }
+
+    async def get_episodes_by_ids_for_user(self, *, user_id: str, ids: list[int]) -> list[dict]:
+        normalized_ids: list[int] = []
+        for value in ids:
+            try:
+                row_id = int(value)
+            except (TypeError, ValueError):
+                continue
+            if row_id > 0:
+                normalized_ids.append(row_id)
+        if not normalized_ids:
+            return []
+        async with self.session_factory() as session:
+            statement = (
+                select(AionMemory)
+                .where(
+                    AionMemory.user_id == str(user_id).strip(),
+                    AionMemory.id.in_(normalized_ids),
+                )
+            )
+            result = await session.execute(statement)
+            rows = result.scalars().all()
+        by_id = {
+            int(row.id): {
+                **self._serialize_memory(row),
+                "event_timestamp": row.event_timestamp,
+            }
+            for row in rows
+        }
+        return [by_id[row_id] for row_id in normalized_ids if row_id in by_id]
 
     async def get_recent_chat_transcript_for_user(self, user_id: str, limit: int = 10) -> list[dict[str, Any]]:
         normalized_limit = max(1, int(limit))

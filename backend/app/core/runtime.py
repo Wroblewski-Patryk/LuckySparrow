@@ -131,6 +131,22 @@ class RuntimeOrchestrator:
             ids.append(str(raw_id))
         return ids
 
+    async def _build_query_embedding(self, query_text: str) -> list[float]:
+        if not self.semantic_vector_enabled or not query_text:
+            return []
+        builder = getattr(self.memory_repository, "build_query_embedding", None)
+        if callable(builder):
+            try:
+                embedding = await builder(query_text)
+            except Exception as exc:
+                self.logger.warning(
+                    "query_embedding_provider_failed error_type=%s fallback=deterministic",
+                    type(exc).__name__,
+                )
+            else:
+                return [float(value) for value in (embedding or [])]
+        return deterministic_embedding(query_text, dimensions=self.embedding_dimensions)
+
     def _build_action_delivery(self, *, event: Event, expression: ExpressionOutput) -> ActionDelivery:
         plan = None
         return expression_to_action_delivery(event=event, expression=expression, plan=plan)
@@ -689,11 +705,7 @@ class RuntimeOrchestrator:
             pending_subconscious_proposals: list[dict] = []
             query_text = str(event.payload.get("text", "")).strip()
             if hasattr(self.memory_repository, "get_hybrid_memory_bundle"):
-                query_embedding = (
-                    deterministic_embedding(query_text, dimensions=self.embedding_dimensions)
-                    if self.semantic_vector_enabled and query_text
-                    else []
-                )
+                query_embedding = await self._build_query_embedding(query_text)
                 hybrid_bundle = await self.memory_repository.get_hybrid_memory_bundle(
                     user_id=event.meta.user_id,
                     query_text=query_text,

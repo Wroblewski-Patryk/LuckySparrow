@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Iterable
 
+EPISODIC_VECTOR_SOURCE_KIND = "episodic"
 BASELINE_VECTOR_SOURCE_ORDER = ("semantic", "affective")
 OPTIONAL_RELATION_SOURCE_KIND = "relation"
 
@@ -43,9 +44,12 @@ def foreground_retrieval_source_kinds(
         for kind in (enabled_source_kinds or [])
         if str(kind).strip()
     }
-    selected = [
+    selected = []
+    if EPISODIC_VECTOR_SOURCE_KIND in normalized:
+        selected.append(EPISODIC_VECTOR_SOURCE_KIND)
+    selected.extend(
         kind for kind in BASELINE_VECTOR_SOURCE_ORDER if kind in normalized
-    ]
+    )
     if OPTIONAL_RELATION_SOURCE_KIND in normalized:
         selected.append(OPTIONAL_RELATION_SOURCE_KIND)
     return selected

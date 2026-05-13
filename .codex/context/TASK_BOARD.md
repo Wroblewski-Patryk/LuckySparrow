@@ -4,6 +4,30 @@ Last updated: 2026-05-13
 
 ## Project Status Dashboard (2026-05-13)
 
+- `PRJ-1189` is DONE:
+  - `.codex/tasks/PRJ-1189-memory-source-read-write-audit.md`
+- result:
+  - audited current AION memory source families for read/write behavior
+  - fixed runtime query embeddings to use the configured repository/provider
+    embedding path instead of always falling back to deterministic vectors
+  - fixed foreground semantic retrieval so `episodic` vector source records
+    are queried alongside `semantic` and `affective`
+  - fixed hybrid memory bundling so vector-matched episodic rows outside the
+    recent temporal window are loaded into the episodic context bundle
+  - added diagnostics for `vector_episodic_hits`
+- validation:
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py -k "vector_matched_episodic or query_embedding or hybrid_memory_bundle or semantic_embeddings"; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `4 passed, 65 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py -k "memory or hybrid or semantic or preference or pet or recent"; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `17 passed, 95 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_embedding_strategy.py tests/test_main_runtime_policy.py -k "source_kinds or relation_source_policy or retrieval"; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `3 passed, 59 deselected`
+  - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
+    -> `1080 passed`
+- residual risk:
+  - native PostgreSQL ANN/operator ranking remains a future scale hardening
+    item; current retrieval still ranks fetched vector rows in repository code
+
 - `PRJ-1188` is DONE:
   - `.codex/tasks/PRJ-1188-production-db-collation-maintenance.md`
 - result:

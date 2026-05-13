@@ -157,7 +157,8 @@ The runtime retrieves relevant memory for the event.
 
 Typical retrieval layers:
 
-1. episodic layer (recent turns and payload traces)
+1. episodic layer (recent turns, payload traces, and semantically similar
+   previous episodes when vectors are enabled)
 2. semantic layer (stable conclusions)
 3. affective layer (support patterns and affective continuity signals)
 4. operational layer (runtime preferences, active goals, active tasks, milestone state)
@@ -170,6 +171,8 @@ Current foreground retrieval defaults:
 - semantic/conclusion top-k: `5`
 - app-facing recent transcript message limit: `12`
 - compressed context budget: about `2500` tokens
+- foreground vector retrieval source families: `episodic`, `semantic`, and
+  `affective` when those source families are enabled
 
 ### Step 7. Context Construction
 

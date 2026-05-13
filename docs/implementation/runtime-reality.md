@@ -324,6 +324,9 @@ Hybrid retrieval surfaces are now also explicit:
 - semantic embeddings are stored in `aion_semantic_embedding`
 - `get_hybrid_memory_bundle(...)` merges episodic, semantic, and affective
   candidates with lexical overlap plus vector similarity scoring
+- foreground vector retrieval includes `episodic`, `semantic`, and `affective`
+  source families, so semantically matched episodes can be loaded even when
+  they are outside the recent temporal window
 - runtime logs and memory diagnostics now expose hybrid retrieval signals
   (lexical/vector hit counts) for observability
 - episodic, semantic-conclusion, affective-conclusion, and relation embedding

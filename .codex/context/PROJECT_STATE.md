@@ -6,6 +6,28 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-13: `PRJ-1189` closed the memory source read/write audit gap:
+  - task:
+    - `.codex/tasks/PRJ-1189-memory-source-read-write-audit.md`
+  - result:
+    - runtime query embeddings now use the configured memory repository
+      embedding provider, keeping query vectors in the same provider/dimension
+      space as stored production vectors
+    - foreground vector retrieval now includes `episodic` alongside
+      `semantic` and `affective`
+    - `get_hybrid_memory_bundle(...)` now loads vector-matched episodic rows
+      into the episodic context bundle even when they are outside the recent
+      temporal window
+    - hybrid diagnostics now include `vector_episodic_hits`
+  - validation:
+    - memory repository vector/query embedding pack -> `4 passed`
+    - runtime memory/hybrid pack -> `17 passed`
+    - embedding/retrieval policy pack -> `3 passed`
+    - full backend pytest -> `1080 passed`
+  - residual:
+    - native PostgreSQL ANN/operator ranking remains future hardening; current
+      repository ranking is acceptable for the current memory-flow scale
+
 - 2026-05-13: `PRJ-1188` repaired the Aviary production DB collation mismatch:
   - task:
     - `.codex/tasks/PRJ-1188-production-db-collation-maintenance.md`

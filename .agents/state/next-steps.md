@@ -6,17 +6,21 @@ Last updated: 2026-05-13
 
 1. Continue from the repaired production DB baseline:
    - latest memory task:
-     `.codex/tasks/PRJ-1188-production-db-collation-maintenance.md`
+     `.codex/tasks/PRJ-1189-memory-source-read-write-audit.md`
    - current verified baseline:
      Coolify production runs runtime memory with `RECENT_MEMORY_LIMIT=6`,
      `SEMANTIC_MEMORY_TOP_K=5`, OpenAI `text-embedding-3-small`, and pgvector
      dimensions `1536`
+   - local code baseline:
+     runtime query embeddings use the configured provider path, foreground
+     vector retrieval includes `episodic`, and vector-matched episodes outside
+     the recent temporal window enter the context bundle
    - production proof:
      post-maintenance two-turn memory scenario answered `Roki`, persisted two
      episodes, and wrote two 1536-dimensional semantic embeddings
    - next smallest slice:
-     build a provider-backed semantic similarity proof that is not relying on
-     temporal recency, now that pgvector/OpenAI production writes are healthy
+     deploy PRJ-1189 and run a provider-backed semantic similarity proof that
+     is not relying on temporal recency
 
 2. Capture native device proof for the deployed `v1.5` mobile UI:
    - branch: `codex/v15-mobile-ui-deploy-commits`
