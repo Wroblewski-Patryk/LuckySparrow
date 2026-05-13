@@ -20,6 +20,10 @@ the same project.
     - context vector relevance pack -> `6 passed`
     - memory repository vector metadata pack -> `2 passed`
     - full backend pytest -> `1083 passed`
+    - production Coolify revision matched
+      `2b6bf01b795a3d0b5a3ca055db39702f0c847b01`
+    - production runtime smoke trace `prod-vector-context-read-2b6bf01`
+      replied `Your dog's name is Roki.`
 
 - 2026-05-13: `PRJ-1190` added native pgvector semantic ranking:
   - task:

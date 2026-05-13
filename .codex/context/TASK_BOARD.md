@@ -13,6 +13,8 @@ Last updated: 2026-05-13
     signal when lexical overlap is absent
   - semantic vector matches are no longer dropped solely by lexical topical
     filtering before prompt/context construction
+  - deployed commit `2b6bf01b795a3d0b5a3ca055db39702f0c847b01` to Coolify
+    and verified production memory recall
 - validation:
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_context_agent.py -k "vector_retrieved_memory or recent_memory_signal or relevant_memory or topically_relevant or importance"; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
     -> `6 passed, 47 deselected`
@@ -20,6 +22,11 @@ Last updated: 2026-05-13
     -> `2 passed, 69 deselected`
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; $exit=$LASTEXITCODE; Pop-Location; exit $exit`
     -> `1083 passed`
+  - production proof:
+    - `/health.deployment.runtime_build_revision` matched
+      `2b6bf01b795a3d0b5a3ca055db39702f0c847b01`
+    - event smoke trace `prod-vector-context-read-2b6bf01` replied
+      `Your dog's name is Roki.`
 - residual risk:
   - richer consolidation, summarization, and decay policies remain future
     memory-quality work

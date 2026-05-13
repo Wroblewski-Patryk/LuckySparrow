@@ -78,7 +78,10 @@ Carry vector similarity metadata into episodic memory items and let context sele
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_context_agent.py -k "vector_retrieved_memory or recent_memory_signal or relevant_memory or topically_relevant or importance"; ...` -> `6 passed, 47 deselected`
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py -k "vector_matched_episodic or semantic_embeddings or expanded_candidates"; ...` -> `2 passed, 69 deselected`
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; ...` -> `1083 passed`
-- Manual checks: context scoring and vector metadata path reviewed.
+- Manual checks:
+  - context scoring and vector metadata path reviewed
+  - production `/health.deployment.runtime_build_revision` matched `2b6bf01b795a3d0b5a3ca055db39702f0c847b01`
+  - production runtime smoke wrote and recalled `Roki`; final reply was `Your dog's name is Roki.`
 - High-risk checks: no change to memory write ownership or schema.
 - Module confidence ledger updated: yes
 - Module confidence rows closed or changed: AVIARY-MEMORY-001
@@ -101,10 +104,11 @@ Carry vector similarity metadata into episodic memory items and let context sele
 - Deploy impact: low
 - Env or secret changes: none
 - Health-check impact: none
-- Smoke steps updated: production health and a memory recall smoke after deploy.
+- Smoke steps updated: production health and memory recall smoke passed after deploy.
 - Rollback note: revert PRJ-1191 if context selection behaves unexpectedly; retrieval remains intact.
 - Observability or alerting impact: vector-retrieved memory items now expose metadata in debug bundles.
 - Staged rollout or feature flag: existing `SEMANTIC_VECTOR_ENABLED`.
+- Production proof: `/health` was green on commit `2b6bf01b795a3d0b5a3ca055db39702f0c847b01`; event smoke trace `prod-vector-context-read-2b6bf01` replied `Your dog's name is Roki.`
 
 ## Review Checklist
 - [x] Process self-audit completed before implementation.
@@ -125,9 +129,9 @@ Carry vector similarity metadata into episodic memory items and let context sele
 ## Result Report
 - Task summary: vector similarity now survives retrieval into context scoring, preventing semantic matches from being discarded solely for lack of lexical overlap.
 - Files changed: repository, context agent, tests, docs/state.
-- How tested: targeted context/repository tests and full backend pytest.
+- How tested: targeted context/repository tests, full backend pytest, and production memory recall smoke.
 - What is incomplete: broader memory consolidation/summarization policies remain future quality work.
-- Next steps: deploy and run production smoke.
+- Next steps: continue with memory consolidation/summarization and forgetting/decay policies.
 
 ## Autonomous Loop Evidence
 
