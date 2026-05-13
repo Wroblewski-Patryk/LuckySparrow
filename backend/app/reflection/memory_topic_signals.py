@@ -15,6 +15,7 @@ GENERIC_MEMORY_TOPICS = {
     "assistant",
     "aion",
 }
+MAX_CONCLUSION_CONTENT_LENGTH = 128
 
 
 def derive_memory_topic_summary(
@@ -41,9 +42,9 @@ def derive_memory_topic_summary(
         event_text = _clip_text(str(fields.get("event", "")).strip(), max_length=120)
         expression = _clip_text(str(fields.get("expression", "")).strip(), max_length=120)
         if event_text:
-            event_evidence.append((topics, f"user said '{event_text}'"))
+            event_evidence.append((topics, event_text))
         elif expression:
-            event_evidence.append((topics, f"AION replied '{expression}'"))
+            event_evidence.append((topics, expression))
 
     repeated_topics = [
         topic
@@ -62,27 +63,21 @@ def derive_memory_topic_summary(
         if evidence in seen_evidence:
             continue
         seen_evidence.add(evidence)
-        evidence_parts.append(evidence)
-        if len(evidence_parts) >= 3:
+        evidence_parts.append(_clip_text(evidence, max_length=48))
+        if len(evidence_parts) >= 2:
             break
 
     if not evidence_parts:
         return None
 
-    content = (
-        "Repeated memory topics: "
-        + ", ".join(repeated_topics)
-        + ". Recent evidence: "
-        + "; ".join(evidence_parts)
-        + "."
-    )
+    content = "Topics: " + ", ".join(repeated_topics) + ". Evidence: " + " | ".join(evidence_parts) + "."
     evidence_count = sum(topic_counts[topic] for topic in repeated_topics)
     confidence = min(0.9, 0.7 + (0.04 * evidence_count))
     return {
         "kind": "memory_topic_summary",
-        "content": _clip_text(content, max_length=520),
+        "content": _clip_text(content, max_length=MAX_CONCLUSION_CONTENT_LENGTH),
         "confidence": round(confidence, 2),
-        "source": "background_reflection:topic_summary",
+        "source": "background_reflection",
     }
 
 

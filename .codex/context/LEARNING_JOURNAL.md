@@ -25,6 +25,30 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-05-13 - Validate production string limits for conclusion content
+- Context:
+  - PRJ-1193 added reflection-derived `memory_topic_summary` conclusions and
+    initially tested against SQLite.
+- Symptom:
+  - production PostgreSQL rejected the first proof with
+    `value too long for type character varying(128)` on
+    `aion_conclusion.content`.
+- Root cause:
+  - the local test verified behavior but did not assert the PostgreSQL model's
+    `String(128)` content limit for generic conclusion values.
+- Guardrail:
+  - new conclusion kinds that write free-form content must include a test that
+    pins content length to the database model limit.
+- Preferred pattern:
+  - keep durable conclusion `content` compact and move richer evidence to
+    episodic records or future explicitly designed summary storage.
+- Avoid:
+  - assuming SQLite behavior catches PostgreSQL varchar length constraints.
+- Evidence:
+  - production app-container proof failed before the guardrail; the helper now
+    clips `memory_topic_summary` content to `128` characters and the focused
+    plus full backend gates pass.
+
 ### 2026-05-11 - Keep one-off mobile screenshot servers out of closure evidence
 - Context:
   - PRJ-1171 attempted an inline Node fallback server plus headless Chromium

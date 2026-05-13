@@ -78,16 +78,16 @@ def test_context_summary_includes_long_term_memory_topic_summary_from_conclusion
             {
                 "kind": "memory_topic_summary",
                 "content": (
-                    "Repeated memory topics: dog, roki. Recent evidence: "
-                    "user said 'Remember that my dog is named Roki.'"
+                    "Topics: dog, roki. Evidence: "
+                    "Remember that my dog is named Roki."
                 ),
                 "confidence": 0.86,
-                "source": "background_reflection:topic_summary",
+                "source": "background_reflection",
             }
         ],
     )
 
-    assert "Long-term memory summary: Repeated memory topics: dog, roki." in result.summary
+    assert "Long-term memory summary: Topics: dog, roki." in result.summary
     assert "Remember that my dog is named Roki" in result.summary
 
 

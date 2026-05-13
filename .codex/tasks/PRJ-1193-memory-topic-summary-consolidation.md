@@ -109,7 +109,7 @@ Implement and verify the smallest safe memory topic-summary slice.
   - `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q; ...` -> `1088 passed`
 - Manual checks: code and docs inspection
 - Screenshots/logs: not applicable
-- High-risk checks: no schema change; user-scoped conclusion path preserved; no dynamic per-topic conclusion kinds introduced
+- High-risk checks: no schema change; user-scoped conclusion path preserved; no dynamic per-topic conclusion kinds introduced; production PostgreSQL varchar proof initially failed on `aion_conclusion.content`, then the helper was fixed to clip `memory_topic_summary` content to the model's 128-character limit and the limit was pinned in tests
 - Coverage ledger updated: not applicable
 - Coverage rows closed or changed: not applicable
 - Module confidence ledger updated: yes
@@ -192,7 +192,7 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
 - Active task changed by feedback: yes
 - New task created from feedback: yes
 - Design memory updated: not applicable
-- Learning journal updated: not applicable
+- Learning journal updated: yes
 
 ## Reliability / Observability Evidence
 - `docs/operations/service-reliability-and-observability.md` reviewed: not applicable
@@ -287,4 +287,4 @@ Runtime tasks must be delivered as a vertical slice: UI -> logic -> API -> DB ->
 ### 7. Update Documentation and Knowledge
 - Docs updated: `docs/architecture/15_runtime_flow.md`, `docs/implementation/runtime-reality.md`, `docs/operations/runtime-ops-runbook.md`
 - Context updated: `.codex/context/PROJECT_STATE.md`, `.codex/context/TASK_BOARD.md`, `.agents/state/*`
-- Learning journal updated: not applicable.
+- Learning journal updated: yes; recorded PostgreSQL conclusion content limit guardrail.

@@ -269,11 +269,12 @@ async def test_reflection_worker_consolidates_repeated_memory_topics_into_semant
     summary_update = next(
         item for item in repository.conclusion_updates if item["kind"] == "memory_topic_summary"
     )
-    assert summary_update["source"] == "background_reflection:topic_summary"
+    assert summary_update["source"] == "background_reflection"
     assert summary_update["confidence"] >= 0.7
+    assert len(summary_update["content"]) <= 128
     assert "dog" in summary_update["content"]
     assert "roki" in summary_update["content"]
-    assert "Remember that my dog is named Roki" in summary_update["content"]
+    assert "Roki" in summary_update["content"]
 
 
 async def test_reflection_worker_derives_read_only_subconscious_proposals_from_recent_memory() -> None:
