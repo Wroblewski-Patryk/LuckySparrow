@@ -20,7 +20,7 @@ Last updated: 2026-05-13
   - config/policy/lifespan pack -> `70 passed`
   - full backend pytest -> `1098 passed`
   - Coolify production revision matched
-    `7cd85fafee06449749d71bdefdad85a9798defbf`
+    `c427ab110276c98a122d6c1be3f7d9a02eeffa3c`
   - production release smoke returned `release_ready=true`
   - `/health.runtime_policy` reported
     `structured_perception_posture=ai_assisted_active`

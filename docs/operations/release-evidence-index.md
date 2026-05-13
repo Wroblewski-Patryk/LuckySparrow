@@ -15,7 +15,7 @@ deployed.
 | --- | --- |
 | Local branch | `main` |
 | Local selected UI candidate | `43837bb183c8975845b99b65a03cea5ccf4903a0` |
-| Latest committed closure-proof revision | `7cd85fafee06449749d71bdefdad85a9798defbf` |
+| Latest committed closure-proof revision | `c427ab110276c98a122d6c1be3f7d9a02eeffa3c` |
 | Local relation to `origin/main` | equal after PRJ-1196 structured-perception deploy |
 | Current release tag | `v1.0.1` |
 | Current release tag object | `b016c4f33051805cfa09664f79bbe57f5b30811b` |
@@ -23,8 +23,8 @@ deployed.
 | Historical release tag | `v1.0.0` |
 | Historical release tag object | `b5d8379df1898aa5533bd72a7a1631d6044f2125` |
 | Historical release tag target commit | `5e64f494e2aac8d29cea532d95f7039ed6029213` |
-| Production backend revision | live `/health` confirmed `7cd85fafee06449749d71bdefdad85a9798defbf` after PRJ-1196 |
-| Production web meta revision | release smoke confirmed `7cd85fafee06449749d71bdefdad85a9798defbf` after PRJ-1196 |
+| Production backend revision | live `/health` confirmed `c427ab110276c98a122d6c1be3f7d9a02eeffa3c` after PRJ-1196 proof refresh |
+| Production web meta revision | release smoke confirmed `c427ab110276c98a122d6c1be3f7d9a02eeffa3c` after PRJ-1196 proof refresh |
 | Production health | `ok`; HTTP `200` after PRJ-1196 Coolify redeploy recovery and release smoke |
 | Production release readiness | `true` |
 | Production v1 final acceptance | `core_v1_bundle_ready` |
