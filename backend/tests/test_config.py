@@ -10,6 +10,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.production_policy_enforcement == "warn"
     assert settings.event_debug_enabled is None
     assert settings.affective_assessment_enabled is None
+    assert settings.structured_perception_enabled is None
     assert settings.event_debug_token is None
     assert settings.production_debug_token_required is True
     assert settings.event_debug_query_compat_enabled is None
@@ -39,6 +40,7 @@ def test_settings_default_to_migration_first_startup_mode() -> None:
     assert settings.attention_answered_ttl_seconds == 5.0
     assert settings.attention_stale_turn_seconds == 30.0
     assert settings.is_affective_assessment_enabled() is True
+    assert settings.is_structured_perception_enabled() is False
     assert settings.is_event_debug_enabled() is True
     assert settings.is_event_debug_query_compat_enabled() is False
 
@@ -82,7 +84,9 @@ def test_settings_default_to_debug_payload_disabled_in_production() -> None:
 
     assert settings.event_debug_enabled is None
     assert settings.affective_assessment_enabled is None
+    assert settings.structured_perception_enabled is None
     assert settings.is_affective_assessment_enabled() is False
+    assert settings.is_structured_perception_enabled() is False
     assert settings.is_event_debug_enabled() is False
     assert settings.event_debug_query_compat_enabled is None
     assert settings.is_event_debug_query_compat_enabled() is False
@@ -129,6 +133,28 @@ def test_settings_allow_explicit_affective_assessment_enablement_in_production()
 
     assert settings.affective_assessment_enabled is True
     assert settings.is_affective_assessment_enabled() is True
+
+
+def test_settings_enable_structured_perception_when_openai_key_is_configured() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        app_env="production",
+        openai_api_key="sk-test",
+    )
+
+    assert settings.structured_perception_enabled is None
+    assert settings.is_structured_perception_enabled() is True
+
+
+def test_settings_allow_explicit_structured_perception_disablement() -> None:
+    settings = Settings(
+        database_url="postgresql+asyncpg://u:p@localhost:5432/aion",
+        openai_api_key="sk-test",
+        structured_perception_enabled=False,
+    )
+
+    assert settings.structured_perception_enabled is False
+    assert settings.is_structured_perception_enabled() is False
 
 
 def test_settings_allow_optional_event_debug_token() -> None:

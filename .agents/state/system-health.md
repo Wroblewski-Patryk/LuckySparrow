@@ -2,6 +2,13 @@
 
 Last updated: 2026-05-13
 
+## Latest Runtime Validation
+
+| Area | Check | Result | Evidence |
+| --- | --- | --- | --- |
+| AI-assisted perception | Structured assessor/runtime/config/policy focused packs | PASS | `PRJ-1196`; `2 passed, 115 deselected`; `70 passed` |
+| Backend regression | Full backend pytest | PASS | `PRJ-1196`; `1098 passed` |
+
 ## Latest Validation Snapshot
 
 | Check | Command or method | Result | Evidence | Notes |

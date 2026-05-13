@@ -23,6 +23,7 @@ from app.core.database import Database
 from app.core.debug_compat import DebugQueryCompatTelemetry
 from app.core.external_scheduler_policy import external_scheduler_policy_snapshot
 from app.core.logging import get_logger, setup_logging
+from app.core.perception_policy import structured_perception_policy_snapshot
 from app.core.reflection_supervision_policy import (
     reflection_supervision_policy_snapshot,
 )
@@ -48,6 +49,7 @@ from app.memory.openai_embedding_client import OpenAIEmbeddingClient
 from app.memory.repository import MemoryRepository
 from app.memory.vector_types import pgvector_python_binding_available
 from app.motivation.engine import MotivationEngine
+from app.perception.assessor import StructuredPerceptionAssessor
 from app.reflection.worker import ReflectionWorker
 from app.workers.scheduler import SchedulerWorker
 
@@ -469,6 +471,30 @@ def _log_affective_assessment_policy(*, settings, logger) -> None:
         )
 
 
+def _log_structured_perception_policy(*, settings, logger) -> None:
+    snapshot = structured_perception_policy_snapshot(settings)
+    if str(snapshot["structured_perception_posture"]) == "fallback_only_classifier_unavailable":
+        logger.warning(
+            "structured_perception_policy_warning env=%s enabled=%s source=%s classifier_available=%s posture=%s hint=%s",
+            settings.app_env,
+            bool(snapshot["structured_perception_enabled"]),
+            str(snapshot["structured_perception_source"]),
+            bool(snapshot["structured_perception_classifier_available"]),
+            str(snapshot["structured_perception_posture"]),
+            str(snapshot["structured_perception_hint"]),
+        )
+    else:
+        logger.info(
+            "structured_perception_policy env=%s enabled=%s source=%s classifier_available=%s posture=%s hint=%s",
+            settings.app_env,
+            bool(snapshot["structured_perception_enabled"]),
+            str(snapshot["structured_perception_source"]),
+            bool(snapshot["structured_perception_classifier_available"]),
+            str(snapshot["structured_perception_posture"]),
+            str(snapshot["structured_perception_hint"]),
+        )
+
+
 def _log_reflection_external_driver_policy(
     *,
     settings,
@@ -548,6 +574,7 @@ async def lifespan(app: FastAPI):
     _log_runtime_policy_warnings(settings=settings, logger=logger)
     _log_embedding_strategy_warnings(settings=settings, logger=logger)
     _enforce_postgres_vector_runtime_requirements(settings=settings, logger=logger)
+    _log_structured_perception_policy(settings=settings, logger=logger)
     _log_affective_assessment_policy(settings=settings, logger=logger)
 
     database = Database(settings.database_url)  # type: ignore[arg-type]
@@ -669,8 +696,24 @@ async def lifespan(app: FastAPI):
             settings.proactive_enabled,
         )
 
+    structured_perception_enabled_resolver = getattr(settings, "is_structured_perception_enabled", None)
+    structured_perception_enabled = (
+        bool(structured_perception_enabled_resolver())
+        if callable(structured_perception_enabled_resolver)
+        else bool(structured_perception_policy_snapshot(settings)["structured_perception_enabled"])
+    )
     runtime = RuntimeOrchestrator(
-        perception_agent=PerceptionAgent(),
+        perception_agent=PerceptionAgent(
+            structured_assessor=StructuredPerceptionAssessor(
+                classifier_client=openai_client,
+                enabled=structured_perception_enabled,
+                policy_source=(
+                    "explicit"
+                    if getattr(settings, "structured_perception_enabled", None) is not None
+                    else "environment_default"
+                ),
+            )
+        ),
         context_agent=ContextAgent(),
         motivation_engine=MotivationEngine(),
         role_agent=RoleAgent(),

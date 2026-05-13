@@ -4,6 +4,24 @@ Last updated: 2026-05-13
 
 ## Project Status Dashboard (2026-05-13)
 
+- `PRJ-1196` is DONE locally:
+  - `.codex/tasks/PRJ-1196-ai-assisted-structured-perception.md`
+- result:
+  - provider-backed structured perception classifier added for language,
+    topic, tags, intent, ambiguity, salience, and affective cues
+  - deterministic keyword perception remains only as fallback when the
+    classifier is unavailable, disabled, or returns invalid output
+  - foreground graph now runs perception through the async AI-assisted path
+    before context construction
+  - `/health.runtime_policy` and `system_debug.adaptive_state` expose
+    `structured_perception_*` posture fields
+- validation:
+  - structured perception focused pack -> `2 passed, 115 deselected`
+  - config/policy/lifespan pack -> `70 passed`
+  - full backend pytest -> `1098 passed`
+- residual risk:
+  - production smoke remains pending after deployment
+
 - `PRJ-1195` is DONE:
   - `.codex/tasks/PRJ-1195-runtime-layer-audit-and-polish-perception-fix.md`
 - result:

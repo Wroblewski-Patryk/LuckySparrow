@@ -139,6 +139,11 @@ This is the continuity layer of the turn.
 
 Perception determines what happened.
 
+Target runtime behavior is AI-assisted structured perception when an AI
+provider is configured. The model classifies language, topic, tags, intent,
+ambiguity, salience, and affective cues into a validated compact schema.
+Deterministic keyword/language hints remain only as fallback.
+
 Typical output:
 
 - event type

@@ -33,6 +33,12 @@ def test_runtime_policy_snapshot_defaults_to_no_production_mismatches_outside_pr
     snapshot = runtime_policy_snapshot(settings)
 
     assert snapshot == {
+        "structured_perception_enabled": False,
+        "structured_perception_source": "environment_default",
+        "structured_perception_classifier_available": False,
+        "structured_perception_posture": "fallback_only_policy_disabled",
+        "structured_perception_hint": "policy_disabled_use_deterministic_perception_baseline",
+        "structured_perception_owner": "structured_perception_rollout_policy",
         "affective_assessment_enabled": True,
         "affective_assessment_source": "environment_default",
         "affective_classifier_available": False,

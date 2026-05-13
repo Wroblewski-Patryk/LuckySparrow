@@ -2,6 +2,7 @@ from collections.abc import Mapping
 from typing import Any, Literal
 
 from app.core.affective_policy import affective_assessment_policy_snapshot
+from app.core.perception_policy import structured_perception_policy_snapshot
 from app.core.debug_ingress_policy import (
     debug_ingress_admin_posture_state,
     debug_ingress_policy_snapshot,
@@ -299,6 +300,7 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
     shared_ingress_sunset_reason = event_debug_shared_ingress_sunset_reason(settings)
     sunset_blockers = compatibility_sunset_blockers(settings)
     affective_policy = affective_assessment_policy_snapshot(settings)
+    structured_perception_policy = structured_perception_policy_snapshot(settings)
     debug_policy = debug_ingress_policy_snapshot()
     debug_retirement_blockers = debug_ingress_retirement_blockers(
         debug_enabled=debug_enabled,
@@ -316,6 +318,7 @@ def runtime_policy_snapshot(settings: Any) -> dict[str, Any]:
         query_compat_enabled=query_compat_enabled,
     )
     return {
+        **structured_perception_policy,
         **affective_policy,
         "startup_schema_mode": startup_schema_mode(settings),
         "startup_schema_compatibility_posture": schema_sunset_posture,

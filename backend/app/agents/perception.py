@@ -1,11 +1,17 @@
 from app.communication.behavior_feedback import BehaviorFeedbackAssessor
 from app.core.contracts import AffectiveAssessmentOutput, Event, PerceptionOutput
+from app.perception.assessor import StructuredPerceptionAssessor
 from app.utils.language import detect_language, normalize_for_matching
 
 
 class PerceptionAgent:
-    def __init__(self, behavior_feedback_assessor: BehaviorFeedbackAssessor | None = None):
+    def __init__(
+        self,
+        behavior_feedback_assessor: BehaviorFeedbackAssessor | None = None,
+        structured_assessor: StructuredPerceptionAssessor | None = None,
+    ):
         self.behavior_feedback_assessor = behavior_feedback_assessor or BehaviorFeedbackAssessor()
+        self.structured_assessor = structured_assessor
 
     def run(
         self,
@@ -40,6 +46,30 @@ class PerceptionAgent:
             affective=affective,
             behavior_feedback=behavior_feedback,
         )
+
+    async def run_ai_assisted(
+        self,
+        event: Event,
+        recent_memory: list[dict] | None = None,
+        user_profile: dict | None = None,
+    ) -> PerceptionOutput:
+        fallback = self.run(event, recent_memory=recent_memory, user_profile=user_profile)
+        if self.structured_assessor is None:
+            return fallback
+        text = str(event.payload.get("text", "")).strip()
+        return await self.structured_assessor.assess(user_text=text, fallback=fallback)
+
+    def snapshot(self) -> dict[str, str | bool]:
+        if self.structured_assessor is None:
+            return {
+                "structured_perception_enabled": False,
+                "structured_perception_source": "agent_default",
+                "structured_perception_classifier_available": False,
+                "structured_perception_posture": "fallback_only_classifier_unavailable",
+                "structured_perception_hint": "configure_structured_perception_assessor",
+                "structured_perception_owner": "structured_perception_rollout_policy",
+            }
+        return self.structured_assessor.snapshot()
 
     def _topic_tags(self, lowered: str, topic: str) -> list[str]:
         tags: list[str] = []

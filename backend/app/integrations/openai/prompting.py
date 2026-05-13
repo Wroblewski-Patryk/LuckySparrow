@@ -66,6 +66,21 @@ class OpenAIPromptBuilder:
             return self._build_with_langchain_affective(variables)
         return self._build_without_langchain_affective(variables)
 
+    def build_perception_messages(
+        self,
+        *,
+        user_text: str,
+        fallback_language: str,
+    ) -> list[dict[str, str]]:
+        variables = {
+            "fallback_language_name": language_name(fallback_language),
+            "fallback_language": fallback_language,
+            "user_text": user_text,
+        }
+        if self.langchain_available:
+            return self._build_with_langchain_perception(variables)
+        return self._build_without_langchain_perception(variables)
+
     def _build_with_langchain_reply(self, variables: dict[str, Any]) -> list[dict[str, str]]:
         template = ChatPromptTemplate.from_messages(  # type: ignore[union-attr]
             [
@@ -126,6 +141,25 @@ class OpenAIPromptBuilder:
                     "human",
                     (
                         "Preferred response language context: {response_language_name}.\n"
+                        "User message: {user_text}"
+                    ),
+                ),
+            ]
+        )
+        rendered = template.invoke(variables)
+        return self._langchain_messages_to_openai(rendered.messages)
+
+    def _build_with_langchain_perception(self, variables: dict[str, Any]) -> list[dict[str, str]]:
+        template = ChatPromptTemplate.from_messages(  # type: ignore[union-attr]
+            [
+                (
+                    "system",
+                    self._structured_perception_system_prompt(),
+                ),
+                (
+                    "human",
+                    (
+                        "Fallback language hint: {fallback_language_name} ({fallback_language}).\n"
                         "User message: {user_text}"
                     ),
                 ),
@@ -197,6 +231,37 @@ class OpenAIPromptBuilder:
                 ),
             },
         ]
+
+    def _build_without_langchain_perception(self, variables: dict[str, Any]) -> list[dict[str, str]]:
+        return [
+            {
+                "role": "system",
+                "content": self._structured_perception_system_prompt(),
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Fallback language hint: {variables['fallback_language_name']} "
+                    f"({variables['fallback_language']}).\n"
+                    f"User message: {variables['user_text']}"
+                ),
+            },
+        ]
+
+    def _structured_perception_system_prompt(self) -> str:
+        return (
+            "Classify the user message into structured runtime perception. "
+            "Return only compact JSON with keys: event_type, language, language_confidence, "
+            "topic, topic_tags, intent, ambiguity, initial_salience, affective. "
+            "event_type must be one of question, statement, command, scheduler, unknown. "
+            "language must be a short BCP-47 code such as pl, en, es, de, uk, fr. "
+            "topic must be a concise snake_case label. topic_tags must be 1 to 5 concise "
+            "snake_case labels. intent must be a concise snake_case user intent. "
+            "language_confidence, ambiguity, and initial_salience must be numbers between 0 and 1. "
+            "affective must contain affect_label, intensity, needs_support, confidence, evidence. "
+            "Allowed affect_label values: neutral, support_distress, urgent_pressure, positive_engagement. "
+            "Do not rely on fixed keyword lists; infer meaning across languages from the message."
+        )
 
     def _langchain_messages_to_openai(self, messages: list[Any]) -> list[dict[str, str]]:
         normalized: list[dict[str, str]] = []

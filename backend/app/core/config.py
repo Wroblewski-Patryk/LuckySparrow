@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     app_port: int = 8000
     log_level: str = "INFO"
     affective_assessment_enabled: bool | None = None
+    structured_perception_enabled: bool | None = None
     event_debug_enabled: bool | None = None
     event_debug_token: str | None = None
     production_debug_token_required: bool = True
@@ -119,6 +120,11 @@ class Settings(BaseSettings):
         if self.affective_assessment_enabled is not None:
             return self.affective_assessment_enabled
         return self.app_env.lower() != "production"
+
+    def is_structured_perception_enabled(self) -> bool:
+        if self.structured_perception_enabled is not None:
+            return self.structured_perception_enabled
+        return bool(self.openai_api_key)
 
     def is_event_debug_query_compat_enabled(self) -> bool:
         if self.event_debug_query_compat_enabled is not None:

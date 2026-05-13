@@ -105,14 +105,14 @@ class ForegroundLangGraphRunner:
         stage_logger.success(stage, duration_ms=duration_ms, summary=output_summary(result))
         return result
 
-    def _perception_node(self, state: dict[str, Any]) -> dict[str, Any]:
+    async def _perception_node(self, state: dict[str, Any]) -> dict[str, Any]:
         runtime_ctx = self._runtime_ctx(state)
         stage_logger = runtime_ctx["stage_logger"]
         stage_timings_ms = runtime_ctx["stage_timings_ms"]
         text = runtime_ctx["text"]
         user_profile = runtime_ctx["user_profile"]
         graph_state = self._graph_state(state)
-        updated = self._run_stage(
+        updated = await self._run_async_stage(
             stage_logger=stage_logger,
             stage_timings_ms=stage_timings_ms,
             stage="perception",
@@ -120,7 +120,7 @@ class ForegroundLangGraphRunner:
                 f"text_len={len(text)} recent_memory={len(graph_state.memory.episodic)} "
                 f"profile={self._present_label(user_profile)}"
             ),
-            operation=lambda: self.adapters.run_perception(graph_state),
+            operation=lambda: self.adapters.run_perception_async(graph_state),
             output_summary=lambda result: (
                 f"topic={result.perception.topic} intent={result.perception.intent} "
                 f"language={result.perception.language} "

@@ -44,15 +44,33 @@ class GraphStageAdapters:
             raise ValueError(f"missing graph state fields: {', '.join(missing)}")
 
     def run_perception(self, state: GraphRuntimeState) -> GraphRuntimeState:
+        perception = self._run_perception_baseline(state)
+        return state.model_copy(update={"perception": perception, "affective_input": perception.affective})
+
+    async def run_perception_async(self, state: GraphRuntimeState) -> GraphRuntimeState:
         operational = self._operational(state)
         recent_memory = list(state.memory.episodic)
         user_profile = operational.get("user_profile")
-        perception = self.perception_agent.run(
+        run_ai_assisted = getattr(self.perception_agent, "run_ai_assisted", None)
+        if callable(run_ai_assisted):
+            perception = await run_ai_assisted(
+                state.event,
+                recent_memory=recent_memory,
+                user_profile=user_profile if isinstance(user_profile, dict) else None,
+            )
+        else:
+            perception = self._run_perception_baseline(state)
+        return state.model_copy(update={"perception": perception, "affective_input": perception.affective})
+
+    def _run_perception_baseline(self, state: GraphRuntimeState):
+        operational = self._operational(state)
+        recent_memory = list(state.memory.episodic)
+        user_profile = operational.get("user_profile")
+        return self.perception_agent.run(
             state.event,
             recent_memory=recent_memory,
             user_profile=user_profile if isinstance(user_profile, dict) else None,
         )
-        return state.model_copy(update={"perception": perception, "affective_input": perception.affective})
 
     async def run_affective_assessment(self, state: GraphRuntimeState) -> GraphRuntimeState:
         self._require(state, "perception")

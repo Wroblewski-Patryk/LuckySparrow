@@ -2827,6 +2827,12 @@ def test_health_endpoint_exposes_runtime_policy_flags() -> None:
     body = response.json()
     assert body["status"] == "ok"
     assert body["runtime_policy"] == {
+        "structured_perception_enabled": False,
+        "structured_perception_source": "environment_default",
+        "structured_perception_classifier_available": False,
+        "structured_perception_posture": "fallback_only_policy_disabled",
+        "structured_perception_hint": "policy_disabled_use_deterministic_perception_baseline",
+        "structured_perception_owner": "structured_perception_rollout_policy",
         "affective_assessment_enabled": False,
         "affective_assessment_source": "environment_default",
         "affective_classifier_available": False,

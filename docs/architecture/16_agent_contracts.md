@@ -1686,6 +1686,13 @@ baseline.
 
 Identify what happened.
 
+When an AI provider is available, perception should use a structured
+classifier for language, topic, tags, intent, ambiguity, salience, and
+affective cues. Deterministic language/topic/keyword hints are a validated
+fallback only, used when the classifier is disabled, unavailable, or returns an
+invalid payload. The fallback path must remain observable through runtime
+policy/debug surfaces.
+
 ### Input
 
 ```json
@@ -1716,6 +1723,11 @@ Identify what happened.
   }
 }
 ```
+
+Runtime observability:
+
+- `/health.runtime_policy.structured_perception_*`
+- `system_debug.adaptive_state.structured_perception_policy`
 
 ---
 

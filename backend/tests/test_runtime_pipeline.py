@@ -25,6 +25,7 @@ from app.core.reflection_scope_policy import (
 from app.core.runtime import RuntimeOrchestrator
 from app.expression.generator import ExpressionAgent
 from app.motivation.engine import MotivationEngine
+from app.perception.assessor import StructuredPerceptionAssessor
 from app.reflection.worker import ReflectionWorker
 from app.workers.scheduler import SchedulerWorker
 from tests.empathy_fixtures import EMPATHY_SUPPORT_SCENARIOS
@@ -874,6 +875,16 @@ class FakeAffectiveClassifierClient:
         return self.payload
 
 
+class FakePerceptionClassifierClient:
+    def __init__(self, payload: dict | None):
+        self.payload = payload
+        self.calls: list[dict[str, str]] = []
+
+    async def classify_perception(self, *, user_text: str, fallback_language: str) -> dict | None:
+        self.calls.append({"user_text": user_text, "fallback_language": fallback_language})
+        return self.payload
+
+
 class FakeReflectionWorker:
     def __init__(self, enqueue_result: bool = True, running: bool = True):
         self.enqueue_result = enqueue_result
@@ -993,6 +1004,68 @@ async def test_runtime_pipeline_api_source() -> None:
     assert openai.calls[0]["response_tone"] == "supportive"
     assert openai.calls[0]["collaboration_preference"] == ""
     assert "constructive support" in openai.calls[0]["identity_summary"]
+
+
+async def test_runtime_pipeline_uses_ai_assisted_structured_perception_before_context() -> None:
+    memory = FakeMemoryRepository()
+    action = ActionExecutor(memory_repository=memory, telegram_client=FakeTelegramClient())
+    openai = FakeOpenAIClient()
+    classifier = FakePerceptionClassifierClient(
+        {
+            "event_type": "question",
+            "language": "es",
+            "language_confidence": 0.93,
+            "topic": "deployment_status",
+            "topic_tags": ["deployment", "status"],
+            "intent": "ask_for_status",
+            "ambiguity": 0.08,
+            "initial_salience": 0.82,
+            "affective": {
+                "affect_label": "positive_engagement",
+                "intensity": 0.4,
+                "needs_support": False,
+                "confidence": 0.8,
+                "evidence": ["gracias"],
+            },
+        }
+    )
+    runtime = RuntimeOrchestrator(
+        perception_agent=PerceptionAgent(
+            structured_assessor=StructuredPerceptionAssessor(classifier_client=classifier)
+        ),
+        context_agent=ContextAgent(),
+        motivation_engine=MotivationEngine(),
+        role_agent=RoleAgent(),
+        planning_agent=PlanningAgent(),
+        expression_agent=ExpressionAgent(openai_client=openai),
+        action_executor=action,
+        memory_repository=memory,
+        reflection_worker=FakeReflectionWorker(),
+    )
+    event = Event(
+        event_id="evt-ai-perception",
+        source="api",
+        subsource="event_endpoint",
+        timestamp=datetime.now(timezone.utc),
+        payload={"text": "Gracias, como va el despliegue?"},
+        meta=EventMeta(user_id="u-ai", trace_id="trace-ai-perception"),
+    )
+
+    result = await runtime.run(event)
+
+    assert result.perception.language == "es"
+    assert result.perception.language_source == "ai_classifier"
+    assert result.perception.topic == "deployment_status"
+    assert result.perception.intent == "ask_for_status"
+    assert "deployment_status" in result.context.related_tags
+    assert result.system_debug is not None
+    assert (
+        result.system_debug.adaptive_state["structured_perception_policy"]["structured_perception_posture"]
+        == "ai_assisted_active"
+    )
+    assert classifier.calls == [
+        {"user_text": "Gracias, como va el despliegue?", "fallback_language": "en"}
+    ]
 
 
 async def test_runtime_pipeline_persists_reflection_task_without_in_process_worker() -> None:

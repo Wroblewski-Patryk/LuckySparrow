@@ -4,17 +4,17 @@ Last updated: 2026-05-13
 
 ## NOW
 
-1. Replace keyword-first perception with AI-assisted structured perception:
+1. Finish validation for AI-assisted structured perception:
    - known issue:
      `ARCH-AI-PERCEPTION-001`
    - reason:
-     language/topic/intent and affective interpretation should be model-owned
-     when AI is available; deterministic keyword hints should be an explicit
-     fallback only
-   - smallest safe slice:
-     add a provider-backed structured perception classifier with schema
-     validation, source diagnostics, fallback posture, tests for multilingual
-     examples, and health/debug visibility
+     PRJ-1196 implemented provider-backed structured perception and made
+     deterministic keyword hints an explicit fallback path
+   - current proof:
+     focused assessor/runtime/config/policy tests pass locally
+   - next smallest slice:
+     run full backend pytest and production smoke after deployment, then close
+     `ARCH-AI-PERCEPTION-001`
 
 2. Continue from the verified runtime-layer baseline:
    - task:

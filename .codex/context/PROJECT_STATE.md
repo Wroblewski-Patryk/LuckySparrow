@@ -6,6 +6,25 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-13: `PRJ-1196` added AI-assisted structured perception:
+  - task:
+    - `.codex/tasks/PRJ-1196-ai-assisted-structured-perception.md`
+  - result:
+    - added `StructuredPerceptionAssessor` and an OpenAI compact-JSON
+      perception classifier for language, topic, tags, intent, ambiguity,
+      salience, and affective cues
+    - kept deterministic perception as validated fallback only
+    - made the foreground graph run perception through the async AI-assisted
+      path before context construction
+    - exposed `structured_perception_*` policy posture in `/health` and
+      `system_debug.adaptive_state`
+  - validation:
+    - structured perception focused pack -> `2 passed, 115 deselected`
+    - config/policy/lifespan pack -> `70 passed`
+    - full backend pytest -> `1098 passed`
+  - residual:
+    - production smoke remains pending after deployment
+
 - 2026-05-13: `PRJ-1195` audited runtime layers and repaired a Polish
   perception cue:
   - task:
