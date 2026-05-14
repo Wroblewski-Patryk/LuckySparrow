@@ -1,6 +1,6 @@
 # Project Status Dashboard
 
-Last updated: 2026-05-11
+Last updated: 2026-05-14
 
 ## Current Moment
 
@@ -25,7 +25,7 @@ Last updated: 2026-05-11
 | `ARCH-CONNECTORS-001` | `DEFERRED` | Backend + Ops | Run provider activation smoke after ClickUp/Calendar/Drive credentials exist and organizer launch scope expands. |
 | `ARCH-PROACTIVE-001` | `DEFERRED` | Backend + Ops | Run target proactive sample only when proactive launch scope expands. |
 | `ARCH-DEPLOY-AUTO-001` | `DEFERRED` | Ops/Release | On the next release candidate, capture source/webhook deploy convergence or explicit fallback evidence. |
-| `ARCH-MOBILE-001` | `DEFERRED` | Mobile + Planning | Restart mobile scope only after an explicit product/release decision. |
+| `ARCH-MOBILE-001` | `DEFERRED` | Mobile + Planning | Do not pursue native app proof unless scope is reactivated; keep validating web mobile/tablet/desktop breakpoints through ARCH-WEB-UX-001. |
 
 ## Active Blockers
 
@@ -42,7 +42,7 @@ Last updated: 2026-05-11
 | `ARCH-CONNECTORS-001` | `DEFERRED` | Backend + Ops | Run provider activation smoke after ClickUp/Calendar/Drive credentials exist and organizer launch scope expands. |
 | `ARCH-DEPLOY-AUTO-001` | `DEFERRED` | Ops/Release | On the next release candidate, capture source/webhook deploy convergence or explicit fallback evidence. |
 | `ARCH-PROACTIVE-001` | `DEFERRED` | Backend + Ops | Run target proactive sample only when proactive launch scope expands. |
-| `ARCH-MOBILE-001` | `DEFERRED` | Mobile + Planning | Restart mobile scope only after an explicit product/release decision. |
+| `ARCH-MOBILE-001` | `DEFERRED` | Mobile + Planning | Do not pursue native app proof unless scope is reactivated; keep validating web mobile/tablet/desktop breakpoints through ARCH-WEB-UX-001. |
 
 ## Ready Core
 

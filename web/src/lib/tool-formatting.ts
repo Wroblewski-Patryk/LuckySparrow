@@ -2,7 +2,6 @@ export type ToolFormattingCopy = {
   statusAlwaysOn: string;
   statusReadyToUse: string;
   statusLinkRequired: string;
-  statusPlanned: string;
   statusNeedsReview: string;
   linkStateLinkedValue: string;
   linkStateNotLinkedValue: string;
@@ -17,9 +16,6 @@ export function toolStatusClass(status: string) {
   if (status === "provider_ready_link_required") {
     return "badge-warning";
   }
-  if (status === "planned_placeholder") {
-    return "badge-ghost";
-  }
   return "badge-outline";
 }
 
@@ -32,9 +28,6 @@ export function formatToolState(status: string, toolsCopy: ToolFormattingCopy) {
   }
   if (status === "provider_ready_link_required") {
     return toolsCopy.statusLinkRequired;
-  }
-  if (status === "planned_placeholder") {
-    return toolsCopy.statusPlanned;
   }
   return toolsCopy.statusNeedsReview;
 }

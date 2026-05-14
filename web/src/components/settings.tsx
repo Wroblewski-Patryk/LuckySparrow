@@ -134,12 +134,19 @@ export function SettingsDangerPanel({
   children: ReactNode;
 }) {
   return (
-    <section className="aion-settings-danger-panel">
-      <p className="aion-settings-danger-label">{label}</p>
-      <h3 className="aion-settings-card-title">{title}</h3>
-      <p className="aion-settings-card-body">{body}</p>
-      <p className="aion-settings-help">{impact}</p>
-      {children}
-    </section>
+    <details className="aion-settings-danger-panel">
+      <summary className="aion-settings-danger-summary">
+        <span className="aion-settings-danger-summary-copy">
+          <span className="aion-settings-danger-label">{label}</span>
+          <span className="aion-settings-card-title">{title}</span>
+          <span className="aion-settings-card-body">{body}</span>
+        </span>
+        <span aria-hidden="true" className="aion-settings-danger-disclosure-icon" />
+      </summary>
+      <div className="aion-settings-danger-content">
+        <p className="aion-settings-help">{impact}</p>
+        {children}
+      </div>
+    </details>
   );
 }

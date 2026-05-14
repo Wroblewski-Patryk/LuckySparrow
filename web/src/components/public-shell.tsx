@@ -1,17 +1,20 @@
 import type { ReactNode } from "react";
 
+export type PublicNavLinkItem = {
+  label: string;
+  href: string;
+};
+
 export function PublicNavLinkList({
   items,
-  href = "#aviary-home",
 }: {
-  items: string[];
-  href?: string;
+  items: PublicNavLinkItem[];
 }) {
   return (
     <nav className="aion-public-nav-links" aria-label="Public navigation">
       {items.map((item) => (
-        <a key={item} className="aion-public-nav-link" href={href}>
-          {item}
+        <a key={item.label} className="aion-public-nav-link" href={item.href}>
+          {item.label}
         </a>
       ))}
     </nav>
@@ -105,15 +108,17 @@ export function PublicFeatureCardList({
 }
 
 export function PublicTrustBand({
+  id,
   items,
 }: {
+  id?: string;
   items: Array<{
     icon: string;
     label: string;
   }>;
 }) {
   return (
-    <footer className="aion-public-trust-band">
+    <footer className="aion-public-trust-band" id={id}>
       {items.map((item) => (
         <article key={item.label} className="aion-public-trust-item">
           <span className="aion-public-trust-icon" aria-hidden="true">

@@ -25,6 +25,128 @@ fixes for this repository.
 
 ## Entries
 
+### 2026-05-14 - Update all fake OpenAI clients when reply signature changes
+- Context:
+  - PRJ-1212 added `delivery_channel` to provider-backed reply generation so
+    response budgets can differ between app/API chat and Telegram.
+- Symptom:
+  - the first full backend run failed graph-adapter tests because a local fake
+    OpenAI client still used the previous `generate_reply` signature.
+- Root cause:
+  - OpenAI client fakes exist in multiple backend test modules, and focused
+    OpenAI tests do not exercise every runtime/graph adapter fake.
+- Guardrail:
+  - when changing `OpenAIClient.generate_reply`, search all test fakes for
+    `generate_reply(` and update them before relying on focused tests.
+- Preferred pattern:
+  - run focused expression/runtime/graph tests before the full backend gate.
+- Avoid:
+  - assuming one fake client update covers every orchestration path.
+- Evidence:
+  - PRJ-1212 fixed the graph-adapter fake, reran graph/API focused tests with
+    `6 passed`, and final full backend pytest passed with `1105 passed`.
+
+### 2026-05-14 - Give route-smoke enough cold-start time
+- Context:
+  - PRJ-1210 reran web responsive and navigation audits after Tools route UX
+    changes.
+- Symptom:
+  - early audit attempts timed out or exited without a fresh report, and an
+    interrupted run left validation-owned route-smoke Node listeners behind.
+- Root cause:
+  - the local Codex desktop runtime can take close to a minute to cold-start
+    Playwright/Chromium, and interrupted route-smoke runs may not reach their
+    cleanup path.
+- Guardrail:
+  - run route-smoke UI audits with a generous command timeout in this desktop
+    environment and always perform a post-audit process cleanup check.
+- Preferred pattern:
+  - use at least a 7-minute timeout for `npm run audit:ui-responsive` and
+    `npm run audit:ui-navigation`; then check `chrome-headless-shell`,
+    route-smoke Node processes, and port `5173`.
+- Avoid:
+  - treating a short timeout or closed Chromium context as product failure
+    before rerunning in a clean validation environment.
+- Evidence:
+  - PRJ-1210 passed `npm run audit:ui-responsive` and `npm run
+    audit:ui-navigation` after cleanup and extended timeout; final cleanup
+    found no active `chrome_headless_shell`, no validation Node processes, and
+    no `5173` listener.
+
+### 2026-05-14 - Treat mobile scope wording carefully
+- Context:
+  - PRJ-1200 followed a user clarification that current UI work means web
+    breakpoints, not a native app.
+- Symptom:
+  - after PRJ-1198/1199, the generated dashboard correctly exposed native app
+    proof as missing, but that made Android tooling look like the next active
+    blocker even though the user wanted web mobile/tablet/desktop work.
+- Root cause:
+  - the word "mobile" can mean either native app proof or the mobile web
+    breakpoint; project state must distinguish those scopes explicitly.
+- Guardrail:
+  - when a user says mobile in UI work, record whether it means mobile web
+    breakpoint or native app before promoting a proof task.
+- Preferred pattern:
+  - keep native app proof under `ARCH-MOBILE-001`; keep web breakpoint proof
+    under `ARCH-WEB-UX-001` and `npm run audit:ui-responsive`.
+- Avoid:
+  - letting native tooling blockers displace the active web-responsive product
+    target.
+- Evidence:
+  - PRJ-1200 regenerated the dashboard with `ARCH-MOBILE-001` deferred and
+    reran web responsive audit across mobile, tablet, and desktop.
+
+### 2026-05-14 - Update generators before generated truth files
+- Context:
+  - PRJ-1198 refreshed the architecture dashboard after v1.5 mobile production
+    work changed the mobile posture.
+- Symptom:
+  - generated dashboard files still described `ARCH-MOBILE-001` as a future
+    deferred scaffold because the generator row was stale.
+- Root cause:
+  - generated source-of-truth files can be manually observed as stale, but the
+    durable fix must happen in the generator or the next refresh will restore
+    old wording.
+- Guardrail:
+  - when a generated operations/dashboard artifact is stale, update the owning
+    script first and then regenerate the artifact.
+- Preferred pattern:
+  - patch the generator, run the refresh command, and verify both the generated
+    row and dashboard summary.
+- Avoid:
+  - hand-editing generated CSV/Markdown/JSON files without updating their
+    generator.
+- Evidence:
+  - generator refresh now reports `ARCH-MOBILE-001` as
+    `IMPLEMENTED_NOT_VERIFIED`, with dashboard selected-scope readiness
+    `11/12`.
+
+### 2026-05-14 - Keep roadmap candidates out of active API payloads
+- Context:
+  - PRJ-1197 audited temporary-solution markers after runtime and memory work.
+- Symptom:
+  - `/app/tools/overview` included Trello and Nest as `planned_placeholder`
+    items even though no bounded runtime/API/configuration contracts existed.
+- Root cause:
+  - future product candidates were encoded as active tools to make roadmap
+    intent visible, which blurred the line between implemented capability and
+    planning.
+- Guardrail:
+  - active app payloads should include only implemented, runtime-backed
+    capabilities; future candidates belong in planning docs until their
+    bounded contracts exist.
+- Preferred pattern:
+  - document planned integrations in planning/ops files, then add them to
+    `/app/tools/overview` only with provider readiness, permissions,
+    preferences, tests, and fail-closed behavior.
+- Avoid:
+  - using `planned_placeholder` or similar status values as product-facing
+    catalog entries.
+- Evidence:
+  - focused tools-overview API pack passed, web typecheck passed, and active
+    production-code scans found no remaining planned-placeholder matches.
+
 ### 2026-05-13 - Validate production string limits for conclusion content
 - Context:
   - PRJ-1193 added reflection-derived `memory_topic_summary` conclusions and
@@ -2170,3 +2292,23 @@ fixes for this repository.
   `queue_application_deployment`, wait for `finished`, then rerun release smoke.
 - Evidence: redeploy `tlw7g263ig2uum227tdnn4gc` finished; production smoke
   returned `release_ready=true`.
+
+### 2026-05-14 - Route-smoke can finish evidence before the process returns
+
+- Context: PRJ-1211 Chat response readability and desktop height validation.
+- Symptom: the first responsive route audit refreshed screenshots and wrote an
+  `ok` report, but the command did not return cleanly and left a route-smoke
+  process that required explicit cleanup.
+- Root cause: after Playwright and the local route-smoke server finished the
+  product assertions, the Node process could still retain handles in this
+  Windows validation environment.
+- Guardrail: keep route-smoke as the authenticated screenshot proof path, but
+  make the script exit explicitly after server shutdown and always run the
+  narrow process cleanup check after browser validation.
+- Preferred pattern:
+  - `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*route-smoke.mjs*' }`
+  - `Get-Process chrome-headless-shell -ErrorAction SilentlyContinue`
+  - `Get-NetTCPConnection -LocalPort 5173 -ErrorAction SilentlyContinue`
+- Evidence:
+  - `.codex/tasks/PRJ-1211-chat-response-readability-and-height.md`
+  - `web/scripts/route-smoke.mjs`

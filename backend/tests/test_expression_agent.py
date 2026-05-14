@@ -33,6 +33,7 @@ class NoReplyOpenAI:
         communication_boundary_summary: str = "",
         identity_summary: str = "",
         current_turn_timestamp: str = "",
+        delivery_channel: str = "api",
     ) -> str | None:
         return None
 
@@ -56,6 +57,7 @@ class ReplyOpenAI:
         communication_boundary_summary: str = "",
         identity_summary: str = "",
         current_turn_timestamp: str = "",
+        delivery_channel: str = "api",
     ) -> str | None:
         self.calls.append(
             {
@@ -72,6 +74,7 @@ class ReplyOpenAI:
                 "communication_boundary_summary": communication_boundary_summary,
                 "identity_summary": identity_summary,
                 "current_turn_timestamp": current_turn_timestamp,
+                "delivery_channel": delivery_channel,
             }
         )
         return "OpenAI response"
@@ -424,6 +427,7 @@ async def test_expression_uses_openai_when_available() -> None:
             "communication_boundary_summary": "",
             "identity_summary": "",
             "current_turn_timestamp": openai.calls[0]["current_turn_timestamp"],
+            "delivery_channel": "api",
         }
     ]
 

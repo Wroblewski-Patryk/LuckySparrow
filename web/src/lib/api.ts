@@ -194,7 +194,6 @@ export type AppToolsOverviewResponse = {
     provider_ready_count: number;
     provider_blocked_count: number;
     link_required_count: number;
-    planned_placeholder_count: number;
   };
 };
 

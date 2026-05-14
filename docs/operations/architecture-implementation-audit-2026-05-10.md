@@ -1,6 +1,6 @@
 # Architecture Implementation Audit
 
-Date: 2026-05-11
+Date: 2026-05-14
 Task: `PRJ-927`
 Canonical matrix: `docs/operations/architecture-implementation-map-2026-05-10.csv`
 
@@ -53,7 +53,7 @@ It is a planning tool: it does not replace tests, architecture docs, release smo
 
 - `ARCH-PROACTIVE-001` Proactive and planned work: Run target proactive sample only when proactive launch scope expands.
 - `ARCH-CONNECTORS-001` ClickUp/Calendar/Drive organizer stack: Run provider activation smoke after ClickUp/Calendar/Drive credentials exist and organizer launch scope expands.
-- `ARCH-MOBILE-001` Future mobile client: Restart mobile scope only after an explicit product/release decision.
+- `ARCH-MOBILE-001` Native app extension: Do not pursue native app proof unless scope is reactivated; keep validating web mobile/tablet/desktop breakpoints through ARCH-WEB-UX-001.
 - `ARCH-DEPLOY-AUTO-001` Source-driven deployment reliability: On the next release candidate, capture source/webhook deploy convergence or explicit fallback evidence.
 
 ### Ready Rows
@@ -82,7 +82,7 @@ It is a planning tool: it does not replace tests, architecture docs, release smo
 | `ARCH-DOC-MAPS-001` | `Refresh docs/architecture/traceability-matrix.md and docs/architecture/codebase-map.md from docs/operations/architecture-implementation-map-2026-05-10.csv; then rerun the audit/dashboard generators and git diff --check.` |
 | `ARCH-DOCS-GOV-001` | `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\audit_architecture_implementation_map.py; if ($LASTEXITCODE -eq 0) { ..\.venv\Scripts\python .\scripts\generate_project_status_dashboard.py }; $exit=$LASTEXITCODE; Pop-Location; exit $exit` |
 | `ARCH-MEMORY-REFLECTION-001` | `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_memory_repository.py tests/test_reflection_worker.py tests/test_runtime_pipeline.py; $exit=$LASTEXITCODE; Pop-Location; exit $exit` |
-| `ARCH-MOBILE-001` | `Scope-decision row only; create mobile scope decision before runtime/device proof.` |
+| `ARCH-MOBILE-001` | `Native app proof is deferred by current scope; validate web responsive breakpoints through ARCH-WEB-UX-001.` |
 | `ARCH-PROACTIVE-001` | `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_scheduler_worker.py tests/test_planned_action_observer.py tests/test_runtime_pipeline.py -k "scheduler or proactive or planned"; $exit=$LASTEXITCODE; Pop-Location; exit $exit` |
 | `ARCH-RELEASE-OPS-001` | `Push-Location .\backend; ..\.venv\Scripts\python .\scripts\run_release_go_no_go.py; $exit=$LASTEXITCODE; Pop-Location; exit $exit` |
 | `ARCH-RUNTIME-001` | `Push-Location .\backend; ..\.venv\Scripts\python -m pytest -q tests/test_runtime_pipeline.py tests/test_graph_stage_adapters.py tests/test_graph_state_contract.py; $exit=$LASTEXITCODE; Pop-Location; exit $exit` |
@@ -95,7 +95,7 @@ It is a planning tool: it does not replace tests, architecture docs, release smo
 1. Do not add broad new architecture until current blocked/evidence rows are intentionally handled.
 2. If operator credentials and expanded organizer scope are available, run provider activation smoke for `ARCH-CONNECTORS-001`.
 3. If proactive launch scope expands, run a target proactive sample for `ARCH-PROACTIVE-001`.
-4. If mobile becomes active scope, create a mobile scope decision and first device/simulator proof for `ARCH-MOBILE-001`.
+4. Keep `ARCH-MOBILE-001` deferred unless native app scope is reactivated; current UI proof belongs to web responsive breakpoints.
 5. If a new release candidate is selected, capture source/webhook deploy convergence for `ARCH-DEPLOY-AUTO-001`.
 
 ## Refresh Command

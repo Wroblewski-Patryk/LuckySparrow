@@ -1,10 +1,303 @@
 # Next Steps
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 ## NOW
 
-1. Continue from the verified runtime-layer baseline:
+1. Continue from the Settings danger-boundary checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1213-settings-danger-boundary-polish.md`
+   - result:
+     Settings reset runtime data now uses a native disclosure boundary, so
+     destructive reset details are accessible but collapsed by default and safe
+     daily preferences dominate the first read
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS with `status=ok`,
+     `step_count=4`, `failed_count=0`; refreshed desktop/tablet/mobile
+     Settings screenshots reviewed
+   - residual:
+     reset API, auth, session, persistence, and backend behavior were outside
+     this presentational safety-boundary slice
+   - next smallest slice:
+     continue route-local Chat v5 composition polish or Personality route
+     polish while keeping responsive/navigation audits green
+
+1. Continue from the channel-aware AI response budget checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1212-channel-aware-ai-response-budget-policy.md`
+   - result:
+     `ResponseBudgetPolicy` now owns app/API chat, Telegram, concise,
+     structured, and deep generation budgets; expression passes the resolved
+     channel into OpenAI reply generation; and prompts instruct the model to
+     finish cleanly rather than stopping mid-sentence, mid-list, or inside
+     unfinished code blocks
+   - proof:
+     response-budget/client/prompt pack PASS with `14 passed`;
+     expression/client/prompt/budget/delivery pack PASS with `53 passed`;
+     runtime channel pack PASS with `3 passed, 112 deselected`; graph/API
+     focused rerun PASS with `6 passed`; full backend pytest PASS with
+     `1105 passed`
+   - residual:
+     live token-spend and latency telemetry were not added in this slice
+   - next smallest slice:
+     monitor real answer quality/cost, then extend `ResponseBudgetPolicy`
+     only if a long-form product mode or telemetry need appears; otherwise
+     continue route-local Chat v5, Personality, or Settings polish
+
+2. Continue from the Chat response readability and desktop height checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1211-chat-response-readability-and-height.md`
+   - result:
+     Chat reply generation has expanded output budgets, markdown list
+     continuation stays inside numbered/bulleted items, and desktop Chat has
+     a viewport-bound stage with internal transcript scrolling
+   - proof:
+     `tests/test_openai_client.py` PASS with `7 passed`; `npm run
+     test:chat-markdown` PASS with `case_count=7`; `node --check
+     scripts/route-smoke.mjs` PASS; `npm run build` PASS; `npm run
+     audit:ui-responsive` PASS with `route_count=14`, `viewport_count=3`,
+     `screenshot_count=18`, `failed_count=0`; `npm run audit:ui-navigation`
+     PASS with `status=ok`, `step_count=4`, `failed_count=0`; refreshed
+     desktop/tablet/mobile Chat screenshots reviewed
+   - residual:
+     broader Chat v5 route composition polish remains open; Browser preview
+     without route-smoke mock auth redirects `/chat` to `/login`, so
+     mock-authenticated route-smoke remains the authenticated screenshot proof
+     path
+   - next smallest slice:
+     continue route-local Chat v5 composition polish or move to Personality or
+     Settings route-local polish while keeping responsive/navigation audits
+     green
+
+3. Continue from the Tools route UX clarity checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1210-tools-route-ux-clarity.md`
+   - result:
+     Tools cards now foreground readiness, availability, link state, provider
+     posture, next action, and user control before technical details; single
+     item groups span the directory width on desktop/tablet
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS with `status=ok`,
+     `step_count=4`, `failed_count=0`; refreshed desktop/tablet/mobile Tools
+     screenshots reviewed; cleanup confirmed no active `chrome_headless_shell`,
+     no validation Node processes, and no listener on `5173`; `git diff
+     --check` passed with LF/CRLF warnings only
+   - residual:
+     deeper Tools art direction and connector-specific states can improve when
+     provider scope expands
+   - next smallest slice:
+     continue Settings confidence polish, Personality route-local polish, or
+     broader Chat v5 composition work
+
+4. Continue from the shared shell navigation proof checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1209-shared-shell-navigation-proof-and-tablet.md`
+   - result:
+     mobile shell navigation has repeatable mock-authenticated interaction
+     proof, and the tablet route switcher now uses the shared icon+label rail
+     instead of older text pills
+   - proof:
+     `node --check scripts/route-smoke.mjs` PASS; `npm run build` PASS;
+     `npm run audit:ui-responsive` PASS with `route_count=14`,
+     `viewport_count=3`, `screenshot_count=18`, `failed_count=0`; `npm run
+     audit:ui-navigation` PASS with `status=ok`, `step_count=4`,
+     `failed_count=0`; desktop/tablet/mobile Dashboard screenshots reviewed;
+     cleanup confirmed no active `chrome_headless_shell` and no listener on
+     `5173`; `git diff --check` passed with LF/CRLF warnings only
+   - residual:
+     Browser plugin remains unavailable in this local runtime because of
+     missing kernel assets, but the route-smoke Playwright proof now covers the
+     interaction gap
+   - next smallest slice:
+     continue route-local layout passes for Personality, Settings, Tools, and
+     deeper Chat v5 convergence
+
+3. Continue from the Personality mobile nav-clearance checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1207-personality-mobile-nav-clearance.md`
+   - result:
+     mobile Personality now leaves route-local clearance between the portrait
+     hero and Mind Layers timeline so the fixed tabbar does not cover timeline
+     rows in the audited first-read
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; refreshed mobile Personality screenshot reviewed;
+     cleanup confirmed no active `chrome_headless_shell` and no listener on
+     `5173`; `git diff --check` passed with LF/CRLF warnings only
+   - next smallest slice:
+     continue Personality content hierarchy/side-panel polish, Settings/Tools
+     responsive polish, or deeper Chat v5 layout/composer/transcript
+     convergence
+
+4. Continue from the Chat mobile first-read compression checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1206-chat-mobile-first-read-compression.md`
+   - result:
+     mobile Chat context cards now use a horizontal rail, so conversation and
+     composer content appear sooner while context remains accessible
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; refreshed mobile Chat screenshot reviewed; cleanup
+     confirmed no active `chrome_headless_shell` and no listener on `5173`;
+     `git diff --check` passed with LF/CRLF warnings only
+   - next smallest slice:
+     continue with deeper chat v5 desktop/tablet layout, transcript, and
+     composer canonical polish or move to personality route-local polish
+
+5. Continue from the Chat brand-copy alignment checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1205-chat-brand-copy-alignment.md`
+   - result:
+     chat assistant label, composer safety note, and shared sidebar quote
+     signature now align with the Aviary product shell
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; refreshed desktop chat screenshot reviewed; cleanup
+     confirmed no active `chrome_headless_shell` and no listener on `5173`;
+     `git diff --check` passed with LF/CRLF warnings only
+   - next smallest slice:
+     continue with chat v5 layout/composer/transcript canonical polish or
+     personality route-local polish
+
+6. Continue from the dashboard canonical content-rhythm checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1204-dashboard-canonical-content-rhythm.md`
+   - result:
+     dashboard first-read hierarchy is calmer: desktop greeting is less
+     cramped, guidance rows preserve readable copy with aligned actions, and
+     recent activity rows now have visual tokens
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; refreshed desktop dashboard screenshot reviewed;
+     cleanup confirmed no active `chrome_headless_shell` and no listener on
+     `5173`; `git diff --check` passed with LF/CRLF warnings only
+   - next smallest slice:
+     continue route-local web polish with chat canonical convergence or a
+     deeper final dashboard tableau pass before moving to personality
+
+7. Continue from the dashboard CTA navigation checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1203-dashboard-cta-navigation-polish.md`
+   - result:
+     dashboard action controls now route to existing product surfaces rather
+     than behaving like decorative buttons
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; Playwright fallback clicked 10 dashboard CTAs and
+     verified `/chat`, `/goals`, `/reflections`, `/memory`, and `/insights`;
+     cleanup confirmed no active `chrome_headless_shell` and no listener on
+     `5173`; `git diff --check` passed with LF/CRLF warnings only
+   - next smallest slice:
+     continue dashboard content canonical convergence against
+     `docs/ux/assets/aion-dashboard-canonical-reference-v2.png` and
+     `docs/ux/assets/aviary-dashboard-hero-canonical-reference-v4.png`
+
+8. Continue from the authenticated shared-shell polish checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1202-authenticated-shell-mobile-polish.md`
+   - result:
+     logged-in mobile/tablet chrome no longer shows technical build copy in
+     the first viewport, and the fixed mobile tabbar now uses calmer Aviary
+     material styling with a teal active state
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; cleanup confirmed no active `chrome_headless_shell`
+     and no listener on `5173`; `git diff --check` passed with LF/CRLF
+     warnings only
+   - next smallest slice:
+     start dashboard content canonical convergence against
+     `docs/ux/assets/aion-dashboard-canonical-reference-v2.png` and
+     `docs/ux/assets/aviary-dashboard-hero-canonical-reference-v4.png`
+
+9. Continue from the public Home canonical polish checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1201-public-home-canonical-polish.md`
+   - result:
+     Home now reads more like a full-width canonical landing surface; the
+     presentation-only tag and nested-window framing are gone, public nav uses
+     real anchors, auth placeholders are localized, and the visible wordmark is
+     aligned with Aviary
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; Playwright fallback browser proof verified
+     CTA -> register modal, localized placeholders, nav hrefs, and
+     `unnamedButtons=0`
+   - next smallest slice:
+     decide whether to continue public landing parity with richer proof/social
+     rhythm and section depth, or move to the authenticated shell/dashboard
+     canonical convergence lane
+
+10. Continue from the active web responsive breakpoint scope:
+   - task:
+     `.codex/tasks/PRJ-1200-rescope-to-web-responsive-breakpoints.md`
+   - result:
+     current UI scope is web across mobile, tablet, and desktop breakpoints;
+     native app proof is deferred unless explicitly reactivated
+   - proof:
+     architecture dashboard refresh returned `DEFERRED:4`, `READY:11`,
+     selected-scope readiness `11/11`; `npm run build` and
+     `npm run audit:ui-responsive` passed with `route_count=14`,
+     `viewport_count=3`, `screenshot_count=18`, and `failed_count=0`
+   - next smallest slice:
+     inspect or polish the web screenshots only from explicit visual feedback;
+     otherwise keep `npm run audit:ui-responsive` as the active UI gate
+
+11. Preserve the hardened native mobile proof doctor as deferred evidence:
+   - task:
+     `.codex/tasks/PRJ-1199-harden-mobile-device-proof-doctor.md`
+   - result:
+     `npm run doctor:ui-mobile-device` now reports Android SDK env checks,
+     default SDK path existence, checked tool candidates, proof readiness, and
+     concrete next actions
+   - current blocker:
+     local native proof remains blocked because `adb`, `emulator`,
+     `ANDROID_HOME`, `ANDROID_SDK_ROOT`, and the default Windows Android SDK
+     path are unavailable
+   - next smallest slice:
+     do not pursue native proof unless native app scope is reactivated
+
+12. Continue from the cleaned tools overview baseline:
+   - task:
+     `.codex/tasks/PRJ-1197-remove-tools-roadmap-placeholders.md`
+   - result:
+     `/app/tools/overview` no longer lists future-only Trello or Nest
+     placeholder entries; active tools are limited to implemented
+     runtime/API/configuration contracts
+   - proof:
+     focused tools-overview API pack `3 passed, 129 deselected`; web
+     TypeScript project build passed; production-code placeholder scan found
+     no remaining `planned_placeholder` active-path matches
+   - next smallest slice:
+     keep external provider activation under `ARCH-CONNECTORS-001` and only
+     add future providers after their bounded runtime contracts exist
+
+13. Keep the refreshed architecture dashboard baseline current:
+   - task:
+     `.codex/tasks/PRJ-1198-refresh-mobile-architecture-dashboard-truth.md`
+   - result:
+     generated architecture dashboard now treats `ARCH-MOBILE-001` as
+     `IMPLEMENTED_NOT_VERIFIED` instead of an untouched deferred future
+     scaffold
+   - proof:
+     audit/dashboard refresh wrote `DEFERRED:3`,
+     `IMPLEMENTED_NOT_VERIFIED:1`, `READY:11`; selected-scope readiness is
+     `11/12`; generator scripts compile
+   - next smallest slice:
+     keep `ARCH-MOBILE-001` deferred while current UI scope remains web
+     breakpoints
+
+14. Continue from the verified runtime-layer baseline:
    - task:
      `.codex/tasks/PRJ-1195-runtime-layer-audit-and-polish-perception-fix.md`
    - audit:
@@ -15,7 +308,7 @@ Last updated: 2026-05-13
    - next smallest slice:
      move to native mobile device proof or external provider activation.
 
-2. Continue from the repaired production DB baseline:
+15. Continue from the repaired production DB baseline:
    - latest memory task:
      `.codex/tasks/PRJ-1194-topic-scoped-memory-summary-buckets.md`
    - current verified baseline:
@@ -49,7 +342,7 @@ Last updated: 2026-05-13
      ANN/vector-index migration only if retrieval volume makes query latency
      require it
 
-3. Capture native device proof for the deployed `v1.5` mobile UI:
+7. Native app proof parking lot:
    - branch: `codex/v15-mobile-ui-deploy-commits`
    - remote: `origin/codex/v15-mobile-ui-deploy-commits`
    - GitHub PR:
@@ -68,11 +361,9 @@ Last updated: 2026-05-13
      `07b3b3e5fe3bd37439dd1cafbdc7fb15c4ef3a7b`
    - local conflict posture: `git merge-tree` showed no conflict output
      against `origin/main`
-   - next smallest slice: install Android platform tools or connect a
-     supported device, then run `npm run doctor:ui-mobile-device` and capture
-     Expo Go/simulator proof
+   - next smallest slice: deferred unless native app scope is reactivated
 
-5. Continue `v1.5` native/mobile UI from the verified shell seed:
+8. Native app groundwork archive:
    - plan: `docs/planning/v1.5-mobile-ui-plan.md`
    - latest task: `.codex/tasks/PRJ-1182-v15-mobile-device-proof-doctor.md`
    - promotion handoff:

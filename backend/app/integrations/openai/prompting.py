@@ -32,6 +32,7 @@ class OpenAIPromptBuilder:
         communication_boundary_summary: str,
         identity_summary: str,
         current_turn_timestamp: str,
+        response_budget_contract: str,
     ) -> list[dict[str, str]]:
         variables = {
             "role_name": role_name,
@@ -46,6 +47,7 @@ class OpenAIPromptBuilder:
             "context_summary": context_summary,
             "foreground_awareness_summary": foreground_awareness_summary or "default",
             "current_turn_timestamp": current_turn_timestamp,
+            "response_budget_contract": response_budget_contract,
             "user_text": user_text,
         }
         if self.langchain_available:
@@ -99,6 +101,7 @@ class OpenAIPromptBuilder:
                         "The stable identity summary is '{identity_summary}'. "
                         "The current turn timestamp is '{current_turn_timestamp}'. "
                         "Explicit foreground awareness for this turn is '{foreground_awareness_summary}'. "
+                        "The response budget contract is: {response_budget_contract} "
                         "Respond clearly, preserve momentum, use the context summary when useful, "
                         "stay in the preferred response language unless the user explicitly asks to switch, "
                         "honor the response style preference when it is present, "
@@ -185,6 +188,7 @@ class OpenAIPromptBuilder:
                     f"The stable identity summary is '{variables['identity_summary']}'. "
                     f"The current turn timestamp is '{variables['current_turn_timestamp']}'. "
                     f"Explicit foreground awareness for this turn is '{variables['foreground_awareness_summary']}'. "
+                    f"The response budget contract is: {variables['response_budget_contract']} "
                     "Respond clearly, preserve momentum, use the context summary when useful, "
                     "stay in the preferred response language unless the user explicitly asks to switch, "
                     "honor the response style preference when it is present, "

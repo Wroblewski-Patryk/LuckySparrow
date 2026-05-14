@@ -155,7 +155,7 @@ function ToolsDirectoryGroup({
         </div>
       </div>
 
-      <div className="aion-tools-item-grid">
+      <div className={`aion-tools-item-grid ${group.items.length === 1 ? "aion-tools-item-grid-single" : ""}`}>
         {group.items.map((item) => (
           <ToolsDirectoryItem
             key={item.id}
@@ -193,44 +193,55 @@ function ToolsDirectoryItem({
   onToolToggle: (toolId: string, nextValue: boolean) => void;
   onStartTelegramLink: () => void;
 }) {
+  const toolTone = item.status === "integral_active" || item.status === "provider_ready"
+    ? "ready"
+    : item.status === "provider_ready_link_required"
+      ? "link"
+      : "review";
+  const enabledLabel = item.enabled ? commonLabels.on : commonLabels.off;
+  const providerState = item.provider.ready
+    ? labels.providerReadyValue
+    : item.provider.configured
+      ? labels.providerConfiguredValue
+      : labels.providerNotConfiguredValue;
+  const controlLabel = saving
+    ? labels.saving
+    : item.user_control.toggle_allowed
+      ? item.user_control.requested_enabled
+        ? labels.enabledByUser
+        : labels.disabledByUser
+      : labels.readOnly;
+
   return (
-    <section className="aion-tools-item-card">
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h4 className="font-display text-xl text-base-900">{item.label}</h4>
-            {item.integral ? (
-              <span className="rounded-full bg-primary/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                {labels.integral}
-              </span>
-            ) : null}
-          </div>
-          <p className="mt-2 text-sm leading-7 text-base-800">{item.description}</p>
+    <section className={`aion-tools-item-card aion-tools-item-card-${toolTone}`}>
+      <div className="aion-tools-item-heading">
+        <div className="aion-tools-item-title-block">
+          <h4 className="font-display text-xl text-base-900">{item.label}</h4>
+          <p className="text-sm leading-7 text-base-800">{item.description}</p>
         </div>
-        <div className={`badge ${toolStatusClass(item.status)}`}>{formatToolState(item.status, labels)}</div>
+        <div className="aion-tools-status-stack">
+          <div className={`badge ${toolStatusClass(item.status)}`}>{formatToolState(item.status, labels)}</div>
+          {item.integral ? (
+            <span className="aion-tools-integral-pill">{labels.integral}</span>
+          ) : null}
+        </div>
       </div>
 
-      <div className="aion-tools-fact-grid">
-        <ToolsFactCard label={labels.availability}>
-          <p className="mt-2 text-base font-semibold text-base-900">
-            {item.enabled ? commonLabels.on : commonLabels.off}
-          </p>
-        </ToolsFactCard>
-        <ToolsFactCard label={labels.provider}>
-          <p className="mt-2 text-base font-semibold text-base-900">
-            {item.provider.name.replaceAll("_", " ")}
-          </p>
-          <p className="mt-1 text-xs text-base-800">
-            {item.provider.ready
-              ? labels.providerReadyValue
-              : item.provider.configured
-                ? labels.providerConfiguredValue
-                : labels.providerNotConfiguredValue}
-          </p>
-        </ToolsFactCard>
-        <ToolsFactCard label={labels.control}>
+      <div className="aion-tools-decision-strip" aria-label={`${item.label} status`}>
+        <ToolsDecisionPill label={labels.availability} value={enabledLabel} />
+        <ToolsDecisionPill label={labels.linkState} value={formatToolLinkState(item.link_state, labels)} />
+        <ToolsDecisionPill label={labels.provider} value={providerState} detail={item.provider.name.replaceAll("_", " ")} />
+      </div>
+
+      <div className="aion-tools-action-row">
+        <div className="aion-tools-action-copy">
+          <p className="aion-tools-action-label">{labels.nextStep}</p>
+          <p className="aion-tools-action-value">{summarizeToolAction(item.next_actions, labels.noAction)}</p>
+        </div>
+        <div className="aion-tools-control-surface">
+          <p className="aion-tools-action-label">{labels.control}</p>
           {item.user_control.toggle_allowed ? (
-            <label className="mt-2 flex items-center gap-3">
+            <label className="aion-tools-toggle-control">
               <input
                 className="toggle toggle-primary"
                 type="checkbox"
@@ -240,34 +251,17 @@ function ToolsDirectoryItem({
                   onToolToggle(item.id, event.target.checked);
                 }}
               />
-              <span className="text-base font-semibold text-base-900">
-                {saving
-                  ? labels.saving
-                  : item.user_control.requested_enabled
-                    ? labels.enabledByUser
-                    : labels.disabledByUser}
-              </span>
+              <span>{controlLabel}</span>
             </label>
           ) : (
-            <p className="mt-2 text-base font-semibold text-base-900">{labels.readOnly}</p>
+            <p className="aion-tools-control-value">{controlLabel}</p>
           )}
-        </ToolsFactCard>
-        <ToolsFactCard label={labels.linkState}>
-          <p className="mt-2 text-base font-semibold text-base-900">
-            {formatToolLinkState(item.link_state, labels)}
-          </p>
-        </ToolsFactCard>
+        </div>
       </div>
 
       <div className="space-y-3">
         <ToolsDetailCard label={labels.currentStatus}>
           <p className="mt-2 text-sm leading-7 text-base-900">{item.status_reason}</p>
-        </ToolsDetailCard>
-
-        <ToolsDetailCard label={labels.nextStep}>
-          <p className="mt-2 text-sm leading-7 text-base-900">
-            {summarizeToolAction(item.next_actions, labels.noAction)}
-          </p>
         </ToolsDetailCard>
 
         {item.id === "telegram" &&
@@ -322,6 +316,24 @@ function ToolsDirectoryItem({
         </details>
       </div>
     </section>
+  );
+}
+
+export function ToolsDecisionPill({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string;
+  detail?: string;
+}) {
+  return (
+    <div className="aion-tools-decision-pill">
+      <p>{label}</p>
+      <strong>{value}</strong>
+      {detail ? <span>{detail}</span> : null}
+    </div>
   );
 }
 

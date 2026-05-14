@@ -122,21 +122,52 @@ export function renderChatMarkdown(text: string): ReactNode {
     if (unorderedMatch || orderedMatch) {
       const ordered = Boolean(orderedMatch);
       const items: ReactNode[] = [];
+      let currentItemLines: string[] | null = null;
+
+      const pushCurrentItem = () => {
+        if (!currentItemLines) {
+          return;
+        }
+        const itemIndex = items.length;
+        items.push(
+          <li key={`item-${blockIndex}-${itemIndex}`}>
+            {renderMarkdownLines(currentItemLines.join("\n"), `item-${blockIndex}-${itemIndex}`)}
+          </li>,
+        );
+        currentItemLines = null;
+      };
+
       while (index < lines.length) {
         const current = lines[index];
         const itemMatch = ordered
           ? current.match(/^\s*\d+[.)]\s+(.+)$/)
           : current.match(/^\s*[-*+]\s+(.+)$/);
+
+        if (itemMatch) {
+          pushCurrentItem();
+          currentItemLines = [itemMatch[1]];
+          index += 1;
+          continue;
+        }
+
+        const continuationMatch = current.match(/^\s{2,}(.+)$/);
+        if (currentItemLines && continuationMatch && !current.trim().startsWith("```")) {
+          currentItemLines.push(continuationMatch[1]);
+          index += 1;
+          continue;
+        }
+
+        if (!current.trim() && currentItemLines) {
+          pushCurrentItem();
+          index += 1;
+          break;
+        }
+
         if (!itemMatch) {
           break;
         }
-        items.push(
-          <li key={`item-${blockIndex}-${items.length}`}>
-            {renderMarkdownLines(itemMatch[1], `item-${blockIndex}-${items.length}`)}
-          </li>,
-        );
-        index += 1;
       }
+      pushCurrentItem();
       const ListTag = ordered ? "ol" : "ul";
       blocks.push(<ListTag key={`list-${blockIndex++}`}>{items}</ListTag>);
       continue;

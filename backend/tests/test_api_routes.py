@@ -6401,12 +6401,11 @@ def test_app_tools_overview_exposes_grouped_backend_truth() -> None:
     ]
     assert body["summary"] == {
         "total_groups": 4,
-        "total_items": 9,
+        "total_items": 7,
         "integral_enabled_count": 3,
         "provider_ready_count": 4,
-        "provider_blocked_count": 5,
+        "provider_blocked_count": 3,
         "link_required_count": 1,
-        "planned_placeholder_count": 2,
     }
 
     groups = {group["id"]: group for group in body["groups"]}
@@ -6440,8 +6439,8 @@ def test_app_tools_overview_exposes_grouped_backend_truth() -> None:
     assert task_management["clickup"]["status"] == "provider_configuration_required"
     assert task_management["clickup"]["provider"]["ready"] is False
     assert task_management["clickup"]["user_control"]["requested_enabled"] is False
-    assert task_management["trello"]["status"] == "planned_placeholder"
-    assert task_management["nest"]["status"] == "planned_placeholder"
+    assert "trello" not in task_management
+    assert "nest" not in task_management
 
     assert knowledge["web_search"]["status"] == "integral_active"
     assert knowledge["web_browser"]["status"] == "integral_active"
@@ -6539,7 +6538,7 @@ def test_app_tools_overview_marks_provider_backed_integrations_ready_when_config
     assert response.status_code == 200
     body = response.json()
     assert body["summary"]["provider_ready_count"] == 7
-    assert body["summary"]["provider_blocked_count"] == 2
+    assert body["summary"]["provider_blocked_count"] == 0
 
     groups = {group["id"]: group for group in body["groups"]}
     task_management = {item["id"]: item for item in groups["task_management"]["items"]}

@@ -2118,6 +2118,13 @@ Foreground truthfulness guardrails:
    shape wording and interaction ritual, including avoiding repeated greeting
    openings when the relation model requests it; expression must not mutate
    durable relation state
+5. expression may pass the resolved delivery channel into provider-backed reply
+   generation so the AI response budget can be channel-aware before wording is
+   generated; this is generation guidance only, not delivery execution
+6. provider-backed reply generation must keep output-budget policy separate
+   from transport delivery limits: app/API chat may receive a larger bounded
+   generation budget, while Telegram delivery length and segmentation remain
+   owned by action/integration routing
 
 ---
 

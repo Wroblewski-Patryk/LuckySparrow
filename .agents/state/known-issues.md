@@ -1,6 +1,6 @@
 # Known Issues
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 ## Open Issues
 
@@ -9,7 +9,7 @@ Last updated: 2026-05-13
 | ARCH-CONNECTORS-001 | P1 | connectors | Organizer/provider daily-use claims are an extension gate and need credentials before a broader launch claim. | Backend + Ops | DEFERRED_EXTERNAL_EXTENSION | Run provider activation smoke only after operator credentials exist and organizer scope expands. |
 | ARCH-PROACTIVE-001 | P1 | proactive | Proactive/scheduler implementation is covered locally, but target proactive sampling is deferred until launch scope expands. | Backend + Ops | DEFERRED_SCOPE_DEPENDENT | Run a target proactive sample only when proactive launch scope expands. |
 | ARCH-DEPLOY-AUTO-001 | P1 | operations | Current release parity is green; source/webhook deploy convergence remains a future-candidate follow-up. | Ops/Release | DEFERRED_FUTURE_CANDIDATE | Capture source/webhook deploy convergence or fallback evidence on the next selected release candidate. |
-| ARCH-MOBILE-001 | P2 | mobile | Mobile is approved topology and v1.5 UI work has started, but production mobile readiness still needs native auth transport and device/simulator proof. | Mobile + Planning | IN_PROGRESS_EXTENSION | Continue from `PRJ-1158`; add focused native chat route or device/simulator proof before claiming production mobile readiness. |
+| ARCH-MOBILE-001 | P2 | mobile | Native app proof is outside the current product scope; the active UI target is the web app at mobile, tablet, and desktop breakpoints. | Mobile + Planning | DEFERRED_BY_CURRENT_SCOPE | Do not pursue Android SDK/device proof unless native app scope is reactivated; keep validating web breakpoints through `ARCH-WEB-UX-001`. |
 | V11-UI-DRIFT-001 | P2 | web_ui | v1.1 responsive automation is green, but full canonical visual parity can still be improved by explicit future feedback. | Frontend + QA/Test | MONITORING | v1.1 web responsive handoff is complete; start a new narrow polish task only from explicit feedback or v1.5 mobile planning. |
 
 ## Accepted Residual Risks

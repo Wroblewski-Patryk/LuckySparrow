@@ -73,6 +73,7 @@ import {
   PublicNavLinkList,
   PublicTrustBand,
   PublicTrustPillList,
+  type PublicNavLinkItem,
 } from "./components/public-shell";
 import {
   FeedbackBanner,
@@ -117,7 +118,7 @@ import {
   ToolsSummaryCardList,
   type ToolsSummaryCardItem,
 } from "./components/tools";
-import { ROUTES, navigate, navigatePublicEntry, normalizeRoute, type RoutePath } from "./routes";
+import { navigate, navigatePublicEntry, normalizeRoute, type RoutePath } from "./routes";
 
 type AuthMode = "login" | "register";
 const BUILD_REVISION = String(import.meta.env.VITE_APP_BUILD_REVISION ?? "dev");
@@ -210,6 +211,9 @@ const UI_COPY = {
       email: "Email",
       password: "Password",
       displayName: "Display name",
+      emailPlaceholder: "you@example.com",
+      passwordPlaceholder: "At least 8 characters",
+      displayNamePlaceholder: "How Aviary should address you",
       enterWorkspace: "Enter workspace",
       createAccount: "Create account",
       tabsLogin: "Login",
@@ -248,6 +252,8 @@ const UI_COPY = {
       messageDetails: "Message details",
       channel: "Channel",
       pending: "Sending now",
+      assistantLabel: "Aviary",
+      safetyNote: "Aviary may make mistakes. Consider checking important information.",
     },
     settings: {
       eyebrow: "Settings",
@@ -322,7 +328,6 @@ const UI_COPY = {
       statusAlwaysOn: "Always on",
       statusReadyToUse: "Ready to use",
       statusLinkRequired: "Link required",
-      statusPlanned: "Planned",
       statusNeedsReview: "Needs review",
       providerReadyValue: "ready",
       providerConfiguredValue: "configured",
@@ -727,6 +732,9 @@ const UI_COPY = {
       email: "Email",
       password: "Hasło",
       displayName: "Nazwa wyświetlana",
+      emailPlaceholder: "ty@example.com",
+      passwordPlaceholder: "Co najmniej 8 znaków",
+      displayNamePlaceholder: "Jak Aviary ma się do Ciebie zwracać",
       enterWorkspace: "Wejdź do aplikacji",
       createAccount: "Utwórz konto",
       tabsLogin: "Logowanie",
@@ -760,6 +768,8 @@ const UI_COPY = {
       messageDetails: "Szczegóły wiadomości",
       channel: "Kanał",
       pending: "Wysyłanie",
+      assistantLabel: "Aviary",
+      safetyNote: "Aviary może się pomylić. Sprawdzaj ważne informacje.",
     },
     settings: {
       eyebrow: "Ustawienia",
@@ -834,7 +844,6 @@ const UI_COPY = {
       statusAlwaysOn: "Zawsze aktywne",
       statusReadyToUse: "Gotowe do użycia",
       statusLinkRequired: "Wymaga podpięcia",
-      statusPlanned: "Zaplanowane",
       statusNeedsReview: "Wymaga przeglądu",
       providerReadyValue: "gotowy",
       providerConfiguredValue: "skonfigurowany",
@@ -1239,6 +1248,9 @@ const UI_COPY = {
       email: "E-Mail",
       password: "Passwort",
       displayName: "Anzeigename",
+      emailPlaceholder: "du@example.com",
+      passwordPlaceholder: "Mindestens 8 Zeichen",
+      displayNamePlaceholder: "Wie Aviary dich ansprechen soll",
       enterWorkspace: "Zum Workspace",
       createAccount: "Konto erstellen",
       tabsLogin: "Login",
@@ -1272,6 +1284,8 @@ const UI_COPY = {
       messageDetails: "Nachrichtendetails",
       channel: "Kanal",
       pending: "Wird gesendet",
+      assistantLabel: "Aviary",
+      safetyNote: "Aviary kann Fehler machen. Prüfe wichtige Informationen.",
     },
     settings: {
       eyebrow: "Einstellungen",
@@ -1346,7 +1360,6 @@ const UI_COPY = {
       statusAlwaysOn: "Immer aktiv",
       statusReadyToUse: "Einsatzbereit",
       statusLinkRequired: "Verknüpfung erforderlich",
-      statusPlanned: "Geplant",
       statusNeedsReview: "Prüfung nötig",
       providerReadyValue: "bereit",
       providerConfiguredValue: "konfiguriert",
@@ -1701,6 +1714,58 @@ function routeDescription(route: RoutePath, locale: ResolvedUiLanguageCode) {
 function routeLabel(route: RoutePath, locale: ResolvedUiLanguageCode) {
   const localized = UI_COPY[locale].routes as Record<string, string>;
   return localized[route] ?? UI_COPY.en.routes[route];
+}
+
+function routeMobileLabel(route: RoutePath, locale: ResolvedUiLanguageCode) {
+  const labels = {
+    en: {
+      "/login": "Login",
+      "/dashboard": "Home",
+      "/chat": "Chat",
+      "/memory": "Memory",
+      "/reflections": "Reflect",
+      "/plans": "Plans",
+      "/goals": "Goals",
+      "/insights": "Insight",
+      "/automations": "Auto",
+      "/integrations": "Links",
+      "/settings": "Set",
+      "/tools": "Tools",
+      "/personality": "Self",
+    },
+    pl: {
+      "/login": "Login",
+      "/dashboard": "Start",
+      "/chat": "Czat",
+      "/memory": "Pamięć",
+      "/reflections": "Refleks",
+      "/plans": "Plany",
+      "/goals": "Cele",
+      "/insights": "Wgląd",
+      "/automations": "Auto",
+      "/integrations": "Linki",
+      "/settings": "Ustaw",
+      "/tools": "Tools",
+      "/personality": "Ja",
+    },
+    de: {
+      "/login": "Login",
+      "/dashboard": "Start",
+      "/chat": "Chat",
+      "/memory": "Memo",
+      "/reflections": "Reflex",
+      "/plans": "Plan",
+      "/goals": "Ziele",
+      "/insights": "Blick",
+      "/automations": "Auto",
+      "/integrations": "Links",
+      "/settings": "Set",
+      "/tools": "Tools",
+      "/personality": "Ich",
+    },
+  } satisfies Record<ResolvedUiLanguageCode, Record<RoutePath, string>>;
+
+  return labels[locale][route] ?? labels.en[route];
 }
 
 export default function App() {
@@ -2215,6 +2280,7 @@ export default function App() {
         ? "Shape one meaningful goal to give the day a stronger center."
         : "Your active goals are ready for a focused work block.",
       action: "Focus",
+      targetRoute: "/chat" as RoutePath,
     },
     {
       title: "Build momentum",
@@ -2222,6 +2288,7 @@ export default function App() {
         ? `Stay close to your latest thread: ${truncateText(latestUserMessage, 72)}`
         : "The next message can become the anchor for a clearer plan.",
       action: "View goal",
+      targetRoute: "/goals" as RoutePath,
     },
     {
       title: "Reflect and integrate",
@@ -2229,6 +2296,7 @@ export default function App() {
         ? "A short reflection can start your first layer of deeper learning."
         : "Recent reflections are ready to inform the next response.",
       action: "Reflect",
+      targetRoute: "/reflections" as RoutePath,
     },
     {
       title: "Connection opportunity",
@@ -2236,6 +2304,7 @@ export default function App() {
         ? "Link another surface when you want continuity outside the web shell."
         : `Continuity is already alive across: ${recentChannelsLabel}.`,
       action: "See context",
+      targetRoute: "/memory" as RoutePath,
     },
   ];
   const dashboardCognitiveSteps = [
@@ -2424,61 +2493,73 @@ export default function App() {
     {
       route: "/dashboard" as const,
       label: routeLabel("/dashboard", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/dashboard", resolvedUiLanguage),
       icon: "dashboard" as const,
     },
     {
       route: "/chat" as const,
       label: routeLabel("/chat", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/chat", resolvedUiLanguage),
       icon: "chat" as const,
     },
     {
       route: "/personality" as const,
       label: routeLabel("/personality", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/personality", resolvedUiLanguage),
       icon: "personality" as const,
     },
     {
       route: "/memory" as const,
       label: routeLabel("/memory", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/memory", resolvedUiLanguage),
       icon: "memory",
     },
     {
       route: "/reflections" as const,
       label: routeLabel("/reflections", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/reflections", resolvedUiLanguage),
       icon: "reflections",
     },
     {
       route: "/plans" as const,
       label: routeLabel("/plans", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/plans", resolvedUiLanguage),
       icon: "plans",
     },
     {
       route: "/goals" as const,
       label: routeLabel("/goals", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/goals", resolvedUiLanguage),
       icon: "goals",
     },
     {
       route: "/insights" as const,
       label: routeLabel("/insights", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/insights", resolvedUiLanguage),
       icon: "insights",
     },
     {
       route: "/tools" as const,
       label: routeLabel("/tools", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/tools", resolvedUiLanguage),
       icon: "tools" as const,
     },
     {
       route: "/automations" as const,
       label: routeLabel("/automations", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/automations", resolvedUiLanguage),
       icon: "automations",
     },
     {
       route: "/integrations" as const,
       label: routeLabel("/integrations", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/integrations", resolvedUiLanguage),
       icon: "integrations",
     },
     {
       route: "/settings" as const,
       label: routeLabel("/settings", resolvedUiLanguage),
+      mobileLabel: routeMobileLabel("/settings", resolvedUiLanguage),
       icon: "settings" as const,
     },
   ];
@@ -3166,10 +3247,25 @@ export default function App() {
     copy.common.unknownTime,
   );
   const publicNavLabels = {
-    en: ["Features", "How it works", "Privacy", "Resources"],
-    pl: ["Funkcje", "Jak to działa", "Prywatność", "Zasoby"],
-    de: ["Funktionen", "So funktioniert es", "Privatsphare", "Ressourcen"],
-  } satisfies Record<ResolvedUiLanguageCode, string[]>;
+    en: [
+      { label: "Features", href: "#aviary-features" },
+      { label: "How it works", href: "#aviary-proof" },
+      { label: "Privacy", href: "#aviary-trust" },
+      { label: "Resources", href: "#aviary-trust" },
+    ],
+    pl: [
+      { label: "Funkcje", href: "#aviary-features" },
+      { label: "Jak to działa", href: "#aviary-proof" },
+      { label: "Prywatność", href: "#aviary-trust" },
+      { label: "Zasoby", href: "#aviary-trust" },
+    ],
+    de: [
+      { label: "Funktionen", href: "#aviary-features" },
+      { label: "So funktioniert es", href: "#aviary-proof" },
+      { label: "Privatsphare", href: "#aviary-trust" },
+      { label: "Ressourcen", href: "#aviary-trust" },
+    ],
+  } satisfies Record<ResolvedUiLanguageCode, PublicNavLinkItem[]>;
   const publicHeroCards = {
     en: [
       { label: "Memory", value: "Everything meaningful stays visible." },
@@ -3601,10 +3697,6 @@ export default function App() {
       <div className="aion-public-shell min-h-screen text-base-content">
         <div className="aion-public-shell-frame">
           <section className="aion-public-window">
-            <div className="aion-public-canonical-tag" aria-hidden="true">
-              <span>1</span>
-              <strong>Landing Page</strong>
-            </div>
             <div className="aion-public-window-body">
               <header className="aion-public-nav">
                 <AviaryWordmark compact />
@@ -3666,9 +3758,9 @@ export default function App() {
                   </div>
                 </section>
 
-                <section className="aion-public-feature-bridge aion-panel-soft">
+                <section className="aion-public-feature-bridge aion-panel-soft" id="aviary-features">
                   <PublicFeatureCardList items={publicHomeSurface.pillars} />
-                  <div className="aion-public-proof-bridge">
+                  <div className="aion-public-proof-bridge" id="aviary-proof">
                     <div className="aion-public-proof-bridge-copy">
                       <p className="aion-public-section-label">{publicHomeSurface.proofLine}</p>
                       <p className="aion-public-proof-bridge-body">
@@ -3684,7 +3776,7 @@ export default function App() {
                   </div>
                 </section>
 
-                <PublicTrustBand items={publicHomeSurface.trustBand} />
+                <PublicTrustBand id="aviary-trust" items={publicHomeSurface.trustBand} />
               </main>
 
               {authModalOpen ? (
@@ -3749,7 +3841,7 @@ export default function App() {
                           type="email"
                           value={authForm.email}
                           onChange={(event) => setAuthForm((form) => ({ ...form, email: event.target.value }))}
-                          placeholder="you@example.com"
+                          placeholder={copy.auth.emailPlaceholder}
                           required
                         />
                       </label>
@@ -3763,7 +3855,7 @@ export default function App() {
                           type="password"
                           value={authForm.password}
                           onChange={(event) => setAuthForm((form) => ({ ...form, password: event.target.value }))}
-                          placeholder="At least 8 characters"
+                          placeholder={copy.auth.passwordPlaceholder}
                           required
                         />
                       </label>
@@ -3778,7 +3870,7 @@ export default function App() {
                             type="text"
                             value={authForm.displayName}
                             onChange={(event) => setAuthForm((form) => ({ ...form, displayName: event.target.value }))}
-                            placeholder="How the personality should address you"
+                            placeholder={copy.auth.displayNamePlaceholder}
                           />
                         </label>
                       ) : null}
@@ -3815,10 +3907,10 @@ export default function App() {
 
   return (
     <div className="aion-shell min-h-screen text-base-content">
-      <div className="mx-auto max-w-[112rem] px-3 pb-28 pt-3 sm:px-4 md:px-5 md:pb-6 md:pt-4 xl:px-5">
+      <div className="mx-auto max-w-[112rem] px-3 pb-4 pt-3 sm:px-4 md:px-5 md:pb-6 md:pt-4 xl:px-5">
         <section className="aion-shell-window">
           <div className="aion-shell-window-body">
-        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[14.7rem_minmax(0,1fr)]">
+        <div className="aion-shell-frame aion-shell-frame-canonical grid gap-3 xl:grid-cols-[13.65rem_minmax(0,1fr)]">
           <aside className="aion-app-rail hidden xl:flex xl:min-h-[calc(100vh-3rem)] xl:flex-col">
             <SidebarBrandBlock />
 
@@ -3913,9 +4005,6 @@ export default function App() {
                     <div className="aion-wordmark-mobile-badge">
                       <AviaryWordmark compact />
                     </div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-base-800">
-                      {copy.common.build} {BUILD_REVISION.slice(0, 12)}
-                    </p>
                   </div>
                   <div className="mt-3">
                     <p className="text-xs uppercase tracking-[0.24em] text-base-800">{copy.common.workspace}</p>
@@ -3933,10 +4022,19 @@ export default function App() {
               </div>
 
               <ShellRouteSwitcher
-                routes={ROUTES}
+                items={shellNavItems}
                 activeRoute={route}
-                labelForRoute={(entry) => routeLabel(entry, resolvedUiLanguage)}
                 onRouteChange={changeRoute}
+              />
+
+              <ShellMobileTabbar
+                items={shellNavItems}
+                activeRoute={route}
+                onRouteChange={changeRoute}
+                scrollRef={mobileNavScrollRef}
+                registerRouteRef={(entry, node) => {
+                  mobileNavRefs.current[entry] = node;
+                }}
               />
             </header>
 
@@ -4038,7 +4136,7 @@ export default function App() {
                     <p className="text-[11px] uppercase tracking-[0.2em] text-base-800">Current phase</p>
                     <p className="mt-3 font-display text-[2rem] leading-tight text-base-900">{dashboardCurrentPhase.title}</p>
                     <p className="mt-3 text-sm leading-7 text-base-800">{dashboardCurrentPhase.body}</p>
-                    <button className="aion-dashboard-action-button mt-5" type="button">
+                    <button className="aion-dashboard-action-button mt-5" type="button" onClick={() => changeRoute("/reflections")}>
                       View full flow
                     </button>
                   </aside>
@@ -4052,7 +4150,7 @@ export default function App() {
                       <p className="text-sm uppercase tracking-[0.2em] text-base-800">Active goals</p>
                       <h3 className="mt-2 font-display text-2xl text-base-900">What is in motion</h3>
                     </div>
-                    <button className="aion-dashboard-link" type="button">
+                    <button className="aion-dashboard-link" type="button" onClick={() => changeRoute("/goals")}>
                       View all
                     </button>
                   </div>
@@ -4066,7 +4164,7 @@ export default function App() {
                   <p className="mt-3 text-sm leading-7 text-base-800">
                     Building a coherent next step from your active conversation, memory, and planning posture.
                   </p>
-                  <button className="aion-dashboard-action-button mt-5" type="button">
+                  <button className="aion-dashboard-action-button mt-5" type="button" onClick={() => changeRoute("/chat")}>
                     Enter focus
                   </button>
                 </article>
@@ -4099,8 +4197,11 @@ export default function App() {
                   <section className="aion-dashboard-guidance-panel">
                     <p className="text-sm uppercase tracking-[0.22em] text-base-800">Insights and guidance</p>
                     <h3 className="mt-2 font-display text-2xl text-base-900">Curated for you</h3>
-                    <DashboardGuidanceList items={dashboardGuidanceCards} />
-                    <button className="aion-dashboard-action-button aion-dashboard-guidance-cta" type="button">
+                    <DashboardGuidanceList
+                      items={dashboardGuidanceCards}
+                      onSelect={(targetRoute) => changeRoute(targetRoute as RoutePath)}
+                    />
+                    <button className="aion-dashboard-action-button aion-dashboard-guidance-cta" type="button" onClick={() => changeRoute("/insights")}>
                       View all insights
                     </button>
                   </section>
@@ -4111,7 +4212,7 @@ export default function App() {
                         <p className="text-sm uppercase tracking-[0.22em] text-base-800">Recent activity</p>
                         <h4 className="mt-2 font-display text-[1.06rem] text-base-900">What just changed</h4>
                       </div>
-                      <button className="aion-dashboard-link" type="button">
+                      <button className="aion-dashboard-link" type="button" onClick={() => changeRoute("/chat")}>
                         View all
                       </button>
                     </div>
@@ -4159,7 +4260,7 @@ export default function App() {
                         <p className="mt-3 max-w-md text-sm leading-7 text-base-800">
                           Goals, memory, and reflection now hold together in one calmer path.
                         </p>
-                        <button className="aion-dashboard-action-button mt-5" type="button">
+                        <button className="aion-dashboard-action-button mt-5" type="button" onClick={() => changeRoute("/insights")}>
                           See full report
                         </button>
                       </div>
@@ -4175,7 +4276,7 @@ export default function App() {
             <section className="grid gap-4">
               <section className="aion-chat-workspace">
                 <ChatTopbar
-                  title="Conversation"
+                  title={copy.chat.eyebrow}
                   activeSummary={chatActiveSummary}
                   linkedChannelsLabel={chatLinkedChannelsStatus}
                   preferredLanguageLabel={stringValue(me?.settings.preferred_language, "adaptive")}
@@ -4204,7 +4305,7 @@ export default function App() {
                         messages={visibleTranscriptItems}
                         preview={transcriptIsPreview}
                         userSpeakerLabel={copy.common.user}
-                        assistantSpeakerLabel="AION"
+                        assistantSpeakerLabel={copy.chat.assistantLabel}
                         getDeliveryState={(message) =>
                           message.role === "user" ? chatDeliveryState(message) : null
                         }
@@ -4231,7 +4332,7 @@ export default function App() {
                         placeholder={copy.chat.placeholder}
                         sending={sendingMessage}
                         sendLabel={copy.chat.send}
-                        note="AION may make mistakes. Consider checking important information."
+                        note={copy.chat.safetyNote}
                         pendingConfirmation={pendingConnectorConfirmation}
                         pendingConfirmationLabel={copy.chat.confirmationRequired}
                         pendingConfirmationBlockedLabel={copy.chat.confirmationBlocked}
@@ -4965,19 +5066,6 @@ export default function App() {
         </div>
           </div>
         </section>
-
-        {route !== "/chat" ? (
-          <ShellMobileTabbar
-            routes={ROUTES}
-            activeRoute={route}
-            labelForRoute={(entry) => routeLabel(entry, resolvedUiLanguage)}
-            onRouteChange={changeRoute}
-            scrollRef={mobileNavScrollRef}
-            registerRouteRef={(entry, node) => {
-              mobileNavRefs.current[entry] = node;
-            }}
-          />
-        ) : null}
       </div>
     </div>
   );

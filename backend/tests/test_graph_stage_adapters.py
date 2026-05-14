@@ -43,6 +43,7 @@ class _FakeOpenAIClient:
         communication_boundary_summary: str = "",
         identity_summary: str = "",
         current_turn_timestamp: str = "",
+        delivery_channel: str = "api",
     ) -> str | None:
         return f"Mocked graph reply for: {user_text}"
 

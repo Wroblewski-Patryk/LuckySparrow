@@ -118,12 +118,15 @@ export function DashboardMemoryBarChart({
 
 export function DashboardGuidanceList({
   items,
+  onSelect,
 }: {
   items: Array<{
     title: string;
     body: string;
     action: string;
+    targetRoute?: string;
   }>;
+  onSelect?: (targetRoute: string) => void;
 }) {
   return (
     <div className="aion-dashboard-guidance-list">
@@ -137,7 +140,11 @@ export function DashboardGuidanceList({
             <p className="aion-dashboard-guidance-row-title">{card.title}</p>
             <p className="aion-dashboard-guidance-row-body">{card.body}</p>
           </div>
-          <button className="aion-dashboard-mini-action aion-dashboard-mini-action-quiet" type="button">
+          <button
+            className="aion-dashboard-mini-action aion-dashboard-mini-action-quiet"
+            type="button"
+            onClick={card.targetRoute ? () => onSelect?.(card.targetRoute ?? "") : undefined}
+          >
             {card.action}
           </button>
         </article>
@@ -159,10 +166,13 @@ export function DashboardRecentActivityList({
     <div className="grid gap-2.5">
       {items.map((item) => (
         <article key={item.key} className="aion-dashboard-recent-row">
-          <div>
+          <span className="aion-dashboard-recent-token" aria-hidden="true" />
+          <div className="aion-dashboard-recent-row-copy">
             <p className="text-[0.82rem] font-semibold text-base-900">{item.title}</p>
           </div>
-          <span className="text-xs uppercase tracking-[0.18em] text-base-800">{item.when}</span>
+          <span className="aion-dashboard-recent-time text-xs uppercase tracking-[0.18em] text-base-800">
+            {item.when}
+          </span>
         </article>
       ))}
     </div>

@@ -31,6 +31,16 @@ const entrySource = `
       includes: ["<ol>", "<li>alpha</li>", "<li>beta</li>", "</ol>"],
     },
     {
+      name: "ordered list continuation",
+      input: "1. alpha\\n   still alpha\\n2. beta",
+      includes: ["<ol>", "<li>alpha<br/>still alpha</li>", "<li>beta</li>", "</ol>"],
+    },
+    {
+      name: "unordered list continuation",
+      input: "- first\\n  still first\\n- second",
+      includes: ["<ul>", "<li>first<br/>still first</li>", "<li>second</li>", "</ul>"],
+    },
+    {
       name: "fenced code block",
       input: "\`\`\`\\nhello()\\n\`\`\`",
       includes: ["<pre><code>hello()</code></pre>"],

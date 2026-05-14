@@ -140,7 +140,7 @@ def validation_command_pack(row_id: str) -> str:
         "ARCH-WEB-ROUTES-001": (
             "Push-Location .\\web; npm run smoke:routes; $exit=$LASTEXITCODE; Pop-Location; exit $exit"
         ),
-        "ARCH-MOBILE-001": "Scope-decision row only; create mobile scope decision before runtime/device proof.",
+        "ARCH-MOBILE-001": "Native app proof is deferred by current scope; validate web responsive breakpoints through ARCH-WEB-UX-001.",
         "ARCH-AI-SECURITY-001": (
             ".\\backend\\scripts\\run_behavior_validation.ps1 -GateMode operator; "
             "review docs/security/v1-ai-red-team-scenario-pack.md"
@@ -193,6 +193,9 @@ def evidence_state(root: Path) -> dict[str, bool]:
         "web_route_smoke": exists(root, "web/scripts/route-smoke.mjs")
         and contains(root, "docs/planning/v1-reality-audit-and-roadmap.md", "route smoke"),
         "mobile_scaffold": exists(root, "mobile"),
+        "mobile_v15_proof": exists(root, "docs/operations/v15-mobile-ui-pr-and-production-promotion-handoff-2026-05-12.md")
+        and exists(root, "mobile/scripts/mobile-device-proof-doctor.mjs")
+        and contains(root, "mobile/package.json", "doctor:ui-mobile-device"),
         "ai_red_team": exists(root, "docs/security/v1-ai-red-team-scenario-pack.md")
         and contains(root, "docs/planning/v1-reality-audit-and-roadmap.md", "9 PASS / 0 REVIEW"),
         "release_evidence": exists(root, "docs/operations/release-evidence-index.md")
@@ -386,23 +389,39 @@ def build_rows(root: Path) -> list[AuditRow]:
         AuditRow(
             "ARCH-MOBILE-001",
             "mobile",
-            "Expo baseline",
+            "native app scope",
             "MOBILE",
             "client",
-            "Future mobile client",
-            "Expo-managed thin client over backend-owned /app contracts.",
+            "Native app extension",
+            "Native app proof is outside the current product scope; current UI target is the web app at mobile, tablet, and desktop breakpoints.",
             "Mobile must not consume internal debug/admin routes or provider secrets.",
-            "PARTIAL" if state["mobile_scaffold"] else "NOT_VERIFIED",
-            "docs/planning/mobile-client-baseline.md; mobile/ scaffold presence",
-            "NOT_VERIFIED",
-            "Mobile remains outside the achieved core/web-supported release marker",
-            "Low",
-            "Mobile can drift if treated as implemented product surface too early.",
+            "SCOPE_DEFERRED" if state["mobile_v15_proof"] or state["mobile_scaffold"] else "NOT_VERIFIED",
+            (
+                "PRJ-1158..1199 evidence is preserved as historical native-app groundwork; current user scope selects web responsive breakpoints instead"
+                if state["mobile_v15_proof"]
+                else "docs/planning/mobile-client-baseline.md; mobile/ scaffold presence"
+            ),
+            "DEFERRED_BY_SCOPE" if state["mobile_v15_proof"] else "NOT_VERIFIED",
+            (
+                "User clarified current scope is web in mobile/tablet/desktop breakpoints; native app proof should not drive next work"
+                if state["mobile_v15_proof"]
+                else "Mobile remains outside the achieved core/web-supported release marker"
+            ),
+            "Medium",
+            "Native mobile proof can distract from the selected web-responsive product target if kept as active next work.",
             "P2",
             "Mobile + Planning",
-            "Restart mobile scope only after an explicit product/release decision.",
+            (
+                "Do not pursue native app proof unless scope is reactivated; keep validating web mobile/tablet/desktop breakpoints through ARCH-WEB-UX-001."
+                if state["mobile_v15_proof"]
+                else "Restart mobile scope only after an explicit product/release decision."
+            ),
             today,
-            "Approved baseline exists; implementation is intentionally deferred.",
+            (
+                "Native app evidence remains preserved, but the active UI target is web responsive behavior across three breakpoints."
+                if state["mobile_v15_proof"]
+                else "Approved baseline exists; implementation is intentionally deferred."
+            ),
             "DEFERRED",
         ),
         AuditRow(
@@ -646,7 +665,7 @@ def write_report(path: Path, rows: list[AuditRow], csv_path: Path) -> None:
             "1. Do not add broad new architecture until current blocked/evidence rows are intentionally handled.",
             "2. If operator credentials and expanded organizer scope are available, run provider activation smoke for `ARCH-CONNECTORS-001`.",
             "3. If proactive launch scope expands, run a target proactive sample for `ARCH-PROACTIVE-001`.",
-            "4. If mobile becomes active scope, create a mobile scope decision and first device/simulator proof for `ARCH-MOBILE-001`.",
+            "4. Keep `ARCH-MOBILE-001` deferred unless native app scope is reactivated; current UI proof belongs to web responsive breakpoints.",
             "5. If a new release candidate is selected, capture source/webhook deploy convergence for `ARCH-DEPLOY-AUTO-001`.",
             "",
             "## Refresh Command",

@@ -64,6 +64,7 @@ class ExpressionAgent:
             relation_support_intensity=relation_support_intensity,
         )
         message: str
+        delivery_channel = self._delivery_channel_for_event(event)
         if not text:
             message = self._build_fallback_message(
                 perception=perception,
@@ -107,6 +108,7 @@ class ExpressionAgent:
                     communication_boundary_summary=boundary_summary,
                     identity_summary=identity.summary if identity is not None else "",
                     current_turn_timestamp=event.timestamp.isoformat(),
+                    delivery_channel=delivery_channel,
                 )
                 message = llm_reply or self._build_fallback_message(
                     perception=perception,
@@ -140,19 +142,20 @@ class ExpressionAgent:
             response_style=response_style,
             relations=active_relations,
         )
-        if event.source == "telegram":
-            channel = "telegram"
-        elif event.source == "scheduler" and isinstance(event.payload.get("chat_id"), (int, str)):
-            channel = "telegram"
-        else:
-            channel = "api"
         return ExpressionOutput(
             message=message,
             tone=tone,
-            channel=channel,
+            channel=delivery_channel,
             language=perception.language,
             self_review_notes=self_review_notes,
         )
+
+    def _delivery_channel_for_event(self, event: Event) -> str:
+        if event.source == "telegram":
+            return "telegram"
+        if event.source == "scheduler" and isinstance(event.payload.get("chat_id"), (int, str)):
+            return "telegram"
+        return "api"
 
     def _build_fallback_message(
         self,

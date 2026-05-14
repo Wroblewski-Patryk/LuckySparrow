@@ -17,6 +17,7 @@ export type SidebarIconKind =
 export type ShellNavButtonItem<TRoute extends string = string> = {
   route?: TRoute;
   label: string;
+  mobileLabel?: string;
   icon: SidebarIconKind;
   disabled?: boolean;
 };
@@ -220,69 +221,89 @@ export function ShellNavButtonList<TRoute extends string>({
 }
 
 export function ShellRouteSwitcher<TRoute extends string>({
-  routes,
+  items,
   activeRoute,
-  labelForRoute,
   onRouteChange,
 }: {
-  routes: TRoute[];
+  items: Array<ShellNavButtonItem<TRoute>>;
   activeRoute: TRoute;
-  labelForRoute: (route: TRoute) => string;
   onRouteChange: (route: TRoute) => void;
 }) {
   return (
-    <div className="hidden border-t border-base-300/70 px-4 py-3 sm:px-5 md:block">
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {routes.map((entry) => (
+    <div className="aion-route-switcher hidden md:block">
+      <div className="aion-route-switcher-scroll">
+        {items.map((item) => {
+          if (!item.route) {
+            return null;
+          }
+
+          const entry = item.route;
+          const active = activeRoute === entry;
+          return (
           <button
             key={entry}
-            className={`btn btn-sm whitespace-nowrap ${activeRoute === entry ? "btn-primary" : "btn-ghost border border-base-300"}`}
+            aria-label={item.label}
+            className={`aion-route-switcher-button ${active ? "aion-route-switcher-button-active" : ""}`}
             onClick={() => onRouteChange(entry)}
             type="button"
           >
-            {labelForRoute(entry)}
+            <span className={`aion-route-switcher-icon ${active ? "aion-route-switcher-icon-active" : ""}`}>
+              <SidebarGlyph kind={item.icon} />
+            </span>
+            <span className="aion-route-switcher-label">{item.mobileLabel ?? item.label}</span>
           </button>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
 export function ShellMobileTabbar<TRoute extends string>({
-  routes,
   activeRoute,
-  labelForRoute,
+  items,
   onRouteChange,
   scrollRef,
   registerRouteRef,
 }: {
-  routes: TRoute[];
+  items: Array<ShellNavButtonItem<TRoute>>;
   activeRoute: TRoute;
-  labelForRoute: (route: TRoute) => string;
   onRouteChange: (route: TRoute) => void;
   scrollRef: RefObject<HTMLDivElement>;
   registerRouteRef: (route: TRoute, node: HTMLButtonElement | null) => void;
 }) {
   return (
-    <nav className="aion-mobile-tabbar fixed inset-x-0 bottom-0 z-30 border-t border-base-300 bg-base-100/95 px-3 py-3 backdrop-blur md:hidden">
+    <nav className="aion-mobile-tabbar border-t border-base-300 bg-base-100/95 px-3 py-3 backdrop-blur md:hidden">
       <div ref={scrollRef} className="aion-mobile-tabbar-scroll mx-auto flex max-w-2xl gap-2 overflow-x-auto">
-        {routes.map((entry) => (
+        {items.map((item) => {
+          if (!item.route) {
+            return null;
+          }
+
+          const entry = item.route;
+          const active = activeRoute === entry;
+          return (
           <button
             key={entry}
+            aria-label={item.label}
             ref={(node) => {
               registerRouteRef(entry, node);
             }}
             className={`aion-mobile-tabbar-button rounded-[1.2rem] px-3 py-3 text-sm font-medium transition ${
-              activeRoute === entry
+              active
                 ? "bg-base-900 text-base-100 shadow-sm"
                 : "border border-base-300 bg-base-200 text-base-900"
             }`}
             onClick={() => onRouteChange(entry)}
             type="button"
           >
-            {labelForRoute(entry)}
+            <span className={`aion-mobile-tabbar-icon ${active ? "aion-mobile-tabbar-icon-active" : ""}`}>
+              <SidebarGlyph kind={item.icon} />
+            </span>
+            <span className="aion-mobile-tabbar-label">{item.mobileLabel ?? item.label}</span>
           </button>
-        ))}
+          );
+        })}
       </div>
     </nav>
   );
@@ -291,11 +312,11 @@ export function ShellMobileTabbar<TRoute extends string>({
 export function AviaryWordmark({ className = "", compact = false }: { className?: string; compact?: boolean }) {
   return (
     <div
-      aria-label="AION"
+      aria-label="Aviary"
       className={`aion-brand-lockup ${compact ? "aion-brand-lockup-compact" : ""} ${className}`.trim()}
     >
       <img alt="" aria-hidden="true" className="aion-brand-mark" src="/aviary-logomark.svg" />
-      <span className="aion-brand-word">AION</span>
+      <span className="aion-brand-word">AVIARY</span>
     </div>
   );
 }
@@ -303,9 +324,9 @@ export function AviaryWordmark({ className = "", compact = false }: { className?
 export function SidebarBrandBlock() {
   return (
     <div className="aion-sidebar-brand">
-      <div aria-label="AION" className="aion-brand-lockup aion-brand-lockup-compact aion-sidebar-brand-lockup">
+      <div aria-label="Aviary" className="aion-brand-lockup aion-brand-lockup-compact aion-sidebar-brand-lockup">
         <span className="aion-sidebar-sunmark" aria-hidden="true" />
-        <span className="aion-brand-word">AION</span>
+        <span className="aion-brand-word">AVIARY</span>
       </div>
       <p className="aion-sidebar-brand-subtitle">
         <span>Your conscious</span>

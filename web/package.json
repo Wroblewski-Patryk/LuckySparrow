@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "smoke:routes": "node scripts/route-smoke.mjs",
     "audit:ui-responsive": "node scripts/route-smoke.mjs --screenshots .codex/artifacts/prj1150-v11-ui-responsive-audit --report .codex/artifacts/prj1150-v11-ui-responsive-audit/report.json --screenshot-routes /,/dashboard,/chat,/personality,/settings,/tools --viewports desktop,tablet,mobile",
+    "audit:ui-navigation": "node scripts/route-smoke.mjs --navigation-proof --report .codex/artifacts/prj1209-navigation-proof/report.json",
     "test:connector-confirmation": "node scripts/connector-confirmation-characterization.mjs",
     "test:connector-confirmation-browser": "node scripts/connector-confirmation-browser-characterization.mjs",
     "test:connector-confirmation-render": "node scripts/connector-confirmation-render-characterization.mjs",

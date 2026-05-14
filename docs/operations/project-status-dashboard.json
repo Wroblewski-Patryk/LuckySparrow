@@ -13,7 +13,7 @@
     "selected_scope_rows": 11,
     "total_rows": 15
   },
-  "date": "2026-05-11",
+  "date": "2026-05-14",
   "deferred_scope": [
     {
       "bucket": "DEFERRED",
@@ -50,14 +50,14 @@
     },
     {
       "bucket": "DEFERRED",
-      "capability": "Future mobile client",
+      "capability": "Native app extension",
       "id": "ARCH-MOBILE-001",
       "module": "mobile",
-      "next_verification": "Restart mobile scope only after an explicit product/release decision.",
+      "next_verification": "Do not pursue native app proof unless scope is reactivated; keep validating web mobile/tablet/desktop breakpoints through ARCH-WEB-UX-001.",
       "owner": "Mobile + Planning",
       "priority": "P2",
-      "risk": "Mobile can drift if treated as implemented product surface too early.",
-      "validation_command_pack": "Scope-decision row only; create mobile scope decision before runtime/device proof."
+      "risk": "Native mobile proof can distract from the selected web-responsive product target if kept as active next work.",
+      "validation_command_pack": "Native app proof is deferred by current scope; validate web responsive breakpoints through ARCH-WEB-UX-001."
     }
   ],
   "definition_of_100_percent": [
@@ -104,14 +104,14 @@
     },
     {
       "bucket": "DEFERRED",
-      "capability": "Future mobile client",
+      "capability": "Native app extension",
       "id": "ARCH-MOBILE-001",
       "module": "mobile",
-      "next_verification": "Restart mobile scope only after an explicit product/release decision.",
+      "next_verification": "Do not pursue native app proof unless scope is reactivated; keep validating web mobile/tablet/desktop breakpoints through ARCH-WEB-UX-001.",
       "owner": "Mobile + Planning",
       "priority": "P2",
-      "risk": "Mobile can drift if treated as implemented product surface too early.",
-      "validation_command_pack": "Scope-decision row only; create mobile scope decision before runtime/device proof."
+      "risk": "Native mobile proof can distract from the selected web-responsive product target if kept as active next work.",
+      "validation_command_pack": "Native app proof is deferred by current scope; validate web responsive breakpoints through ARCH-WEB-UX-001."
     }
   ],
   "next_without_external_inputs": null,

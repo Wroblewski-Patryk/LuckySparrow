@@ -5,6 +5,7 @@ from openai import AsyncOpenAI
 
 from app.core.logging import get_logger
 from app.integrations.openai.prompting import OpenAIPromptBuilder
+from app.integrations.openai.response_budget import ResponseBudgetPolicy
 
 
 class OpenAIClient:
@@ -33,11 +34,19 @@ class OpenAIClient:
         communication_boundary_summary: str = "",
         identity_summary: str = "",
         current_turn_timestamp: str = "",
+        delivery_channel: str = "api",
     ) -> str | None:
         if not self.client:
             return None
 
         try:
+            response_budget = ResponseBudgetPolicy.for_turn(
+                delivery_channel=delivery_channel,
+                response_style=response_style,
+                motivation_mode=motivation_mode,
+                role_name=role_name,
+                plan_goal=plan_goal,
+            )
             messages = self.prompt_builder.build_reply_messages(
                 user_text=user_text,
                 context_summary=context_summary,
@@ -52,11 +61,12 @@ class OpenAIClient:
                 communication_boundary_summary=communication_boundary_summary,
                 identity_summary=identity_summary,
                 current_turn_timestamp=current_turn_timestamp,
+                response_budget_contract=response_budget.contract_summary,
             )
             response = await self.client.responses.create(
                 model=self.model,
                 input=messages,
-                max_output_tokens=120 if response_style == "concise" else 220,
+                max_output_tokens=response_budget.max_output_tokens,
             )
         except Exception as exc:  # pragma: no cover - defensive network fallback
             self.logger.warning("openai_request_failed model=%s error=%s", self.model, exc)

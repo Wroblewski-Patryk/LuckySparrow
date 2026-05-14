@@ -830,6 +830,7 @@ class FakeOpenAIClient:
         communication_boundary_summary: str = "",
         identity_summary: str = "",
         current_turn_timestamp: str = "",
+        delivery_channel: str = "api",
     ) -> str | None:
         self.calls.append(
             {
@@ -846,6 +847,7 @@ class FakeOpenAIClient:
                 "communication_boundary_summary": communication_boundary_summary,
                 "identity_summary": identity_summary,
                 "current_turn_timestamp": current_turn_timestamp,
+                "delivery_channel": delivery_channel,
             }
         )
         return "Mocked OpenAI reply"
@@ -967,6 +969,7 @@ async def test_runtime_pipeline_api_source() -> None:
     assert result.plan.steps == ["interpret_event", "review_context", "prepare_response"]
     assert result.expression.message == "Mocked OpenAI reply"
     assert result.expression.language == "en"
+    assert result.expression.channel == "api"
     assert result.memory_record is not None
     assert "User said 'hello'." in result.memory_record.summary
     assert result.memory_record.payload["memory_kind"] == "continuity"
@@ -1003,6 +1006,7 @@ async def test_runtime_pipeline_api_source() -> None:
     assert openai.calls[0]["response_style"] == ""
     assert openai.calls[0]["response_tone"] == "supportive"
     assert openai.calls[0]["collaboration_preference"] == ""
+    assert openai.calls[0]["delivery_channel"] == "api"
     assert "constructive support" in openai.calls[0]["identity_summary"]
 
 
@@ -1590,6 +1594,7 @@ async def test_runtime_pipeline_builds_explicit_action_delivery_contract() -> No
     assert captured_delivery.execution_envelope.connector_safe is False
     assert captured_delivery.execution_envelope.connector_intents == []
     assert captured_delivery.execution_envelope.connector_permission_gates == []
+    assert openai.calls[0]["delivery_channel"] == "telegram"
 
 
 async def test_runtime_pipeline_builds_connector_safe_action_delivery_envelope_for_connector_intents() -> None:
@@ -1672,6 +1677,8 @@ async def test_runtime_pipeline_degrades_telegram_delivery_exception_to_fail_act
     assert result.action_result.status == "fail"
     assert result.action_result.actions == ["send_telegram_message"]
     assert "TimeoutError" in result.action_result.notes
+    assert result.expression.channel == "telegram"
+    assert openai.calls[0]["delivery_channel"] == "telegram"
     assert result.memory_record is not None
     assert result.memory_record.payload["action"] == "fail"
     assert result.reflection_triggered is True

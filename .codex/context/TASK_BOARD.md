@@ -1,8 +1,437 @@
 # TASK_BOARD
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
-## Project Status Dashboard (2026-05-13)
+## Project Status Dashboard (2026-05-14)
+
+- `PRJ-1213` is DONE:
+  - `.codex/tasks/PRJ-1213-settings-danger-boundary-polish.md`
+- result:
+  - moved Settings reset runtime data details behind a native progressive
+    disclosure boundary so safe daily preferences dominate the first read
+  - preserved the existing reset confirmation input, impact copy, hint, and
+    submit behavior inside the expanded boundary
+  - tuned desktop/tablet/mobile spacing and icon states for the collapsed
+    danger panel
+  - no reset API, auth, persistence, backend, route contract, or deployment
+    behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `status=ok`, `step_count=4`,
+    `failed_count=0`
+  - refreshed desktop, tablet, and mobile Settings screenshots reviewed
+- residual risk:
+  - broader Settings state coverage and account/session flows remain outside
+    this presentational safety-boundary slice
+
+- `PRJ-1212` is DONE:
+  - `.codex/tasks/PRJ-1212-channel-aware-ai-response-budget-policy.md`
+- result:
+  - added a centralized `ResponseBudgetPolicy` so app/API chat, Telegram,
+    concise, structured, and deep answer modes no longer rely on OpenAI client
+    magic numbers
+  - app/API chat now receives a larger bounded generation budget than
+    Telegram, while Telegram keeps its existing delivery-layer segmentation
+  - OpenAI reply prompts now include a response-budget contract that asks the
+    model to finish answers cleanly and avoid stopping mid-sentence, mid-list,
+    or inside unfinished code blocks
+  - expression now passes the resolved delivery channel into provider-backed
+    reply generation before action delivery
+  - no DB schema, auth, env, secret, route contract, deployment, or transport
+    segmentation behavior changed
+- validation:
+  - `tests/test_response_budget_policy.py tests/test_openai_client.py
+    tests/test_openai_prompting.py` -> `14 passed`
+  - `tests/test_expression_agent.py tests/test_openai_client.py
+    tests/test_openai_prompting.py tests/test_response_budget_policy.py
+    tests/test_delivery_router.py` -> `53 passed`
+  - `tests/test_runtime_pipeline.py -k "api_source or
+    action_delivery_contract or telegram_delivery_exception"` ->
+    `3 passed, 112 deselected`
+  - `tests/test_graph_stage_adapters.py
+    tests/test_api_routes.py::test_event_endpoint_coalesces_rapid_telegram_messages_into_single_runtime_turn`
+    -> `6 passed`
+  - full backend pytest -> `1105 passed`
+- residual risk:
+  - live token-spend/latency telemetry is not added in this slice
+  - future long-form product modes should extend `ResponseBudgetPolicy`
+    instead of reintroducing call-site token literals
+
+- `PRJ-1211` is DONE:
+  - `.codex/tasks/PRJ-1211-chat-response-readability-and-height.md`
+- result:
+  - raised the OpenAI chat reply output budget from the old tiny caps
+    (`220` default, `120` concise) to `900` default and `420` concise so app
+    chat answers can finish fuller thoughts
+  - fixed chat markdown list continuation so indented follow-up lines remain
+    inside the same numbered or bulleted item instead of falling into loose
+    paragraphs
+  - bounded the desktop Chat stage to the available viewport height and kept
+    transcript scrolling inside the chat column while preserving the existing
+    route shell and portrait panel
+  - upgraded the route-smoke Chat fixture to include a longer numbered answer
+    and hardened route-smoke process exit after server shutdown
+  - no API, DB, auth, route contract, or deployment behavior changed
+- validation:
+  - `tests/test_openai_client.py` -> `7 passed`
+  - `npm run test:chat-markdown` -> `case_count=7`, `status=ok`
+  - `node --check scripts/route-smoke.mjs` in `web/` -> PASS
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `status=ok`, `step_count=4`,
+    `failed_count=0`
+  - refreshed desktop, tablet, and mobile Chat screenshots reviewed
+  - cleanup check -> no `5173` listener and no active `route-smoke.mjs`
+    process after cleanup; Windows still reported a few stale
+    `chrome-headless-shell` entries as no running task after termination
+    attempts
+- residual risk:
+  - Chat route still needs broader v5 composition polish beyond this focused
+    answer-length/list/height fix
+  - Browser plugin connected, but real preview `/chat` redirected to `/login`
+    without route-smoke mock auth, so mock-authenticated route-smoke remains
+    the visual proof path for authenticated Chat screenshots
+
+- `PRJ-1210` is DONE:
+  - `.codex/tasks/PRJ-1210-tools-route-ux-clarity.md`
+- result:
+  - improved Tools route scanability across desktop, tablet, and mobile
+  - tool cards now foreground readiness, availability, link state, provider
+    posture, next action, and user control before technical details
+  - single-item tool groups span the available directory width instead of
+    leaving desktop dead space
+  - updated route-smoke Playwright lookup to the current Codex bundled runtime
+    dependency path
+  - no API, backend, provider behavior, tool payload, or production deployment
+    behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `status=ok`, `step_count=4`,
+    `failed_count=0`
+  - refreshed desktop, tablet, and mobile Tools screenshots reviewed
+  - cleanup check -> no active `chrome_headless_shell`; no validation Node
+    processes; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - deeper Tools art direction and connector-specific empty/error states can
+    be improved later when provider scope expands
+  - cold Playwright/Chromium startup can take around a minute in this desktop
+    runtime; learning journal updated
+
+- `PRJ-1209` is DONE:
+  - `.codex/tasks/PRJ-1209-shared-shell-navigation-proof-and-tablet.md`
+- result:
+  - closed the shared shell navigation proof gap by adding an opt-in
+    mock-authenticated mobile route-switch proof to `route-smoke`
+  - upgraded the tablet route switcher from old text pills to the shared
+    shell icon+label rail using the same route metadata and glyphs as the
+    sidebar/mobile navigation
+  - replaced brittle `networkidle` waits in the route-smoke harness with
+    `domcontentloaded` plus root/route-marker readiness checks
+  - no runtime, API, backend, route data, or production deployment behavior
+    changed
+- validation:
+  - `node --check scripts/route-smoke.mjs` in `web/` -> PASS
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `status=ok`, `step_count=4`,
+    `failed_count=0` for mobile clicks to Chat, Settings, Personality, and
+    Dashboard with route markers verified
+  - refreshed desktop, tablet, and mobile Dashboard screenshots reviewed
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - Browser plugin remains unavailable in this local runtime because of
+    missing kernel assets, but the mock-authenticated Playwright route-smoke
+    harness now covers the missing interaction proof
+  - route-local Personality, Settings, Tools, and deeper Chat v5 layout polish
+    remain next UI work
+
+- `PRJ-1208` is DONE:
+  - `.codex/tasks/PRJ-1208-shared-shell-navigation-layout.md`
+- result:
+  - improved shared shell navigation before deeper route-local layout work:
+    desktop sidebar is lighter and tighter, and mobile navigation is now an
+    in-header icon rail with short localized labels
+  - replaced the previous fixed bottom mobile dock behavior so route menu no
+    longer overlays route content
+  - reused existing shell route data and glyphs; no runtime, API, backend, or
+    route data behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - refreshed desktop Dashboard plus mobile Dashboard and Chat screenshots
+    reviewed
+  - Browser plugin attempt failed on missing kernel assets; local Playwright
+    interaction fallback was attempted but blocked by the real dev server auth
+    modal
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - direct route-switch interaction proof should be added against the mock
+    route-smoke harness or an authenticated local session
+  - tablet route switcher still uses the older text-pill style
+
+- `PRJ-1207` is DONE:
+  - `.codex/tasks/PRJ-1207-personality-mobile-nav-clearance.md`
+- result:
+  - added mobile-only Personality route clearance between the portrait hero
+    and Mind Layers timeline so the fixed mobile tabbar overlays calm space
+    instead of timeline data
+  - preserved the shared fixed mobile navigation contract and avoided global
+    navigation redesign
+  - no runtime behavior, API contract, backend behavior, or route data changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - refreshed mobile Personality screenshot reviewed and shows timeline rows
+    clear of the tabbar
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - deeper Personality content hierarchy, copy density, and side-panel polish
+    remain open route-local UI work
+
+- `PRJ-1206` is DONE:
+  - `.codex/tasks/PRJ-1206-chat-mobile-first-read-compression.md`
+- result:
+  - compressed the mobile Chat cognitive belt into a horizontally scrollable
+    context rail so the transcript and composer appear sooner in the first
+    mobile read
+  - kept all existing context cards available and readable without changing
+    chat runtime behavior, API contracts, backend behavior, or data flow
+  - documented that offscreen rail children are intentional when
+    document-level horizontal overflow remains false
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - refreshed mobile Chat screenshot reviewed and shows conversation content
+    moving higher on the page
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - full chat v5 desktop/tablet composition, transcript depth, and composer
+    polish remain open; this slice only closed mobile first-read compression
+
+- `PRJ-1205` is DONE:
+  - `.codex/tasks/PRJ-1205-chat-brand-copy-alignment.md`
+- result:
+  - aligned visible Chat route product copy with the Aviary shell:
+    assistant speaker label and composer safety note now come from localized
+    `copy.chat` fields and use Aviary
+  - updated the shared sidebar quote signature from the old AION label to
+    Aviary
+  - no runtime message behavior, API contract, backend behavior, or chat data
+    flow changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - refreshed desktop chat screenshot reviewed and shows Aviary speaker/note
+    copy
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - full chat v5 layout parity remains open; this slice only closed visible
+    brand-copy drift
+
+- `PRJ-1204` is DONE:
+  - `.codex/tasks/PRJ-1204-dashboard-canonical-content-rhythm.md`
+- result:
+  - improved dashboard content rhythm against the canonical dashboard
+    direction: desktop greeting no longer wraps artificially, guidance rows
+    keep readable copy with aligned actions, and recent activity rows now have
+    a clearer visual token rhythm
+  - reused existing dashboard components, data, route behavior, and canonical
+    assets; no API, backend, or route contracts changed
+  - corrected an initial over-tight guidance/recent layout after screenshot
+    review showed the narrow right sidebar needed readability-first behavior
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - refreshed desktop dashboard screenshot reviewed against
+    `docs/ux/assets/aion-dashboard-canonical-reference-v2.png`
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - dashboard is closer, but a final `95%` canonical parity pass still needs
+    deeper tableau composition; chat/personality route-local polish remains
+    open after dashboard
+
+- `PRJ-1203` is DONE:
+  - `.codex/tasks/PRJ-1203-dashboard-cta-navigation-polish.md`
+- result:
+  - wired dashboard CTA affordances to existing application routes instead of
+    leaving visible action buttons as decorative controls
+  - guidance cards now carry route targets, and dashboard buttons reuse the
+    existing `changeRoute` helper
+  - no route contracts, API calls, or backend behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - Playwright fallback browser proof clicked 10 dashboard CTAs and verified
+    navigation to `/chat`, `/goals`, `/reflections`, `/memory`, and
+    `/insights`
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - dashboard content composition still needs a deeper canonical visual pass;
+    this slice only closed the misleading-affordance behavior gap
+
+- `PRJ-1202` is DONE:
+  - `.codex/tasks/PRJ-1202-authenticated-shell-mobile-polish.md`
+- result:
+  - polished the shared authenticated mobile/tablet shell after the Home pass:
+    removed technical build copy from the first viewport and softened the
+    fixed mobile tabbar with Aviary material styling plus a teal active state
+  - kept route contracts, authenticated navigation behavior, and dashboard
+    data composition unchanged
+  - refreshed the logged-in shell across dashboard, personality, settings,
+    tools, and support routes because the chrome is shared
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - screenshot review covered refreshed
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-dashboard.png`,
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/tablet-dashboard.png`,
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-personality.png`,
+    and `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-settings.png`
+  - cleanup check -> no active `chrome_headless_shell`; no listener on `5173`
+  - `git diff --check` -> PASS with LF/CRLF warnings only
+- residual risk:
+  - dashboard content composition still needs a route-local canonical
+    convergence pass; the mobile authenticated route set remains intentionally
+    horizontally scrollable, with no document-level horizontal overflow
+
+- `PRJ-1201` is DONE:
+  - `.codex/tasks/PRJ-1201-public-home-canonical-polish.md`
+- result:
+  - polished the public Home surface against the canonical landing direction:
+    removed the visible presentation-only `Landing Page` label, removed the
+    large nested-window framing from the running page, kept the canonical
+    landing raster as the scenic hero layer, and aligned the shared visible
+    wordmark with the Aviary product-name source of truth
+  - converted public nav labels into real section anchors for features, proof,
+    and trust; kept authentication as modal continuation
+  - localized public auth placeholders for the active Polish UI and added
+    focus-visible treatment for public links, CTAs, close, and auth tabs
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - Browser plugin attempt failed in this Codex runtime with missing kernel
+    asset path, so Playwright fallback was used; Home rendered at
+    `http://127.0.0.1:5173/`, CTA opened the register modal, nav hrefs were
+    `#aviary-features`, `#aviary-proof`, `#aviary-trust`, placeholders were
+    localized, and unnamed button count was `0`
+  - screenshot evidence:
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/desktop-home.png`,
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/tablet-home.png`,
+    `.codex/artifacts/prj1150-v11-ui-responsive-audit/mobile-home.png`,
+    `.codex/artifacts/prj1201-home-browser-proof.png`
+- residual risk:
+  - Home is now structurally stronger and cleaner, but remaining full parity
+    work should focus on route-specific landing content depth, a richer proof
+    rhythm, and later dashboard/chat/personality convergence against their
+    canonical references
+
+- `PRJ-1200` is DONE:
+  - `.codex/tasks/PRJ-1200-rescope-to-web-responsive-breakpoints.md`
+- result:
+  - accepted the user scope clarification: current UI work is the web app at
+    mobile, tablet, and desktop breakpoints, not a native app
+  - regenerated architecture dashboard artifacts so `ARCH-MOBILE-001` is
+    deferred by current scope and no longer drives next-work selection
+  - kept native app proof evidence parked; active UI confidence returns to
+    `ARCH-WEB-UX-001` and `npm run audit:ui-responsive`
+- validation:
+  - architecture audit/dashboard refresh -> `DEFERRED:4`, `READY:11`;
+    selected-scope readiness `11/11`
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - selected screenshot routes covered across desktop/tablet/mobile:
+    `/`, `/dashboard`, `/chat`, `/personality`, `/settings`, `/tools`
+- residual risk:
+  - mobile web tabbar remains intentionally horizontally scrollable because
+    the route set is larger than a fixed bottom bar can fit; native app proof
+    is deferred unless reactivated
+
+- `PRJ-1199` is DONE:
+  - `.codex/tasks/PRJ-1199-harden-mobile-device-proof-doctor.md`
+- result:
+  - hardened `npm run doctor:ui-mobile-device` to report Android SDK env
+    checks, default SDK path existence, tool resolution candidates, proof
+    readiness, and concrete next actions
+  - refreshed the local doctor report; native proof remains blocked honestly
+    because `adb`, `emulator`, `ANDROID_HOME`, `ANDROID_SDK_ROOT`, and the
+    default Windows Android SDK path are unavailable in this session
+  - no mobile runtime, production, secret, or deployment behavior changed
+- validation:
+  - `node --check scripts/mobile-device-proof-doctor.mjs` -> PASS
+  - `npm run doctor:ui-mobile-device` -> `status=blocked`,
+    `missing_tools=["adb","emulator"]`, `native_readiness_claim_allowed=false`
+  - `npm run typecheck` in `mobile/` -> PASS
+- residual risk:
+  - native mobile readiness still needs Android platform tools or a supported
+    device plus Expo Go/simulator proof
+
+- `PRJ-1198` is DONE:
+  - `.codex/tasks/PRJ-1198-refresh-mobile-architecture-dashboard-truth.md`
+- result:
+  - updated the architecture audit generator so `ARCH-MOBILE-001` no longer
+    describes mobile as only a future/deferred scaffold
+  - regenerated the architecture implementation map, architecture audit, and
+    project status dashboard
+  - mobile now appears as `IMPLEMENTED_NOT_VERIFIED` with the next proof:
+    install Android platform tools or connect a supported device, then run
+    `npm run doctor:ui-mobile-device` and capture Expo Go/simulator proof
+  - dashboard phase now reports `architecture evidence hardening` when any
+    `IMPLEMENTED_NOT_VERIFIED` row exists
+- validation:
+  - architecture audit/dashboard refresh -> `DEFERRED:3`,
+    `IMPLEMENTED_NOT_VERIFIED:1`, `READY:11`
+  - selected-scope readiness -> `11/12`
+  - `python -m py_compile` for audit/dashboard scripts -> PASS
+  - focused tools-overview API regression -> `3 passed, 129 deselected`
+- residual risk:
+  - native mobile readiness is still not verified until device/simulator proof
+    exists
+
+- `PRJ-1197` is DONE:
+  - `.codex/tasks/PRJ-1197-remove-tools-roadmap-placeholders.md`
+- result:
+  - removed Trello and Nest future-only `planned_placeholder` entries from
+    the active `/app/tools/overview` task-management group
+  - tools overview now reports only runtime-backed tools and integrations
+    with implemented API/configuration contracts
+  - frontend tools formatting no longer carries planned-placeholder copy or
+    status handling
+  - tools pipeline/provider docs now state that roadmap candidates stay in
+    planning docs until a bounded runtime contract exists
+- validation:
+  - `tests/test_api_routes.py -k "app_tools_overview"` -> `3 passed, 129
+    deselected`
+  - `npm exec -- tsc -b --pretty false` in `web/` -> PASS
+  - production-code placeholder scan for `planned_placeholder`,
+    `task_plan_placeholder`, and old placeholder descriptions across
+    `backend/app`, `backend/tests`, and `web/src` -> no matches
+- residual risk:
+  - external provider activation remains deferred under
+    `ARCH-CONNECTORS-001`; this task did not implement Trello, Nest, or new
+    provider contracts
 
 - `PRJ-1196` is DONE:
   - `.codex/tasks/PRJ-1196-ai-assisted-structured-perception.md`

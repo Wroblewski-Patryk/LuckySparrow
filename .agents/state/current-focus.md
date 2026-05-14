@@ -1,8 +1,139 @@
 # Current Focus
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 ## Active Focus
+
+The latest completed UI slice is `PRJ-1213`: Settings destructive runtime
+reset details now sit behind a native progressive-disclosure boundary. The
+safe account, interface, time, language, proactive follow-up, and save settings
+remain the first-read hierarchy, while reset impact copy, confirmation input,
+hint, and submit controls remain available after expansion. No API, auth,
+backend, persistence, route contract, deployment, or reset behavior changed.
+Validation passed with `npm run build`, `npm run audit:ui-responsive`
+(`route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+`failed_count=0`), and `npm run audit:ui-navigation` (`status=ok`,
+`step_count=4`, `failed_count=0`). Refreshed desktop/tablet/mobile Settings
+screenshots were reviewed.
+
+The latest completed runtime slice is `PRJ-1212`: channel-aware AI response
+budget policy is verified. Reply generation now uses `ResponseBudgetPolicy`
+instead of OpenAI client magic numbers, with separate bounded budgets for
+app/API chat, Telegram, concise, structured, and deep turns. Expression passes
+the resolved channel into provider-backed reply generation, and the OpenAI
+reply prompt includes a completion contract to avoid stopping mid-sentence,
+mid-list, or inside unfinished code blocks. Telegram delivery segmentation
+remains delivery-router-owned. Validation passed with focused budget/client/
+prompt tests (`14 passed`), expression/client/prompt/budget/delivery tests
+(`53 passed`), runtime channel tests (`3 passed, 112 deselected`), graph/API
+focused rerun (`6 passed`), and full backend pytest (`1105 passed`).
+
+The latest completed UI/runtime slice is `PRJ-1211`: focused Chat response
+readability and desktop height polish are verified. Chat OpenAI replies now
+use expanded output budgets (`900` default, `420` concise) instead of the old
+tiny `220/120` caps, chat markdown preserves indented list continuation lines
+inside the same item, and desktop Chat now bounds the stage to the viewport so
+the transcript scrolls internally while the portrait panel stays page-height
+bounded. Route-smoke now includes a longer numbered Chat answer for visual
+proof and exits explicitly after server shutdown. Validation passed with
+`tests/test_openai_client.py` (`7 passed`), `npm run test:chat-markdown`
+(`case_count=7`), `node --check scripts/route-smoke.mjs`, `npm run build`,
+`npm run audit:ui-responsive` (`route_count=14`, `viewport_count=3`,
+`screenshot_count=18`, `failed_count=0`), and `npm run audit:ui-navigation`
+(`status=ok`, `step_count=4`, `failed_count=0`). Refreshed desktop/tablet/mobile
+Chat screenshots were reviewed. Cleanup found no `5173` listener and no active
+`route-smoke.mjs` process after cleanup; Windows still reported a few stale
+`chrome-headless-shell` table entries as no running task after termination
+attempts.
+
+Previous UI slice `PRJ-1210`: Tools route UX clarity is verified. Tool cards
+now foreground readiness, availability, link state, provider posture, next
+action, and user control before technical details, and single-item tool groups
+span the directory width instead of leaving desktop dead space. Validation
+passed with `npm run build`, `npm run audit:ui-responsive`
+(`route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+`failed_count=0`), `npm run audit:ui-navigation` (`status=ok`,
+`step_count=4`, `failed_count=0`), desktop/tablet/mobile Tools screenshot
+review, cleanup found no active `chrome_headless_shell`, no validation Node
+processes, and no `5173` listener, and `git diff --check` passed with LF/CRLF
+warnings only.
+
+The latest completed UI slice is `PRJ-1209`: shared shell navigation is now
+verified by behavior, not only screenshots. The route-smoke harness has
+`npm run audit:ui-navigation`, which clicks mobile shell navigation buttons
+and verifies target route markers for Chat, Settings, Personality, and
+Dashboard. Tablet route switching now uses the same shared icon+label route
+item model as the desktop sidebar and mobile rail. Validation passed with
+`node --check scripts/route-smoke.mjs`, `npm run build`, `npm run
+audit:ui-responsive` (`route_count=14`, `viewport_count=3`,
+`screenshot_count=18`, `failed_count=0`), `npm run audit:ui-navigation`
+(`status=ok`, `step_count=4`, `failed_count=0`), desktop/tablet/mobile
+Dashboard screenshot review, cleanup found no active `chrome_headless_shell`
+process or `5173` listener, and `git diff --check` passed with LF/CRLF
+warnings only. Browser plugin setup remains unavailable in this local runtime
+because of missing kernel assets, but the mock-authenticated Playwright
+route-smoke proof now covers the shared navigation interaction gap.
+
+Previous UI slice `PRJ-1208`: shared shell navigation now feels more
+intentional before deeper route-local layout work. The desktop sidebar is
+lighter and narrower, and mobile navigation moved from a fixed bottom overlay
+into the mobile header flow as a compact icon rail with short localized
+labels. Validation passed with `npm run build`, `npm run audit:ui-responsive`
+(`route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+`failed_count=0`), refreshed desktop Dashboard plus mobile Dashboard and Chat
+screenshot review, cleanup found no active `chrome_headless_shell` process or
+`5173` listener, and `git diff --check` passed with LF/CRLF warnings only.
+
+Previous UI slice `PRJ-1207`: mobile Personality now keeps the
+Mind Layers timeline clear of the fixed mobile tabbar by adding route-local
+clearance between the portrait hero and timeline panel. Validation passed with
+`npm run build`, `npm run audit:ui-responsive` (`route_count=14`,
+`viewport_count=3`, `screenshot_count=18`, `failed_count=0`), refreshed mobile
+Personality screenshot review, cleanup found no active `chrome_headless_shell`
+process or `5173` listener, and `git diff --check` passed with LF/CRLF
+warnings only.
+
+Previous UI slice `PRJ-1206`: mobile Chat now uses a
+horizontally scrollable cognitive context rail so the transcript and composer
+appear sooner in the first mobile read while all context cards remain
+available. Validation passed with `npm run build`, `npm run
+audit:ui-responsive` (`route_count=14`, `viewport_count=3`,
+`screenshot_count=18`, `failed_count=0`), refreshed mobile Chat screenshot
+review, cleanup found no active `chrome_headless_shell` process or `5173`
+listener, and `git diff --check` passed with LF/CRLF warnings only.
+
+Previous UI slice `PRJ-1205`: visible Chat and shared sidebar brand copy now
+align with Aviary. The chat assistant speaker label and composer safety note
+use localized Aviary copy, and the shared sidebar quote signature no longer
+shows the legacy AION label. Validation passed with
+`npm run build`, `npm run audit:ui-responsive` (`route_count=14`,
+`viewport_count=3`, `screenshot_count=18`, `failed_count=0`), refreshed
+desktop chat screenshot review, cleanup found no active `chrome_headless_shell`
+process or `5173` listener, and `git diff --check` passed with LF/CRLF
+warnings only.
+
+Previous UI slice `PRJ-1204`: dashboard content rhythm is closer to the
+canonical dashboard direction. The desktop greeting no longer wraps
+artificially, guidance rows preserve readable copy with aligned actions, and
+recent activity rows now have visual tokens.
+
+Previous UI slice `PRJ-1203`: dashboard CTA affordances now route to existing
+application surfaces instead of behaving like decorative buttons. Playwright
+fallback browser proof clicked 10 dashboard CTAs with correct navigation to
+`/chat`, `/goals`, `/reflections`, `/memory`, and `/insights`.
+
+Previous UI slice `PRJ-1202`: the shared authenticated mobile/tablet shell now
+removes technical build copy from the first viewport and uses calmer Aviary
+material styling for the fixed mobile tabbar while preserving the existing
+horizontally scrollable route model. The next UI checkpoint should move from
+dashboard behavior to dashboard content canonical convergence.
+
+Previous UI slice `PRJ-1201`: public Home now follows the canonical landing
+direction more closely by removing the visible presentation-only `Landing Page`
+tag, dropping the large nested-window framing, preserving the canonical
+landing raster hero, using real public-nav anchors, localizing auth modal
+placeholders, and aligning the visible wordmark with the Aviary product-name
+source of truth.
 
 `PRJ-1186` temporarily superseded the mobile continuation lane for a P0
 runtime-memory confidence closure. The current AION memory flow is now
@@ -14,8 +145,12 @@ episode write. Runtime defaults are `RECENT_MEMORY_LIMIT=6`,
 Provider-backed pgvector/OpenAI semantic recall proof remains a future
 environment-dependent follow-up.
 
-`v1.5` native/mobile UI is now the active UI continuation after the selected
-scope v1.1 web handoff. `PRJ-1158` seeds the Expo-managed mobile home shell,
+The active UI continuation is now the web app across three responsive
+breakpoints: mobile web, tablet web, and desktop. The native app lane is
+deferred by the user's 2026-05-14 scope clarification; preserved native-app
+groundwork must not drive next work unless that scope is reactivated.
+
+Historical native/mobile app groundwork remains recorded. `PRJ-1158` seeds the Expo-managed mobile home shell,
 `PRJ-1159` adds a focused native chat route, `PRJ-1160` adds native settings
 and tools support routes, `PRJ-1161` adds the native personality route, and
 `PRJ-1162` adds a shared mobile route rail as thin clients over backend-owned
@@ -73,10 +208,8 @@ Current v1.1 evidence:
   -> PASS, `ui_audit.status=ok`, `failed_count=0`,
   `screenshot_count=18`
 
-Next focus: continue the v1.5 native/mobile lane from the verified home/chat/
-personality/settings/tools seed. The next product step should be Expo
-Go/simulator proof when tooling is available, or an explicit native auth
-transport decision before app-facing data wiring.
+Next focus: keep the web responsive route audit green for mobile, tablet, and
+desktop breakpoints. Native app proof is deferred unless explicitly reactivated.
 
 ## Previous Architecture Focus
 

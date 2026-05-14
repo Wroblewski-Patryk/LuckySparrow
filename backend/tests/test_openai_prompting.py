@@ -47,6 +47,10 @@ def test_openai_prompt_builder_fallback_without_langchain() -> None:
         communication_boundary_summary="Interaction ritual: avoid greeting the user at the start of every message.",
         identity_summary="helpful and clear",
         current_turn_timestamp="2026-04-25T21:22:00+00:00",
+        response_budget_contract=(
+            "Channel: api. Style: concise. Aim for about 1800 characters. "
+            "Complete the answer cleanly."
+        ),
     )
 
     assert len(messages) == 2
@@ -56,6 +60,8 @@ def test_openai_prompt_builder_fallback_without_langchain() -> None:
     assert "avoid greeting" in messages[0]["content"]
     assert "do not promise unsolicited future pings" in messages[0]["content"]
     assert "2026-04-25T21:22:00+00:00" in messages[0]["content"]
+    assert "The response budget contract is: Channel: api." in messages[0]["content"]
+    assert "Complete the answer cleanly" in messages[0]["content"]
     assert messages[1] == {
         "role": "user",
         "content": (

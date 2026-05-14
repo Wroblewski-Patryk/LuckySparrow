@@ -260,42 +260,6 @@ def app_tools_overview_snapshot(
                 "/health.connectors.organizer_tool_stack",
             ],
         ),
-        _tool_item(
-            tool_id="trello",
-            label="Trello",
-            category="task_management",
-            kind="integration",
-            description="Planned task-management placeholder for a future bounded provider contract.",
-            status="planned_placeholder",
-            status_reason="provider_contract_not_implemented_yet",
-            enabled=False,
-            integral=False,
-            provider_ready=False,
-            provider_configured=False,
-            provider_name="trello",
-            user_toggle_allowed=False,
-            user_preference_supported=False,
-            next_actions=["freeze_trello_contract_before_provider_implementation"],
-            source_of_truth=["task_plan_placeholder"],
-        ),
-        _tool_item(
-            tool_id="nest",
-            label="Nest app",
-            category="task_management",
-            kind="integration",
-            description="Reserved placeholder for a future first-party custom task app once its backend contract exists.",
-            status="planned_placeholder",
-            status_reason="custom_provider_contract_not_implemented_yet",
-            enabled=False,
-            integral=False,
-            provider_ready=False,
-            provider_configured=False,
-            provider_name="custom_nest",
-            user_toggle_allowed=False,
-            user_preference_supported=False,
-            next_actions=["freeze_custom_app_contract_before_runtime_integration"],
-            source_of_truth=["task_plan_placeholder"],
-        ),
     ]
     task_management_items[0]["user_control"]["requested_enabled"] = clickup_requested_enabled
 
@@ -445,7 +409,7 @@ def app_tools_overview_snapshot(
         _group(
             group_id="task_management",
             title="Task Management",
-            description="External task systems and planned placeholders for future work management.",
+            description="Runtime-backed external task systems that can be inspected or enabled through existing provider contracts.",
             items=task_management_items,
         ),
         _group(
@@ -475,6 +439,5 @@ def app_tools_overview_snapshot(
             "provider_ready_count": sum(1 for item in all_items if bool(item["provider"]["ready"])),
             "provider_blocked_count": sum(1 for item in all_items if not bool(item["provider"]["ready"])),
             "link_required_count": sum(1 for item in all_items if item["link_required"]),
-            "planned_placeholder_count": sum(1 for item in all_items if item["status"] == "planned_placeholder"),
         },
     }

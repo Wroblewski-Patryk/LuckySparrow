@@ -13,6 +13,11 @@
 - Settings groups:
   Prefer clear sectioning, short helper copy, and visible save or success
   feedback.
+- Settings destructive boundaries:
+  Keep destructive runtime/account controls available but collapsed behind a
+  clear disclosure boundary by default. Safe daily settings should dominate
+  the first read; confirmation fields and irreversible actions belong inside
+  the expanded boundary.
 - Capability cards:
   Show current state, user control, and trust implications in one compact
   surface.
@@ -84,6 +89,19 @@
   health card, signed-in identity card, and quiet aphorism closure as the
   reusable left spine for authenticated routes instead of route-local or
   analytics-style sidebars.
+- Shared responsive navigation proof:
+  Treat shared shell navigation changes as behavior changes, not only visual
+  polish. Keep `npm run audit:ui-navigation` green when the desktop sidebar,
+  tablet route rail, or mobile in-header route rail changes. The tablet and
+  mobile route switchers should reuse the shared shell nav item model, glyphs,
+  full accessible labels, and short visible labels instead of creating
+  route-local menu variants.
+- Tools capability directory hierarchy:
+  Tools cards should read as user-facing capability decisions before exposing
+  implementation detail. Show readiness, availability, link state, provider
+  posture, next action, and user control first; keep capabilities, bindings,
+  and source-of-truth fields in disclosure panels unless the user is actively
+  configuring a provider.
 - Landing-first public entry:
   Keep authentication as one conversion module inside a broader trust-led
   landing story with hero, embodied motif, feature strip, and trust closure
@@ -204,3 +222,99 @@
   background rather than sitting inside a separate framed card.
 - Treat the landing artwork as the hero-stage background, not as an image
   nested inside another visible container.
+
+## 2026-05-14 - Public home canonical polish checkpoint
+
+- Do not render canonical-reference labels such as `Landing Page` in the
+  production Home surface; they are presentation context, not product UI.
+- Keep public Home as a full-width landing scene with the canonical raster
+  artwork as the scenic layer, not a framed screenshot or nested window.
+- Public landing navigation should use real section anchors so top-level labels
+  behave as navigation rather than decorative text.
+- On tablet widths where the hero callouts compete with trust micro-copy,
+  prefer fewer visible micro-proof items over overlapping text.
+- Auth modal placeholder copy should follow the active UI language.
+
+## 2026-05-14 - Authenticated mobile shell polish checkpoint
+
+- Do not surface technical build labels in the first viewport of logged-in
+  mobile/tablet product screens; keep those details in debug or diagnostics
+  surfaces instead of core chrome.
+- When a shared shell issue affects dashboard, personality, settings, tools,
+  and support routes, polish the shared shell first before route-local
+  composition passes.
+- The authenticated mobile route set may remain horizontally scrollable while
+  the route count is large, but the fixed tabbar should use the Aviary material
+  palette and a calm teal active state instead of stark black chrome.
+- After shared-shell polish, continue with one route-local canonical pass at a
+  time; dashboard content convergence is the next best checkpoint.
+
+## 2026-05-14 - Dashboard CTA behavior checkpoint
+
+- On flagship route surfaces, visible CTA controls should route to an existing
+  work surface before deeper visual polish adds more affordances.
+- Dashboard CTA behavior should reuse the shared route helper and existing
+  route contracts; do not create route-local navigation state.
+- Decorative or nonfunctional action-looking buttons are a UX debt item even
+  when screenshots look visually polished.
+
+## 2026-05-14 - Dashboard right-column readability checkpoint
+
+- In the dashboard right column, readability wins over forcing desktop
+  three-column action layouts into narrow side panels.
+- Canonical-style tokens can improve guidance and recent activity rhythm, but
+  they must not compress copy or collide with timestamps.
+- Screenshot review should catch cramped sidebar text before a route-local
+  polish slice is considered closed.
+
+## 2026-05-14 - Aviary visible brand-copy checkpoint
+
+- User-facing product shell copy should use `Aviary` consistently across
+  Home, authenticated chrome, Chat speaker labels, composer notes, and shared
+  sidebar signatures.
+- Keep `AION` available for runtime, architecture, or internal system naming
+  where that is still the project terminology, but avoid legacy AION labels in
+  visible product chrome unless explicitly approved for an in-world persona
+  distinction.
+- Add user-facing brand copy through the existing localization object instead
+  of hardcoded strings.
+
+## 2026-05-14 - Chat mobile context rail checkpoint
+
+- On mobile Chat, conversation and composer content should appear before long
+  status grids dominate the first read.
+- Use a horizontal context rail for dense top-belt signals when all context
+  cards should remain available but the mobile viewport cannot support a tall
+  grid.
+- Offscreen rail children are acceptable only when they are intentionally
+  touch-scrollable and document-level horizontal overflow remains false.
+- Keep desktop and tablet context-belt composition separate from mobile
+  first-read compression unless screenshot evidence shows the larger
+  breakpoints need the same treatment.
+
+## 2026-05-14 - Personality mobile nav-clearance checkpoint
+
+- Fixed mobile navigation may remain global, but route-local hero-to-content
+  transitions must leave enough calm clearance that the tabbar does not cover
+  first-read data rows.
+- On Personality mobile, keep the portrait hero visually primary and let the
+  Mind Layers timeline begin below the first fixed-nav overlap zone.
+- Prefer route-local spacing for a route-specific overlap before changing the
+  shared navigation contract.
+- Screenshot review must confirm whether fixed mobile chrome is covering data
+  or only intentional negative space.
+
+## 2026-05-14 - Shared shell navigation layout checkpoint
+
+- Mobile web navigation should live in the mobile header flow rather than as a
+  fixed bottom overlay when the route surfaces are content-heavy and already
+  vertically dense.
+- Reuse the same route glyph language across desktop sidebar and mobile
+  navigation so the shell reads as one product system.
+- Use short localized mobile labels with full accessible labels for large route
+  sets; avoid clipped long text in mobile chrome.
+- Desktop sidebar should be calm, narrow, and scannable. Keep support cards
+  secondary to navigation and avoid making the rail feel heavier than the main
+  workspace.
+- This checkpoint supersedes the earlier fixed-bottom mobile nav assumption
+  from the Personality clearance slice.

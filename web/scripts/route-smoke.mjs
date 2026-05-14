@@ -87,6 +87,7 @@ const requestedViewportNames = listOption("--viewports");
 const screenshotViewportNames =
   requestedViewportNames.length > 0 ? requestedViewportNames : Object.keys(RESPONSIVE_VIEWPORTS);
 const failOnUiFindings = args.includes("--fail-on-ui-findings");
+const navigationProofEnabled = args.includes("--navigation-proof");
 
 function jsonResponse(response, status, payload) {
   const body = JSON.stringify(payload);
@@ -139,7 +140,14 @@ function mockApi(request, response) {
           message_id: "route-smoke:assistant",
           event_id: "route-smoke",
           role: "assistant",
-          text: "Route smoke assistant reply",
+          text: [
+            "Here is a complete plan that should stay readable in the chat surface:",
+            "",
+            "1. Define the outcome: Clarify what the user wants to achieve before choosing the next action.",
+            "   Keep the continuation inside the first numbered card instead of dropping it into a loose paragraph.",
+            "2. Connect the context: Use memory, active goals, and recent chat turns as input for the response.",
+            "3. Finish the answer: Close the list with a concrete next step so the transcript does not feel cut off.",
+          ].join("\n"),
           channel: "api",
           timestamp: "2026-05-03T12:00:02.000Z",
           metadata: { language: "en" },
@@ -560,6 +568,66 @@ async function collectRenderedState(page, marker) {
   }, marker);
 }
 
+async function gotoRoute(page, baseUrl, routePath) {
+  await page.goto(`${baseUrl}${routePath}`, { waitUntil: "domcontentloaded", timeout: 30000 });
+  await page.locator("#root").waitFor({ state: "attached", timeout: 10000 });
+}
+
+async function runNavigationProof(page, baseUrl) {
+  const proofSteps = [
+    { label: "Chat", path: "/chat", marker: "aion-chat-workspace" },
+    { label: "Settings", path: "/settings", marker: "aion-settings-canvas" },
+    { label: "Personality", path: "/personality", marker: "aion-personality-canvas" },
+    { label: "Dashboard", path: "/dashboard", marker: "aion-dashboard-canvas" },
+  ];
+  const steps = [];
+
+  await page.setViewportSize(RESPONSIVE_VIEWPORTS.mobile);
+  await gotoRoute(page, baseUrl, "/dashboard");
+
+  for (const step of proofSteps) {
+    const locator = page.locator(`.aion-mobile-tabbar button[aria-label="${step.label}"]`);
+    const count = await locator.count();
+    if (count !== 1) {
+      steps.push({
+        label: step.label,
+        expected_path: step.path,
+        passed: false,
+        reason: `expected one mobile nav button, found ${count}`,
+      });
+      continue;
+    }
+
+    await locator.scrollIntoViewIfNeeded({ timeout: 10000 });
+    await locator.click({ timeout: 10000 });
+    await page.waitForURL(`**${step.path}`, { timeout: 10000 });
+    await page.waitForFunction(
+      (expectedMarker) => document.documentElement.outerHTML.includes(expectedMarker),
+      step.marker,
+      { timeout: 10000 },
+    );
+    const state = await collectRenderedState(page, step.marker);
+    const renderedPath = new URL(page.url()).pathname;
+    steps.push({
+      label: step.label,
+      expected_path: step.path,
+      rendered_path: renderedPath,
+      marker: step.marker,
+      passed: renderedPath === step.path && state.markerFound && !state.frameworkOverlay && !state.horizontalOverflow,
+      state,
+    });
+  }
+
+  const failedSteps = steps.filter((step) => !step.passed);
+  return {
+    viewport: "mobile",
+    status: failedSteps.length === 0 ? "ok" : "failed",
+    step_count: steps.length,
+    failed_count: failedSteps.length,
+    steps,
+  };
+}
+
 const server = await startServer();
 try {
   const address = server.address();
@@ -567,12 +635,13 @@ try {
   const playwright = loadPlaywright();
   const results = [];
   const uiAuditResults = [];
+  let navigationProof = null;
   if (playwright?.chromium) {
     const browser = await playwright.chromium.launch({ headless: true });
     try {
       const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
       for (const route of ROUTES) {
-        await page.goto(`${baseUrl}${route.path}`, { waitUntil: "networkidle", timeout: 30000 });
+        await gotoRoute(page, baseUrl, route.path);
         const dom = await page.content();
         const state = await collectRenderedState(page, route.marker);
         const passed =
@@ -606,7 +675,7 @@ try {
           }
           await page.setViewportSize(viewport);
           for (const route of screenshotRoutes) {
-            await page.goto(`${baseUrl}${route.path}`, { waitUntil: "networkidle", timeout: 30000 });
+            await gotoRoute(page, baseUrl, route.path);
             const fileName = `${viewportName}-${routeSlug(route.path)}.png`;
             const screenshotPath = join(screenshotDir, fileName);
             const state = await collectRenderedState(page, route.marker);
@@ -628,12 +697,18 @@ try {
           }
         }
       }
+      if (navigationProofEnabled) {
+        navigationProof = await runNavigationProof(page, baseUrl);
+      }
     } finally {
       await browser.close();
     }
   } else {
     if (screenshotDir) {
       throw new Error("Responsive UI screenshot audit requires Playwright.");
+    }
+    if (navigationProofEnabled) {
+      throw new Error("Navigation interaction proof requires Playwright.");
     }
     const executable = chromePath();
     for (const route of ROUTES) {
@@ -650,11 +725,15 @@ try {
   }
   const failed = results.filter((result) => !result.passed);
   const failedUiAudit = uiAuditResults.filter((result) => !result.passed);
+  const navigationProofFailed = Boolean(navigationProof && navigationProof.status !== "ok");
   const report = {
     kind: "frontend_route_smoke_report",
     schema_version: 2,
     route_count: results.length,
-    status: failed.length === 0 && (!failOnUiFindings || failedUiAudit.length === 0) ? "ok" : "failed",
+    status:
+      failed.length === 0 && (!failOnUiFindings || failedUiAudit.length === 0) && !navigationProofFailed
+        ? "ok"
+        : "failed",
     results,
     ui_audit:
       uiAuditResults.length > 0
@@ -665,15 +744,18 @@ try {
             status: failedUiAudit.length === 0 ? "ok" : "findings",
             failed_count: failedUiAudit.length,
             results: uiAuditResults,
-          }
+        }
         : null,
+    navigation_proof: navigationProof,
   };
   if (reportPath) {
     mkdirSync(dirname(reportPath), { recursive: true });
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   }
   console.log(JSON.stringify(report, null, 2));
-  process.exitCode = failed.length === 0 && (!failOnUiFindings || failedUiAudit.length === 0) ? 0 : 1;
+  process.exitCode =
+    failed.length === 0 && (!failOnUiFindings || failedUiAudit.length === 0) && !navigationProofFailed ? 0 : 1;
 } finally {
   await new Promise((resolveClose) => server.close(resolveClose));
+  process.exit(process.exitCode ?? 0);
 }

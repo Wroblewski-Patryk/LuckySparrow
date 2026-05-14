@@ -1,6 +1,6 @@
 # Tools Pipeline
 
-Last updated: 2026-05-03
+Last updated: 2026-05-14
 
 This document maps the app-facing tools and connector readiness flow. It is
 grounded in the current codebase and should be treated as the technical
@@ -51,6 +51,9 @@ Not covered:
    - Google Calendar readiness
    - Google Drive readiness
    - web knowledge and web browser tool posture
+   - no future-only roadmap placeholders; a tool belongs in this active
+     overview only when an implemented runtime/API/configuration contract
+     exists
 6. Connector readiness is derived from
    `connector_execution_baseline_snapshot` and
    `organizer_tool_stack_snapshot` in

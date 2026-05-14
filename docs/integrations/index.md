@@ -86,6 +86,10 @@ The tools overview is assembled by `app_tools_overview_snapshot` from:
 - Telegram telemetry
 - user profile and runtime preferences
 
+Future provider ideas are not listed as active tools until their bounded
+runtime/API/configuration contract exists. Roadmap candidates belong in
+planning docs, not in `/app/tools/overview`.
+
 Routes:
 
 - `GET /app/tools/overview`

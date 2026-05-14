@@ -1,6 +1,6 @@
 # Project Memory Index
 
-Last updated: 2026-05-13
+Last updated: 2026-05-14
 
 ## Project Alias
 
@@ -45,6 +45,34 @@ If one of these files is missing, empty, stale, or still template-like, rebuild
 the minimum useful version from architecture docs, context files, accepted
 feedback, code, tests, and planning notes before choosing implementation work.
 Every inferred row must name its source and use a cautious status.
+
+## Current High-Signal Entries
+
+- `PRJ-1213` verified the Settings destructive-action hierarchy: reset
+  runtime data details are collapsed behind a native disclosure boundary by
+  default, while confirmation and submit controls remain available after
+  expansion. Web build, responsive audit, navigation audit, and refreshed
+  desktop/tablet/mobile Settings screenshots passed.
+- `AVIARY-COGNITIVE-RUNTIME-001` now includes `PRJ-1212`: AI reply generation
+  uses a centralized, channel-aware `ResponseBudgetPolicy`. App/API chat gets
+  a larger bounded generation budget than Telegram, concise remains lower
+  cost, deep analysis can expand, and the prompt contract tells the model to
+  complete answers cleanly instead of stopping mid-sentence, mid-list, or
+  inside an unfinished code block. Telegram transport segmentation remains in
+  delivery routing. Full backend pytest passed with `1105 passed`.
+- `AVIARY-WEB-RESP-001` is the active web responsive confidence row for the
+  mobile, tablet, and desktop web shell scope. As of `PRJ-1209`, shared shell
+  navigation is `VERIFIED` with `npm run build`, `npm run audit:ui-responsive`,
+  and `npm run audit:ui-navigation`. As of `PRJ-1211`, focused Chat response
+  readability is also verified with expanded chat reply output budgets,
+  markdown list-continuation coverage, refreshed desktop/tablet/mobile Chat
+  screenshots, and the same responsive/navigation audit gates.
+- `PRJ-1210` verified the Tools route as a clearer capability directory:
+  readiness, next action, and user control now precede technical details while
+  preserving the same API payload and controls.
+- Route-local visual work should continue from the shared-shell baseline:
+  deeper Chat v5 composition polish and Personality are next candidates, while
+  native app proof remains deferred by current scope.
 
 ## Architecture Refresh Protocol
 

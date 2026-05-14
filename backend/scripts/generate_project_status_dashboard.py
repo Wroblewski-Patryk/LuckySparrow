@@ -50,6 +50,8 @@ def current_phase(rows: list[dict[str, str]]) -> str:
         return "architecture evidence hardening with external blocker"
     if counts.get("IMPLEMENTED_NEEDS_EVIDENCE", 0):
         return "architecture evidence hardening"
+    if counts.get("IMPLEMENTED_NOT_VERIFIED", 0):
+        return "architecture evidence hardening"
     if counts.get("DEFERRED", 0):
         return "architecture complete for selected scope with deferred extensions"
     return "architecture implementation ready for release preservation"
