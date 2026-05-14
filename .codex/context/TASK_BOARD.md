@@ -4,6 +4,30 @@ Last updated: 2026-05-14
 
 ## Project Status Dashboard (2026-05-14)
 
+- `PRJ-1215` is DONE:
+  - `.codex/tasks/PRJ-1215-chat-mobile-context-rail-readability.md`
+- result:
+  - improved the mobile Chat cognitive context rail so the first card remains
+    readable while the next card peeks intentionally
+  - kept the horizontal rail model instead of converting context into a tall
+    stack, preserving conversation-first mobile rhythm
+  - tuned card width, body line clamp, scroll padding, and edge mask after
+    screenshot review showed the first attempt made the first card too wide
+  - no backend, API, chat data, transcript logic, response budget, route
+    contract, or runtime behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `status=ok`, `step_count=4`,
+    `failed_count=0`
+  - refreshed desktop, tablet, and mobile Chat screenshots reviewed
+  - cleanup check -> no active `chrome_headless_shell`, no validation Node
+    processes, and no listener on `5173`
+- residual risk:
+  - broader Chat v5 desktop/tablet composition and richer composer state
+    design remain future route-local polish candidates
+
 - `PRJ-1214` is DONE:
   - `.codex/tasks/PRJ-1214-personality-embodied-map-polish.md`
 - result:

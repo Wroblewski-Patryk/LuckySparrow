@@ -4,6 +4,12 @@
 
 - Conversation shell:
   Keep message reading effortless and input affordances stable across states.
+- Chat mobile context rail:
+  Preserve the horizontal context rail when it protects conversation-first
+  rhythm. Tune card width, scroll padding, and edge treatment so the first card
+  is readable and the next card peeks intentionally; do not convert context
+  into a tall stack unless the user explicitly chooses context density over
+  first-read conversation access.
 - Safe Markdown chat messages:
   Render transcript Markdown as semantic message content inside the existing
   chat bubble pattern, using escaped React-rendered elements for emphasis,

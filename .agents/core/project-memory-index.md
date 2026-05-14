@@ -48,6 +48,12 @@ Every inferred row must name its source and use a cautious status.
 
 ## Current High-Signal Entries
 
+- `PRJ-1215` verified mobile Chat context rail readability: the horizontal
+  cognitive belt keeps conversation-first rhythm while using tuned card width,
+  body line clamp, scroll padding, and edge masking so the first card reads
+  clearly and the next card feels like an intentional peek. Web build,
+  responsive audit, navigation audit, and desktop/tablet/mobile Chat screenshot
+  review passed.
 - `PRJ-1214` verified Personality embodied-map polish: count-heavy callout
   values use UI typography, the Mind Layers timeline carries a compact
   `6 layers` context pill, and the mobile screenshot keeps a readable timeline
@@ -75,9 +81,9 @@ Every inferred row must name its source and use a cautious status.
 - `PRJ-1210` verified the Tools route as a clearer capability directory:
   readiness, next action, and user control now precede technical details while
   preserving the same API payload and controls.
-- Route-local visual work should continue from the shared-shell baseline:
-  deeper Chat v5 composition polish is the next candidate, while native app
-  proof remains deferred by current scope.
+- Route-local visual work should continue from concrete screenshot evidence
+  rather than broad polish loops. Native app proof remains deferred by current
+  scope.
 
 ## Architecture Refresh Protocol
 

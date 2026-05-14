@@ -4,6 +4,25 @@ Last updated: 2026-05-14
 
 ## NOW
 
+1. Continue from the Chat mobile context-rail checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1215-chat-mobile-context-rail-readability.md`
+   - result:
+     mobile Chat keeps the horizontal cognitive context rail while making the
+     first card readable and the next card an intentional peek
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS with `status=ok`,
+     `step_count=4`, `failed_count=0`; refreshed desktop/tablet/mobile Chat
+     screenshots reviewed; cleanup confirmed no validation leftovers
+   - residual:
+     broader Chat v5 desktop/tablet composition and richer composer state
+     design remain outside this focused mobile rail slice
+   - next smallest slice:
+     choose the next route-local polish only from concrete screenshot evidence
+     so the UI mission does not turn into unbounded churn
+
 1. Continue from the Personality embodied-map checkpoint:
    - task:
      `.codex/tasks/PRJ-1214-personality-embodied-map-polish.md`

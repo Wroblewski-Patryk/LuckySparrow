@@ -6,6 +6,26 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-14: `PRJ-1215` polished mobile Chat context rail readability:
+  - task:
+    - `.codex/tasks/PRJ-1215-chat-mobile-context-rail-readability.md`
+  - result:
+    - mobile Chat context keeps the horizontal rail model while making the
+      first card readable and the next card an intentional peek
+    - card width, body line clamp, scroll padding, and edge mask were tuned
+      from screenshot review
+    - the first implementation attempt was adjusted because the first card was
+      too wide and weakened the rail affordance
+    - no backend, API, chat data, transcript logic, response budget, route
+      contract, runtime, or deployment behavior changed
+  - validation:
+    - `npm run build` in `web/` -> PASS
+    - `npm run audit:ui-responsive` -> `route_count=14`,
+      `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+    - `npm run audit:ui-navigation` -> `status=ok`, `step_count=4`,
+      `failed_count=0`
+    - refreshed desktop/tablet/mobile Chat screenshots reviewed
+
 - 2026-05-14: `PRJ-1214` polished the Personality embodied map:
   - task:
     - `.codex/tasks/PRJ-1214-personality-embodied-map-polish.md`

@@ -4,6 +4,20 @@ Last updated: 2026-05-14
 
 ## Active Focus
 
+The latest completed UI slice is `PRJ-1215`: mobile Chat context rail
+readability is verified. The cognitive context belt keeps the horizontal rail
+model, but card width, body line clamp, scroll padding, and edge mask now make
+the first card readable and the next card feel like an intentional peek rather
+than an accidental clipped row. Screenshot review rejected an initial too-wide
+card attempt before closure. No backend, API, chat data, transcript logic,
+response budget, route contract, runtime, or deployment behavior changed.
+Validation passed with `npm run build`, `npm run audit:ui-responsive`
+(`route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+`failed_count=0`), and `npm run audit:ui-navigation` (`status=ok`,
+`step_count=4`, `failed_count=0`). Refreshed desktop/tablet/mobile Chat
+screenshots were reviewed, and cleanup found no validation-owned browser or
+server leftovers.
+
 The latest completed UI slice is `PRJ-1214`: Personality embodied map polish
 is verified. Count-heavy callout values now use UI typography instead of
 display typography, the Mind Layers timeline has a compact `6 layers` context
