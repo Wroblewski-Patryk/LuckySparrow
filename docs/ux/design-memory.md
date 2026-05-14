@@ -138,6 +138,10 @@
   mobile route switchers should reuse the shared shell nav item model, glyphs,
   full accessible labels, and short visible labels instead of creating
   route-local menu variants.
+- Scrollable route rails:
+  Tablet and mobile horizontal route rails should include subtle edge
+  affordance, scroll snapping, and end padding so partial route chips read as
+  intentional continuation instead of accidental clipping.
 - Tools capability directory hierarchy:
   Tools cards should read as user-facing capability decisions before exposing
   implementation detail. Show readiness, availability, link state, provider
@@ -363,5 +367,7 @@
 - Desktop sidebar should be calm, narrow, and scannable. Keep support cards
   secondary to navigation and avoid making the rail feel heavier than the main
   workspace.
+- Tablet/mobile route rails should show a restrained right-edge continuation
+  affordance and snap rhythm when the route set overflows the available width.
 - This checkpoint supersedes the earlier fixed-bottom mobile nav assumption
   from the Personality clearance slice.

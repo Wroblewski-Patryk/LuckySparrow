@@ -4,6 +4,28 @@ Last updated: 2026-05-14
 
 ## NOW
 
+1. Continue from the shared shell navigation affordance checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1224-shared-shell-navigation-affordance.md`
+   - result:
+     shared tablet/mobile route rails now show a subtle right-edge
+     continuation affordance with scroll snapping and end padding while the
+     desktop sidebar remains structurally unchanged
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS with
+     `step_count=4`, `failed_count=0`; refreshed desktop Dashboard, tablet
+     Dashboard, mobile Chat, and mobile Settings screenshots reviewed; cleanup
+     confirmed no validation leftovers
+   - residual:
+     future route additions may need a grouped navigation model if the rail
+     becomes too long for comfortable scanning
+   - next smallest slice:
+     choose the next polish slice from concrete screenshot evidence across
+     shared shell pieces, Dashboard, Chat, Tools, Settings, Home, or another
+     flagship route
+
 1. Continue from the Dashboard Memory Growth label checkpoint:
    - task:
      `.codex/tasks/PRJ-1223-dashboard-memory-growth-labels.md`

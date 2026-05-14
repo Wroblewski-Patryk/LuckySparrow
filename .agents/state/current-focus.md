@@ -4,6 +4,19 @@ Last updated: 2026-05-14
 
 ## Active Focus
 
+The latest completed UI slice is `PRJ-1224`: shared shell navigation
+affordance is verified. Tablet/mobile route rails now show a subtle
+right-edge continuation affordance with scroll snapping and end padding, so
+overflow destinations feel intentional instead of clipped. Desktop sidebar
+structure and route behavior stayed unchanged. No route list, route labels,
+route order, auth, API, backend, runtime, or deployment behavior changed.
+Validation passed with `npm run build`, `npm run audit:ui-responsive`
+(`route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+`failed_count=0`), and `npm run audit:ui-navigation` (`step_count=4`,
+`failed_count=0`). Refreshed desktop Dashboard, tablet Dashboard, mobile Chat,
+and mobile Settings screenshots were reviewed. Cleanup found no
+validation-owned browser/server leftovers.
+
 The latest completed UI slice is `PRJ-1223`: Dashboard Memory Growth labels
 are verified. The chart labels now use compact centered UI typography and
 tighter chart spacing, so `Mem`, `Aff`, `Pref`, `Rel`, `Goal`, `Task`, and

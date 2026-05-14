@@ -48,6 +48,12 @@ Every inferred row must name its source and use a cautious status.
 
 ## Current High-Signal Entries
 
+- `PRJ-1224` verified shared shell navigation affordance: tablet/mobile route
+  rails now show a subtle continuation affordance, scroll snapping, and end
+  padding while desktop sidebar structure and route behavior remain unchanged.
+  Web build, responsive audit, navigation audit, representative
+  desktop/tablet/mobile screenshot review, and validation cleanup passed.
+
 - `PRJ-1223` verified Dashboard Memory Growth label readability: compact chart
   labels now stay visually separated in the narrow desktop card while
   desktop/tablet/mobile Dashboard composition remains stable. Web build,

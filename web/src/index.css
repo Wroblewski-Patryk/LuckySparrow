@@ -856,8 +856,21 @@ body {
 }
 
 .aion-route-switcher {
+  position: relative;
   border-top: 1px solid rgba(88, 67, 52, 0.075);
   padding: 0.42rem 0.58rem 0.56rem;
+  overflow: hidden;
+}
+
+.aion-route-switcher::after {
+  content: "";
+  position: absolute;
+  top: 0.42rem;
+  right: 0;
+  bottom: 0.56rem;
+  width: 2.4rem;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 252, 247, 0), rgba(255, 252, 247, 0.94));
 }
 
 .aion-route-switcher-scroll {
@@ -865,7 +878,10 @@ body {
   gap: 0.34rem;
   max-width: 100%;
   overflow-x: auto;
+  padding-right: 1.8rem;
   padding-bottom: 0.08rem;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   scroll-padding-inline: 0.6rem;
 }
@@ -889,6 +905,7 @@ body {
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
+  scroll-snap-align: center;
   transition:
     background 180ms ease,
     border-color 180ms ease,
@@ -923,6 +940,7 @@ body {
 
 .aion-mobile-tabbar {
   contain: layout paint;
+  position: relative;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
@@ -939,9 +957,24 @@ body {
   backdrop-filter: blur(18px);
 }
 
+.aion-mobile-tabbar::after {
+  content: "";
+  position: absolute;
+  top: 0.38rem;
+  right: 0.38rem;
+  bottom: calc(0.38rem + env(safe-area-inset-bottom));
+  width: 2.2rem;
+  border-radius: 0 0.86rem 0.86rem 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 252, 247, 0), rgba(255, 252, 247, 0.96));
+}
+
 .aion-mobile-tabbar-scroll {
   gap: 0.28rem;
   max-width: 100%;
+  padding-right: 1.7rem;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   scroll-padding-inline: 0.5rem;
 }
@@ -965,6 +998,7 @@ body {
   font-size: 0.67rem !important;
   line-height: 1.08;
   white-space: nowrap;
+  scroll-snap-align: center;
 }
 
 .aion-mobile-tabbar-button.bg-base-900 {

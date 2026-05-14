@@ -4,6 +4,27 @@ Last updated: 2026-05-14
 
 ## Project Status Dashboard (2026-05-14)
 
+- `PRJ-1224` is DONE:
+  - `.codex/tasks/PRJ-1224-shared-shell-navigation-affordance.md`
+- result:
+  - shared tablet/mobile route rails now show a subtle right-edge continuation
+    affordance with scroll snapping and end padding
+  - desktop sidebar structure and route behavior stayed unchanged
+  - no route list, route labels, route order, auth, API, backend, runtime
+    behavior, or deployment behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `step_count=4`, `failed_count=0`
+  - refreshed desktop Dashboard, tablet Dashboard, mobile Chat, and mobile
+    Settings screenshots reviewed
+  - cleanup check -> no active `chrome-headless-shell`, no validation Node
+    processes, and no listener on `5173`
+- residual risk:
+  - future route additions may need a grouped navigation model if the rail
+    becomes too long for comfortable scanning
+
 - `PRJ-1223` is DONE:
   - `.codex/tasks/PRJ-1223-dashboard-memory-growth-labels.md`
 - result:

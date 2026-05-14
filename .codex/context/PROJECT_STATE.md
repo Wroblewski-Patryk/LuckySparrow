@@ -6,6 +6,24 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-14: `PRJ-1224` polished shared shell navigation affordance:
+  - task:
+    - `.codex/tasks/PRJ-1224-shared-shell-navigation-affordance.md`
+  - result:
+    - shared tablet/mobile route rails now show a subtle right-edge
+      continuation affordance with scroll snapping and end padding
+    - desktop sidebar structure and route behavior stayed unchanged
+    - no route list, route labels, route order, auth, API, backend, runtime, or
+      deployment behavior changed
+  - validation:
+    - `npm run build` in `web/` -> PASS
+    - `npm run audit:ui-responsive` -> `route_count=14`,
+      `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+    - `npm run audit:ui-navigation` -> `step_count=4`, `failed_count=0`
+    - refreshed desktop Dashboard, tablet Dashboard, mobile Chat, and mobile
+      Settings screenshots reviewed
+    - cleanup found no validation-owned browser/server leftovers
+
 - 2026-05-14: `PRJ-1223` polished Dashboard Memory Growth labels:
   - task:
     - `.codex/tasks/PRJ-1223-dashboard-memory-growth-labels.md`
