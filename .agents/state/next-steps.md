@@ -4,6 +4,26 @@ Last updated: 2026-05-14
 
 ## NOW
 
+1. Continue from the Dashboard recent-activity time-readability checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1218-dashboard-recent-activity-time-readability.md`
+   - result:
+     compact Dashboard `Recent Activity` timestamps now use calmer metadata
+     typography in narrow right-rail contexts, removing awkward tablet
+     uppercase timestamp fragmentation
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS with `status=ok`,
+     `step_count=4`, `failed_count=0`; refreshed desktop/tablet/mobile
+     Dashboard screenshots reviewed; cleanup confirmed no validation leftovers
+   - residual:
+     future Dashboard card/content polish should continue from concrete
+     screenshot evidence rather than route-wide typography churn
+   - next smallest slice:
+     choose the next polish slice only from concrete screenshot evidence across
+     Dashboard, Chat, or another flagship route
+
 1. Continue from the Chat tablet transcript-clearance checkpoint:
    - task:
      `.codex/tasks/PRJ-1217-chat-tablet-transcript-clearance.md`

@@ -3944,6 +3944,14 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
+.aion-dashboard-recent-panel-compact .aion-dashboard-recent-time {
+  color: rgba(110, 98, 88, 0.72);
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  line-height: 1.28;
+  text-transform: none;
+}
+
 .aion-dashboard-recent-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

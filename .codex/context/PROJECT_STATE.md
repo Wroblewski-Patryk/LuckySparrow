@@ -6,6 +6,25 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-14: `PRJ-1218` polished Dashboard recent activity time readability:
+  - task:
+    - `.codex/tasks/PRJ-1218-dashboard-recent-activity-time-readability.md`
+  - result:
+    - compact Dashboard `Recent Activity` timestamps now use calmer metadata
+      typography in the narrow right rail, so tablet timestamps no longer break
+      into awkward uppercase fragments
+    - desktop and mobile Dashboard screenshots stayed stable
+    - no backend, API, activity payload, timestamp helper, route contract,
+      runtime, or deployment behavior changed
+  - validation:
+    - `npm run build` in `web/` -> PASS
+    - `npm run audit:ui-responsive` -> `route_count=14`,
+      `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+    - `npm run audit:ui-navigation` -> `status=ok`, `step_count=4`,
+      `failed_count=0`
+    - refreshed desktop/tablet/mobile Dashboard screenshots reviewed
+    - cleanup found no validation-owned browser/server leftovers
+
 - 2026-05-14: `PRJ-1217` polished Chat tablet transcript clearance:
   - task:
     - `.codex/tasks/PRJ-1217-chat-tablet-transcript-clearance.md`

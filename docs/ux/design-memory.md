@@ -15,6 +15,11 @@
   lines or compact UI rows instead of slash-separated prose. Preserve normal
   paragraph bodies for narrative cards, but split metric copy before it reaches
   awkward ellipses in desktop/tablet first viewports.
+- Compact dashboard metadata:
+  In narrow Dashboard rails, timestamp and activity metadata should use calmer
+  sentence-case UI typography with modest tracking. Avoid uppercase plus wide
+  letter spacing when the metadata needs to remain scanable in tablet/right-rail
+  columns.
 - Safe Markdown chat messages:
   Render transcript Markdown as semantic message content inside the existing
   chat bubble pattern, using escaped React-rendered elements for emphasis,

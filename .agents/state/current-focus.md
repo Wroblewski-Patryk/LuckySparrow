@@ -4,6 +4,17 @@ Last updated: 2026-05-14
 
 ## Active Focus
 
+The latest completed UI slice is `PRJ-1218`: Dashboard recent activity time
+readability is verified. Compact Dashboard `Recent Activity` timestamps now use
+calmer metadata typography in the narrow right rail, so tablet timestamps no
+longer break into awkward uppercase fragments. Desktop and mobile Dashboard
+screenshots remained stable. No backend, API, activity payload, timestamp
+helper, route contract, runtime, or deployment behavior changed. Validation
+passed with `npm run build`, `npm run audit:ui-responsive` (`route_count=14`,
+`viewport_count=3`, `screenshot_count=18`, `failed_count=0`), and `npm run
+audit:ui-navigation` (`status=ok`, `step_count=4`, `failed_count=0`). Cleanup
+found no validation-owned browser/server leftovers.
+
 The latest completed UI slice is `PRJ-1217`: Chat tablet transcript clearance
 is verified. Tablet-only CSS now tightens the transcript, numbered response
 cards, input tray, and scroll clearance so the long assistant route-smoke

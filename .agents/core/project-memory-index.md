@@ -48,6 +48,12 @@ Every inferred row must name its source and use a cautious status.
 
 ## Current High-Signal Entries
 
+- `PRJ-1218` verified Dashboard recent activity timestamp readability: compact
+  `Recent Activity` timestamps now use calmer metadata typography in narrow
+  right-rail contexts, removing awkward tablet uppercase fragmentation while
+  preserving desktop/mobile Dashboard layouts. Web build, responsive audit,
+  navigation audit, desktop/tablet/mobile Dashboard screenshot review, and
+  validation cleanup passed.
 - `PRJ-1217` verified Chat tablet transcript clearance: tablet-only CSS now
   tightens transcript/list-card/input spacing so the long assistant route-smoke
   answer clears the composer in the first viewport. Web build, responsive
