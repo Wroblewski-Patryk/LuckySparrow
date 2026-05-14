@@ -7498,6 +7498,24 @@ body {
   font-size: 0.8rem;
 }
 
+.aion-settings-save-action {
+  min-height: 3rem;
+  border-color: rgba(88, 133, 129, 0.2);
+  background: linear-gradient(135deg, rgba(104, 151, 147, 0.98), rgba(76, 127, 123, 0.96));
+  color: #fffdf8;
+  box-shadow: 0 16px 30px rgba(63, 110, 107, 0.16);
+}
+
+.aion-settings-save-action:hover:not(:disabled) {
+  border-color: rgba(76, 127, 123, 0.32);
+  background: linear-gradient(135deg, rgba(95, 143, 139, 0.99), rgba(69, 118, 115, 0.98));
+  box-shadow: 0 18px 34px rgba(63, 110, 107, 0.2);
+}
+
+.aion-settings-save-action:disabled {
+  opacity: 0.72;
+}
+
 .aion-settings-danger-panel {
   padding: 0;
   border-color: rgba(185, 77, 68, 0.18);

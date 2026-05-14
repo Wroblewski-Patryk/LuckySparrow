@@ -4,6 +4,28 @@ Last updated: 2026-05-14
 
 ## Project Status Dashboard (2026-05-14)
 
+- `PRJ-1221` is DONE:
+  - `.codex/tasks/PRJ-1221-settings-save-action-hierarchy.md`
+- result:
+  - Settings `Save settings` now uses a calm teal primary action instead of a
+    warning-like amber band
+  - reset runtime data remains visually distinct in the danger boundary
+  - no settings API, persistence, reset flow, auth, backend, route contract,
+    runtime behavior, or deployment behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - focused `/settings` route-smoke to `C:\tmp\prj1221-ui-responsive` ->
+    `screenshot_count=3`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> PASS
+  - refreshed desktop, tablet, and mobile Settings screenshots reviewed
+  - cleanup check -> no active `chrome-headless-shell`, no validation Node
+    processes, and no listener on `5173`
+- residual risk:
+  - future Settings secondary actions should keep destructive, warning, and
+    primary color semantics distinct
+
 - `PRJ-1220` is DONE:
   - `.codex/tasks/PRJ-1220-chat-mobile-assistant-width.md`
 - result:

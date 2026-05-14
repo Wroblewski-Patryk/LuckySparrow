@@ -4,6 +4,18 @@ Last updated: 2026-05-14
 
 ## Active Focus
 
+The latest completed UI slice is `PRJ-1221`: Settings save action hierarchy is
+verified. The `Save settings` submit action now uses a route-local calm teal
+primary style instead of a warning-like amber band, while the reset runtime
+data panel remains visually distinct as the danger boundary. No settings API,
+persistence, reset flow, auth, backend, route contract, runtime, or deployment
+behavior changed. Validation passed with `npm run build`, `npm run
+audit:ui-responsive` (`route_count=14`, `viewport_count=3`,
+`screenshot_count=18`, `failed_count=0`), focused `/settings` route-smoke to
+`C:\tmp\prj1221-ui-responsive` (`screenshot_count=3`, `failed_count=0`), and
+`npm run audit:ui-navigation`. Cleanup found no validation-owned
+browser/server leftovers.
+
 The latest completed UI slice is `PRJ-1220`: mobile Chat assistant response
 width is verified. Mobile assistant answers now use the full transcript width
 by hiding the decorative assistant avatar on narrow screens, while speaker

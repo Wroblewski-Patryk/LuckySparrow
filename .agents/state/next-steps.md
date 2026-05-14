@@ -4,6 +4,28 @@ Last updated: 2026-05-14
 
 ## NOW
 
+1. Continue from the Settings save action hierarchy checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1221-settings-save-action-hierarchy.md`
+   - result:
+     Settings `Save settings` now reads as a calm teal primary action instead
+     of a warning-like amber band, while reset runtime data remains clearly
+     separated as the danger boundary
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; focused `/settings` route-smoke to
+     `C:\tmp\prj1221-ui-responsive` PASS with `screenshot_count=3`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS; refreshed
+     desktop/tablet/mobile Settings screenshots reviewed; cleanup confirmed no
+     validation leftovers
+   - residual:
+     future Settings secondary actions should keep destructive, warning, and
+     primary color semantics distinct
+   - next smallest slice:
+     choose the next polish slice only from concrete screenshot evidence across
+     Dashboard, Chat, Tools, Settings, or another flagship route
+
 1. Continue from the mobile Chat assistant-width checkpoint:
    - task:
      `.codex/tasks/PRJ-1220-chat-mobile-assistant-width.md`

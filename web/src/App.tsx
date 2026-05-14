@@ -4895,7 +4895,7 @@ export default function App() {
                   </SettingsProactivePanel>
 
                   <SettingsSavePanel title={copy.settings.savedState} body={copy.settings.saveHint}>
-                    <button className="btn btn-primary" disabled={savingSettings} type="submit">
+                    <button className="btn btn-primary aion-settings-save-action" disabled={savingSettings} type="submit">
                       {savingSettings ? copy.common.saving : copy.common.save}
                     </button>
                   </SettingsSavePanel>

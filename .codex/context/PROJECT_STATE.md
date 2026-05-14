@@ -6,6 +6,25 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-14: `PRJ-1221` polished Settings save action hierarchy:
+  - task:
+    - `.codex/tasks/PRJ-1221-settings-save-action-hierarchy.md`
+  - result:
+    - Settings `Save settings` now uses a route-local calm teal primary action
+      instead of a warning-like amber band
+    - reset runtime data remains visually distinct in the danger boundary
+    - no settings API, persistence, reset flow, auth, backend, route contract,
+      runtime, or deployment behavior changed
+  - validation:
+    - `npm run build` in `web/` -> PASS
+    - `npm run audit:ui-responsive` -> `route_count=14`,
+      `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+    - focused `/settings` route-smoke to `C:\tmp\prj1221-ui-responsive` ->
+      `screenshot_count=3`, `failed_count=0`
+    - `npm run audit:ui-navigation` -> PASS
+    - refreshed desktop/tablet/mobile Settings screenshots reviewed
+    - cleanup found no validation-owned browser/server leftovers
+
 - 2026-05-14: `PRJ-1220` polished mobile Chat assistant response width:
   - task:
     - `.codex/tasks/PRJ-1220-chat-mobile-assistant-width.md`

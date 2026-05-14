@@ -43,6 +43,10 @@
   clear disclosure boundary by default. Safe daily settings should dominate
   the first read; confirmation fields and irreversible actions belong inside
   the expanded boundary.
+- Settings action color semantics:
+  Normal persistence actions should use the calm teal primary action language.
+  Reserve amber and red emphasis for warning, review, or destructive contexts
+  so save actions do not visually compete with reset boundaries.
 - Capability cards:
   Show current state, user control, and trust implications in one compact
   surface.

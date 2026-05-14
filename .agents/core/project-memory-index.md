@@ -48,6 +48,11 @@ Every inferred row must name its source and use a cautious status.
 
 ## Current High-Signal Entries
 
+- `PRJ-1221` verified Settings save action hierarchy: Settings `Save settings`
+  now uses a route-local calm teal primary style instead of warning-like amber,
+  while reset runtime data remains visually distinct. Web build, responsive
+  audit, focused `/settings` desktop/tablet/mobile route-smoke screenshot
+  review, navigation audit, and validation cleanup passed.
 - `PRJ-1220` verified mobile Chat assistant response width: mobile assistant
   answers now use the full transcript width by hiding the decorative avatar on
   narrow screens while preserving speaker metadata. Web build, responsive
