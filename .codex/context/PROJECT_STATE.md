@@ -6,6 +6,30 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-14: `PRJ-1227` polished desktop sidebar support rhythm:
+  - task:
+    - `.codex/tasks/PRJ-1227-desktop-sidebar-support-rhythm.md`
+  - result:
+    - authenticated desktop sidebar support cards now follow the navigation
+      stack with a modest canonical gap instead of being pushed to the
+      viewport bottom
+    - desktop routes now sit closer to
+      `docs/ux/assets/aviary-sidebar-layout-canonical-reference-v1.png`
+    - route definitions, route labels, route order, glyphs, mobile/tablet
+      route headers, account content, auth, API, backend, runtime, and
+      deployment behavior stayed unchanged
+  - validation:
+    - `npm run build` in `web/` -> PASS
+    - `npm run audit:ui-responsive` -> `route_count=14`,
+      `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+    - `npm run audit:ui-navigation` -> `step_count=4`, `failed_count=0`
+    - `node scripts/route-smoke.mjs --account-proof --report .codex/artifacts/prj1225-account-proof/report.json`
+      -> `account_proof.status=ok`, `step_count=1`, `failed_count=0`,
+      `panel_visible=true`
+    - refreshed desktop Dashboard, desktop Chat, and tablet Dashboard
+      screenshots reviewed
+    - cleanup found no validation-owned browser/server leftovers
+
 - 2026-05-14: `PRJ-1226` polished tablet route header rhythm:
   - task:
     - `.codex/tasks/PRJ-1226-tablet-route-header-rhythm.md`

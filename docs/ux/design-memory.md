@@ -131,6 +131,11 @@
   health card, signed-in identity card, and quiet aphorism closure as the
   reusable left spine for authenticated routes instead of route-local or
   analytics-style sidebars.
+- Desktop sidebar support rhythm:
+  On desktop, the sidebar support cards should continue the same vertical
+  rhythm as the navigation stack. Do not push `System Health`, identity, and
+  quote cards to the viewport bottom when the canonical sidebar reference shows
+  them following `Settings` with a modest gap.
 - Shared responsive navigation proof:
   Treat shared shell navigation changes as behavior changes, not only visual
   polish. Keep `npm run audit:ui-navigation` green when the desktop sidebar,

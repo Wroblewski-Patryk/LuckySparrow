@@ -3924,7 +3924,7 @@ export default function App() {
               onRouteChange={changeRoute}
             />
 
-            <div className="aion-sidebar-support-stack mt-auto">
+            <div className="aion-sidebar-support-stack">
               <section className="aion-panel-soft aion-rail-health aion-sidebar-support-card aion-sidebar-health-card">
                 <p className="aion-sidebar-health-title">System Health</p>
                 <div className="aion-rail-health-orb" aria-hidden="true">

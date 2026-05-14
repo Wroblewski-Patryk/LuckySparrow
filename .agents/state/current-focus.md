@@ -4,6 +4,22 @@ Last updated: 2026-05-14
 
 ## Active Focus
 
+The latest completed UI slice is `PRJ-1227`: desktop sidebar support rhythm is
+verified. Authenticated desktop sidebar support cards now follow the navigation
+stack with a modest canonical gap instead of being pushed to the viewport
+bottom, bringing the shared shell closer to
+`docs/ux/assets/aviary-sidebar-layout-canonical-reference-v1.png`. Route
+definitions, route labels, route order, glyphs, mobile/tablet route headers,
+account content, auth, API, backend, runtime, and deployment behavior stayed
+unchanged. Validation passed with `npm run build`, `npm run
+audit:ui-responsive` (`route_count=14`, `viewport_count=3`,
+`screenshot_count=18`, `failed_count=0`), `npm run audit:ui-navigation`
+(`step_count=4`, `failed_count=0`), and `--account-proof`
+(`account_proof.status=ok`, `step_count=1`, `failed_count=0`,
+`panel_visible=true`). Refreshed desktop Dashboard, desktop Chat, and tablet
+Dashboard screenshots were reviewed. Cleanup found no validation-owned
+browser/server leftovers.
+
 The latest completed UI slice is `PRJ-1226`: tablet route header rhythm is
 verified. Authenticated tablet headers now align the Aviary wordmark, route
 identity, and account trigger in one compact row above the shared route rail,

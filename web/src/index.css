@@ -1956,8 +1956,8 @@ body {
 .aion-sidebar-support-stack {
   display: grid;
   gap: 0.44rem;
-  margin-top: auto;
-  padding-top: 0.64rem;
+  margin-top: 1.05rem;
+  padding-top: 0;
 }
 
 .aion-sidebar-support-card {

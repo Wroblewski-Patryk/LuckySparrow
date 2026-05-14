@@ -48,6 +48,15 @@ Every inferred row must name its source and use a cautious status.
 
 ## Current High-Signal Entries
 
+- `PRJ-1227` verified desktop sidebar support rhythm: authenticated desktop
+  sidebar support cards now follow the navigation stack with a modest
+  canonical gap instead of being pushed to the viewport bottom. This moves the
+  shared shell closer to
+  `docs/ux/assets/aviary-sidebar-layout-canonical-reference-v1.png` without
+  changing route behavior, mobile/tablet headers, auth, APIs, backend, runtime,
+  or deployment. Web build, responsive audit, navigation audit, account proof,
+  and screenshot review passed.
+
 - `PRJ-1226` verified tablet route header rhythm: authenticated tablet
   headers now align the Aviary wordmark, route identity, and account trigger in
   one compact row above the shared route rail while phone mobile headers and

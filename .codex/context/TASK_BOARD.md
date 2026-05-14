@@ -4,6 +4,33 @@ Last updated: 2026-05-14
 
 ## Project Status Dashboard (2026-05-14)
 
+- `PRJ-1227` is DONE:
+  - `.codex/tasks/PRJ-1227-desktop-sidebar-support-rhythm.md`
+- result:
+  - authenticated desktop sidebar support cards now follow the navigation
+    stack with a modest canonical gap instead of being pushed to the viewport
+    bottom
+  - desktop routes now sit closer to
+    `docs/ux/assets/aviary-sidebar-layout-canonical-reference-v1.png`
+  - route definitions, route labels, route order, glyphs, mobile/tablet route
+    headers, account content, auth, API, backend, runtime, and deployment
+    behavior stayed unchanged
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `step_count=4`, `failed_count=0`
+  - `node scripts/route-smoke.mjs --account-proof --report .codex/artifacts/prj1225-account-proof/report.json`
+    -> `account_proof.status=ok`, `step_count=1`, `failed_count=0`,
+    `panel_visible=true`
+  - refreshed desktop Dashboard, desktop Chat, and tablet Dashboard screenshots
+    reviewed
+  - cleanup check -> no active `chrome-headless-shell`, no validation Node
+    processes, and no listener on `5173`
+- residual risk:
+  - sidebar card micro-details remain separate future polish if a dedicated
+    sidebar parity pass chooses them from screenshot comparison
+
 - `PRJ-1226` is DONE:
   - `.codex/tasks/PRJ-1226-tablet-route-header-rhythm.md`
 - result:
