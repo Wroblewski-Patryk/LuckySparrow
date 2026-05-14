@@ -4,6 +4,21 @@ Last updated: 2026-05-14
 
 ## Active Focus
 
+The latest completed UI slice is `PRJ-1228`: Dashboard desktop hero overlay
+parity is verified. Desktop Dashboard signal card columns now overlay the
+scenic figure stage instead of sitting as detached side columns, and
+desktop-only figure-note callouts are hidden inside the hero so the metric
+overlay becomes the primary canonical card language. Tablet/mobile Dashboard
+layout, route definitions, data values, route actions, API, backend, runtime,
+and deployment behavior stayed unchanged. Validation passed with `npm run
+build`, `npm run audit:ui-responsive` (`route_count=14`, `viewport_count=3`,
+`screenshot_count=18`, `failed_count=0`), `npm run audit:ui-navigation`
+(`step_count=4`, `failed_count=0`), and `--account-proof`
+(`account_proof.status=ok`, `step_count=1`, `failed_count=0`,
+`panel_visible=true`). Refreshed desktop, tablet, and mobile Dashboard
+screenshots were reviewed. Cleanup found no AION validation-owned
+browser/server leftovers.
+
 The latest completed UI slice is `PRJ-1227`: desktop sidebar support rhythm is
 verified. Authenticated desktop sidebar support cards now follow the navigation
 stack with a modest canonical gap instead of being pushed to the viewport

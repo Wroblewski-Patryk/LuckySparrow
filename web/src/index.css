@@ -7789,6 +7789,58 @@ body {
 
 }
 
+@media (min-width: 1200px) {
+  .aion-dashboard-hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aion-dashboard-hero-grid > .aion-dashboard-signal-column,
+  .aion-dashboard-hero-grid > .aion-dashboard-figure-stage {
+    grid-area: 1 / 1;
+  }
+
+  .aion-dashboard-figure-stage {
+    min-height: 22.9rem;
+  }
+
+  .aion-dashboard-hero-grid > .aion-dashboard-signal-column {
+    position: absolute;
+    z-index: 3;
+    width: min(12rem, 28%);
+    gap: 0.72rem;
+    pointer-events: none;
+  }
+
+  .aion-dashboard-hero-grid > .aion-dashboard-signal-column:first-child {
+    top: 1.35rem;
+    left: 1.25rem;
+  }
+
+  .aion-dashboard-hero-grid > .aion-dashboard-signal-column:last-child {
+    top: 1.35rem;
+    right: 1.25rem;
+  }
+
+  .aion-dashboard-hero-grid > .aion-dashboard-signal-column:first-child .aion-dashboard-signal-card::after,
+  .aion-dashboard-hero-grid > .aion-dashboard-signal-column:last-child .aion-dashboard-signal-card::after {
+    display: none;
+  }
+
+  .aion-dashboard-hero-grid .aion-dashboard-signal-card {
+    padding: 0.72rem 0.78rem 0.74rem;
+    background: rgba(255, 251, 245, 0.78);
+    box-shadow:
+      0 14px 28px rgba(78, 58, 43, 0.055),
+      inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  }
+
+  .aion-dashboard-hero-grid .aion-dashboard-figure-note {
+    display: none;
+  }
+}
+
 @media (max-width: 899px) {
   .aion-dashboard-stage,
   .aion-dashboard-flow-panel,

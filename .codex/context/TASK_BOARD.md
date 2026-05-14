@@ -4,6 +4,30 @@ Last updated: 2026-05-14
 
 ## Project Status Dashboard (2026-05-14)
 
+- `PRJ-1228` is DONE:
+  - `.codex/tasks/PRJ-1228-dashboard-desktop-hero-overlay-parity.md`
+- result:
+  - desktop Dashboard signal card columns now overlay the scenic figure stage
+    instead of sitting as detached side columns
+  - desktop-only figure-note callouts are hidden inside the Dashboard hero so
+    the metric overlay becomes the primary canonical card language
+  - tablet/mobile Dashboard layout, route definitions, data values, route
+    actions, API, backend, runtime, and deployment behavior stayed unchanged
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> `step_count=4`, `failed_count=0`
+  - `node scripts/route-smoke.mjs --account-proof --report .codex/artifacts/prj1225-account-proof/report.json`
+    -> `account_proof.status=ok`, `step_count=1`, `failed_count=0`,
+    `panel_visible=true`
+  - refreshed desktop, tablet, and mobile Dashboard screenshots reviewed
+  - cleanup check -> no active `chrome-headless-shell`, no AION validation Node
+    processes, and no listener on `5173`
+- residual risk:
+  - Dashboard still needs further 1:1 parity slices for lower card proportions,
+    top utility interpretation, and exact canonical density
+
 - `PRJ-1227` is DONE:
   - `.codex/tasks/PRJ-1227-desktop-sidebar-support-rhythm.md`
 - result:

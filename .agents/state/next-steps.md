@@ -4,6 +4,30 @@ Last updated: 2026-05-14
 
 ## NOW
 
+1. Continue from the Dashboard desktop hero overlay checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1228-dashboard-desktop-hero-overlay-parity.md`
+   - result:
+     desktop Dashboard signal card columns now overlay the scenic figure stage
+     instead of sitting as detached side columns; desktop-only figure-note
+     callouts are hidden so the metric overlay becomes the primary canonical
+     card language
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS with
+     `step_count=4`, `failed_count=0`;
+     `node scripts/route-smoke.mjs --account-proof --report .codex/artifacts/prj1225-account-proof/report.json`
+     PASS with `account_proof.status=ok`, `step_count=1`, `failed_count=0`,
+     `panel_visible=true`; refreshed desktop, tablet, and mobile Dashboard
+     screenshots reviewed; cleanup confirmed no AION validation leftovers
+   - residual:
+     Dashboard still needs further 1:1 parity slices for lower card
+     proportions, top utility interpretation, and exact canonical density
+   - next smallest slice:
+     continue Dashboard parity from concrete screenshot comparison, then return
+     to other flagship routes
+
 1. Continue from the desktop sidebar support rhythm checkpoint:
    - task:
      `.codex/tasks/PRJ-1227-desktop-sidebar-support-rhythm.md`

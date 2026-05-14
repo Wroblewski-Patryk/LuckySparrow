@@ -48,6 +48,13 @@ Every inferred row must name its source and use a cautious status.
 
 ## Current High-Signal Entries
 
+- `PRJ-1228` verified Dashboard desktop hero overlay parity: desktop
+  Dashboard signal card columns now overlay the scenic figure stage instead of
+  sitting as detached side columns, and desktop-only figure-note callouts are
+  hidden so the metric overlay becomes the primary canonical card language.
+  Web build, responsive audit, navigation audit, account proof, and
+  desktop/tablet/mobile Dashboard screenshot review passed.
+
 - `PRJ-1227` verified desktop sidebar support rhythm: authenticated desktop
   sidebar support cards now follow the navigation stack with a modest
   canonical gap instead of being pushed to the viewport bottom. This moves the

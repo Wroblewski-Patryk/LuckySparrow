@@ -120,6 +120,11 @@
   For `dashboard`, do not reuse the `personality` prop family such as the book,
   page, or writing tool. The dashboard hero should instead use guidance,
   orchestration, overview, and cognition-field symbols.
+- Dashboard desktop hero overlay:
+  On desktop Dashboard, signal and metric cards should read as overlays inside
+  the scenic hero stage, not as detached columns outside the image. Hide
+  competing desktop-only figure-note callouts when they make the hero feel less
+  like one continuous canonical composition.
 - Frame-first flagship shell:
   Keep the public and authenticated shells premium, inset, and composed, but
   do not simulate browser controls, title bars, or fake window chrome as part
