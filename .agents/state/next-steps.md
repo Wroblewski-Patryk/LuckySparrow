@@ -4,6 +4,28 @@ Last updated: 2026-05-14
 
 ## NOW
 
+1. Continue from the Tools integral status deduplication checkpoint:
+   - task:
+     `.codex/tasks/PRJ-1222-tools-integral-status-deduplication.md`
+   - result:
+     Tools item cards now hide the supplemental integral pill when it
+     duplicates the primary status label, so `Internal chat` shows one clear
+     `Always on` status while details remain visible
+   - proof:
+     `npm run build` PASS; `npm run audit:ui-responsive` PASS with
+     `route_count=14`, `viewport_count=3`, `screenshot_count=18`,
+     `failed_count=0`; focused `/tools` route-smoke to
+     `C:\tmp\prj1222-ui-responsive` PASS with `screenshot_count=3`,
+     `failed_count=0`; `npm run audit:ui-navigation` PASS; refreshed
+     desktop/tablet/mobile Tools screenshots reviewed; cleanup confirmed no
+     validation leftovers
+   - residual:
+     future tool state labels should avoid duplicate visible badges when status
+     and supplemental metadata carry the same text
+   - next smallest slice:
+     choose the next polish slice only from concrete screenshot evidence across
+     Dashboard, Chat, Tools, Settings, or another flagship route
+
 1. Continue from the Settings save action hierarchy checkpoint:
    - task:
      `.codex/tasks/PRJ-1221-settings-save-action-hierarchy.md`

@@ -211,6 +211,8 @@ function ToolsDirectoryItem({
         ? labels.enabledByUser
         : labels.disabledByUser
       : labels.readOnly;
+  const statusLabel = formatToolState(item.status, labels);
+  const showIntegralPill = item.integral && labels.integral.toLocaleLowerCase() !== statusLabel.toLocaleLowerCase();
 
   return (
     <section className={`aion-tools-item-card aion-tools-item-card-${toolTone}`}>
@@ -220,8 +222,8 @@ function ToolsDirectoryItem({
           <p className="text-sm leading-7 text-base-800">{item.description}</p>
         </div>
         <div className="aion-tools-status-stack">
-          <div className={`badge ${toolStatusClass(item.status)}`}>{formatToolState(item.status, labels)}</div>
-          {item.integral ? (
+          <div className={`badge ${toolStatusClass(item.status)}`}>{statusLabel}</div>
+          {showIntegralPill ? (
             <span className="aion-tools-integral-pill">{labels.integral}</span>
           ) : null}
         </div>

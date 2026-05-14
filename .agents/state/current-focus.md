@@ -4,6 +4,19 @@ Last updated: 2026-05-14
 
 ## Active Focus
 
+The latest completed UI slice is `PRJ-1222`: Tools integral status
+deduplication is verified. Tools item cards now hide the supplemental integral
+pill when it duplicates the primary status label, so `Internal chat` shows one
+clear `Always on` status while availability, provider, link state, current
+status, and control surfaces remain visible. No tools API, provider readiness
+logic, link state, toggle behavior, backend, route contract, runtime, or
+deployment behavior changed. Validation passed with `npm run build`, `npm run
+audit:ui-responsive` (`route_count=14`, `viewport_count=3`,
+`screenshot_count=18`, `failed_count=0`), focused `/tools` route-smoke to
+`C:\tmp\prj1222-ui-responsive` (`screenshot_count=3`, `failed_count=0`), and
+`npm run audit:ui-navigation`. Cleanup found no validation-owned
+browser/server leftovers.
+
 The latest completed UI slice is `PRJ-1221`: Settings save action hierarchy is
 verified. The `Save settings` submit action now uses a route-local calm teal
 primary style instead of a warning-like amber band, while the reset runtime

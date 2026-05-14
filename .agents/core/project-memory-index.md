@@ -48,6 +48,12 @@ Every inferred row must name its source and use a cautious status.
 
 ## Current High-Signal Entries
 
+- `PRJ-1222` verified Tools integral status deduplication: Tools item cards now
+  suppress supplemental integral pills when they duplicate the primary status
+  label, so `Internal chat` shows one clear `Always on` state while capability
+  details remain visible. Web build, responsive audit, focused `/tools`
+  desktop/tablet/mobile route-smoke screenshot review, navigation audit, and
+  validation cleanup passed.
 - `PRJ-1221` verified Settings save action hierarchy: Settings `Save settings`
   now uses a route-local calm teal primary style instead of warning-like amber,
   while reset runtime data remains visually distinct. Web build, responsive

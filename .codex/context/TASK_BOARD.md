@@ -4,6 +4,29 @@ Last updated: 2026-05-14
 
 ## Project Status Dashboard (2026-05-14)
 
+- `PRJ-1222` is DONE:
+  - `.codex/tasks/PRJ-1222-tools-integral-status-deduplication.md`
+- result:
+  - Tools item cards now hide the supplemental integral pill when it duplicates
+    the primary status label
+  - `Internal chat` shows one clear `Always on` status while availability,
+    provider, link state, current status, and control surfaces remain visible
+  - no tools API, provider readiness logic, link state, toggle behavior,
+    backend, route contract, runtime behavior, or deployment behavior changed
+- validation:
+  - `npm run build` in `web/` -> PASS
+  - `npm run audit:ui-responsive` -> `route_count=14`,
+    `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+  - focused `/tools` route-smoke to `C:\tmp\prj1222-ui-responsive` ->
+    `screenshot_count=3`, `failed_count=0`
+  - `npm run audit:ui-navigation` -> PASS
+  - refreshed desktop, tablet, and mobile Tools screenshots reviewed
+  - cleanup check -> no active `chrome-headless-shell`, no validation Node
+    processes, and no listener on `5173`
+- residual risk:
+  - future tool state labels should avoid duplicate visible badges when status
+    and supplemental metadata carry the same text
+
 - `PRJ-1221` is DONE:
   - `.codex/tasks/PRJ-1221-settings-save-action-hierarchy.md`
 - result:

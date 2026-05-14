@@ -50,6 +50,10 @@
 - Capability cards:
   Show current state, user control, and trust implications in one compact
   surface.
+- Tool status badges:
+  Avoid showing two visible badges with the same localized meaning on a tool
+  card. The primary status badge should carry the state; supplemental metadata
+  pills should appear only when they add distinct information.
 - Embodied cognition motif:
   Use one humane synthetic figure, anchored pins, and timeline rails to map
   internal cognition concepts into memorable product visuals without turning the shell into a

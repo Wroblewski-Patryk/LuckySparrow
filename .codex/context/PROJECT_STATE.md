@@ -6,6 +6,26 @@ Project alias: the product is called Aviary. The repository folder remains
 `Personality` until the folder is renamed. Treat `Aviary` and `Personality` as
 the same project.
 
+- 2026-05-14: `PRJ-1222` polished Tools integral status deduplication:
+  - task:
+    - `.codex/tasks/PRJ-1222-tools-integral-status-deduplication.md`
+  - result:
+    - Tools item cards now hide the supplemental integral pill when it
+      duplicates the primary status label
+    - `Internal chat` shows one clear `Always on` status while availability,
+      provider, link state, current status, and control surfaces remain visible
+    - no tools API, provider readiness logic, link state, toggle behavior,
+      backend, route contract, runtime, or deployment behavior changed
+  - validation:
+    - `npm run build` in `web/` -> PASS
+    - `npm run audit:ui-responsive` -> `route_count=14`,
+      `viewport_count=3`, `screenshot_count=18`, `failed_count=0`
+    - focused `/tools` route-smoke to `C:\tmp\prj1222-ui-responsive` ->
+      `screenshot_count=3`, `failed_count=0`
+    - `npm run audit:ui-navigation` -> PASS
+    - refreshed desktop/tablet/mobile Tools screenshots reviewed
+    - cleanup found no validation-owned browser/server leftovers
+
 - 2026-05-14: `PRJ-1221` polished Settings save action hierarchy:
   - task:
     - `.codex/tasks/PRJ-1221-settings-save-action-hierarchy.md`
